@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="alwaysUseFullPath" value="true"/>
+        <property name="urlMap">
+            <map>
+                <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
+                <entry key="/**" value-ref="jcrRepositoryController"/>
+                <entry key="/**/search">
+                    <bean class="org.systemsbiology.addama.rest.JcrSearchController" autowire="byType"/>
+                </entry>
+                <entry key="/**/labels" value-ref="jcrLabelsController"/>
+                <entry key="/**/dir" value-ref="jcrDirectoryController"/>
+
+                <entry key="/**/isExisting" value-ref="isResourceExistingController"/>
+
+                <entry key="/**/file/**">
+                    <bean class="org.systemsbiology.addama.rest.JcrFileController" autowire="byType">
+                        <property name="fileAppender">
+                            <bean class="org.systemsbiology.addama.jcr.util.AddamaFileAppender"/>
+                        </property>
+                    </bean>
+                </entry>
+
+                <entry key="/**/path/**/dir" value-ref="jcrDirectoryController"/>
+                <entry key="/**/uuid/*/dir" value-ref="jcrDirectoryController"/>
+
+                <entry key="/**/path/**/meta" value-ref="jcrMetaController"/>
+                <entry key="/**/uuid/*/meta" value-ref="jcrMetaController"/>
+
+                <entry key="/**/path/**/structured" value-ref="jcrStructuredController"/>
+                <entry key="/**/uuid/*/structured" value-ref="jcrStructuredController"/>
+
+                <entry key="/**/path/**/parent" value-ref="jcrParentController"/>
+                <entry key="/**/uuid/*/parent" value-ref="jcrParentController"/>
+
+                <entry key="/**/annotations" value-ref="jcrAnnotationsController"/>
+                <entry key="/**/path/**/annotations" value-ref="jcrAnnotationsController"/>
+                <entry key="/**/uuid/*/annotations" value-ref="jcrAnnotationsController"/>
+                <entry key="/**/path/**/annotations/terms" value-ref="jcrAnnotationsController"/>
+                <entry key="/**/uuid/*/annotations/terms" value-ref="jcrAnnotationsController"/>
+
+                <entry key="/**/path/**/labels" value-ref="jcrLabelsController"/>
+                <entry key="/**/uuid/**/labels" value-ref="jcrLabelsController"/>
+                <entry key="/**/path/**/labels/append" value-ref="jcrLabelsController"/>
+                <entry key="/**/uuid/**/labels/append" value-ref="jcrLabelsController"/>
+
+                <entry key="/**/path/**/create" value-ref="jcrCrudController"/>
+                <entry key="/**/path/**/delete" value-ref="jcrCrudController"/>
+                <entry key="/**/uuid/*/delete" value-ref="jcrCrudController"/>
+
+                <entry key="/**/path/**" value-ref="jcrCrudController"/>
+                <entry key="/**/uuid/*" value-ref="jcrCrudController"/>
+            </map>
+        </property>
+        <property name="interceptors">
+            <list>
+                <bean class="org.systemsbiology.addama.jcr.support.JcrTemplateProvider" autowire="byType"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Controllers -->
+    <bean id="jcrCrudController" class="org.systemsbiology.addama.rest.JcrCrudController" autowire="byType"/>
+
+    <bean id="jcrAnnotationsController" class="org.systemsbiology.addama.rest.JcrAnnotationsController"
+          autowire="byType"/>
+
+    <bean id="jcrLabelsController" class="org.systemsbiology.addama.rest.JcrLabelsController" autowire="byType"/>
+
+    <bean id="jcrRepositoryController" class="org.systemsbiology.addama.rest.JcrRepositoryController"
+          autowire="byType"/>
+
+    <bean id="jcrMetaController" class="org.systemsbiology.addama.rest.JcrMetaController" autowire="byType"/>
+
+    <bean id="jcrDirectoryController" class="org.systemsbiology.addama.rest.JcrDirectoryController" autowire="byType"/>
+
+    <bean id="jcrStructuredController" class="org.systemsbiology.addama.rest.JcrStructuredController"
+          autowire="byType"/>
+
+    <bean id="jcrParentController" class="org.systemsbiology.addama.rest.JcrParentController" autowire="byType"/>
+
+    <bean id="isResourceExistingController" class="org.systemsbiology.addama.rest.IsResourceExistingController"
+          autowire="byType"/>
+
+</beans>
