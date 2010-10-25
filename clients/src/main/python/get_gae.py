@@ -22,6 +22,8 @@ def doGet(configFile, uri):
     try:
         print json.dumps(json.JSONDecoder().decode(output), sort_keys=True, indent=4)
     except:
+        print "generating file for " + uri
+        
         filestart = uri.rfind("/") + 1
         fileend = len(uri)
         filename = uri[filestart:fileend]
