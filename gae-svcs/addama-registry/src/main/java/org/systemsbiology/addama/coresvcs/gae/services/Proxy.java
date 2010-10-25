@@ -84,9 +84,6 @@ public class Proxy {
         } catch (ResponseTooLargeException e) {
             log.info("doAction(" + request.getRequestURI() + "," + accessKey + "): " + e + ": redirecting instead");
             doRedirect(request, response, targetUrl, accessKey);
-        } catch (IOException e) {
-            log.info("doAction(" + request.getRequestURI() + "," + accessKey + "): " + e + ": redirecting instead");
-            doRedirect(request, response, targetUrl, accessKey);
         }
     }
 
@@ -150,7 +147,7 @@ public class Proxy {
         Enumeration headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = (String) headerNames.nextElement();
-            if (!isApiKeyHeader(headerName)) {
+            if (!StringUtils.equalsIgnoreCase("x-addama-apikey", headerName)) {
                 String headerValue = request.getHeader(headerName);
                 headerValue = StringUtils.replace(headerValue, "\n", "");
                 headerValue = StringUtils.replace(headerValue, "\r", "");
@@ -243,15 +240,5 @@ public class Proxy {
             apikey = request.getHeader("API_KEY"); // todo : deprecated
         }
         return apiKeys.getUserUriFromApiKey(apikey);
-    }
-
-    private boolean isApiKeyHeader(String headerName) {
-        if (StringUtils.equalsIgnoreCase("x-addama-apikey", headerName)) {
-            return true;
-        }
-        if (StringUtils.equalsIgnoreCase("API_KEY", headerName)) { // todo : deprecated
-            return true;
-        }
-        return false;
     }
 }
