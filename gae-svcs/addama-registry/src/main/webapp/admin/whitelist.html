@@ -1,0 +1,254 @@
+<html>
+<head>
+    <title>Add Users to White List for Addama</title>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+
+    <script type="text/javascript">
+        var whitelistStore = new Ext.data.ArrayStore({
+            fields: [ {name: "user"},{name: "uri"} ]
+        });
+         var requestAccessStore = new Ext.data.ArrayStore({
+            fields: [ {name: "user"}, {name: "uri"} ]
+        });
+
+        var fpAddUser = null;
+        var userWindow = null;
+
+        Ext.onReady(function() {
+            var grid = new Ext.grid.GridPanel({
+                store: whitelistStore,
+                title: "White List",
+                tbar: [],
+                columns: [
+                        { header: "Uri", width: 300, sortable: true, dataIndex: "uri"
+                    },
+                    { header: "User", width: 300, sortable: true, dataIndex: "user",
+                        renderer: function(value) {
+                            return value.replace("/addama/users/", "");
+                        }
+                    }
+
+                ],
+                sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
+                stripeRows: true,
+                autoHeight: true,
+                width: 600,
+                style: "padding:10px;"
+            });
+            grid.render("container_existing_whitelist");
+
+            var grid2 = new Ext.grid.GridPanel({
+                store: requestAccessStore,
+                title: "Users Requesting Access",
+                tbar: [],
+                sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
+                columns: [
+                         { header: "Uri", width: 300, sortable: true, dataIndex: "uri"
+                    },
+                    { header: "User", width: 300, sortable: true, dataIndex: "user",
+                        renderer: function(value) {
+                            return value.replace("/addama/users/", "");
+                        }
+                    }
+                ],
+                style: "padding:10px;",
+                stripeRows: true,
+                autoHeight: true,
+                width: 600
+
+            });
+            grid2.render("container_requestaccess_whitelist");
+
+            var panel = new Ext.Panel({
+                width: 620,
+                height: 700,
+                title: "User White List Admin",
+                bodyStyle: "padding:10px;",
+                defaults: { frame: true, autoScroll: true, style: "padding:10px;"},
+                items: [
+                    grid,
+                    grid2
+                ],
+                renderTo: Ext.getBody()
+            });
+
+            var tb = grid.getTopToolbar();
+            tb.add(new Ext.Button(new Ext.Action({
+                text: "Add User", handler: addNewUser
+            })));
+            tb.add({xtype: 'tbspacer'});
+            tb.add({xtype: 'tbseparator'});
+            tb.add(new Ext.Button(new Ext.Action({
+                text: "Delete User Entry", handler: function(){deleteUserEntry(grid)}
+            })));
+            tb.doLayout();
+
+            var tb2 = grid2.getTopToolbar();
+            tb2.add(new Ext.Button(new Ext.Action({
+                text: "Grant Access", handler: function(){grantUserAccess(grid2)}
+            })));
+            tb2.add({xtype: 'tbspacer'});
+            tb2.add({xtype: 'tbseparator'});
+            tb2.add(new Ext.Button(new Ext.Action({
+                text: "Delete User Entry", handler: function(){deleteUserEntry(grid2)}
+            })));
+            tb2.doLayout();
+
+            loadWhiteList();
+        });
+
+        function deleteUserEntry(gridPanel){
+            var selectedRecord = gridPanel.getSelectionModel().getSelected();
+            var email = selectedRecord.get("user");
+            var requestedUri = selectedRecord.get("uri");
+            Ext.Ajax.request({
+                url: "/addama/whitelist/"+email+"/delete",
+                method: "POST",
+                params: {
+                    uri: requestedUri
+                },
+                success: function(o) {
+                    Ext.MessageBox.show({
+                       title: "Status",
+                       msg: "User deleted successfully",
+                       buttons: Ext.MessageBox.OK
+                   });
+                   loadWhiteList();
+                },
+                failure: handleFailure
+            });
+        }
+
+        function grantUserAccess(gridPanel){
+            var selectedRecord = gridPanel.getSelectionModel().getSelected();
+            var email = selectedRecord.get("user");
+            var requestedUri = selectedRecord.get("uri");
+            Ext.Ajax.request({
+                url: "/addama/whitelist/"+email+"/grantaccess",
+                method: "POST",
+                params: {
+                    uri: requestedUri
+                },
+                success: function(o) {
+                    Ext.MessageBox.show({
+                       title: "Status",
+                       msg: "User updated successfully",
+                       buttons: Ext.MessageBox.OK
+                   });
+                   loadWhiteList();
+                },
+                failure: handleFailure
+            });
+        }
+        
+        function loadWhiteList() {
+            Ext.MessageBox.show({
+                msg: "Loading White List, please wait...",
+                progressText: "Loading...",
+                width:300,
+                wait:true,
+                waitConfig: {interval:200}
+            });
+
+            Ext.Ajax.request({
+                url: "/addama/whitelist",
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.items) {
+                        var whitelistData = [];
+                        var requestAccessData = [];
+                        for (var i = 0; i < json.items.length; i++) {
+                            var item = json.items[i];
+                            if(item.hasAccess == "true") {
+                                whitelistData[whitelistData.length] = [item.user,item.uri];
+                            } else {
+                                requestAccessData[requestAccessData.length] = [item.user,item.uri];
+                            }
+                        }
+                        whitelistStore.loadData(whitelistData);
+                        requestAccessStore.loadData(requestAccessData);
+
+                        Ext.MessageBox.hide();
+                    }
+                },
+                failure: handleFailure
+            });
+        }
+
+        function addNewUser() {
+            fpAddUser = new Ext.FormPanel({
+                width: 400,
+                frame: true,
+                autoHeight: true,
+                bodyStyle: 'padding: 10px 10px 0 10px;',
+                method: 'POST',
+                standardSubmit: true,
+                items: [
+                        {
+                    xtype: 'textfield',
+                    fieldLabel: "Uri",
+                    name: "urilabel",
+                    allowBlank:false,
+                    id:"uriLabel"
+                },
+                    {
+                    xtype: 'textfield',
+                    fieldLabel: "User Email",
+                    name: "label",
+                    allowBlank:false,
+                    id:"emailLabel"
+                }],
+                buttons: [{
+                    text: 'Submit',
+                    handler: function(){
+                        if(fpAddUser.getForm().isValid()){
+                            Ext.Ajax.request({
+                                url: "/addama/whitelist/" + Ext.getDom("emailLabel").value,
+                                method: "POST",
+                                params: {
+                                    uri: Ext.getDom("uriLabel").value
+                                },
+                                success: function(o) {
+                                    userWindow.close();
+                                    loadWhiteList();
+                                },
+                                failure: handleFailure
+                            });
+                        }
+                    }
+                }]
+            });
+
+            userWindow = new Ext.Window({
+                width:400,
+                autoHeight:true,
+                title: 'Add New User',
+                items: fpAddUser,
+                frame: true
+            }).show();
+
+        }
+
+        function handleFailure(o, e) {
+            Ext.MessageBox.show({
+                title: "Errors Submitting Request",
+                msg: o + "<br/>" + e,
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <div id="container_toolbar"></div>
+
+    <div id="container_existing_whitelist"></div>
+    <div id="container_requestaccess_whitelist"></div>
+
+</body>
+</html>

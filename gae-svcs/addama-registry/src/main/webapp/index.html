@@ -1,0 +1,136 @@
+<html>
+<head>
+    <title>Addama</title>
+
+    <style type="text/css">
+        #main-panel td {
+            padding: 5px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="/js/topbar.js"></script>
+
+    <script type="text/javascript">
+        var items = [];
+
+        Ext.onReady(function() {
+            new TopBar().initialize("container_topbar", {
+                items: [
+                    { uri: "/addama/tools", label: "Tools" },
+                    { uri: "/addama/applications", label: "Applications" }
+                ]
+            });
+
+            new Ext.Panel({
+                id:'main-panel',
+                baseCls:'x-plain',
+                renderTo: "container",
+                layout:'table',
+                layoutConfig: {columns:3},
+                defaults: {frame:true, width:400, height: 150, autoScroll: true},
+                items:[
+                    { title:'Welcome to the Addama Registry', contentEl: 'container_welcome' },
+                    { title:'Services', contentEl: 'container_services' },
+                    { title:'Repositories', contentEl: 'container_repositories' },
+
+                    { title:'Useful Links', contentEl: 'container_links' },
+                    { title:'Applications', contentEl: 'container_apps'},
+                    { title:'Datasources', contentEl: 'container_datasources' },
+
+                    { title:'Service Details', contentEl: 'container_details' },
+                    { title:'Tools', contentEl: 'container_tools' },
+                    { title:'Indexes', contentEl: 'container_indexes' }
+                ]
+            });
+
+            load_page();
+        });
+
+        function load_page() {
+            load_uri("/addama/services", "container_services", true);
+            load_uri("/addama/applications", "container_apps", true);
+            load_uri("/addama/tools", "container_tools", true);
+            load_uri("/addama/repositories", "container_repositories", false);
+            load_uri("/addama/datasources", "container_datasources", false);
+            load_uri("/addama/indexes", "container_indexes", false);
+        }
+
+        function load_uri(itemsUri, containerId, showLinks) {
+            Ext.Ajax.request({
+                url: itemsUri,
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.numberOfItems) {
+                        var html = "";
+                        for (var i = 0; i < json.items.length; i++) {
+                            var item = json.items[i];
+                            items[item.uri]=item;
+                            html += "<li>";
+                            html += "<a href='#' onclick='showDetails(\"" + item.uri + "\"," + showLinks + "); return false;'>" + item.label + "</a>";
+                            html += "</li>";
+
+                        }
+                        Ext.get(containerId).dom.innerHTML = "<ul>" + html + "</ul>";
+                    }
+                }
+            });
+        }
+
+        function showDetails(itemUri, showLink) {
+            var item = items[itemUri];
+            var html = "";
+            html += "Label: " + item.label;
+            html += "<br/>";
+            html += "URI: " + item.uri;
+            html += "<br/>";
+            if (item.url) {
+                html += "Service URL: " + item.url;
+                html += "<br/>";
+            }
+            if (item.service) {
+                html += "Service URI: " + item.service;
+                html += "<br/>";
+            }
+            if (item.action) {
+                html += "Action: " + item.action;
+                html += "<br/>";
+            }
+            if (showLink) {
+                html += "<a href='" + item.uri + "' target='_blank'>Open in new window</a>";
+                html += "<br/>";
+            }
+            Ext.get("container_details").dom.innerHTML = html;
+        }
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="container">
+    <div id="container_welcome">
+        <span>These are all of the services, tools and applications that are registered within this Addama domain.</span>
+    </div>
+    <div id="container_links">
+        <ul>
+            <li><a href="/addama/ui/datasources.html" target="_blank">Query Databases</a></li>
+            <li><a href="/admin/apikeys.html" target="_blank">Generate API Keys</a></li>
+            <li><a href="/admin/whitelist.html" target="_blank">Manage User Access</a> </li>
+            <li><a href="/testing.html" target="_blank">Test Page</a></li>
+        </ul>
+    </div>
+    <div id="container_details">Service Details</div>
+
+    <div id="container_services">/addama/services</div>
+    <div id="container_apps">/addama/applications</div>
+    <div id="container_tools">/addama/tools</div>
+
+    <div id="container_repositories">/addama/repositories</div>
+    <div id="container_datasources">/addama/datasources</div>
+    <div id="container_indexes">/addama/indexes</div>
+</div>
+<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine"/>
+</body>
+</html>

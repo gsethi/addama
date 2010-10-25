@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.systemsbiology.addama</groupId>
+    <artifactId>addama</artifactId>
+    <packaging>pom</packaging>
+    <version>2.0</version>
+    <url>http://apps.systemsbiology.org/addama</url>
+    <scm>
+        <connection>scm:svn:http://svn.systemsbiology.net/repos/informatics/addama/branches/addama-2.0-alpha
+        </connection>
+        <developerConnection>scm:svn+ssh://informatics-svcs/local/svn/infocore/addama/branches/addama-2.0-alpha
+        </developerConnection>
+        <url>http://svn.systemsbiology.net</url>
+    </scm>
+    <licenses>
+        <license>
+            <url>http://informatics.systemsbiology.net/informatics/license</url>
+        </license>
+    </licenses>
+    <name>Addama - 2.0 Alpha</name>
+    <description>
+        Adaptive Data Management Service Architecture
+    </description>
+
+    <modules>
+        <module>commons</module>
+        <module>apis</module>
+        <module>local-svcs</module>
+        <module>gae-svcs</module>
+        <module>user-interfaces</module>
+    </modules>
+
+    <developers>
+        <developer>
+            <id>aeakin</id>
+            <email>aeakin@systemsbiology.org</email>
+            <name>Andrea Eakin</name>
+            <organization>Research Informatics Group</organization>
+            <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
+            <roles>
+                <role>Software Engineer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>skillcoyne</id>
+            <email>skillcoyne@systemsbiology.org</email>
+            <name>Sarah Killcoyne</name>
+            <organization>Research Informatics Group</organization>
+            <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
+            <roles>
+                <role>Software Engineer</role>
+                <role>Project Manager</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>rkreisberg</id>
+            <email>rkreisberg@systemsbiology.org</email>
+            <name>Dick Kreisberg</name>
+            <organization>Research Informatics Group</organization>
+            <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
+            <roles>
+                <role>Software Engineer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>jlin</id>
+            <email>jlin@systemsbiology.org</email>
+            <name>Jake Lin</name>
+            <organization>Research Informatics Group</organization>
+            <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
+            <roles>
+                <role>Software Engineer</role>
+                <role>Integration Specialist</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>hrovira</id>
+            <email>hrovira@systemsbiology.org</email>
+            <name>Hector Rovira</name>
+            <organization>Research Informatics Group</organization>
+            <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
+            <roles>
+                <role>Senior Software Engineer</role>
+                <role>Software Architect</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.4.2</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>2.5.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <jdkName>${java.version}</jdkName>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>informatics.systemsbiology.net</id>
+            <name>informatics maven repository</name>
+            <url>http://informatics.systemsbiology.net/artifactory/releases</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <repository>
+            <id>informatics.systemsbiology.net</id>
+            <name>informatics maven repository</name>
+            <url>http://informatics.systemsbiology.net/artifactory/releases</url>
+        </repository>
+    </distributionManagement>
+</project>

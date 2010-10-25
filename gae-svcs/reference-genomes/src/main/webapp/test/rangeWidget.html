@@ -1,0 +1,44 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+
+    <script type="text/javascript" src="/js/rangeWidget.js"></script>
+    <script type="text/javascript">
+        var rangeWidget = null;
+
+        function startRangeWidget() {
+            rangeWidget = new RangeWidget(Ext.getDom("container_widgettest"));
+            rangeWidget.addEventListener(showChromosomeUri);
+        }
+
+        function showChromosomeUri(eventContent) {
+            Ext.getDom("container_chromuri").innerHTML = eventContent.chromosomeUri;
+            Ext.Ajax.request({
+                url: eventContent.chromosomeUri + "/sequence",
+                method: "get",
+                success: function(o) {
+                    Ext.getDom("container_sequence").innerHTML = o.responseText;
+                }
+            });
+        }
+
+        Event.observe(window, "load", startRangeWidget);
+    </script>
+</head>
+<body>
+<h3>Chromosome Slider</h3>
+
+<div id="container_widgettest"></div>
+
+<h3>Selected Chromosome Range URI</h3>
+
+<div id="container_chromuri"></div>
+
+<h3>Selected Chromosome Range Sequence</h3>
+
+<div id="container_sequence"></div>
+</body>
+</html>
