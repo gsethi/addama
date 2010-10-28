@@ -269,7 +269,7 @@ public class CreateOrUpdateNode {
     }
 
     private void tagCreatedOrModified(Node node) throws RepositoryException {
-        if (node.hasProperty(created_by.word())) {
+        if (node.hasProperty(created_at.word())) {
             node.setProperty(last_modified_at.word(), currentDate);
         } else {
             node.setProperty(created_at.word(), currentDate);
