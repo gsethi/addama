@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+  
+  <!-- Register Annotation-based Post Processing Beans -->
+  <context:annotation-config />
+  
+  <!-- normal repository -->
+  <bean id="repository"
+        class="org.springmodules.jcr.jackrabbit.RepositoryFactoryBean"
+        p:configuration="classpath:/jackrabbit-testrepo.xml"
+        p:homeDir="file:./target/testdata/testjcrrepo" />
+  
+  <bean id="sessionFactory" class="org.springmodules.jcr.JcrSessionFactory">
+    <property name="repository" ref="repository"/>
+    <property name="credentials">
+      <bean class="javax.jcr.SimpleCredentials">
+        <constructor-arg index="0" value="foo"/>
+        <constructor-arg index="1">
+          <bean factory-bean="repoPassword" factory-method="toCharArray"/>
+        </constructor-arg>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="repoPassword" class="java.lang.String">
+    <constructor-arg index="0" type="java.lang.String" value="bar"/>
+  </bean>
+  
+  <bean id="jcrTemplate"
+        class="org.springmodules.jcr.JcrTemplate"
+        p:sessionFactory-ref="sessionFactory"
+        p:allowCreate="true" />
+  
+</beans>
+            
