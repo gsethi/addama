@@ -114,6 +114,7 @@
 
     </dependencies>
 
+    <!-- Profiles -->
     <profiles>
         <profile>
             <id>dev</id>
