@@ -1,0 +1,168 @@
+<html>
+<head>
+    <title>Generate API Keys for Addama</title>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="/js/topbar.js"></script>
+    
+    <script type="text/javascript">
+        var apikeyStore = new Ext.data.ArrayStore({
+            fields: [ {name: "apikey"}, {name: "user"}, {name: "isAdmin", type: "boolean"} ]
+        });
+
+        Ext.onReady(function() {
+            var topbar = new TopBar();
+            topbar.onWhoami(function(json) {
+                var html = "";
+                if (json.isAdmin) {
+                    html += "<li><a href='/addama/apikeys/addama.properties' target='_blank'>Download addama.properties File</a></li>";
+                }
+                html += "<li><a href='/addama/apikeys/addama.config' target='_blank'>Download Addama Python Configuration File</a></li>";
+                Ext.getDom("container_properties").innerHTML = "<ul>" + html + "</ul>";
+            });
+            topbar.initialize("container_topbar");
+
+            var grid = new Ext.grid.GridPanel({
+                store: apikeyStore,
+                columns: [
+                    { id: "apikey", header: "API Key", width: 200, sortable: false, dataIndex: "apikey"},
+                    { header: "User", width: 200, sortable: true, dataIndex: "user",
+                        renderer: function(value) {
+                            return value.replace("/addama/users/", "");
+                        }
+                    },
+                    { header: "Is Admin", width: 200, sortable: true, dataIndex: "isAdmin", 
+                        renderer: function(value) {
+                            if (value) {
+                                return "Yes";
+                            }
+                        }
+                    }
+                ],
+                stripeRows: true,
+                width: 600,
+                height: 400,
+                stateful: true,
+                stateId: "grid"
+            });
+            grid.render("container_existing_apikeys");
+
+            var panel = new Ext.Panel({
+                title: "API Keys",
+                width: 700,
+                height: 700,
+                bodyStyle: "padding:10px;",
+                tbar: [],
+                items: [
+                    grid,
+                    new Ext.Panel({
+                        applyTo: "container_generate_apikey"
+                    })
+                ],
+                bbar: [
+                    new Ext.Panel({
+                        applyTo: "container_footer"
+                    })
+                ],
+                renderTo: Ext.getBody()
+            });
+
+            var tb = panel.getTopToolbar();
+            tb.add(new Ext.Button(new Ext.Action({
+                text: "Generate API Key", handler: generateNewApiKey
+            })));
+            tb.add(new Ext.Button(new Ext.Action({
+                text: "Load Existing API Keys", handler: loadExistingApiKeys
+            })));
+            tb.doLayout();
+
+            loadExistingApiKeys();
+        });
+
+        function loadExistingApiKeys() {
+            Ext.MessageBox.show({
+                msg: "Loading Existing API Keys, please wait...",
+                progressText: "Loading...",
+                width:300,
+                wait:true,
+                waitConfig: {interval:200}
+            });
+
+            Ext.Ajax.request({
+                url: "/addama/apikeys",
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.items) {
+                        var apikeyData = [];
+                        for (var i = 0; i < json.items.length; i++) {
+                            var item = json.items[i];
+                            apikeyData[i] = [item.apikey, item.user, item.isAdmin];
+                        }
+                        apikeyStore.loadData(apikeyData);
+
+                        Ext.MessageBox.hide();
+                    }
+                },
+                failure: handleFailure
+            });
+        }
+
+        function generateNewApiKey() {
+            Ext.MessageBox.show({
+                msg: "Generating New API Key, please wait...",
+                progressText: "Generating...",
+                width:300,
+                wait:true,
+                waitConfig: {interval:200}
+            });
+            
+            Ext.Ajax.request({
+                url: "/addama/apikeys",
+                method: "POST",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    Ext.get("container_generate_apikey").dom.innerHTML = "New API Key: " + json.apikey;
+                    Ext.MessageBox.hide();
+
+                    loadExistingApiKeys();
+                },
+                failure: handleFailure
+            });
+        }
+
+        function handleFailure(o, e) {
+            Ext.MessageBox.show({
+                title: "Errors Submitting Request",
+                msg: o + "<br/>" + e,
+                buttons: Ext.MessageBox.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <div id="container_topbar"></div>
+
+    <div id="container_toolbar"></div>
+
+    <div id="container_existing_apikeys"></div>
+
+    <div id="container_footer">
+        Generated API Keys may be deleted by a domain administrators through the AppEngine Administration Console / Datastore Viewer
+    </div>
+
+    <div id="container_generate_apikey">
+    </div>
+
+    <div id="container_properties">
+        <ul>
+            <li><a href="/addama/apikeys/addama.properties" target="_blank">Download addama.properties File</a></li>
+            <li><a href="/addama/apikeys/addama.config" target="_blank">Download Addama Python Configuration File</a></li>
+        </ul>        
+    </div>
+</body>
+</html>

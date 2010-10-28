@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>Addama Channels Service</title>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="/js/topbar.js"></script>
+
+    <script type="text/javascript" src="http://talkgadget.google.com/talkgadget/channel.js"></script>
+    
+    <script type="text/javascript">
+        var channelUri;
+
+        function startListen() {
+            Ext.Ajax.request({
+                url: channelUri,
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.channel_id) {
+                        var channel = new goog.appengine.Channel(json.channel_id);
+                        var socket = channel.open();
+                        socket.onmessage = function(evt) {
+                            Ext.getDom("container_events").innerHTML += "<br/>" + evt.data;
+                        };
+                    }
+                }
+            });
+        }
+
+        function doPublish() {
+            var ev = Ext.util.JSON.decode(Ext.getDom("container_event_entry").value);
+            Ext.Ajax.request({
+                url: channelUri,
+                method: "POST",
+                params: Ext.util.JSON.encode({ event: ev }),
+                success: function(o) {
+                    Ext.getDom("container_messages").innerHTML = o.responseText;
+                }
+            });
+        }
+
+        Ext.onReady(function() {
+            var topBar = new TopBar();
+            topBar.onWhoami(function(json) {
+                channelUri = json.channel;
+                startListen();
+            });
+            topBar.initialize("container_topbar");
+        });
+    </script>
+
+</head>
+<body>
+<div id="container_topbar"></div>
+
+<h3>Listen</h3>
+<div id="container_events"></div>
+
+<h3>Publish</h3>
+<div>
+    <textarea id="container_event_entry" rows="10" cols="50"></textarea>
+    <button onclick="doPublish();">Publish</button>
+</div>
+
+<h3>Messages</h3>
+<div id="container_messages">
+</div>
+
+</body>
+</html>

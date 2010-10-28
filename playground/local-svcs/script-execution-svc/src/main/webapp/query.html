@@ -1,0 +1,128 @@
+<html>
+<head>
+    <title>Query</title>
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {
+            packages: ["table"]
+        });
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/prototype-1.6.0.3.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+
+    <script type="text/javascript">
+        var selectedUri = null;
+
+        Ext.onReady(function() {
+            var queryString = decodeURI(window.location.search.substring(1));
+            if (queryString) {
+                if (queryString.indexOf("=") > 0) {
+                    var params = queryString.split("=");
+                    selectedUri = params[1];
+                    $("container_selected_datasource").innerHTML = selectedUri;
+                } else {
+                    $("container_selected_datasource").innerHTML = "no data source selected";
+                }
+            }
+
+            var queryPanel = {
+                id: "query-panel",
+                title:"Query",
+                contentEl: "container_sql",
+                region:"north",
+                height: 200
+            };
+            var resultsPanel = {
+                id: "results-panel",
+                title:"Results",
+                contentEl: "container_preview",
+                region: "center",
+                height: 250
+            };
+            var messagesPanel = {
+                id: "messages-panel",
+                title:"Messages",
+                contentEl: "container_errors",
+                region: "south",
+                height: 50
+            };
+
+            new Ext.Viewport({
+                layout: "border",
+                title: "Query Page",
+                hideBorders: true,
+                defaults: {
+                    frame: true, margins: "3 3 3 3", autoScroll: true, width: 600
+                },
+                items: [ queryPanel, messagesPanel, resultsPanel ],
+                renderTo: Ext.getBody()
+            });
+        });
+
+        function ready_to_query() {
+            $("container_preview").innerHTML = "";
+            $("container_errors").innerHTML = "";
+            $("container_numberOfResults").innerHTML = "";
+
+            if (!selectedUri) {
+                $("container_errors").innerHTML = "no data source selected";
+                return false;
+            }
+
+            if (!$("textarea_sql").value) {
+                $("container_errors").innerHTML = "no SQL entered. Defaulting to SELECT *";
+                return true;
+            }
+
+            return true;
+        }
+
+        function execute_html() {
+            if (!ready_to_query()) {
+                return false;
+            }
+
+            var querySql = $("textarea_sql").value;
+
+            $("container_errors").innerHTML = "GET " + selectedUri + "/query<br/>tq=" + querySql;
+
+            var query = new google.visualization.Query(selectedUri + "/query");
+            query.setQuery(querySql);
+            query.send(function(response) {
+                if (response.isError()) {
+                    $("container_errors").innerHTML = "Error Message:" + response.getMessage() + "<br/>";
+                    return false;
+                }
+                var dataTable = response.getDataTable();
+                $("container_numberOfResults").innerHTML = dataTable.getNumberOfRows();
+
+                var table = new google.visualization.Table($("container_preview"));
+                table.draw(dataTable, {
+                    showRowNumber: true,
+                    page: "enable",
+                    pageSize: 5,
+                    width: "100%"
+                });
+            });
+
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div id="container_sql">
+    Selected: <span id="container_selected_datasource"></span>
+    <br/><textarea rows="5" cols="70" id="textarea_sql">limit 100</textarea>
+    <br/>Number of Results:<span id="container_numberOfResults"></span>
+    <br/>
+    <button onclick="execute_html();">Show Results</button>
+</div>
+<div id="container_errors"></div>
+<div id="container_preview"></div>
+</body>
+</html>

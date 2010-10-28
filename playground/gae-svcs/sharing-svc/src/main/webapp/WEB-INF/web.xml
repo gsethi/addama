@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            /WEB-INF/app-contexts/controllers.xml
+            classpath*:/datastoreServiceTemplate.xml
+        </param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>gaesharing</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>gaesharing</servlet-name>
+        <url-pattern>/sharing-svc/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Registration Controls -->
+    <servlet>
+        <servlet-name>registration</servlet-name>
+        <servlet-class>org.systemsbiology.addama.commons.gae.web.ServiceRegistrationServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>registration</servlet-name>
+        <url-pattern>/registration</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+        <filter-name>filter-registration-gae</filter-name>
+        <filter-class>org.systemsbiology.addama.commons.gae.web.CheckRegistryServiceKeyFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>filter-registration-gae</filter-name>
+        <url-pattern>/sharing-svc/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

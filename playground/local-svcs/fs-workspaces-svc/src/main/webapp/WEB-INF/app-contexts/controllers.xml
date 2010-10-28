@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="alwaysUseFullPath" value="true"/>
+        <property name="urlMap">
+            <map>
+                <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
+                <entry key="/**" value-ref="workspacesController"/>
+                <entry key="/**/datasources" value-ref="datasourceController"/>
+                <entry key="/**/query" value-ref="queryController"/>
+                <entry key="/**/annotations" value-ref="annotationsController"/>
+                <entry key="/**/search" value-ref="searchController"/>
+            </map>
+        </property>
+        <property name="interceptors">
+            <list>
+                <bean class="org.systemsbiology.addama.jcr.support.JcrTemplateProvider"
+                      autowire="byType"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Controllers -->
+    <bean id="workspacesController" class="org.systemsbiology.addama.workspaces.fs.rest.WorkspacesController"
+          autowire="byType">
+        <property name="supportedMethods">
+            <list>
+                <value>GET</value>
+                <value>POST</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="datasourceController" class="org.systemsbiology.addama.workspaces.rest.DatasourceController"
+          autowire="byType">
+        <property name="supportedMethods">
+            <list>
+                <value>POST</value>
+            </list>
+        </property>
+        <property name="fileLocalFactory">
+            <bean class="org.systemsbiology.addama.workspaces.fs.callbacks.FSFileLocalFactory"/>
+        </property>
+    </bean>
+
+    <bean id="queryController" class="org.systemsbiology.addama.workspaces.rest.QueryController"
+          autowire="byType">
+        <property name="supportedMethods">
+            <list>
+                <value>GET</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="annotationsController"
+          class="org.systemsbiology.addama.workspaces.rest.AnnotationsController" autowire="byType">
+        <property name="supportedMethods">
+            <list>
+                <value>GET</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="searchController" class="org.systemsbiology.addama.workspaces.rest.SearchController"
+          autowire="byType">
+        <property name="supportedMethods">
+            <list>
+                <value>GET</value>
+            </list>
+        </property>
+    </bean>
+
+</beans>
