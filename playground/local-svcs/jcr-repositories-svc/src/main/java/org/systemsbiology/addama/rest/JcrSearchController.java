@@ -118,8 +118,11 @@ public class JcrSearchController extends AbstractJcrController {
         String propName = ".";
         if (!StringUtils.isEmpty(key) && !"q".equals(key)) {
             propName = XPathBuilder.getISO9075XKey(key);
+            // Exact matches
+            queryStrings.add("//*[" + propName + "='" + value + "']");
         }
-
+        
+        // Free-text search
         queryStrings.add("//*[jcr:contains(" + propName + ", '" + value + "')]");
     }
 

@@ -186,9 +186,8 @@ public class JcrSearchControllerTest {
 		ModelAndView mav = searcher.search(request);
 		log.info("Results: " + mav.getModel());
 		
-		// TODO fix the searcher code so that we can find nodes with integer values for their properties 
 		assertFalse(mav.getModel().toString().matches(".*TestNode1.*"));
-		assertFalse(mav.getModel().toString().matches(".*TestNode2.*"));
+		assertTrue(mav.getModel().toString().matches(".*TestNode2.*"));
 		assertFalse(mav.getModel().toString().matches(".*TestNode3.*"));
 	}
 
@@ -221,12 +220,11 @@ public class JcrSearchControllerTest {
 	 */
 	@Test
 	public void testBooleanPropertySearch() throws Exception {
-		request.setParameter("q", "true");
+		request.setParameter("aBoolean", "true");
 		ModelAndView mav = searcher.search(request);
 		log.info("Results: " + mav.getModel());
 
-		// TODO fix the searcher code so that we can find nodes with boolean values for their properties
-		assertFalse(mav.getModel().toString().matches(".*TestNode1.*"));
+		assertTrue(mav.getModel().toString().matches(".*TestNode1.*"));
 		assertFalse(mav.getModel().toString().matches(".*TestNode2.*"));
 		assertFalse(mav.getModel().toString().matches(".*TestNode3.*"));
 	}
