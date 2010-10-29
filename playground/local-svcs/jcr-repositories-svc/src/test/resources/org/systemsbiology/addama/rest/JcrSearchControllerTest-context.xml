@@ -10,7 +10,7 @@
   
   <!-- Register Annotation-based Post Processing Beans -->
   <context:annotation-config />
-
+  
   <import resource="classpath:JcrTestHelper-context.xml" />
 
   <bean id="helper" class="org.systemsbiology.addama.JcrTestHelper">

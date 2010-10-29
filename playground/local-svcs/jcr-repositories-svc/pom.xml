@@ -29,6 +29,21 @@
                     <archiveClasses>true</archiveClasses>
                 </configuration>
             </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>attach-javadocs</id>
+                  <goals>
+<!--               We probably don't want these goals on by default because -->
+<!--               they add a lot to the build time.                        -->
+<!--                     <goal>jar</goal> -->
+<!--                     <goal>test-jar</goal> -->
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
         </plugins>
     </build>
 
