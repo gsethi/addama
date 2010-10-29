@@ -1,0 +1,400 @@
+<!doctype html>
+<html>
+<head>
+
+<style type="text/css">
+     body {
+       font-family: verdana;
+     }
+     #container {
+       width: 800px;
+     }
+     table {
+       border: 1px solid #666;
+     }
+     textarea {
+       width: 100%;
+     }
+     div.searchForm, div.searchResults, div.resources, div.editForm, div.addForm {
+       background-color: #eeeeee;
+     }
+     span {
+         font-family: courier;
+         font-size: small;
+     }
+</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.3.js"></script>
+
+<!--     Originally from http://www.json.org/json2.js -->
+<script type="text/javascript" src="http://www.phlinux.com/~deflaux/json2.js"></script>
+
+<script type="text/javascript">
+
+/** TODO
+ * factor out code that is not specific to this particular UI
+ *    into a separate JS file and so something to protect the namespace
+ * leave CSS and JS specific to this webui in this file
+ * factor out any site-wide CSS into a separate file
+ **/
+
+/** Constants **/
+var DEFAULT_REPOSITORY = "/addama/repositories/sage-content-repo";
+var DEFAULT_RESOURCE = DEFAULT_REPOSITORY + "/path/demo2";
+var SKIP_PROPERTIES = { "host-url":1, "isFile":1, "items":1, "numberOfItems":1 };
+var IMMUTABLE_PROPERTIES = { "created-at":1, "name":1, "path":1,
+                         "repository":1, "uri":1, "uri-uuid":1 };
+
+/** Globals **/
+var gNumAddedProperties = 0;
+var gCurrentResource = DEFAULT_RESOURCE;
+
+/**
+ * Write JSON text for a JavaScript object to the debug element
+ *
+ * data: a JavaScript object
+ */
+function displayDebugInfo(data) {
+    $("#debug").html("<pre>" + JSON.stringify(data, null, 4) + "</pre>");
+}
+
+/**
+ * Display links to parent, current, and child nodes of an Addama resource.
+ *
+ * data: an Addama resource object
+ */
+function displayAddamaResource(data) {
+    $(".searchResults").hide();
+    $(".editForm").hide();
+    $(".addForm").hide();
+    $(".resources").show();
+     try {
+         gCurrentResource = data.uri;
+         var parentUri = data.uri.slice(0, data.uri.lastIndexOf("/"));
+         $(".parent").html("<a class=\"addama\" href=\""
+                           + parentUri + "\">"
+                           + parentUri + "</a>");
+
+         $(".current").html("<a class=\"addama\" href=\""
+                            + data.uri + "\">"
+                            + data.uri + "</a>");
+
+         if('undefined' == typeof(data.file)) {
+             $("button.downloadFile").hide();
+         }
+         else {
+             $("button.downloadFile").click(function(event) {
+                alert("File downloads have not yet been implemented.");
+                //getAddama(data.file);
+                 });
+             $("button.downloadFile").show();
+         }
+
+         if('undefined' != typeof(data.numberOfItems)) {
+             if(0 == data.numberOfItems) {
+                 $(".child").html("<li>none</li>");
+             }
+             else {
+                 $(".child").html("");
+                 $.each(data.items, function(i,item){
+                         $(".child").append("<li><a class=\"addama\" href=\""
+                                            + item.uri + "\">"
+                                            + item.uri + "</a></li>");
+                     });
+             }
+         }
+
+         $("a.addama").click(function(event){
+                 event.preventDefault();
+                 getAddama(event.target.href);
+             });
+
+         $("form#editForm table").html("");
+         $.each(data, function(key, value) {
+             if('undefined' == typeof(SKIP_PROPERTIES[key])) {
+                 if('undefined' == typeof(IMMUTABLE_PROPERTIES[key])) {
+                     $("form#editForm table").append
+                         ("<tr><td>" + key
+                          + "</td> <td><textarea class=\"update\" name=\""
+                          + key + "\">"
+                          + value + "</textarea></td></tr>");
+                 }
+                 else {
+                     $("form#editForm table").prepend
+                         ("<tr><td>" + key
+                          + "</td> <td name=\"" + key + "\">"
+                          + value + "</td></tr>");
+                 }
+             }
+         });
+     }
+     catch(exception) {
+         alert("Caught: " + exception);
+     }
+     displayDebugInfo(data);
+}
+
+/**
+ * Update the display upon deletion of a resource
+ *
+ * data: an Addama resource deletion response object
+ */
+function displayAddamaDeletedResource(data) {
+    $(".searchResults").hide();
+    $(".editForm").hide();
+    $(".addForm").hide();
+    $(".resources").show();
+     try {
+         gCurrentResource = data.uri;
+         var parentUri = data.uri.slice(0, data.uri.lastIndexOf("/"));
+         $(".parent").html("<a class=\"addama\" href=\""
+                           + parentUri + "\">"
+                           + parentUri + "</a>");
+
+         $(".current").html("successfully deleted");
+
+         $("a.addama").click(function(event){
+                 event.preventDefault();
+                 getAddama(event.target.href);
+             });
+
+         $("form#editForm table").html();
+     }
+     catch(exception) {
+         alert("Caught: " + exception);
+     }
+     displayDebugInfo(data);
+}
+
+/**
+ * Display links to the Addama resources found in an Addama search result.
+ *
+ * data: an Addama search result
+ */
+function displayAddamaSearchResults(data) {
+    $(".resources").hide();
+    $(".editForm").hide();
+    $(".addForm").hide();
+    $(".searchResults").show();
+    try {
+        $(".resultCount").html("numberOfResults: " + data.numberOfResults);
+        $(".results").html("");
+        $.each(data.results, function(i,result){
+                $(".results").append("<li><a class=\"addama\" href=\""
+                                   + result.uri + "\">"
+                                   + result.uri + "</a></li>");
+            });
+
+        $("a.addama").click(function(event){
+                event.preventDefault();
+                getAddama(event.target.href);
+            });
+    }
+    catch(exception) {
+        alert("Caught: " + exception);
+    }
+    displayDebugInfo(data);
+}
+
+/**
+ * Fetch and display an Addama resource.
+ *
+ * uri: the uri identifying the resource to fetch
+ */
+function getAddama(uri) {
+    // TODO validate params
+    $.getJSON(uri, displayAddamaResource);
+}
+
+/**
+ * Perform an Addama search and display the search results
+ *
+ * repository: the repository over which to search
+ * query: the query to use for the search
+ */
+function searchAddama(repository, query) {
+    // TODO validate params
+    $.getJSON(repository + "/search?q=" + query,
+              displayAddamaSearchResults);
+}
+
+/**
+ * Send updates to Addama
+ *
+ * uri: the uri identifying the resource to delete
+ * also some fields from form #editForm
+ */
+function updateAddama(uri) {
+    // TODO validate params and form input
+    var properties = {};
+
+    // TODO decouple the form DOM access from this function
+
+    // Add existing (potentially updated) properties to request
+    var inputs = $("#editForm textarea.update");
+    $.each(inputs, function(i, input) {
+            properties[input.name] = $(input).val();
+        });
+
+    // Add newly created properties to the request
+    var i=0;
+    for (i=0; i<gNumAddedProperties; i++) {
+        var key = $("#editForm input.add[name='" + i + "']").val();
+        var value = $("#editForm textarea.add[name='" + i + "']").val();
+        properties[key] = value;
+    }
+    gNumAddedProperties = 0; // reset counter
+
+    $.ajax({
+            type: 'POST',
+                url: uri,
+                // jQuery doesn't serialize this the way Addama
+                // expects it, consider extending Addama
+                // data: {'JSON':properties},
+            data: { 'JSON' : JSON.stringify(properties, null, 0) },
+            success: displayAddamaResource,
+            dataType: "json"
+     });
+}
+
+/**
+ * Create an Addama resource.
+ *
+ * parentUri: the parent uri under which to create the new resource
+ * newResourceName: the name of the new resource to create
+ */
+function createAddama(parentUri, newResourceName) {
+    // TODO validate params
+    $.ajax({
+            type: 'POST',
+            url: parentUri + "/" + newResourceName + "/create",
+            success: displayAddamaResource,
+            dataType: "json"
+     });
+}
+
+/**
+ * Delete an Addama resource.
+ *
+ * uri: the uri identifying the resource to delete
+ */
+function deleteAddama(uri) {
+    // TODO validate params
+    $.ajax({
+            type: 'POST',
+            url: uri + "/delete",
+            success: displayAddamaDeletedResource,
+            dataType: "json"
+     });
+}
+
+$(document).ready(function(){
+    // Initially hide divs since there is no content to display
+    $(".resources").hide();
+    $(".searchResults").hide();
+    $(".editForm").hide();
+    $(".addForm").hide();
+
+    // Attach non-form click actions
+    $("button.downloadFile").hide();
+    $("button.editNode").click(function(event) { $(".editForm").toggle(); });
+    $("button.deleteNode").click(function(event) {
+            deleteAddama(gCurrentResource);
+        });
+    $("button.addNode").click(function(event) { $(".addForm").toggle(); });
+
+    $("button.addProperty").click(function(event) {
+            $("form#editForm table").append
+                ("<tr><td><input type=text class=\"add\" name=\""
+                 + gNumAddedProperties + "\" /></td> "
+                 + "<td><textarea class=\"add\" name=\""
+                 + gNumAddedProperties + "\"></textarea></td></tr>");
+            gNumAddedProperties++;
+            return false; // disable form submission
+        });
+
+    // TODO make default repository configurable
+    $("a#repo").html(DEFAULT_REPOSITORY);
+    $("a#repo").attr("href", DEFAULT_REPOSITORY);
+
+    // Get a resource to display from the query string or use the default
+    window.location.search.match( "path=(/addama/[^&]*)" );
+    if(0 < RegExp.$1.length) {
+        gCurrentResource = RegExp.$1;
+    }
+    getAddama(gCurrentResource);
+});
+
+</script>
+
+  </head>
+  <body>
+    <div id="container">
+    <div class="title">Addama Java Content Repository Demo using
+    <a href="http://jquery.com/">jQuery</a></div><p>
+
+    <div class="searchForm">
+      <!-- TODO move this java script into the onload handler -->
+      <form name="addForm" id="searchform" action="javascript:searchAddama(DEFAULT_REPOSITORY, $('input#query').val());">
+    Explore Repository: <a href="" class="addama" id="repo"></a>
+        <input id="query" type="text" value="" />
+        <input id="send" type="submit" value="Search" />
+      </form>
+    </div><p>
+
+    <div class="searchResults">
+      <div class="resultCount"></div><br>
+      <div>Search Results:<ul><span class="results"></span></ul></div>
+    </div>
+
+    <div class="resources">
+      <div>Parent Node: <span class="parent"></span></div><br>
+      <div>Child Nodes:<ul><span class="child"></span></ul></div>
+      <div>Current Node:
+         <span class="current"></span>&nbsp;
+         <button class="editNode">Edit Node</button>&nbsp;
+         <button class="addNode">Add Child Node</button>&nbsp;
+         <button class="deleteNode">Delete Node</button>&nbsp;
+         <button class="downloadFile">Download File</button>&nbsp;
+      </div><br>
+    </div><p>
+
+    <div class="editForm">
+      <!-- TODO move this java script into the onload handler -->
+      <form name="editForm" id="editForm" action="javascript:updateAddama(gCurrentResource);">
+        <table>
+        </table>
+        <button class="addProperty">+ Add a Property</button>
+        <input id="sendEdit" type="submit" value="Save"/>
+      </form>
+    </div><p>
+
+    <div class="addForm">
+      <!-- TODO move this java script into the onload handler -->
+      <form name="addForm" id="searchform" action="javascript:createAddama(gCurrentResource, $('input#nodeName').val());">
+        Child Node Name
+        <input id="nodeName" type="text" value="" />
+        <input id="create" type="submit" value="Create" />
+      </form>
+    </div><p>
+
+    <hr>
+    Raw Response from server:<p>
+    <div id="debug" class="debug">Waiting for server response!
+    </div>
+    <hr>
+    More UI TODOs:
+    <ul>
+    <li>move nodes
+    <li>rename nodes
+    <li>delete properties
+    <li>enable file downloads for resources that are files
+    <li>disable resource editing when navigating file system repositories
+    since that service does not support property editing
+    <li>make the ui pretty and more usable
+    <li>harden the ui (error handling, input validation, etc...)
+    <li>add the AJAX actions to the browser history so that the back button works
+    </ul>
+    </div>
+  </body>
+</html>
