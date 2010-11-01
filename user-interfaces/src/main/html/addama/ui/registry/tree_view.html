@@ -48,14 +48,15 @@
                     return "#ff7f0e";
                 };
                 
-                var tree = pv.tree(allItems).keys(treefn).map();
-
+                var tree = pv.tree(allItems).keys(treefn).value(valuefn).map();
                 var vis = new pv.Panel()
                     .width(400).height(1000).left(10).right(200).top(10).bottom(10);
 
-                var layout = vis.add(pv.Layout.Cluster)
 //                    .nodes(pv.dom(tree).nodes())
-                    .nodes(pv.dom(tree).root("/").sort(sortfn).nodes())
+//                    .nodes(pv.dom(tree).root("/").sort(sortfn).nodes())
+                
+                var layout = vis.add(pv.Layout.Cluster)
+                    .nodes(pv.dom(tree).root("/").nodes())
                     .group(true).orient("left");
 
                 layout.link.add(pv.Line).strokeStyle("#ccc").lineWidth(1).antialias(false);
