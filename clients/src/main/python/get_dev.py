@@ -10,10 +10,12 @@ def doGet(configFile, uri):
     config.read(configFile)
 
     HOST = config.get("Connection", "host")
+    USER = config.get("Connection", "user")
 
     print("GET http://" + HOST + uri)
 
     request = urllib2.Request("http://" + HOST + uri)
+    request.add_header("x-addama-registry-user", USER)
     resp = urllib2.urlopen(request)
     output = resp.read()
 

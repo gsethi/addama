@@ -11,8 +11,9 @@ def doPost(configFile, uri, param):
     config.read(configFile)
 
     HOST = config.get("Connection", "host")
+    USER = config.get("Connection", "user")
 
-    headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain" }
+    headers = {"x-addama-registry-user": USER, "Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain" }
     params = urllib.urlencode(param)
 
     print("POST http://" + HOST + uri)
