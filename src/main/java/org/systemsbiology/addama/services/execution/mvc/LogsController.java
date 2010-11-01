@@ -41,13 +41,11 @@ public class LogsController extends BaseController {
     public void getJobLog(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info(request.getRequestURI());
 
-        String jobUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/log");
-
-        Job job = jobsDao.retrieve(jobUri);
+        Job job = getJob(request, "/log");
 
         File f = new File(job.getLogPath());
         if (!f.exists()) {
-            throw new ResourceNotFoundException(jobUri);
+            throw new ResourceNotFoundException(job.getJobUri());
         }
 
         String contents = getLogContents(f);

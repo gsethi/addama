@@ -54,12 +54,6 @@ public class RootController extends BaseController {
             return new ModelAndView(new JsonItemsView()).addObject("json", json);
         }
 
-        JSONObject json = new JSONObject();
-        json.put("uri", uri);
-        json.put("jobs", uri + "/jobs");
-        if (viewersByUri.containsKey(uri)) {
-            json.put("viewer", viewersByUri.get(uri));
-        }
         return new ModelAndView(new JsonView()).addObject("json", getItem(uri));
     }
 

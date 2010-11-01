@@ -8,12 +8,7 @@
         <property name="urlMap">
             <map>
                 <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
-                <!-- Workspace Jobs Controllers -->
-                <!--<entry key="/**/workspace/jobs" value-ref="workspaceJobsController"/>-->
-                <!--<entry key="/**/workspace/jobs/**" value-ref="workspaceJobsController"/>-->
 
-                <!-- Jobs Controllers -->
-                <!--<entry key="/**/execution" value-ref="jobsController"/>-->
                 <entry key="/**/jobs" value-ref="jobsController"/>
                 <entry key="/**/jobs/*" value-ref="jobsController"/>
                 <entry key="/**/jobs/*/log" value-ref="logsController"/>
@@ -22,8 +17,6 @@
                 <entry key="/**/ui">
                     <bean class="org.systemsbiology.addama.services.execution.mvc.ViewerController" autowire="byType"/>
                 </entry>
-
-                <!-- Viewer Controllers -->
                 <entry key="/**">
                     <bean class="org.systemsbiology.addama.services.execution.mvc.RootController" autowire="byType"/>
                 </entry>
@@ -32,9 +25,6 @@
     </bean>
 
     <bean id="jobsController" class="org.systemsbiology.addama.services.execution.mvc.JobsController"
-          autowire="byType"/>
-
-    <bean id="workspaceJobsController" class="org.systemsbiology.addama.services.execution.mvc.WorkspaceJobsController"
           autowire="byType"/>
 
     <bean id="logsController" class="org.systemsbiology.addama.services.execution.mvc.LogsController"

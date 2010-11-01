@@ -19,7 +19,6 @@
 package org.systemsbiology.addama.services.execution.mvc;
 
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,15 +32,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.logging.Logger;
 
 /**
  * @author hrovira
  */
 @Controller
 public class OutputsController extends BaseController implements ServletContextAware {
-    private static final Logger log = Logger.getLogger(OutputsController.class.getName());
-
     private ServletContext servletContext;
     private int bufferSize = 8096;
 
@@ -55,48 +51,31 @@ public class OutputsController extends BaseController implements ServletContextA
 
     @RequestMapping(value = "/**/outputs/**", method = RequestMethod.GET)
     public ModelAndView getJobOutput(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String requestUri = request.getRequestURI();
-        log.info(requestUri);
+        Job job = getJob(request, "/outputs");
 
-        String jobUri = StringUtils.substringBetween(requestUri, request.getContextPath(), "/outputs");
-        log.info(requestUri + ":job=" + jobUri);
-
-        Job job = jobsDao.retrieve(jobUri);
-
-        File outputDir = new File(job.getOutputDirectoryPath());
-        if (!outputDir.exists()) {
-            throw new ResourceNotFoundException(jobUri + "/outputs");
-        }
-
-        String filepath = StringUtils.substringAfter(requestUri, "/outputs");
-        log.info("filepath=" + filepath);
+        String filepath = StringUtils.substringAfter(request.getRequestURI(), "/outputs");
         if (!StringUtils.isEmpty(filepath)) {
-            outputFile(outputDir, jobUri, filepath, response);
+            outputFile(job, filepath, response);
             return null;
         }
 
-        JSONObject json = new JSONObject();
-
-        String baseUri = StringUtils.substringAfterLast(requestUri, request.getContextPath());
-        for (File f : getOutputFiles(outputDir)) {
-            JSONObject filejson = new JSONObject();
-            filejson.put("uri", baseUri + StringUtils.substringAfterLast(f.getPath(), outputDir.getPath()));
-            filejson.put("name", f.getName());
-            json.append("items", filejson);
-        }
-
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        return new ModelAndView(new JsonItemsView()).addObject("json", job.getJsonDetail());
     }
 
     /*
      * Private Methods
      */
 
-    private void outputFile(File outputDir, String jobUri, String filepath, HttpServletResponse response)
+    private void outputFile(Job job, String filepath, HttpServletResponse response)
             throws ResourceNotFoundException, IOException {
-        File outputFile = new File(outputDir, filepath);
+        File outputDir = new File(job.getOutputDirectoryPath());
+        if (!outputDir.exists()) {
+            throw new ResourceNotFoundException(job.getJobUri() + "/outputs");
+        }
+
+        File outputFile = new File(job.getOutputDirectoryPath(), filepath);
         if (!outputFile.exists()) {
-            throw new ResourceNotFoundException(jobUri + "/outputs" + filepath);
+            throw new ResourceNotFoundException(job.getJobUri() + "/outputs/" + filepath);
         }
 
         response.setContentType(servletContext.getMimeType(outputFile.getName()));

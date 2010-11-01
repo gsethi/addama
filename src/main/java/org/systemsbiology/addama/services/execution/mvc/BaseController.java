@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.registry.JsonConfig;
 import org.systemsbiology.addama.registry.JsonConfigHandler;
 import org.systemsbiology.addama.services.execution.dao.Job;
@@ -36,11 +37,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * @author hrovira
  */
 public abstract class BaseController implements InitializingBean {
+    private static final Logger log = Logger.getLogger(BaseController.class.getName());
+
     protected final Map<String, String> workDirsByUri = new HashMap<String, String>();
     protected final Map<String, String> scriptsByUri = new HashMap<String, String>();
     protected final Map<String, String> logFilesByUri = new HashMap<String, String>();
@@ -92,7 +96,7 @@ public abstract class BaseController implements InitializingBean {
     }
 
     protected String getUserEmail(HttpServletRequest request) {
-        String userUri = request.getHeader("x-addama-registry-user");
+        String userUri = getUserUri(request);
         if (StringUtils.isEmpty(userUri)) {
             return null;
         }
@@ -114,6 +118,32 @@ public abstract class BaseController implements InitializingBean {
                 scanOutputs(outputs, f);
             }
         }
+    }
+
+    protected String getUserUri(HttpServletRequest request) {
+        return request.getHeader("x-addama-registry-user");
+    }
+
+    protected String getScriptUri(HttpServletRequest request, String suffix) throws ResourceNotFoundException {
+        String scriptUri = StringUtils.substringAfter(request.getRequestURI(), request.getContextPath());
+        if (!StringUtils.isEmpty(suffix)) {
+            scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), suffix);
+        }
+
+        if (!workDirsByUri.containsKey(scriptUri) && !scriptsByUri.containsKey(scriptUri)) {
+            throw new ResourceNotFoundException(scriptUri);
+        }
+        log.info(scriptUri);
+        return scriptUri;
+    }
+
+    protected Job getJob(HttpServletRequest request, String suffix) {
+        String jobUri = StringUtils.substringAfter(request.getRequestURI(), request.getContextPath());
+        if (!StringUtils.isEmpty(suffix)) {
+            jobUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), suffix);
+        }
+        log.info(jobUri);
+        return jobsDao.retrieve(jobUri);
     }
 
     protected String getJobExecutionDirectory(String scriptUri) {

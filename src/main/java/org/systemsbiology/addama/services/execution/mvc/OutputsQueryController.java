@@ -44,20 +44,14 @@ public class OutputsQueryController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET)
     public void queryJobOutput(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String requestUri = request.getRequestURI();
-        log.info(requestUri);
-
-        String jobUri = StringUtils.substringBetween(requestUri, request.getContextPath(), "/outputs");
-        log.info(requestUri + ":job=" + jobUri);
-
-        Job job = jobsDao.retrieve(jobUri);
+        Job job = getJob(request, "/outputs");
 
         File outputDir = new File(job.getOutputDirectoryPath());
         if (!outputDir.exists()) {
-            throw new ResourceNotFoundException(jobUri + "/outputs");
+            throw new ResourceNotFoundException(job.getJobUri() + "/outputs");
         }
 
-        String filepath = StringUtils.substringBetween(requestUri, "/outputs", "/query");
+        String filepath = StringUtils.substringBetween(request.getRequestURI(), "/outputs", "/query");
         log.info("filepath=" + filepath);
         if (!StringUtils.isEmpty(filepath)) {
             File queryFile = new File(outputDir + filepath);

@@ -19,13 +19,13 @@
 package org.systemsbiology.addama.services.execution.mvc;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.services.execution.dao.Job;
@@ -54,28 +54,36 @@ public class JobsController extends BaseController {
     public ModelAndView executeJob(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/jobs");
-        if (!workDirsByUri.containsKey(scriptUri) && !scriptsByUri.containsKey(scriptUri)) {
-            throw new ResourceNotFoundException(scriptUri);
-        }
-
         String jobId = UUID.randomUUID().toString();
+        String scriptUri = getScriptUri(request, "/jobs");
         String jobUri = scriptUri + "/jobs/" + jobId;
+        String userUri = getUserUri(request);
         String jobDir = workDirsByUri.get(scriptUri) + "/jobs/" + jobId;
-        String script = scriptsByUri.get(scriptUri) + " \"" + getQueryString(request) + "\"";
-        String label = request.getParameter("label");
+        JSONObject inputs = getInputs(request);
 
-        Job job = new Job(jobUri, jobDir, request.getHeader("x-addama-registry-user"));
-        job.setLabel(label);
+        Job job = new Job(jobUri, scriptUri, userUri, jobDir, inputs);
+        job.setLabel(request.getParameter("label"));
         job.setExecutionDirectory(getJobExecutionDirectory(scriptUri));
-
-        // TODO: Schedule Job
-        Mailer mailer = getMailer(job);
-        executeRobot(script, job, mailer);
-
         jobsDao.create(job);
 
+        scheduleJob(job);
+
         return new ModelAndView(new JsonView()).addObject("json", job.getJsonSummary());
+    }
+
+    @RequestMapping(value = "/**/tools/jobs", method = RequestMethod.GET)
+    @ModelAttribute
+    public ModelAndView getJobsForUser(HttpServletRequest request) throws Exception {
+        log.info(request.getRequestURI());
+
+        String userUri = getUserUri(request);
+        Job[] jobs = jobsDao.retrieveAllForUser(userUri);
+
+        JSONObject json = new JSONObject();
+        for (Job job : jobs) {
+            json.append("items", job.getJsonSummary());
+        }
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/jobs", method = RequestMethod.GET)
@@ -83,10 +91,11 @@ public class JobsController extends BaseController {
     public ModelAndView getJobs(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/jobs");
+        String scriptUri = getScriptUri(request, "/jobs");
+        String userUri = getUserUri(request);
 
         JSONObject json = new JSONObject();
-        Job[] jobs = jobsDao.retrieveAllForScript(scriptUri, request.getHeader("x-addama-registry-user"));
+        Job[] jobs = jobsDao.retrieveAllForScript(scriptUri, userUri);
         for (Job job : jobs) {
             json.append("items", job.getJsonSummary());
         }
@@ -99,9 +108,7 @@ public class JobsController extends BaseController {
     public ModelAndView getJob(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
-        String jobUri = StringUtils.substringAfterLast(request.getRequestURI(), request.getContextPath());
-        Job job = jobsDao.retrieve(jobUri);
-
+        Job job = getJob(request, null);
         return new ModelAndView(new JsonView()).addObject("json", job.getJsonDetail());
     }
 
@@ -109,8 +116,9 @@ public class JobsController extends BaseController {
      * Private Methods
      */
 
-    private void executeRobot(String script, Job job, Mailer mailer) throws Exception {
-        log.fine(script);
+    private void scheduleJob(Job job) throws Exception {
+        // TODO: Move this logic to a queue/thread pool
+        log.info(job.getJobUri() + ":" + job.getScriptUri());
 
         File execAtDir = new File(job.getExecuteAtPath());
         execAtDir.mkdirs();
@@ -118,6 +126,7 @@ public class JobsController extends BaseController {
         File outputDir = new File(job.getOutputDirectoryPath());
         outputDir.mkdirs();
 
+        String script = scriptsByUri.get(job.getScriptUri()) + " \"" + job.getQueryString() + "\"";
         Process p = Runtime.getRuntime().exec(script, new String[0], execAtDir);
 
         String joblog = job.getLogPath();
@@ -125,6 +134,7 @@ public class JobsController extends BaseController {
         Streamer stdoutStreamer = new Streamer(p.getInputStream(), logStream, true);
         Streamer errorStreamer = new Streamer(p.getErrorStream(), logStream, true);
 
+        Mailer mailer = getMailer(job);
         if (mailer != null) {
             mailer.setJobLog(joblog);
         }
@@ -156,5 +166,20 @@ public class JobsController extends BaseController {
             return StringUtils.substringBeforeLast(queryString, "&");
         }
         return queryString;
+    }
+
+    private JSONObject getInputs(HttpServletRequest request) throws JSONException {
+        String queryString = getQueryString(request);
+
+        JSONObject json = new JSONObject();
+        String[] params = queryString.split("&");
+        for (String param : params) {
+            String[] paramSplit = param.split("=");
+            String key = paramSplit[0];
+            if (!StringUtils.equalsIgnoreCase(key, "label")) {
+                json.accumulate(key, paramSplit[1]);
+            }
+        }
+        return json;
     }
 }

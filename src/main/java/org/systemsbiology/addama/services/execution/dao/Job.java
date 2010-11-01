@@ -19,11 +19,13 @@
 package org.systemsbiology.addama.services.execution.dao;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,6 +36,7 @@ public class Job {
     private final String userUri;
     private final String scriptUri;
     private final String jobDirectory;
+    private final JSONObject inputs;
 
     private JobStatus jobStatus = JobStatus.pending;
     private String label;
@@ -44,11 +47,12 @@ public class Job {
      * Constructor
      */
 
-    public Job(String jobUri, String jobDirectory, String userUri) {
+    public Job(String jobUri, String scriptUri, String userUri, String jobDirectory, JSONObject inputs) {
         this.jobUri = jobUri;
+        this.scriptUri = scriptUri;
         this.userUri = userUri;
         this.jobDirectory = jobDirectory;
-        this.scriptUri = StringUtils.substringBeforeLast(jobUri, "/jobs");
+        this.inputs = inputs;
     }
 
     /*
@@ -65,6 +69,10 @@ public class Job {
 
     public String getJobDirectory() {
         return jobDirectory;
+    }
+
+    public JSONObject getInputs() {
+        return inputs;
     }
 
     /*
@@ -126,6 +134,34 @@ public class Job {
         return getOutputDirectoryPath();
     }
 
+    public String getQueryString() throws JSONException {
+        StringBuilder builder = new StringBuilder();
+        Iterator itr = inputs.keys();
+        while (itr.hasNext()) {
+            String key = (String) itr.next();
+            boolean isNotLast = itr.hasNext();
+
+            JSONArray values = inputs.optJSONArray(key);
+            if (values != null) {
+                for (int i = 0; i < values.length(); i++) {
+                    builder.append(key);
+                    builder.append("=");
+                    builder.append(values.getString(i));
+                    if (isNotLast) {
+                        builder.append("?");
+                    }
+                }
+            } else {
+                builder.append(key);
+                builder.append("=");
+                builder.append(inputs.getString(key));
+                if (isNotLast) {
+                    builder.append("?");
+                }
+            }
+        }
+        return builder.toString();
+    }
     /*
     * Public Methods
     */
@@ -137,6 +173,7 @@ public class Job {
     public JSONObject getJsonDetail() throws JSONException {
         JSONObject json = getJsonSummary();
         json.put("message", errorMessage);
+        json.put("inputs", inputs);
 
         List<File> outputs = new ArrayList<File>();
         scanOutputs(outputs, new File(getOutputDirectoryPath()));
@@ -155,9 +192,10 @@ public class Job {
         JSONObject json = new JSONObject();
         json.put("uri", jobUri);
         json.put("label", label);
-        json.put("log", getLogPath());
+        json.put("log", jobUri + "/log");
         json.put("script", scriptUri);
         json.put("status", jobStatus);
+        json.put("owner", userUri);
         return json;
     }
 

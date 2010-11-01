@@ -18,7 +18,6 @@
 */
 package org.systemsbiology.addama.services.execution.mvc;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,7 +38,7 @@ public class ViewerController extends BaseController {
     public void getViewer(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info(request.getRequestURI());
 
-        String uri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/ui");
+        String uri = getScriptUri(request, "/ui");
         if (!viewersByUri.containsKey(uri)) {
             throw new ResourceNotFoundException(uri);
         }
