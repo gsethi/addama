@@ -24,7 +24,14 @@
             function loadVisualization(allItems) {
                 var treefn = function(item) {
                     var uri = item.uri;
-                    return uri.substring(1).split("/");
+                    var parts = new Array();
+                    parts[0] = "/";
+
+                    var splits = uri.substring(1).split("/");
+                    for (var split in splits) {
+                        parts.push(split);
+                    }
+                    return parts;
                 };
 
                 var valuefn = function(item) {
@@ -48,8 +55,8 @@
                     .width(400).height(1000).left(10).right(200).top(10).bottom(10);
 
                 var layout = vis.add(pv.Layout.Cluster)
-                    .nodes(pv.dom(tree).nodes())
-//                    .nodes(pv.dom(tree).root("addama").sort(sortfn).nodes())
+//                    .nodes(pv.dom(tree).nodes())
+                    .nodes(pv.dom(tree).root("/").sort(sortfn).nodes())
                     .group(true).orient("left");
 
                 layout.link.add(pv.Line).strokeStyle("#ccc").lineWidth(1).antialias(false);
