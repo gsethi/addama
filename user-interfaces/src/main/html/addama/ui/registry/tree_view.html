@@ -25,10 +25,9 @@
                 var treefn = function(item) {
                     var uri = item.uri;
                     var parts = new Array();
-                    parts[0] = "/";
-
                     var splits = uri.substring(1).split("/");
                     for (var i = 0; i < splits.length; i++) {
+                        console.log("splits[" + i + "]:" + splits[i]);
                         parts.push(splits[i]);
                     }
                     return parts;
