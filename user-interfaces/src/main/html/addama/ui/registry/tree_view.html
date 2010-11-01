@@ -47,10 +47,10 @@
                     }
                     return "#ff7f0e";
                 };
-                
-                var tree = pv.tree(allItems).keys(treefn).value(valuefn).map();
-                var vis = new pv.Panel()
-                    .width(400).height(1000).left(10).right(200).top(10).bottom(10);
+
+                //                var tree = pv.tree(allItems).keys(treefn).value(valuefn).map();
+                var tree = pv.tree(allItems).keys(treefn).map();
+                var vis = new pv.Panel().width(400).height(1000).left(10).right(200).top(10).bottom(10);
 
 //                    .nodes(pv.dom(tree).nodes())
 //                    .nodes(pv.dom(tree).root("/").sort(sortfn).nodes())
