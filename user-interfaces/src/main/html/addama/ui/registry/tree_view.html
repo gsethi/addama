@@ -28,8 +28,8 @@
                     parts[0] = "/";
 
                     var splits = uri.substring(1).split("/");
-                    for (var split in splits) {
-                        parts.push(split);
+                    for (var i = 0; i < splits.length; i++) {
+                        parts.push(splits[i]);
                     }
                     return parts;
                 };
