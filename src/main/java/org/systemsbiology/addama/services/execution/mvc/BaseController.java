@@ -29,6 +29,7 @@ import org.systemsbiology.addama.registry.JsonConfigHandler;
 import org.systemsbiology.addama.services.execution.dao.Job;
 import org.systemsbiology.addama.services.execution.dao.JobsDao;
 import org.systemsbiology.addama.services.execution.util.EmailJsonConfigHandler;
+import org.systemsbiology.addama.services.execution.util.JobsDbJsonConfigHandler;
 import org.systemsbiology.addama.services.execution.util.Mailer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -82,6 +83,10 @@ public abstract class BaseController implements InitializingBean {
         jsonConfig.processConfiguration(new MapJsonConfigHandler(viewersByUri, "viewer"));
         jsonConfig.processConfiguration(new MapJsonConfigHandler(jobExecutionDirectoryByUri, "jobExecutionDirectory"));
         jsonConfig.processConfiguration(emailJsonConfigHandler);
+
+        JobsDbJsonConfigHandler jobsDb = new JobsDbJsonConfigHandler();
+        jsonConfig.processConfiguration(jobsDb);
+        this.jobsDao = jobsDb.getJobsDao();
     }
 
     /*

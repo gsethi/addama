@@ -25,6 +25,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,6 +43,8 @@ public class Job {
     private String label;
     private String executionDirectory;
     private String errorMessage;
+    private Date createdAt;
+    private Date modifiedAt;
 
     /*
      * Constructor
@@ -53,6 +56,8 @@ public class Job {
         this.userUri = userUri;
         this.jobDirectory = jobDirectory;
         this.inputs = inputs;
+        this.createdAt = new Date();
+        this.modifiedAt = new Date();
     }
 
     /*
@@ -61,6 +66,10 @@ public class Job {
 
     public String getJobUri() {
         return jobUri;
+    }
+
+    public String getScriptUri() {
+        return scriptUri;
     }
 
     public String getUserUri() {
@@ -112,6 +121,25 @@ public class Job {
     }
 
     /*
+    * Dates
+    */
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(Date modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+    
+    /*
     * Derived
     */
 
@@ -121,10 +149,6 @@ public class Job {
 
     public String getOutputDirectoryPath() {
         return jobDirectory + "/outputs";
-    }
-
-    public String getScriptUri() {
-        return StringUtils.substringBeforeLast(jobUri, "/jobs");
     }
 
     public String getExecuteAtPath() {
@@ -196,6 +220,8 @@ public class Job {
         json.put("script", scriptUri);
         json.put("status", jobStatus);
         json.put("owner", userUri);
+        json.put("created", createdAt);
+        json.put("lastModified", modifiedAt);
         return json;
     }
 
