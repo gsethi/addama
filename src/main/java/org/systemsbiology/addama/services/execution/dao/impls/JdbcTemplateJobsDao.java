@@ -4,9 +4,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.systemsbiology.addama.services.execution.dao.Job;
 import org.systemsbiology.addama.services.execution.dao.JobsDao;
-import org.systemsbiology.addama.services.execution.dao.impls.jdbc.CreateJobPreparedStatementCallback;
+import org.systemsbiology.addama.services.execution.dao.impls.jdbc.CreateJobPreparedStatementSetter;
 import org.systemsbiology.addama.services.execution.dao.impls.jdbc.JobResultSetExtractor;
-import org.systemsbiology.addama.services.execution.dao.impls.jdbc.UpdateJobPreparedStatementCallback;
+import org.systemsbiology.addama.services.execution.dao.impls.jdbc.UpdateJobPreparedStatementSetter;
 
 import java.util.logging.Logger;
 
@@ -42,14 +42,14 @@ public class JdbcTemplateJobsDao implements JobsDao {
         String sql = "INSERT INTO JOBS (URI, SCRIPT, USER, JOB_DIR, INPUTS, LABEL, JOB_STATUS, " +
                 "EXEC_DIR, ERROR_MSG, CREATED_AT, MODIFIED_AT)" +
                 " VALUES (?,?,?,?,?,?,?,?,?,?,?);";
-        jdbcTemplate.execute(sql, new CreateJobPreparedStatementCallback(job));
+        jdbcTemplate.update(sql, new CreateJobPreparedStatementSetter(job));
     }
 
     public void modify(Job job) {
         log.info(job.getJobUri());
 
         String sql = "UPDATE JOBS SET JOB_STATUS = ?, ERROR_MSG = ?, MODIFIED_AT = ? WHERE URI = ?;";
-        jdbcTemplate.execute(sql, new UpdateJobPreparedStatementCallback(job));
+        jdbcTemplate.update(sql, new UpdateJobPreparedStatementSetter(job));
     }
 
     public Job[] retrieveAllForScript(String scriptUri) {

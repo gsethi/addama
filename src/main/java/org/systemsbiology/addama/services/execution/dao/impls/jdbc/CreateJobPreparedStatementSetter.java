@@ -1,10 +1,8 @@
 package org.systemsbiology.addama.services.execution.dao.impls.jdbc;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.systemsbiology.addama.services.execution.dao.Job;
 
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,17 +10,14 @@ import java.sql.SQLException;
 /**
  * @author hrovira
  */
-public class CreateJobPreparedStatementCallback implements PreparedStatementCallback {
+public class CreateJobPreparedStatementSetter implements PreparedStatementSetter {
     private final Job job;
 
-    public CreateJobPreparedStatementCallback(Job job) {
+    public CreateJobPreparedStatementSetter(Job job) {
         this.job = job;
     }
 
-    public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-        Connection c = ps.getConnection();
-        c.setAutoCommit(true);
-        
+    public void setValues(PreparedStatement ps) throws SQLException {
         ps.setString(1, job.getJobUri());
         ps.setString(2, job.getScriptUri());
         ps.setString(3, job.getUserUri());
@@ -36,7 +31,5 @@ public class CreateJobPreparedStatementCallback implements PreparedStatementCall
 
         ps.setDate(10, new Date(job.getCreatedAt().getTime()));
         ps.setDate(11, new Date(job.getModifiedAt().getTime()));
-
-        return null;
     }
 }
