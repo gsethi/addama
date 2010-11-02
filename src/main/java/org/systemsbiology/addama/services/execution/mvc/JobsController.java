@@ -29,9 +29,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.services.execution.dao.Job;
+import org.systemsbiology.addama.services.execution.dao.JobUpdater;
 import org.systemsbiology.addama.services.execution.io.Streamer;
 import org.systemsbiology.addama.services.execution.jobs.Executer;
-import org.systemsbiology.addama.services.execution.jobs.ResultsExecutionCallback;
 import org.systemsbiology.addama.services.execution.util.Mailer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -139,7 +139,8 @@ public class JobsController extends BaseController {
             mailer.setJobLog(joblog);
         }
 
-        Runnable executer = new Executer(p, new ResultsExecutionCallback(job, stdoutStreamer, errorStreamer, logStream), mailer);
+        JobUpdater jobUpdater = new JobUpdater(job, jobsDao);
+        Runnable executer = new Executer(p, jobUpdater, mailer, stdoutStreamer, errorStreamer, logStream);
 
         new Thread(stdoutStreamer).start();
         new Thread(errorStreamer).start();

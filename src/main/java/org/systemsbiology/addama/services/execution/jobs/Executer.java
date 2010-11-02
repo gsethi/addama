@@ -18,8 +18,10 @@
 */
 package org.systemsbiology.addama.services.execution.jobs;
 
+import org.systemsbiology.addama.services.execution.dao.JobUpdater;
 import org.systemsbiology.addama.services.execution.util.Mailer;
 
+import java.io.Closeable;
 import java.util.logging.Logger;
 
 /**
@@ -29,25 +31,50 @@ public class Executer implements Runnable {
     private static final Logger log = Logger.getLogger(Executer.class.getName());
 
     private final Process process;
-    private final ExecutionCallback executionCallback;
+    private final JobUpdater jobUpdater;
     private final Mailer mailer;
+    private final Closeable[] closeables;
 
-    public Executer(Process process, ExecutionCallback callback, Mailer mailer) {
+    public Executer(Process process, JobUpdater jobUpdater, Mailer mailer, Closeable... closeables) {
         this.process = process;
-        this.executionCallback = callback;
+        this.jobUpdater = jobUpdater;
         this.mailer = mailer;
+        this.closeables = closeables;
     }
 
     public void run() {
         try {
+            this.jobUpdater.running();
+
             int result = process.waitFor();
             log.info("run: completed with result: " + result);
-            this.executionCallback.onResult(process, result);
+
+            this.jobUpdater.completed();
+
             if (this.mailer != null) {
                 this.mailer.sendMail();
             }
         } catch (Exception e) {
-            this.executionCallback.onError(e);
+            this.jobUpdater.onError(e);
+
+        } finally {
+            closeResources();
+        }
+    }
+
+    /*
+     * Private Methods
+     */
+
+    private void closeResources() {
+        if (closeables != null) {
+            for (Closeable closeable : closeables) {
+                try {
+                    closeable.close();
+                } catch (Exception e) {
+                    log.warning(e.getMessage());
+                }
+            }
         }
     }
 }

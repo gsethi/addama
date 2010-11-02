@@ -22,7 +22,7 @@ public class JobResultSetExtractor implements ResultSetExtractor {
     private final ArrayList<Job> jobs = new ArrayList<Job>();
 
     public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
-        if (rs.next()) {
+        while (rs.next()) {
             String jobUri = rs.getString("URI");
             String scriptUri = rs.getString("SCRIPT");
             String userUri = rs.getString("USER");
@@ -39,7 +39,7 @@ public class JobResultSetExtractor implements ResultSetExtractor {
             Job job = new Job(jobUri, scriptUri, userUri, jobDir, inputsJson);
             job.setCreatedAt(createdAt);
             job.setModifiedAt(modifiedAt);
-            
+
             if (!StringUtils.isEmpty(label)) job.setLabel(label);
             if (!StringUtils.isEmpty(status)) job.setJobStatus(JobStatus.valueOf(status));
             if (!StringUtils.isEmpty(execDir)) job.setExecutionDirectory(execDir);
