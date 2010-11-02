@@ -24,6 +24,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -33,6 +35,8 @@ import java.util.List;
  * @author hrovira
  */
 public class Job {
+    private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
     private final String jobUri;
     private final String userUri;
     private final String scriptUri;
@@ -186,6 +190,15 @@ public class Job {
         }
         return builder.toString();
     }
+
+    public String getFormattedCreatedAt() {
+        return dateFormat.format(createdAt);
+    }
+
+    public String getFormattedModifiedAt() {
+        return dateFormat.format(modifiedAt);
+    }
+
     /*
     * Public Methods
     */
@@ -220,8 +233,8 @@ public class Job {
         json.put("script", scriptUri);
         json.put("status", jobStatus);
         json.put("owner", userUri);
-        json.put("created", createdAt);
-        json.put("lastModified", modifiedAt);
+        json.put("created", getFormattedCreatedAt());
+        json.put("lastModified", getFormattedModifiedAt());
         return json;
     }
 

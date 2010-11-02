@@ -3,9 +3,9 @@ package org.systemsbiology.addama.services.execution.dao.impls.jdbc;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.systemsbiology.addama.services.execution.dao.Job;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 /**
  * @author hrovira
@@ -29,7 +29,7 @@ public class CreateJobPreparedStatementSetter implements PreparedStatementSetter
         ps.setString(8, job.getExecutionDirectory());
         ps.setString(9, job.getErrorMessage());
 
-        ps.setDate(10, new Date(job.getCreatedAt().getTime()));
-        ps.setDate(11, new Date(job.getModifiedAt().getTime()));
+        ps.setTimestamp(10, new Timestamp(job.getCreatedAt().getTime()));
+        ps.setTimestamp(11, new Timestamp(job.getModifiedAt().getTime()));
     }
 }

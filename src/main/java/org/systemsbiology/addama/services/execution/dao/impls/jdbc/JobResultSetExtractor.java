@@ -33,8 +33,8 @@ public class JobResultSetExtractor implements ResultSetExtractor {
             String status = rs.getString("JOB_STATUS");
             String execDir = rs.getString("EXEC_DIR");
             String errorMsg = rs.getString("ERROR_MSG");
-            Date createdAt = rs.getDate("CREATED_AT");
-            Date modifiedAt = rs.getDate("MODIFIED_AT");
+            Date createdAt = rs.getTimestamp("CREATED_AT");
+            Date modifiedAt = rs.getTimestamp("MODIFIED_AT");
 
             Job job = new Job(jobUri, scriptUri, userUri, jobDir, inputsJson);
             job.setCreatedAt(createdAt);
