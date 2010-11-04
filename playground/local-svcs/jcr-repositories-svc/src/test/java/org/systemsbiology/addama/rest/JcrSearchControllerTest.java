@@ -36,8 +36,8 @@ public class JcrSearchControllerTest {
 	private static final Logger log = Logger
 			.getLogger(JcrSearchControllerTest.class.getName());
 
-	JcrSearchController searcher = new JcrSearchController();
-	MockHttpServletRequest request = null;
+	private JcrSearchController searcher = new JcrSearchController();
+	private MockHttpServletRequest request = null;
 
 	@Autowired
 	private JcrTestHelper helper = null;
@@ -50,9 +50,7 @@ public class JcrSearchControllerTest {
 		// Ensure that the JCR session remains open for the duration
 		helper.obtainSession();
 
-		// Add some test data to the JCR, note that all properties are indexed,
-		// but currently JcrSearchController only allows search over string
-		// values
+		// Add some test data to the JCR
 
 		helper
 				.createOrUpdateNode(
@@ -112,6 +110,24 @@ public class JcrSearchControllerTest {
 		// this version of the code, so we have to test each node that should
 		// not be in the result set for
 		// non-existence instead of using the count
+		assertFalse(mav.getModel().toString().matches(".*TestNode1.*"));
+		assertTrue(mav.getModel().toString().matches(".*TestNode2.*"));
+		assertFalse(mav.getModel().toString().matches(".*TestNode3.*"));
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.systemsbiology.addama.rest.JcrSearchController#search(javax.servlet.http.HttpServletRequest)}
+	 * .
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFreeTextPhraseeSearch() throws Exception {
+		request.setParameter("q", "\"unit tests are handy\"");
+		ModelAndView mav = searcher.search(request);
+		log.info("Results: " + mav.getModel());
+
 		assertFalse(mav.getModel().toString().matches(".*TestNode1.*"));
 		assertTrue(mav.getModel().toString().matches(".*TestNode2.*"));
 		assertFalse(mav.getModel().toString().matches(".*TestNode3.*"));

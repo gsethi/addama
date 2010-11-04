@@ -25,7 +25,6 @@ import org.systemsbiology.addama.rest.transforms.CreateOrUpdateNode;
  * @author deflaux
  */
 public class JcrTestHelper {
-	private static final CreateOrUpdateNode createNode = new CreateOrUpdateNode();
 	private SessionFactory sf;
 	private Session session;
 	private JcrTemplate jcrTemplate = null;
@@ -46,8 +45,8 @@ public class JcrTestHelper {
 	}
 
 	/**
-	 * Helper method to provide a way to ensure that the JCR session remains open for the
-	 * (e.g. for the duration of a test case).
+	 * Helper method to provide a way to ensure that the JCR session remains
+	 * open for the (e.g. for the duration of a test case).
 	 * 
 	 * @throws java.lang.Exception
 	 * @see releaseSession
@@ -71,8 +70,8 @@ public class JcrTestHelper {
 	}
 
 	/**
-	 * Construct a MockHttpServletRequest with our JcrTemplate attached
-	 * the way the Addama controllers expect it to be
+	 * Construct a MockHttpServletRequest with our JcrTemplate attached the way
+	 * the Addama controllers expect it to be
 	 * 
 	 * @return MockHttpServletRequest
 	 */
@@ -85,11 +84,18 @@ public class JcrTestHelper {
 	/**
 	 * Helper method to create or update a JCR node
 	 * 
-	 * @param path - the path to the node
-	 * @param json - json holding node properties to add/modify in the node
+	 * @param path
+	 *            - the path to the node
+	 * @param json
+	 *            - json holding node properties to add/modify in the node
 	 * @throws java.lang.Exception
 	 */
 	public void createOrUpdateNode(String path, String json) throws Exception {
+
+		// Dev Node: make a new CreateOrUpdateNode object each time since it
+		// caches the current time
+		CreateOrUpdateNode createNode = new CreateOrUpdateNode();
+
 		Node node = (Node) jcrTemplate.execute(new GetNodeAtPathJcrCallback(
 				path));
 		JSONObject jsonCreate = new JSONObject(json);
