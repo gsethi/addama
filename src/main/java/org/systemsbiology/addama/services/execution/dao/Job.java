@@ -176,7 +176,7 @@ public class Job {
                     builder.append("=");
                     builder.append(values.getString(i));
                     if (isNotLast) {
-                        builder.append("?");
+                        builder.append("&");
                     }
                 }
             } else {
@@ -184,7 +184,7 @@ public class Job {
                 builder.append("=");
                 builder.append(inputs.getString(key));
                 if (isNotLast) {
-                    builder.append("?");
+                    builder.append("&");
                 }
             }
         }
