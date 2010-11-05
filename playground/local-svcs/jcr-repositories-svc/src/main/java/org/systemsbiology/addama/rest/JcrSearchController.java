@@ -88,7 +88,12 @@ public class JcrSearchController extends AbstractJcrController {
         boolean matchAll = ServletRequestUtils.getBooleanParameter(request, "MATCHING_ALL_TERMS", false);
         Map<String, Node> nodesByUuid = joinResults(matchAll, collectors);
 
-        // Build our paginated result object
+        // Build our paginated result object, using a linear loop because folks
+        // generally only look at the first few pages of a search result, TODO
+        // figure out a meaningful ordering of these results, if there was any
+        // search rank it got lost in the join because a HashMap was used, once
+        // we have a meaningful ordering List.sublist can be used to get the
+        // slice to return
         int currentIndex = 1;
         int maxIndex = (Integer.MAX_VALUE == maxResults)
             ? maxResults : startIndex + maxResults;
