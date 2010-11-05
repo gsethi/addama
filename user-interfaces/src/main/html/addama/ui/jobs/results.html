@@ -104,19 +104,23 @@
                 Ext.get("container_status").dom.innerHTML = "Status is " + json.status;
             });
             
-            doGet(jobUri + "/outputs", function(json) {
-                if (json.items) {                   
-                    var spec = { id: 'outputs-ul', tag: 'ul', cls: 'my-list', children: [] };
-                    for (var i = 0; i < json.items.length; i++) {
-                        var item = json.items[i];
-                        var html = "<a href='" + item.uri + "' target='_blank'>" + item.name + "</a>";
-                        spec.children[spec.children.length] = { tag: "li", id: "item" + i, html: html };
+            var jobid = jobUri.substring(jobUri.lastIndexOf("/")+1,jobUri.length);
+            var jobsUri = jobUri;
+            if(jobid != "jobs"){
+                doGet(jobUri + "/outputs", function(json) {
+                    if (json.items) {
+                        var spec = { id: 'outputs-ul', tag: 'ul', cls: 'my-list', children: [] };
+                        for (var i = 0; i < json.items.length; i++) {
+                            var item = json.items[i];
+                            var html = "<a href='" + item.uri + "' target='_blank'>" + item.name + "</a>";
+                            spec.children[spec.children.length] = { tag: "li", id: "item" + i, html: html };
+                        }
+                        Ext.DomHelper.append("container_results", spec);
                     }
-                    Ext.DomHelper.append("container_results", spec);
-                }
-            });
-
-            var jobsUri = jobUri.substring(0, jobUri.lastIndexOf("/"));
+                });
+                jobsUri=jobUri.substring(0, jobUri.lastIndexOf("/"));;
+            }
+            
             doGet(jobsUri, function(json) {
                 if (json.items) {
                     var spec = { id: 'jobs-ul', tag: 'ul', cls: 'my-list', children: [] };
