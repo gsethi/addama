@@ -29,6 +29,21 @@
                     <archiveClasses>true</archiveClasses>
                 </configuration>
             </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>attach-javadocs</id>
+                  <goals>
+<!--               We probably don't want these goals on by default because -->
+<!--               they add a lot to the build time.                        -->
+<!--                     <goal>jar</goal> -->
+<!--                     <goal>test-jar</goal> -->
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -61,7 +76,13 @@
             <artifactId>jackrabbit-spi-commons</artifactId>
             <version>1.4</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-core</artifactId>
+            <version>1.4</version>
+            <scope>test</scope>
+        </dependency>
+        
         <!-- Spring Modules -->
         <dependency>
             <groupId>org.springmodules</groupId>
@@ -111,6 +132,14 @@
             </exclusions>
         </dependency>
 
+        <!-- Joda Time -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
 </project>
