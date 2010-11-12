@@ -37,8 +37,7 @@ public class JcrTestHelper {
 	}
 
 	/**
-	 * @param jcrTemplate
-	 *            the jcrTemplate to set
+	 * @param jcrTemplate - the jcrTemplate to set
 	 */
 	public void setJcrTemplate(JcrTemplate jcrTemplate) {
 		this.jcrTemplate = jcrTemplate;
@@ -99,7 +98,7 @@ public class JcrTestHelper {
 		Node node = (Node) jcrTemplate.execute(new GetNodeAtPathJcrCallback(
 				path));
 		JSONObject jsonCreate = new JSONObject(json);
-		createNode.doCreate(node, jsonCreate);
+		createNode.doUpdate(node, jsonCreate);
 		jcrTemplate.save();
 	}
 }

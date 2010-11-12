@@ -80,7 +80,7 @@ public class CreateOrUpdateNodeTest {
 		jsonCreate.put("excludeBaseUri", true);
 
 		CreateOrUpdateNode createNode = new CreateOrUpdateNode();
-		createNode.doCreate(node, jsonCreate);
+		createNode.doUpdate(node, jsonCreate);
 		jcrTemplate.save();
 
 		assertTrue(node.hasProperty(created_at.word()));
@@ -89,7 +89,7 @@ public class CreateOrUpdateNodeTest {
 		JSONObject jsonUpdate = new JSONObject();
 		jsonUpdate.put("foo", "bar");
 
-		createNode.doCreate(node, jsonUpdate);
+		createNode.doUpdate(node, jsonUpdate);
 		jcrTemplate.save();
 
 		assertTrue(node.hasProperty(created_at.word()));

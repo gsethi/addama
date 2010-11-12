@@ -55,28 +55,14 @@ public class NodeCrudController extends BaseController {
         String requestUri = request.getRequestURI();
         log.info(requestUri);
 
-        String baseUri = StringUtils.chomp(StringUtils.substringAfter(requestUri, request.getContextPath()), "/");
-
-        JSONObject ops = new JSONObject();
-        ops.put("annotations", baseUri + "/annotations");
-        ops.put("terms", baseUri + "/annotations/terms");
-        ops.put("meta", baseUri + "/meta");
-        ops.put("directory", baseUri + "/dir");
-
-        JSONObject json = new JSONObject();
-        json.put("uri", baseUri);
-        json.put("operations", ops);
-
         Node node = getNode(request, null);
-        markAsFile(node, json);
-        loadProperties(node, json);
-        appendItems(baseUri, node, json, request);
+        JSONObject json = constructNodeMetaJson(request, null, node);
 
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**", method = RequestMethod.POST)
-    public void post(HttpServletRequest request, @RequestParam(value = "JSON", required = false) String json) throws Exception {
+    public ModelAndView post(HttpServletRequest request, @RequestParam(value = "JSON", required = false) String json) throws Exception {
         String requestUri = request.getRequestURI();
         log.info(requestUri);
 
@@ -89,6 +75,10 @@ public class NodeCrudController extends BaseController {
 
         CreateOrUpdateNode createNode = new CreateOrUpdateNode();
         createNode.doUpdate(node, new JSONObject(json));
+        JSONObject responseJson = constructNodeMetaJson(request, null, node);
+
+        return new ModelAndView(new JsonItemsView()).addObject("json",
+                                                               responseJson);
     }
 
     @RequestMapping(value = "/**/delete", method = RequestMethod.POST)
@@ -143,6 +133,32 @@ public class NodeCrudController extends BaseController {
         }
 
         return "/";
+    }
+
+    private JSONObject constructNodeMetaJson(HttpServletRequest request,
+                                             String uriSuffix,
+                                             Node node) throws Exception {
+
+        uriSuffix = (null == uriSuffix) ? "/" : uriSuffix;
+        String baseUri = StringUtils.chomp(StringUtils.substringAfter
+                                           (request.getRequestURI(),
+                                            request.getContextPath()),
+                                           uriSuffix);
+
+        JSONObject ops = new JSONObject();
+        ops.put("annotations", baseUri + "/annotations");
+        ops.put("terms", baseUri + "/annotations/terms");
+        ops.put("meta", baseUri + "/meta");
+        ops.put("directory", baseUri + "/dir");
+
+        JSONObject json = new JSONObject();
+        json.put("uri", baseUri);
+        json.put("operations", ops);
+        markAsFile(node, json);
+        loadProperties(node, json);
+        appendItems(baseUri, node, json, request);
+
+        return json;
     }
 
 }
