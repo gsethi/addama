@@ -326,6 +326,6 @@ public class NodeCrudControllerTest {
 
 		assertEquals("we got 200 OK", 200, response.getStatus());
 		JSONObject results = new JSONObject(response.getContentAsString());
-		assertEquals("/path/TestData/TestNode3/delete", results.getString("uri"));
+		assertEquals("/path/TestData/TestNode3", results.getString("uri"));
 	}
 }
