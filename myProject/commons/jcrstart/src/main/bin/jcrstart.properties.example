@@ -1,0 +1,9 @@
+# Rename this file to jcrstart.properties and alter as necessary
+# In general you should only change the directory path to point to the location you want the
+# repository data housed.  The port number does not need to be changed unless it is already
+# in use.
+jcrstart.repo.local.path=/local/jcrstart/data_repository
+jcrstart.repo.rmiserver.name=rmiservername
+jcrstart.repo.rmiserver.port=10001
+jcrstart.repo.rmiserver.username=username
+jcrstart.repo.rmiserver.password=password

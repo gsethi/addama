@@ -1,0 +1,32 @@
+<html>
+<head>
+    <title>Chromosome Range Control Test Page</title>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="js/chromosomeRangeControl.js"></script>
+
+    <script type="text/javascript">
+        var rangeControl;
+
+        function loadRangeControl() {
+            rangeControl = new ChromosomeRangeControl("container_main", "/addama/refgenome/hg18");
+            rangeControl.addSelectionListener({
+                onRangeSelection: function(chromRangeUri) {
+                    Ext.getDom("container_msgs").innerHTML = "onRangeSelection(" + chromRangeUri + ")";
+                },
+                onGeneSelection: function(geneSymbol) {
+                    Ext.getDom("container_msgs").innerHTML = "onGeneSelection(" + geneSymbol + ")";
+                }
+            });
+        }
+
+        Event.observe(window, "load", loadRangeControl);
+    </script>
+</head>
+<body>
+<div id="container_main"></div>
+<div id="container_msgs"></div>
+</body>
+</html>

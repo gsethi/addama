@@ -1,0 +1,69 @@
+<html>
+<head>
+    <title>Welcome to Addama</title>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="/addama/ui/prototype-1.6.0.3.js"></script>
+    <script type="text/javascript">
+        function testform() {
+            new Ajax.Request($("test_input").value, {
+                method: "get",
+                onSuccess: populateTextArea,
+                onFailure: populateTextArea,
+                onException: populateTextArea
+            });
+        }
+
+        function testlink(linkvalue) {
+            $("test_input").value = linkvalue;
+            testform();
+        }
+
+        function testsearch() {
+            new Ajax.Request("/addama/search", {
+                method: "get",
+                parameters: {
+                    q: $("test_search").value
+                },
+                onSuccess: populateTextArea,
+                onFailure: populateTextArea,
+                onException: populateTextArea
+            });
+        }
+
+        function populateTextArea(response) {
+            $("test_results").innerHTML = response.responseText;
+            $("test_responseCode").innerHTML = response.status;
+        }
+    </script>
+</head>
+<body>
+    <h3>Welcome to Addama</h3>
+    <img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine"/>
+
+    <h4>Links</h4>
+    <ul>
+        <li><a href="#" onclick="testlink('/addama/registry'); return false;">Registry</a></li>
+        <li><a href="#" onclick="testlink('/addama/users'); return false;">Users</a></li>
+        <li><a href="#" onclick="testlink('/addama/groups'); return false;">Groups</a></li>
+        <li><a href="#" onclick="testlink('/addama/datasources'); return false;">Datasources</a></li>
+        <li><a href="#" onclick="testlink('/addama/repositories'); return false;">Repositories</a></li>
+        <li><a href="#" onclick="testlink('/addama/indexes'); return false;">Indexes</a></li>
+        <li><a href="#" onclick="testlink('/addama/users/whoami'); return false;">Who Am I?</a></li>
+        <li><a href="/admin/apikeys.html">Api Keys</a></li>
+    </ul>
+
+    <h4>Test URI</h4>
+    <input type="text" id="test_input"/><br/>
+    <button onclick="testform();">Test</button>
+    
+    <h4>Test Search</h4>
+    <input type="text" id="test_search"/><br/>
+    <button onclick="testsearch();">Search</button>
+
+    <h4>Response Code</h4>
+    <div id="test_responseCode"></div>
+
+    <h4>Results</h4>
+    <div id="test_results"></div>
+</body>
+</html>

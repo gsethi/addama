@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="registry" class="org.systemsbiology.addama.coresvcs.gae.services.Registry" autowire="byType">
+        <property name="pathMatcher">
+            <bean class="org.springframework.util.AntPathMatcher"/>
+        </property>
+    </bean>
+
+    <bean id="groups" class="org.systemsbiology.addama.coresvcs.gae.services.Groups" autowire="byType"/>
+
+    <bean id="users" class="org.systemsbiology.addama.coresvcs.gae.services.Users" autowire="byType"/>
+
+    <bean id="apiKeys" class="org.systemsbiology.addama.coresvcs.gae.services.ApiKeys" autowire="byType"/>
+
+    <bean id="proxy" class="org.systemsbiology.addama.coresvcs.gae.services.Proxy" autowire="byType"/>
+
+    <bean id="sharing" class="org.systemsbiology.addama.coresvcs.gae.services.Sharing" autowire="byType"/>
+
+    <bean id="whiteLists" class="org.systemsbiology.addama.coresvcs.gae.services.WhiteLists" autowire="byType"/>
+
+</beans>
