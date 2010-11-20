@@ -23,11 +23,13 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 import org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate;
+import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
@@ -43,31 +45,49 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 /**
+ * An RSS 2.0 and generic Json items feed service. 
+ * 
+ * RSS 2.0 pagination API per http://tools.ietf.org/html/rfc5005#section-3
+ * 
+ * For feed item idempotent additions or item update instead of insertion, specify a unique key for the item.
+ * 
  * @author hrovira
  */
 public class FeedsController extends AbstractController {
     private static final Logger log = Logger.getLogger(FeedsController.class.getName());
 
     private MemcacheServiceTemplate memcacheServiceTemplate = new MemcacheServiceTemplate();
+    private MemcacheServicePaginatedTemplate memcacheServicePaginatedTemplate = new MemcacheServicePaginatedTemplate();
     private DatastoreServiceTemplate datastoreServiceTemplate = new DatastoreServiceTemplate();
 
+    public static final String PAGE_PARAM = "page";
+    public static final int DEFAULT_PAGE = 1;
+    public static final int PAGE_SIZE = 10;
+    
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String requestUri = request.getRequestURI();
         String method = request.getMethod();
+        
+        // Pagination
+        String page = request.getParameter("page");
+        int pageNum = (null == page) ? DEFAULT_PAGE : Integer.valueOf(page);
+        pageNum = (0 < pageNum) ? pageNum : DEFAULT_PAGE;
+        int offset = PAGE_SIZE * (pageNum - 1);
+        
         log.info(method + ":" + requestUri);
 
         if (StringUtils.equalsIgnoreCase(method, "get")) {
             if (requestUri.endsWith("/rss")) {
                 requestUri = StringUtils.substringBeforeLast(requestUri, "/rss");
-                JSONObject json = getItems(requestUri);
-                return new ModelAndView(new RssView()).addObject("json", json);
+                JSONObject json = getItems(requestUri, PAGE_SIZE, offset);
+                return new ModelAndView(new RssView(requestUri, pageNum)).addObject("json", json);
             } else if (StringUtils.equalsIgnoreCase(requestUri, "/addama/feeds")) {
                 JSONObject json = getFeeds();
                 return new ModelAndView(new JsonItemsView()).addObject("json", json);
             } else {
-                JSONObject json = getItems(requestUri);
-                json.put("uri", requestUri);
-                json.put("rss", requestUri + "/rss");
+                JSONObject json = getItems(requestUri, PAGE_SIZE, offset);
+                json.put("uri", requestUri + "?" + PAGE_PARAM + "=" + pageNum);
+                json.put("rss", requestUri + "/rss?" + PAGE_PARAM + "=" + pageNum);
                 return new ModelAndView(new JsonItemsView()).addObject("json", json);
             }
         } else if (StringUtils.equalsIgnoreCase(method, "post")) {
@@ -87,8 +107,8 @@ public class FeedsController extends AbstractController {
         return new JSONObject(items);
     }
 
-    private JSONObject getItems(String feedUri) throws Exception {
-        String items = (String) memcacheServiceTemplate.loadIfNotExisting(feedUri, new FeedItemsMemcacheLoaderCallback());
+    private JSONObject getItems(String feedUri, int limit, int offset) throws Exception {
+        String items = (String) memcacheServicePaginatedTemplate.loadIfNotExisting(feedUri, limit, offset, new FeedItemsMemcacheLoaderCallback());
         return new JSONObject(items);
     }
 
@@ -99,11 +119,24 @@ public class FeedsController extends AbstractController {
         String userUri = request.getHeader("x-addama-registry-user");
 
         Entity p = getFeed(feedUri, userUri);
-        Key k = KeyFactory.createKey(p.getKey(), "feed-item", UUID.randomUUID().toString());
+        Key k;
+        // Allow for idempotent additions and updates to feeds
+        if(json.has("key")) {
+        	k = KeyFactory.createKey(p.getKey(), "feed-item", json.getString("key"));
+        }
+        else {
+        	k = KeyFactory.createKey(p.getKey(), "feed-item", UUID.randomUUID().toString());
+        }
         Entity e = new Entity(k);
+        
+        // The only required property is 'text'
         e.setProperty("text", json.getString("text"));
+
+        // Optional properties with default values
         if (json.has("date")) {
-            e.setProperty("date", json.getString("date"));
+        	// Dev Note: dates must be specified in a format that is compatible with the ISO8601 standard.
+        	DateTime theDate = new DateTime(json.getString("date"));
+        	e.setProperty("date", theDate.toDate());
         } else {
             e.setProperty("date", new Date());
         }
@@ -113,8 +146,16 @@ public class FeedsController extends AbstractController {
             e.setProperty("author", userUri);
         }
 
+        // Optional properties
+        if(json.has("title")) {
+        	e.setProperty("title", json.getString("title"));
+        }
+        if(json.has("link")) {
+        	e.setProperty("link", json.getString("link"));
+        }
+
         datastoreServiceTemplate.inTransaction(new PutEntityTransactionCallback(e));
-        memcacheServiceTemplate.clearMemcache(feedUri);
+        memcacheServicePaginatedTemplate.clearMemcacheAllPages(feedUri);
 
         return json;
     }
