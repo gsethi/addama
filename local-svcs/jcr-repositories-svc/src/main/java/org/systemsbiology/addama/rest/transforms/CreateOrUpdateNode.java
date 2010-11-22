@@ -49,52 +49,6 @@ public class CreateOrUpdateNode {
      * Public Methods
      */
 
-    public void doCreate(Node node, JSONObject jsonObject) throws JSONException, RepositoryException, IOException, InvalidSyntaxException, ParseException {
-        if (jsonObject == null) return;
-
-        tagCreatedOrModified(node);
-
-        Iterator itr = jsonObject.keys();
-        while (itr.hasNext()) {
-            String key = (String) itr.next();
-            Object value = jsonObject.get(key);
-
-            if (value != null) {
-                if (isReservedKeyword(key)) {
-                    // ignore: do not persist
-                } else if (StringUtils.equalsIgnoreCase("addama-ref-uri", key)) {
-                    throw new IllegalArgumentException("addama-ref-uri is deprecated, use addama-uri instead");
-
-                } else if (value instanceof JSONObject) {
-                    JSONObject childJson = (JSONObject) value;
-                    if (childJson.has(addama_date.word())) {
-                        setAddamaDate(node, key, childJson);
-                    } else if (childJson.has("addama-ref")) {
-                        throw new IllegalArgumentException("addama-ref is deprecated, use addama-uri instead");
-                    } else if (childJson.has("addama-ref-uri")) {
-                        throw new IllegalArgumentException("addama-ref-uri is deprecated, use addama-uri instead");
-                    } else {
-                        Node childNode = NodeUtil.getNewNode(node, key);
-                        doCreate(childNode, childJson);
-                    }
-
-                } else if (value instanceof JSONArray) {
-                    JSONArray jsonArray = (JSONArray) value;
-                    doCreate(node, key, jsonArray);
-                } else if (addama_uri.isContainedIn(value.toString())) {
-                    setAddamaUri(node, key, value);
-                    // TODO : Handle addama-uri arrays
-
-                } else if (addama_generate_date.isEqual(value.toString())) {
-                    node.setProperty(key, Calendar.getInstance());
-
-                } else {
-                    setNodeProperty(node, key, value);
-                }
-            }
-        }
-    }
-
     public void doUpdate(Node node, JSONObject jsonObject) throws JSONException, RepositoryException, IOException, InvalidSyntaxException, ParseException {
         if (jsonObject == null) return;
 
@@ -121,12 +75,12 @@ public class CreateOrUpdateNode {
                         throw new IllegalArgumentException("addama-ref-uri is deprecated, use addama-uri instead");
                     } else {
                         Node childNode = NodeUtil.getNewNode(node, key);
-                        doCreate(childNode, (JSONObject) value);
+                        doUpdate(childNode, (JSONObject) value);
                     }
 
                 } else if (value instanceof JSONArray) {
                     if (node.hasNode(key)) throw new InvalidSyntaxException(key + " cannot be modified");
-                    doCreate(node, key, (JSONArray) value);
+                    doUpdate(node, key, (JSONArray) value);
 
                 } else if (addama_uri.isContainedIn(value.toString())) {
                     setAddamaUri(node, key, value);
@@ -149,7 +103,7 @@ public class CreateOrUpdateNode {
      * Private Methods
      */
 
-    private void doCreate(Node node, String key, JSONArray jsonArray) throws JSONException, RepositoryException, IOException, InvalidSyntaxException, ParseException {
+    private void doUpdate(Node node, String key, JSONArray jsonArray) throws JSONException, RepositoryException, IOException, InvalidSyntaxException, ParseException {
         if (jsonArray == null) return;
 
         // scan array, determine if jsonobject or property
@@ -165,7 +119,7 @@ public class CreateOrUpdateNode {
                         throw new IllegalArgumentException("addama-ref-uri is deprecated, use addama-uri instead");
                     } else {
                         Node childNode = NodeUtil.getNewNode(node, key);
-                        doCreate(childNode, childJson);
+                        doUpdate(childNode, childJson);
                     }
                 }
                 break;
