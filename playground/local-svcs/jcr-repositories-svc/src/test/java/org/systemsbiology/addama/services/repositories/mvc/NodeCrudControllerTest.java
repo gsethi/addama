@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -30,13 +29,6 @@ import org.systemsbiology.addama.JcrTestHelper;
  * 
  * The following unit tests are written at the servlet layer to test bugs in our
  * URL mapping, request format, response format, and response status code.
- * 
- * Unfortunately I was not able to configure the DispatcherServlet with the
- * production configuration in files
- * src/main/webapp/WEB-INF/jcrrepos-servlet.xml and
- * src/main/webapp/WEB-INF/app-contexts/controllers.xml because the
- * org.systemsbiology.addama.jcr.support.JcrTemplateProvider bean does not play
- * nice in this unit test environment.
  * 
  * @author deflaux
  * 
@@ -55,20 +47,11 @@ public class NodeCrudControllerTest {
 	@Autowired
 	private JcrTestHelper helper = null;
 
-
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
-
-		// Create a Spring MVC DispatcherServlet so that we can test our URL
-		// mapping, request format, response format, and response status code.
-		MockServletConfig servletConfig = new MockServletConfig("jcrrepos");
-		servletConfig.addInitParameter("contextConfigLocation",	"/test-jcrrepos-servlet.xml");
-		servlet = new DispatcherServlet();
-		servlet.init(servletConfig);
-
 		// Ensure that the JCR session remains open for the duration
 		helper.obtainSession();
 
@@ -86,7 +69,9 @@ public class NodeCrudControllerTest {
 						"/TestData/TestNode3",
 						"{ 'aSingleWord':'same', 'anInteger':-10, 'aBoolean':false, 'freeText':'unit tests are helpful'}");
 
-		// Wire up the jcrTemplate in the manner the controller expects
+		// Get a handle to our servlet and wire up the jcrTemplate in 
+		// the manner the controller expects
+		servlet = helper.getDispatcherServlet();
 		request = helper.getMockHttpServletRequest();
 		response = new MockHttpServletResponse();
 	}
@@ -313,6 +298,6 @@ public class NodeCrudControllerTest {
 
 		assertEquals("we got 200 OK", 200, response.getStatus());
 		JSONObject results = new JSONObject(response.getContentAsString());
-		assertEquals("/path/TestData/TestNode3", results.getString("uri"));
-	}
+        assertEquals("/path/TestData/TestNode3", results.getString("uri"));
+    }
 }

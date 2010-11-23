@@ -16,15 +16,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.systemsbiology.addama.JcrTestHelper;
 
 /**
- * Unit test suite for label (tag-like) CRUD operations for nodes.  This is 
- * testing both LabelController and JcrSearchController.
+ * Unit test suite for node 'label' property search operations.  Labels can 
+ * be used to tag nodes.  This is testing both LabelController and 
+ * JcrSearchController.
  * 
  * Dev Note: we are just checking search functionality here.  For tests 
  * that also check the structure of search results, see the 
@@ -53,13 +53,6 @@ public class LabelsSearchTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		// Create a Spring MVC DispatcherServlet so that we can test our URL
-		// mapping, request format, response format, and response status code.
-		MockServletConfig servletConfig = new MockServletConfig("jcrrepos");
-		servletConfig.addInitParameter("contextConfigLocation",	"/test-jcrrepos-servlet.xml");
-		servlet = new DispatcherServlet();
-		servlet.init(servletConfig);
-
 		// Ensure that the JCR session remains open for the duration
 		helper.obtainSession();
 		
@@ -74,7 +67,9 @@ public class LabelsSearchTest {
 				"/TestData/TestNode3",
 				"{ 'aSingleWord':'same', 'anInteger':-10, 'aBoolean':false, 'freeText':'unit tests are helpful'}");
 
-		// Wire up the jcrTemplate in the manner the controller expects
+		// Get a handle to our servlet and wire up the jcrTemplate in 
+		// the manner the controller expects
+		servlet = helper.getDispatcherServlet();
 		MockHttpServletRequest setUpRequest = helper.getMockHttpServletRequest();
 
 		// Add some labels to our test nodes

@@ -17,14 +17,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.systemsbiology.addama.JcrTestHelper;
 
 /**
- * Unit test suite for label (tag-like) CRUD operations for nodes.
+ * Unit test suite for node 'label' property CRUD operations.  Labels can 
+ * be used to tag nodes.
  * 
  * @author deflaux
  */
@@ -47,13 +47,6 @@ public class LabelsControllerTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		// Create a Spring MVC DispatcherServlet so that we can test our URL
-		// mapping, request format, response format, and response status code.
-		MockServletConfig servletConfig = new MockServletConfig("jcrrepos");
-		servletConfig.addInitParameter("contextConfigLocation",	"/test-jcrrepos-servlet.xml");
-		servlet = new DispatcherServlet();
-		servlet.init(servletConfig);
-
 		// Ensure that the JCR session remains open for the duration
 		helper.obtainSession();
 		
@@ -61,10 +54,11 @@ public class LabelsControllerTest {
 		helper.createOrUpdateNode("/TestData/TestNode",
 		"{ 'aSingleWord':'same', 'anInteger':0, 'aBoolean':true, 'freeText':'stuff to be indexed for a free text search'}");
 
-		// Wire up the jcrTemplate in the manner the controller expects
+		// Get a handle to our servlet and wire up the jcrTemplate in 
+		// the manner the controller expects
+		servlet = helper.getDispatcherServlet();
 		request = helper.getMockHttpServletRequest();
 		response = new MockHttpServletResponse();
-	
 	}
 
 	/**

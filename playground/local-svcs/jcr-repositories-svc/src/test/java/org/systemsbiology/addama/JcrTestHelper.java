@@ -5,7 +5,9 @@ import javax.jcr.Session;
 
 import org.json.JSONObject;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockServletConfig;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springmodules.jcr.JcrTemplate;
 import org.springmodules.jcr.SessionFactory;
 import org.springmodules.jcr.SessionFactoryUtils;
@@ -20,7 +22,18 @@ import org.systemsbiology.addama.rest.transforms.CreateOrUpdateNode;
  * spring configuration specific to this helper.
  * 
  * See src/test/resources/jackrabbit-testrepo.xml for spring configuration for
- * an in-memory JCR that can be used by any test suite
+ * an in-memory JCR that can be used by any test suite.
+ * 
+ * This unit test helper also facilitates testing at the servlet layer so that 
+ * unit test may check URL mapping, request format, response format, and response 
+ * status code.
+ * 
+ * Unfortunately I was not able to configure the DispatcherServlet with the
+ * production configuration in files
+ * src/main/webapp/WEB-INF/jcrrepos-servlet.xml and
+ * src/main/webapp/WEB-INF/app-contexts/controllers.xml because the
+ * org.systemsbiology.addama.jcr.support.JcrTemplateProvider bean does not play
+ * nice in this unit test environment.
  * 
  * @author deflaux
  */
@@ -67,7 +80,23 @@ public class JcrTestHelper {
 		TransactionSynchronizationManager.unbindResource(sf);
 		SessionFactoryUtils.releaseSession(session, sf);
 	}
-
+	
+	/**
+	 * Create a Spring MVC DispatcherServlet with the URL mapping and ViewResolver bean 
+	 * configuration for jcr-repositories-svc so that we can unit test our URL mapping, 
+	 * request format, response format, and response status code.
+	 * 
+	 * @return DispatcherServlet
+	 * @throws Exception 
+	 */
+	public DispatcherServlet getDispatcherServlet() throws Exception {
+		MockServletConfig servletConfig = new MockServletConfig("jcrrepos");
+		servletConfig.addInitParameter("contextConfigLocation",	"/test-jcrrepos-servlet.xml");
+		DispatcherServlet servlet = new DispatcherServlet();
+		servlet.init(servletConfig);
+		return servlet;
+	}
+	
 	/**
 	 * Construct a MockHttpServletRequest with our JcrTemplate attached the way
 	 * the Addama controllers expect it to be
