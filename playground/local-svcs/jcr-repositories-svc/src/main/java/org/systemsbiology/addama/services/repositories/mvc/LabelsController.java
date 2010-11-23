@@ -53,35 +53,52 @@ public class LabelsController extends BaseController {
         log.info(requestUri);
 
         Node node = getNode(request, "/labels");
-        String uri = StringUtils.substringBetween(requestUri, request.getContextPath(), "/labels");
-
-        JSONObject json = new JSONObject();
-        json.put("uri", uri);
-        for (String label : getExistingLabels(node)) {
-            json.append("labels", label);
-        }
-
-        return new ModelAndView(new JsonView()).addObject("json", json);
+        JSONObject responseJson = constructNodeLabelJson(request, "/labels", node);
+        
+        return new ModelAndView(new JsonView()).addObject("json", responseJson);
     }
 
     @RequestMapping(value = "/**/labels", method = RequestMethod.POST)
-    public void post(HttpServletRequest request, @RequestParam("labels") String json) throws Exception {
+    public ModelAndView post(HttpServletRequest request, @RequestParam("labels") String json) throws Exception {
         String requestUri = request.getRequestURI();
         log.info(requestUri);
 
         Set<String> labels = getNewLabels(new JSONObject(json));
 
         Node node = getNode(request, "/labels");
-        if (ServletRequestUtils.getBooleanParameter(request, "partial", false)) {
+        
+        // The default behavior is that labels are additive
+        if (false == ServletRequestUtils.getBooleanParameter(request, "overwrite", false)) {
             labels.addAll(getExistingLabels(node));
         }
         node.setProperty("labels", labels.toArray(new String[labels.size()]));
+        JSONObject responseJson = constructNodeLabelJson(request, "/labels", node);
+
+        return new ModelAndView(new JsonView()).addObject("json", responseJson);
     }
 
     /*
      * Private Methods
      */
+    private JSONObject constructNodeLabelJson(HttpServletRequest request,
+    		String uriSuffix,
+    		Node node) throws Exception {
 
+    	uriSuffix = (null == uriSuffix) ? "/" : uriSuffix;
+    	String baseUri = StringUtils.chomp(StringUtils.substringAfter
+    			(request.getRequestURI(),
+    					request.getContextPath()),
+    					uriSuffix);
+
+    	JSONObject json = new JSONObject();
+        json.put("uri", baseUri);
+        for (String label : getExistingLabels(node)) {
+            json.append("labels", label);
+        }
+
+    	return json;
+    }
+    
     private Set<String> getExistingLabels(Node node) throws RepositoryException {
         HashSet<String> set = new HashSet<String>();
         if (node.hasProperty("labels")) {

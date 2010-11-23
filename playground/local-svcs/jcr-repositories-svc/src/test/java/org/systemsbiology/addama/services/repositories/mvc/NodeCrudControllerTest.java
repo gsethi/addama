@@ -13,9 +13,7 @@ import javax.servlet.ServletException;
 
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +26,8 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.systemsbiology.addama.JcrTestHelper;
 
 /**
+ * Unit test suite for node CRUD operations.
+ * 
  * The following unit tests are written at the servlet layer to test bugs in our
  * URL mapping, request format, response format, and response status code.
  * 
@@ -55,19 +55,6 @@ public class NodeCrudControllerTest {
 	@Autowired
 	private JcrTestHelper helper = null;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
 
 	/**
 	 * @throws java.lang.Exception
