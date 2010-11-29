@@ -96,7 +96,6 @@ public class LabelsControllerTest {
 		// Add a few more labels
 		response = new MockHttpServletResponse();
 		request.setParameter("labels","{\"labels\":[\"addMe\"]}");
-		request.setParameter("partial","true");
 		servlet.service(request, response);
 		log.info("Results: " + response.getContentAsString());
 		assertEquals("we got 200 OK", 200, response.getStatus());
