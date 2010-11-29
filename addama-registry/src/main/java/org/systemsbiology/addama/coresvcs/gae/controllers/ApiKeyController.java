@@ -43,6 +43,7 @@ import java.util.logging.Logger;
  */
 @Controller
 public class ApiKeyController {
+    private static final String APPSPOT_ID = ApiProxy.getCurrentEnvironment().getAppId();
     private static final String APPSPOT_HOST = ApiProxy.getCurrentEnvironment().getAppId() + ".appspot.com";
     private static final Logger log = Logger.getLogger(ApiKeyController.class.getName());
 
@@ -95,24 +96,23 @@ public class ApiKeyController {
         return null;
     }
 
-    @RequestMapping(value = "/apikeys/addama.config", method = RequestMethod.GET)
+    @RequestMapping(value = "/apikeys/file", method = RequestMethod.GET)
     @ModelAttribute
     public ModelAndView getPythonConfig(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info("getPythonConfig(" + request.getRequestURI() + ")");
 
         ApiKey apiKey = getFirstApiKey();
+        String email = StringUtils.substringAfterLast(apiKey.getUserUri(), "/addama/users/");
 
         StringBuilder builder = new StringBuilder();
         builder.append("[Connection]");
-        builder.append("\n");
-        builder.append("host=").append(APPSPOT_HOST);
-        builder.append("\n");
-        builder.append("apikey=");
-        builder.append(apiKey.getKey().toString());
+        builder.append("\n").append("host=").append(APPSPOT_HOST);
+        builder.append("\n").append("apikey=").append(apiKey.getKey().toString());
+        builder.append("\n").append("owner=").append(email);
         builder.append("\n");
 
         response.setContentType("text/plain");
-        response.setHeader("Content-Disposition", "attachment;filename=\"addama.config\"");
+        response.setHeader("Content-Disposition", "attachment;filename=\"" + APPSPOT_ID + ".apikey\"");
 
         OutputStream outputStream = response.getOutputStream();
         outputStream.write(builder.toString().getBytes());
