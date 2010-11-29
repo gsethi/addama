@@ -20,16 +20,12 @@ package org.systemsbiology.addama.coresvcs.gae.filters.callbacks;
 
 import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.apphosting.api.ApiProxy;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
-import org.systemsbiology.addama.commons.gae.http.MapReduceTooLargeHTTPResponse;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 import org.systemsbiology.addama.coresvcs.gae.services.Registry;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -39,11 +35,9 @@ import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 /**
  * @author hrovira
  */
-public class StaticContentMemcacheLoaderCallback implements MemcacheLoaderCallback {
+public class StaticContentMemcacheLoaderCallback extends MapReducingResponder implements MemcacheLoaderCallback {
     private static final Logger log = Logger.getLogger(StaticContentMemcacheLoaderCallback.class.getName());
     private static final String APPSPOT_HOST = ApiProxy.getCurrentEnvironment().getAppId() + ".appspot.com";
-
-    private final MapReduceTooLargeHTTPResponse mapReduce = new MapReduceTooLargeHTTPResponse();
 
     private final Registry registry;
 
@@ -70,15 +64,6 @@ public class StaticContentMemcacheLoaderCallback implements MemcacheLoaderCallba
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-key", service.getAccessKey().toString()));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        HTTPResponse resp = mapReduce.fetch(proxyRequest, outputStream);
-        if (resp != null) {
-            if (resp.getResponseCode() == HttpServletResponse.SC_OK) {
-                return resp.getContent();
-            }
-        } else {
-            return outputStream.toByteArray();
-        }
-        return null;
+        return mapReduce(proxyRequest);
     }
 }

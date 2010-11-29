@@ -23,6 +23,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import org.springframework.web.filter.GenericFilterBean;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate;
+import org.systemsbiology.addama.coresvcs.gae.filters.callbacks.HTTPResponseContent;
 import org.systemsbiology.addama.coresvcs.gae.filters.callbacks.StaticContentMemcacheLoaderCallback;
 import org.systemsbiology.addama.coresvcs.gae.filters.callbacks.UiBaseMemcacheLoaderCallback;
 import org.systemsbiology.addama.coresvcs.gae.services.Registry;
@@ -56,41 +57,43 @@ public class StaticContentFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         try {
-            log.info("doFilter");
-
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             String method = request.getMethod();
             if (!method.equalsIgnoreCase("GET")) {
-                log.info("doFilter:method=" + method);
+                log.info("non-cache method=" + method);
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
 
             String requestUri = request.getRequestURI();
-            if (requestUri.endsWith(".html")) {
-                UserService userService = UserServiceFactory.getUserService();
-                if (!userService.isUserLoggedIn()) {
-                    HttpServletResponse response = (HttpServletResponse) servletResponse;
-                    response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
-                    return;
-                }
-            }
 
             MemcacheLoaderCallback callback = new UiBaseMemcacheLoaderCallback();
             if (!requestUri.startsWith("/addama/ui")) {
                 callback = new StaticContentMemcacheLoaderCallback(registry);
             }
 
-            byte[] content = (byte[]) memcacheServiceTemplate.loadIfNotExisting(requestUri, callback);
+            HTTPResponseContent content = (HTTPResponseContent) memcacheServiceTemplate.loadIfNotExisting(requestUri, callback);
             if (content == null) {
-                log.info("doFilter:not-static");
+                log.info("non-static content");
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
 
+            if (content.isHtml()) {
+                UserService userService = UserServiceFactory.getUserService();
+                if (!userService.isUserLoggedIn()) {
+                    log.info("not logged in");
+
+                    HttpServletResponse response = (HttpServletResponse) servletResponse;
+                    response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
+                    return;
+                }
+            }
+
             HttpServletResponse response = (HttpServletResponse) servletResponse;
-            response.getOutputStream().write(content);
-            log.info("doFilter:cached");
+            response.getOutputStream().write(content.getBytes());
+
+            log.info("writing content");
         } catch (Exception e) {
             throw new ServletException(e);
         }
