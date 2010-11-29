@@ -1,0 +1,38 @@
+<html>
+<head>
+    <title>Request Addama Access</title>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("prototype", "1.6.1.0");
+    </script>
+    <script type="text/javascript">
+       function requestAccess(){
+           var queryString = decodeURI(window.location.search.substring(1));
+           var queryParams = queryString.toQueryParams();
+           var requestedUri = queryParams["uri"];
+            new Ajax.Request("/addama/whitelist", {
+                method: "post",
+                parameters: {
+                    uri: requestedUri
+                },
+                onSuccess: function(o) {
+                    window.alert("Request sent successfully");
+                },
+                onFailure: handleFailure,
+                onException: handleFailure
+            });
+       }
+
+       function handleFailure(){
+               window.alert("Request was unsuccessful");
+       }
+
+    </script>
+</head>
+<body>
+    <h3>Unauthorized Access</h3>
+    <p>Access to addama is restricted.  Please click the submit button if you would like to request access to the application.</p>
+    <br><button type="button" onclick="requestAccess()" >Request Access</button>
+
+</body>
+</html>
