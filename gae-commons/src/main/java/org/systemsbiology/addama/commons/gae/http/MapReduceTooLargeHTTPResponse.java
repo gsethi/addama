@@ -58,18 +58,19 @@ public class MapReduceTooLargeHTTPResponse {
         URL requestUrl = request.getURL();
         HTTPMethod method = request.getMethod();
         if (!GET.equals(method)) {
-            log.warning("fetch(" + requestUrl + "): Will not attempt to range split on " + method);
+            log.warning(requestUrl + ": Will not attempt to range split on " + method);
             return fetchService.fetch(request);
         }
 
-        Long contentLength = headContentLength(request);
+        HTTPResponse headResponse = head(request);
+        Long contentLength = getContentLength(headResponse);
         if (contentLength == null) {
-            log.warning("fetch(" + requestUrl + "): Unable to determine content length from HEAD");
+            log.warning(requestUrl + ": Unable to determine content length from HEAD");
             return fetchService.fetch(request);
         }
 
         if (contentLength <= splitSize) {
-            log.info("fetch(" + requestUrl + "): Content NOT too large: " + contentLength);
+            log.info(requestUrl + ": Content NOT too large: " + contentLength);
             return fetchService.fetch(request);
         }
 
@@ -77,9 +78,9 @@ public class MapReduceTooLargeHTTPResponse {
             ByteArrayOutputStream baos = new ByteArrayOutputStream(contentLength.intValue());
             mapReduce(request, baos, contentLength);
             outputStream.write(baos.toByteArray());
-            return null;
+            return headResponse;
         } catch (Exception ex) {
-            log.warning("fetch(" + requestUrl + "):" + ex + ": Range Split Failed");
+            log.warning(requestUrl + ": Range Split Failed: " + ex);
         }
 
         return fetchService.fetch(request);
@@ -90,7 +91,7 @@ public class MapReduceTooLargeHTTPResponse {
      */
 
     protected void mapReduce(HTTPRequest request, OutputStream outputStream, long contentLength) throws Exception {
-        log.info("mapReduce(): MAP: " + contentLength);
+        log.info("content-length: " + contentLength);
 
         List<Future<HTTPResponse>> futureResponses = new ArrayList<Future<HTTPResponse>>();
 
@@ -106,12 +107,12 @@ public class MapReduceTooLargeHTTPResponse {
             loopEnd += splitSize;
         }
 
-        log.info("mapReduce(): REDUCE");
         reduce(futureResponses, outputStream);
     }
 
     protected Future<HTTPResponse> map(HTTPRequest request, long start, long end) {
-        log.info("map(" + request.getURL() + "," + start + "," + end + ")");
+        log.info(request.getURL() + "," + start + "," + end);
+
         HTTPRequest splitRequest = new HTTPRequest(request.getURL(), request.getMethod(), request.getFetchOptions());
         for (HTTPHeader header : request.getHeaders()) {
             if (!StringUtils.equalsIgnoreCase(header.getName(), ("Range"))) {
@@ -133,7 +134,7 @@ public class MapReduceTooLargeHTTPResponse {
         for (Future<HTTPResponse> futureResponse : futureResponses) {
             HTTPResponse response = futureResponse.get();
             int responseCode = response.getResponseCode();
-            log.info("reduce(): responseCode=" + responseCode);
+            log.info("responseCode=" + responseCode);
 
             if (this.splitOnlyOnSuccessResponseCodes) {
                 String statusCode = "" + responseCode;
@@ -144,7 +145,7 @@ public class MapReduceTooLargeHTTPResponse {
 
             byte[] content = response.getContent();
             if (content != null) {
-                log.info("reduce(): content=" + content.length);
+                log.info("content=" + content.length);
                 outputStream.write(content);
                 outputStream.flush();
             }
@@ -155,33 +156,28 @@ public class MapReduceTooLargeHTTPResponse {
      * Private Methods
      */
 
-    private Long headContentLength(HTTPRequest request) throws IOException {
+    private HTTPResponse head(HTTPRequest request) throws IOException {
         URL requestUrl = request.getURL();
-        try {
-            HTTPRequest headRequest = new HTTPRequest(requestUrl, HEAD);
-            for (HTTPHeader header : request.getHeaders()) {
-//                log.info("headContentLength():request:" + header.getName() + "=" + header.getValue());
-                headRequest.addHeader(header);
-            }
-            headRequest.setPayload(request.getPayload());
-
-            HTTPResponse response = fetchService.fetch(headRequest);
-            if (response != null) {
-                for (HTTPHeader header : response.getHeaders()) {
-                    log.info("headContentLength():response:" + header.getName() + "=" + header.getValue());
-                    if (StringUtils.equalsIgnoreCase(header.getName(), "Content-Length")) {
-                        return Long.parseLong(header.getValue());
-                    }
-                    if (StringUtils.equalsIgnoreCase(header.getName(), "x-addama-content-length")) {
-                        return Long.parseLong(header.getValue());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.warning("headContentLength(" + requestUrl + "): HEAD Request Failed: " + e);
+        HTTPRequest headRequest = new HTTPRequest(requestUrl, HEAD);
+        for (HTTPHeader header : request.getHeaders()) {
+            headRequest.addHeader(header);
         }
-        log.warning("headContentLength(" + requestUrl + "): Unable to determine");
-        return null;
+        headRequest.setPayload(request.getPayload());
+
+        return fetchService.fetch(headRequest);
     }
 
+    private Long getContentLength(HTTPResponse response) {
+        if (response != null) {
+            for (HTTPHeader header : response.getHeaders()) {
+                if (StringUtils.equalsIgnoreCase(header.getName(), "Content-Length")) {
+                    return Long.parseLong(header.getValue());
+                }
+                if (StringUtils.equalsIgnoreCase(header.getName(), "x-addama-content-length")) {
+                    return Long.parseLong(header.getValue());
+                }
+            }
+        }
+        return null;
+    }
 }
