@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+
+<style type="text/css">
+     body {
+       font-family: verdana;
+     }
+     #container {
+       width: 800px;
+     }
+     table {
+       border: 1px solid #666;
+     }
+     textarea {
+       width: 100%;
+     }
+     div.searchForm, div.searchResults, div.resources, div.editForm, div.addForm {
+       background-color: #eeeeee;
+     }
+     span {
+         font-family: courier;
+         font-size: small;
+     }
+</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.3.js"></script>
+
+<!--     Originally from http://www.json.org/json2.js -->
+<script type="text/javascript" src="http://www.phlinux.com/~deflaux/json2.js"></script>
+
+<script type="text/javascript">
+
+/** TODO
+ * factor out code that is not specific to this particular UI
+ *    into a separate JS file and so something to protect the namespace
+ * leave CSS and JS specific to this webui in this file
+ * factor out any site-wide CSS into a separate file
+ **/
+
+/** Constants **/
+var DEFAULT_RESOURCE = "/addama/repositories/sage-content-repo";
+
+/** Globals **/
+var gFeed = DEFAULT_RESOURCE;
+
+/**
+ * Write JSON text for a JavaScript object to the debug element
+ *
+ * data: a JavaScript object
+ */
+function displayDebugInfo(data) {
+    $("#debug_resp").html("<pre>" + JSON.stringify(data, null, 4) + "</pre>");
+}
+
+/**
+ * Display feed items
+ *
+ * data: an Addama feed object
+ */
+function displayAddamaResource(data) {
+     try {
+         if('undefined' != typeof(data.numberOfItems)) {
+             if(0 == data.numberOfItems) {
+                 $(".feedItems").html("no updates");
+             }
+             else {
+                 $(".feedItems").html("<ol class=\"addama\"></ol>");
+                 $.each(data.items, function(i,item){
+                         $(".feedItems ol").append("<li class=\"addama\" >"
+                                                   + item.author + " updated <span>"
+                                                   + item.text + "</span> on "
+                                                   + item.date + "</a></li>");
+                     });
+             }
+         }
+     }
+     catch(exception) {
+         alert("Caught: " + exception);
+     }
+     displayDebugInfo(data);
+}
+
+/**
+ * Display links to the Addama resources found in an Addama search result.
+ *
+ * data: an Addama search result
+ */
+function displayAddamaSearchResults(data) {
+    $(".resources").hide();
+    $(".editForm").hide();
+    $(".addForm").hide();
+    $(".searchResults").show();
+    try {
+        $(".resultCount").html("numberOfResults: " + data.numberOfResults);
+        $(".results").html("");
+        $.each(data.results, function(i,result){
+                $(".results").append("<li><a class=\"addama\" href=\""
+                                   + result.uri + "\">"
+                                   + result.uri + "</a></li>");
+            });
+
+        $("a.addama").click(function(event){
+                event.preventDefault();
+                getAddama(event.target.href);
+            });
+    }
+    catch(exception) {
+        alert("Caught: " + exception);
+    }
+    displayDebugInfo(data);
+}
+
+/**
+ * Fetch and display an Addama resource.
+ *
+ * uri: the uri identifying the resource to fetch
+ */
+function getAddama(uri) {
+    // TODO validate params
+    $("#debug_url").html(uri);
+    $.getJSON(uri, displayAddamaResource);
+}
+
+/**
+ * Perform an Addama search and display the search results
+ *
+ * repository: the repository over which to search
+ * query: the query to use for the search
+ */
+function searchAddama(repository, query) {
+    // TODO validate params
+    var uri = repository + "/search?" + query;
+    $.getJSON(uri, displayAddamaSearchResults);
+}
+
+$(document).ready(function(){
+    // Get a feed to display from the query string or use the default
+    window.location.search.match( "path=(/addama/[^&]*)" );
+    if(0 < RegExp.$1.length) {
+//        gFeed = RegExp.$1;
+    }
+
+    // TODO what is the right way to ISO-8601 format this date?
+    var myDate=new Date();
+    myDate.setDate(myDate.getDate()-5);
+    searchAddama(DEFAULT_RESOURCE,
+                 "labels=federation&updated-min="
+                 + myDate.getFullYear() + "-" + (myDate.getMonth()+1)
+                 + "-" + myDate.getDate());
+});
+
+</script>
+  <title>"What's New" annotations demo</title>
+  </head>
+  <body>
+    <div id="container">
+
+    <h1>"What's New" annotations demo</h1> The following performs a search over annotations tagged "federation" that have been modified within the past 5 days.  Click on a link below to see the metadata associated with each search result.<br>
+
+    An alternative approach would be to post an item to the Feed Service each time someone creates/updates an item.
+    <div class="feedItems">
+    </div><p>
+
+    <div class="searchResults">
+      <div class="resultCount"></div><br>
+      <div>Search Results:<ul><span class="results"></span></ul></div>
+    </div>
+
+  <hr>
+    Raw Response from server for <span id="debug_url" class="debug"></span>:<p>
+    <div id="debug_resp" class="debug">Waiting for server response!
+    </div>
+    <hr>
+    </div> <!-- container -->
+  </body>
+</html>

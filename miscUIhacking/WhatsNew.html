@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+
+<style type="text/css">
+     body {
+       font-family: verdana;
+     }
+     #container {
+       width: 800px;
+     }
+     table {
+       border: 1px solid #666;
+     }
+     textarea {
+       width: 100%;
+     }
+     div.searchForm, div.searchResults, div.resources, div.editForm, div.addForm {
+       background-color: #eeeeee;
+     }
+     span {
+         font-family: courier;
+         font-size: small;
+     }
+</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.3.js"></script>
+
+<!--     Originally from http://www.json.org/json2.js -->
+<script type="text/javascript" src="http://www.phlinux.com/~deflaux/json2.js"></script>
+
+<script type="text/javascript">
+
+/** TODO
+ * factor out code that is not specific to this particular UI
+ *    into a separate JS file and so something to protect the namespace
+ * leave CSS and JS specific to this webui in this file
+ * factor out any site-wide CSS into a separate file
+ **/
+
+/** Constants **/
+var DEFAULT_RESOURCE = "/addama/feeds/sageFTPfeed9";
+
+/** Globals **/
+var gFeed = DEFAULT_RESOURCE;
+
+/**
+ * Write JSON text for a JavaScript object to the debug element
+ *
+ * data: a JavaScript object
+ */
+function displayDebugInfo(data) {
+    $("#debug_resp").html("<pre>" + JSON.stringify(data, null, 4) + "</pre>");
+}
+
+/**
+ * Display feed items
+ *
+ * data: an Addama feed object
+ */
+function displayAddamaResource(data) {
+     try {
+         if('undefined' != typeof(data.numberOfItems)) {
+             if(0 == data.numberOfItems) {
+                 $(".feedItems").html("no updates");
+             }
+             else {
+                 $(".feedItems").html("<ol class=\"addama\"></ol>");
+                 $.each(data.items, function(i,item){
+                         $(".feedItems ol").append("<li class=\"addama\" >"
+                                                   + item.author + " updated <span>"
+                                                   + item.text + "</span> on "
+                                                   + item.date + "</a></li>");
+                     });
+             }
+         }
+     }
+     catch(exception) {
+         alert("Caught: " + exception);
+     }
+     displayDebugInfo(data);
+}
+
+/**
+ * Fetch and display an Addama resource.
+ *
+ * uri: the uri identifying the resource to fetch
+ */
+function getAddama(uri) {
+    // TODO validate params
+    $("#debug_url").html(uri);
+    $.getJSON(uri, displayAddamaResource);
+}
+
+$(document).ready(function(){
+    // Get a feed to display from the query string or use the default
+    window.location.search.match( "path=(/addama/[^&]*)" );
+    if(0 < RegExp.$1.length) {
+//        gFeed = RegExp.$1;
+    }
+    getAddama(gFeed);
+});
+
+</script>
+  <title>"What's New" file demo</title>
+  </head>
+  <body>
+    <div id="container">
+
+    <h1>"What's New" file demo</h1> There is
+    a <a href="http://code.google.com/p/addama/source/browse/branches/deflaux/miscToolHacking/cronJobs/updateFileTreeFeed.py">cron
+    job</a> that can be configured to watch any directory tree and post info
+    about new/updated files to the Addama Feed Service.  Below is the feed
+    output for Nicole's home directory observed over two days.
+    <div class="feedItems">
+    </div><p>
+
+    <hr>
+    Raw Response from server for <span id="debug_url" class="debug"></span>:<p>
+    <div id="debug_resp" class="debug">Waiting for server response!
+    </div>
+    <hr>
+    </div> <!-- container -->
+  </body>
+</html>
