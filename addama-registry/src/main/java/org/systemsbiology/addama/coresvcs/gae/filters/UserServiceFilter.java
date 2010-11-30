@@ -54,7 +54,6 @@ public class UserServiceFilter extends GenericFilterBean {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        log.info("doFilter");
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
@@ -64,7 +63,7 @@ public class UserServiceFilter extends GenericFilterBean {
             //put user in the request, to be used later in the chain - and that way we are consistent with apikey case
             servletRequest.setAttribute("userUri",users.getLoggedInUserUri());
             servletRequest.setAttribute("isAdmin",users.isUserAdmin());
-            log.fine("doFilter:" + user.getNickname() + "," + userService.isUserAdmin() + "," + userService.isUserLoggedIn());
+            log.fine(user.getNickname() + "," + userService.isUserAdmin() + "," + userService.isUserLoggedIn());
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -87,6 +86,7 @@ public class UserServiceFilter extends GenericFilterBean {
         }
 
         // TODO : Check user agent and modify response accordingly
+        log.info("not logged in; redirecting to login url");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
     }
