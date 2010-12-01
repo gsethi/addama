@@ -55,6 +55,10 @@ public class Main {
 
     private static String getUri(String uri, File f) {
         String chompUri = StringUtils.chomp(uri, "/");
+        if (f == null) {
+            return chompUri;
+        }
+
         String filepath = f.getPath();
         if (filepath.startsWith("/")) {
             return chompUri + "/" + StringUtils.substringAfter(filepath, "/");
