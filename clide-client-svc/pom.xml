@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.systemsbiology.addama</groupId>
+        <artifactId>local-svcs</artifactId>
+        <version>2.0</version>
+    </parent>
+
+    <groupId>org.systemsbiology.addama.coresvcs</groupId>
+    <artifactId>clide-client-svc</artifactId>
+    <packaging>war</packaging>
+    <name>Local: Clide Client Filesystem Workspaces Service</name>
+
+    <build>
+        <finalName>clide-client-svc</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <archiveClasses>true</archiveClasses>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <!-- Addama Dependencies -->
+        <dependency>
+            <groupId>org.systemsbiology.addama.commons</groupId>
+            <artifactId>workspaces-api</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
