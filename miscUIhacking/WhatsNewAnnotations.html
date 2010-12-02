@@ -39,7 +39,7 @@
  **/
 
 /** Constants **/
-var DEFAULT_RESOURCE = "/addama/repositories/sage-content-repo";
+var DEFAULT_RESOURCE = "/addama/repositories/sage-metadata-repo";
 
 /** Globals **/
 var gFeed = DEFAULT_RESOURCE;
@@ -131,6 +131,7 @@ function getAddama(uri) {
 function searchAddama(repository, query) {
     // TODO validate params
     var uri = repository + "/search?" + query;
+    $("#debug_url").html(uri);
     $.getJSON(uri, displayAddamaSearchResults);
 }
 
