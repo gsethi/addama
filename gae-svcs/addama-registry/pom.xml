@@ -5,14 +5,13 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>gae-svcs</artifactId>
-        <version>2.0</version>
+        <version>2.0.1</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.gaesvcs</groupId>
     <artifactId>addama-registry</artifactId>
     <packaging>war</packaging>
     <name>GAE: Addama Registry</name>
-    <version>2.0.1</version>
 
     <build>
         <finalName>addama</finalName>
@@ -25,14 +24,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>gae-commons</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-    </dependencies>
 
     <profiles>
         <profile>

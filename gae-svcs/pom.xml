@@ -11,16 +11,19 @@
     <artifactId>gae-svcs</artifactId>
     <packaging>pom</packaging>
     <name>GAE Services</name>
-<!--
+    <version>2.0.1</version>
+
     <modules>
         <module>addama-registry</module>
+<!--
         <module>emailuri-sharing-svc</module>
         <module>sharing-svc</module>
         <module>reference-genomes</module>
         <module>channels-api-svc</module>
         <module>feeds-api-svc</module>
-    </modules>
 -->
+    </modules>
+
     <dependencies>
         <!-- WAR -->
         <dependency>
