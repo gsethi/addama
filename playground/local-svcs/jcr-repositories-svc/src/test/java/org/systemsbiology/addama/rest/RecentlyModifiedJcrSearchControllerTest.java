@@ -272,4 +272,27 @@ public class RecentlyModifiedJcrSearchControllerTest {
 		assertFalse(mav.getModel().toString().matches(".*OlderNode3.*"));
 	}
 
+    /**
+     * Test method for
+     * {@link org.systemsbiology.addama.rest.JcrSearchController#search(javax.servlet.http.HttpServletRequest)}
+     * .
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testPartiallySpecifiedUpdatedMin() throws Exception {
+
+        request.setParameter("aSingleWord", "same");
+        // Make sure our RFC 3339 dates don't need to be specified down to the millisecond
+        request.setParameter("updated-min", "1974-01-01");
+        ModelAndView mav = searcher.search(request);
+        log.info("Results: " + mav.getModel());
+
+        assertTrue(mav.getModel().toString().matches(".*TestNode1.*"));
+        assertTrue(mav.getModel().toString().matches(".*TestNode2.*"));
+        assertTrue(mav.getModel().toString().matches(".*TestNode3.*"));
+        assertTrue(mav.getModel().toString().matches(".*OlderNode1.*"));
+        assertTrue(mav.getModel().toString().matches(".*OlderNode2.*"));
+        assertTrue(mav.getModel().toString().matches(".*OlderNode3.*"));
+    }
 }

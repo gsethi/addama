@@ -32,6 +32,7 @@ import javax.jcr.Node;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -177,11 +178,19 @@ public class JcrSearchController extends AbstractJcrController {
         // Dev Note: if we used the mixin [mix:lastModified] this
         // could filter only on the field @jcr:lastModified instead of
         // both @created-at and @last-modified-at
-        String updatedMinFilter = (null == updatedMin)
-            ? ""
-            : " and (@created-at >= xs:dateTime('" + updatedMin + "')"
-            + " or @last-modified-at >= xs:dateTime('" + updatedMin
-            + "'))";
+        String updatedMinFilter = "";
+        if (null != updatedMin) {
+            // Note that xs:date can only handle fully compliant
+            // ISO8601 dates but we don't really want users to have to
+            // specify the fractions of a second.  Use the ISO8601
+            // parsing capabilities of DateTime.toString() to fill in
+            // those gaps.
+            DateTime updatedMinDate = new DateTime(updatedMin);
+            updatedMinFilter = " and (@created-at >= xs:dateTime('"
+                + updatedMinDate + "')"
+                + " or @last-modified-at >= xs:dateTime('"
+                + updatedMinDate + "'))";
+        }
 
         String propName = ".";
         if (!StringUtils.isEmpty(key) && !"q".equals(key)) {
