@@ -8,27 +8,6 @@ var headerPanel = {
     height: 30
 };
 
-var browsePanel = {
-    id: "layout-browser",
-    layout: "fit",
-    title: "Browse",
-    region:"west",
-    border: true,
-    split: true,
-    margins: "2 0 5 5",
-    width: 275,
-    minSize: 100,
-    maxSize: 500,
-    collapsible: true,
-    layoutConfig: {
-        titleCollapse: true,
-        hideCollapseTool: true,
-        animate: true,
-        activeOnTop: false
-    },
-    items: [tree]
-};
-
 var footerPanel = {
     region: 'south',
     collapsible: true,
@@ -86,12 +65,33 @@ var statusBar = new Ext.ux.StatusBar({
     iconCls: "x-status-valid"
 });
 
+var browsePanel = {
+    id: "layout-browser",
+    layout: "fit",
+    title: "Browse",
+    region:"west",
+    border: true,
+    split: true,
+    margins: "33 0 5 5",
+    width: 275,
+    minSize: 100,
+    maxSize: 500,
+    collapsible: true,
+    layoutConfig: {
+        titleCollapse: true,
+        hideCollapseTool: true,
+        animate: true,
+        activeOnTop: false
+    },
+    items: [tree]
+};
+
 var mainPanel = new Ext.TabPanel({
     id: "panel-main-control",
     xtype: "tabpanel",
     region: "center",
     activeTab: 0,
-    margins: "2 5 5 0",
+    margins: "33 5 5 0",
     border: true,
     split: true,
     items:[ contentPanel],
@@ -104,7 +104,7 @@ var propertiesPanel = {
     layout: "fit",
     region:"east",
     border:true,
-    margins: "2 5 5 0",
+    margins: "33 5 5 0",
     width: 320,
     minSize: 100,
     maxSize: 500,
