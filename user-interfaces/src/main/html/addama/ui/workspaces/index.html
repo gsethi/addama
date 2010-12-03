@@ -1,0 +1,78 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Workspaces for File Sharing</title>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css" />
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/ux/statusbar/css/statusbar.css"/>
+    <link rel="stylesheet" type="text/css" href="./css/browser.css">
+
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/examples/ux/statusbar/StatusBar.js"></script>
+
+    <script type="text/javascript" src="/js/topbar.js"></script>
+
+    <script type="text/javascript" src="./js/eventManager.js"></script>
+    <script type="text/javascript" src="./js/tree.js"></script>
+    <script type="text/javascript" src="./js/viewport.js"></script>
+    <script type="text/javascript" src="./js/mainPanel.js"></script>
+    
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new TopBar().initialize("container_topbar");
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="header">
+    <h1>Workspaces for File Sharing</h1>
+</div>
+
+<div id="panel-repositories" class="x-hide-display">
+    <div id="content-repositories">
+    </div>
+</div>
+
+<div id="panel-properties">
+</div>
+
+<div style="display:none;">
+    <!-- Start page content -->
+    <div id="main-content-start">
+        <div style="margin-left:50px;">
+            <h2>Welcome to your Data</h2>
+        </div>
+
+    </div>
+
+    <div id="main-content-repository">
+        <div style="margin-left:50px;">
+            <h2><span id="main-content-repository-item">&nbsp;</span></h2>
+            <div id="main-content-repository-upload"></div>
+            <div id="main-content-repository-addsub"></div>
+        </div>
+    </div>
+
+    <div id="main-content-folder">
+        <div id="main-content-folder-owner"><br></div>
+        <div style="margin-left:50px;">
+            <h2><span id="main-content-folder-item">&nbsp;</span></h2>
+            <div id="main-content-folder-upload"></div>
+            <div id="main-content-folder-addsub"></div>
+        </div>
+    </div>
+
+    <div id="main-content-file">
+        <div style="margin-left:50px;">
+            <div id="main-content-file-download"></div>
+            <div id="main-content-file-preview"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
