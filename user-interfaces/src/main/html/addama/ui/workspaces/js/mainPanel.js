@@ -184,11 +184,11 @@ function uploadFile(formPanel, uploadFileName, node) {
             if (json.location) {
                 upload(node, formPanel, json.location, uploadFileName);
             } else {
-                eventManager.fireStatusMessageEvent({ text: "Failed to upload file. Please try Again.", level: "error" });
+                eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
             }
         },
         failure: function(response) {
-            eventManager.fireStatusMessageEvent({ text: "Failed to upload file. Please try Again.", level: "error" });
+            eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
         }
     });
 }
@@ -198,11 +198,11 @@ function createFolder(node, subfolder) {
         url: node.attributes.uri + "/" + subfolder,
         method: "POST",
         success: function() {
-            eventManager.fireStatusMessageEvent({ text: "Folder " + subfolder + " Added Successfully", level: "info" });
-            eventManager.fireNodeSelectEvent(node);
+            eventManager.fireEvent("display-status-message", { text: "Folder " + subfolder + " Added Successfully", level: "info" });
+            eventManager.fireEvent("node-selection", node);
         },
         failure: function() {
-            eventManager.fireStatusMessageEvent({ text: "Failed to add New Folder", level: "error" });
+            eventManager.fireEvent("display-status-message", { text: "Failed to add New Folder", level: "error" });
         }
     });
 }
@@ -232,12 +232,12 @@ function upload(node, formPanel, uri, fileName) {
         clientValidation: true,
         url: uri + "?x-addama-desired-contenttype=text/html",
         success: function(form, action) {
-            eventManager.fireStatusMessageEvent({ text:  "File Uploaded Successfully", level: "info" });
+            eventManager.fireEvent("display-status-message", { text:  "File Uploaded Successfully", level: "info" });
             win.close();
-            eventManager.fireNodeSelectEvent(node);
+            eventManager.fireEvent("node-selection", node);
         },
         failure: function(form, action) {
-            eventManager.fireStatusMessageEvent({ text:  "File Upload Failed", level: "error" });
+            eventManager.fireEvent("display-status-message", { text:  "File Upload Failed", level: "error" });
             win.close();
         }
     });

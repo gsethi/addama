@@ -14,28 +14,10 @@ EventManager = function(config){
     EventManager.superclass.constructor.call(this);
 };
 
-Ext.extend(EventManager, Ext.util.Observable, {
-    ctype: "EventManager",
-
-    fireNodeSelectEvent: function(node) {
-        this.fireEvent("node-selection", node);
-    },
-
-    registerNodeSelectListener: function(callback, scope, opts) {
-        this.addListener("node-selection", callback, scope, opts);
-    },
-
-    fireStatusMessageEvent: function(message) {
-        this.fireEvent("display-status-message", message);
-    },
-
-    registerStatusMessageListener: function(callback, scope, opts) {
-        this.addListener("display-status-message", callback, scope, opts);
-    }
-});
+Ext.extend(EventManager, Ext.util.Observable, { ctype: "EventManager" });
 
 var eventManager = new EventManager();
-eventManager.registerStatusMessageListener(function(message) {
+eventManager.addListener("display-status-message", function(message) {
     var level = message.level || "info";
     var text = message.text || message;
     var icon = "x-status-valid";
@@ -52,7 +34,7 @@ eventManager.registerStatusMessageListener(function(message) {
         }
     });
 });
-eventManager.registerNodeSelectListener(function(node) {
+eventManager.addListener("node-selection", function(node) {
     var nodeCls = node.attributes.cls;
 
     var layout = contentPanel.layout;
@@ -74,7 +56,7 @@ eventManager.registerNodeSelectListener(function(node) {
     }
 });
 
-eventManager.registerNodeSelectListener(function(node) {
+eventManager.addListener("node-selection", function(node) {
     Ext.getDom("panel-properties").innerHTML = "";
     var annotationsGrid = new Ext.grid.PropertyGrid({
         renderTo: "panel-properties",

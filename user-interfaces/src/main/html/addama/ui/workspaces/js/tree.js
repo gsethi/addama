@@ -22,7 +22,7 @@ function loadTree() {
         method: "GET",
         success: loadWorkspaces,
         failure: function(response) {
-            eventManager.fireStatusMessageEvent({ text: "Failed to load workspaces", level: "error" });
+            eventManager.fireEvent("display-status-message", { text: "Failed to load workspaces", level: "error" });
         }
     });
 }
@@ -31,7 +31,9 @@ function loadWorkspaces(response) {
     var repos = Ext.util.JSON.decode(response.responseText);
     transformJsonRepos(repos);
 
-    tree.addListener("click", eventManager.fireNodeSelectEvent, eventManager);
+    tree.addListener("click", function(node) {
+        eventManager.fireEvent("node-selection", node);
+    }, {single: true});
     tree.addListener("expandnode", expandNode, {single: true});
 
     var root = new Ext.tree.AsyncTreeNode({
