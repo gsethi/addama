@@ -75,21 +75,13 @@ eventManager.registerNodeSelectListener(function(node) {
 });
 
 eventManager.registerNodeSelectListener(function(node) {
-    Ext.Ajax.request({
-        url: node.attributes.uri,
-        success: function(response) {
-            Ext.getDom("panel-properties").innerHTML = "";
-            var annotationsGrid = new Ext.grid.PropertyGrid({
-                renderTo: "panel-properties",
-                autoHeight: true,
-                width: 320,
-                selModel: new Ext.grid.RowSelectionModel({singleSelect:true}),
-                source: Ext.util.JSON.decode(response.responseText)
-            });
-            annotationsGrid.render();
-        },
-        failure: function() {
-            eventManager.fireStatusMessageEvent({ text: "Annotations Not Available", level: "error" });
-        }
+    Ext.getDom("panel-properties").innerHTML = "";
+    var annotationsGrid = new Ext.grid.PropertyGrid({
+        renderTo: "panel-properties",
+        autoHeight: true,
+        autoWidth: true,
+        selModel: new Ext.grid.RowSelectionModel({singleSelect:true}),
+        source: node.attributes
     });
+    annotationsGrid.render();
 });

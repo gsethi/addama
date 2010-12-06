@@ -49,7 +49,7 @@ function transformJsonRepos(data) {
         var item = data.items[i];
         item.text = item.label ? item.label : item.name;
         item.id = item.uri;
-        item.path = item.uri;
+        item.path = "/";
         item.isRepository = true;
         item.cls = "repository";
         item.leaf = false;
@@ -65,7 +65,12 @@ function expandNode(node) {
     while (node.hasChildNodes()) {
         node.removeChild(node.item(0), true);
     }
-    
+
+    var parentPath = node.attributes.path;
+    if (parentPath == "/") {
+        parentPath = "";
+    }
+
     Ext.Ajax.request({
         url: node.id,
         method: "GET",
@@ -76,7 +81,7 @@ function expandNode(node) {
                     var item = json.items[i];
                     item.text = item.label ? item.label : item.name;
                     item.id = item.uri;
-                    item.path = item.uri;
+                    item.path = parentPath + "/" + item.name;
                     if (item.isFile) {
                         item.leaf = true;
                         item.cls = "file";
