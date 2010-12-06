@@ -1,25 +1,22 @@
+var topBarPanel = new Ext.Panel({
+    contentEl: "container_topbar"
+});
+
 var headerPanel = {
     id: "panel-title-control",
     xtype: "box",
     region: "north",
     border: true,
     split: true,
-    applyTo: "header",
-    height: 30
+    items:[topBarPanel]
 };
 
 var footerPanel = {
     region: 'south',
-    collapsible: true,
+    collapsible: false,
     split: true,
     autoHeight: true,
-    footerCfg: {
-        tag: 'h2',
-        align: 'center',
-        cls: 'x-panel-footer',
-        html:   '<a href="http://informatics.systemsbiology.net/informatics/">Research Informatics</a> | <a href="http://shmulevich.systemsbiology.net/">Shmulevich Lab</a> | <a href="http://www.systemsbiology.org/">Institute for Systems Biology</a>'
-                + '<br><a href="http://informatics.systemsbiology.net/addama/">Supported by Addama</a> | <a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554">Cite PMID 19265554</a>'
-    }
+    contentEl: "container_footer"
 };
 
 var startPanel = {
