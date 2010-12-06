@@ -22,75 +22,133 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.InputStreamFileView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
-import org.systemsbiology.addama.workspaces.rest.BaseController;
+import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.workspaces.fs.callbacks.RootPathsJsonConfigHandler;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
  * @author hrovira
  */
-public class WorkspacesController extends BaseController {
+@Controller
+public class WorkspacesController implements InitializingBean, ServletContextAware {
     private static final Logger log = Logger.getLogger(WorkspacesController.class.getName());
 
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String requestUri = getUri(request);
-        log.info("workspaces for:" + requestUri);
+    private final Map<String, String> rootPathsByUri = new HashMap<String, String>();
 
+    private JsonConfig jsonConfig;
+    private ServletContext servletContext;
+
+    public void setJsonConfig(JsonConfig jsonConfig) {
+        this.jsonConfig = jsonConfig;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        jsonConfig.processConfiguration(new RootPathsJsonConfigHandler(rootPathsByUri));
+    }
+
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ModelAttribute
+    public ModelAndView get(HttpServletRequest request) throws Exception {
+        String requestUri = getUri(request);
+        log.info(requestUri);
 
         String nodePath = getNodePath(requestUri);
-        if (StringUtils.equalsIgnoreCase("get", request.getMethod())) {
-            return appendItemsAndReturn(nodePath);
+        return appendItemsAndReturn(nodePath);
+    }
 
-        } else if (StringUtils.equalsIgnoreCase("post", request.getMethod())) {
-            if (nodePath.endsWith("/delete")) {
-                return deleteAndReturn(nodePath);
-            } else {
-                if (ServletFileUpload.isMultipartContent(request)) {
-                    try {
-                        JSONObject json = new JSONObject();
-                        json.put("uri", requestUri);
+    @RequestMapping(method = RequestMethod.POST)
+    @ModelAttribute
+    public ModelAndView post(HttpServletRequest request) throws Exception {
+        String requestUri = getUri(request);
+        log.info(requestUri);
 
-                        ServletFileUpload upload = new ServletFileUpload();
-                        FileItemIterator itr = upload.getItemIterator(request);
-                        while (itr.hasNext()) {
-                            FileItemStream itemStream = itr.next();
-                            if (!itemStream.isFormField()) {
-                                String filename = itemStream.getName();
-                                log.info("storeFile(" + filename + ")");
-                                storeFile(nodePath, filename, itemStream.openStream());
-                                json.accumulate("file", filename);
-                            }
-                        }
-
-                        json.put("success", true);
-                        return new ModelAndView(new JsonItemsView()).addObject("json", json);
-                    } catch (Exception e) {
-                        log.warning("saveFiles(): unable to extract content:" + e);
-                    }
-                }
-            }
-        } else if (StringUtils.equalsIgnoreCase("delete", request.getMethod())) {
+        String nodePath = getNodePath(requestUri);
+        if (nodePath.endsWith("/delete")) {
             return deleteAndReturn(nodePath);
         }
 
-        return null;
+        JSONObject json = new JSONObject();
+        json.put("uri", requestUri);
+
+        if (ServletFileUpload.isMultipartContent(request)) {
+            try {
+                ServletFileUpload upload = new ServletFileUpload();
+                FileItemIterator itr = upload.getItemIterator(request);
+                while (itr.hasNext()) {
+                    FileItemStream itemStream = itr.next();
+                    if (!itemStream.isFormField()) {
+                        String filename = itemStream.getName();
+                        log.info("storeFile(" + filename + ")");
+                        storeFile(nodePath, filename, itemStream.openStream());
+                        json.accumulate("file", filename);
+                    }
+                }
+
+                json.put("success", true);
+                return new ModelAndView(new JsonItemsView()).addObject("json", json);
+            } catch (Exception e) {
+                log.warning("saveFiles(): unable to extract content:" + e);
+            }
+        }
+
+        File dir = getLocalFile(nodePath);
+        dir.mkdirs();
+        json.put("name", dir.getName());
+        json.put("label", dir.getName());
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE)
+    @ModelAttribute
+    public ModelAndView delete(HttpServletRequest request) throws Exception {
+        String requestUri = getUri(request);
+        log.info(requestUri);
+        String nodePath = getNodePath(requestUri);
+        return deleteAndReturn(nodePath);
     }
 
     /*
     * Private Methods
     */
 
+    private String getUri(HttpServletRequest request) {
+        String requestUri = request.getRequestURI();
+        return StringUtils.substringAfterLast(requestUri, request.getContextPath());
+    }
+
+    private String getNodePath(String requestUri) {
+        String nodePath = requestUri;
+        nodePath = StringUtils.replace(nodePath, "%20", " ");
+        nodePath = StringUtils.replace(nodePath, "+", " ");
+        return nodePath;
+    }
+
     private ModelAndView appendItemsAndReturn(String nodePath) throws Exception {
         File d = getLocalFile(nodePath);
+        log.info(d.getPath() + ":" + d.exists());
         if (!d.exists()) {
             throw new ResourceNotFoundException(nodePath);
         }
@@ -100,27 +158,40 @@ public class WorkspacesController extends BaseController {
 
             for (File f : d.listFiles()) {
                 String uri = nodePath + "/" + f.getName();
-                JSONObject item = new JSONObject();
-                item.put("name", f.getName());
-                item.put("uri", uri);
-                item.put("isFile", f.isFile());
-                json.append("items", item);
+                if (f.isFile()) {
+                    json.append("items", getJsonForFile(nodePath, f));
+                } else {
+                    JSONObject item = new JSONObject();
+                    item.put("name", f.getName());
+                    item.put("uri", uri);
+                    item.put("isFile", false);
+                    json.append("items", item);
+                }
             }
 
             return new ModelAndView(new JsonItemsView()).addObject("json", json);
-        } else {
-            String filename = d.getName();
-            ModelAndView mav = new ModelAndView(new InputStreamFileView());
-            mav.addObject("inputStream", new FileInputStream(d));
-            mav.addObject("mimeType", super.getServletContext().getMimeType(filename));
-            mav.addObject("filename", filename);
-            return mav;
         }
+
+        String filename = d.getName();
+        ModelAndView mav = new ModelAndView(new InputStreamFileView());
+        mav.addObject("inputStream", new FileInputStream(d));
+        mav.addObject("mimeType", servletContext.getMimeType(filename));
+        mav.addObject("filename", filename);
+        return mav;
+    }
+
+    private JSONObject getJsonForFile(String nodePath, File d) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("name", d.getName());
+        json.put("uri", nodePath + "/" + d.getName());
+        json.put("isFile", true);
+        json.put("size", d.length());
+        json.put("mimeType", servletContext.getMimeType(d.getName()));
+        return json;
     }
 
     private ModelAndView deleteAndReturn(String nodePath) throws Exception {
         File f = getLocalFile(StringUtils.substringBeforeLast(nodePath, "/delete"));
-
         if (!f.exists()) {
             throw new ResourceNotFoundException(nodePath);
         }
@@ -137,8 +208,17 @@ public class WorkspacesController extends BaseController {
     }
 
     private File getLocalFile(String nodePath) throws Exception {
-        String rootPath = getRootPath(nodePath);
-        return new File(rootPath + nodePath);
+        Map.Entry<String, String> entry = getWorkspaceEntry(nodePath);
+        return new File(entry.getValue() + StringUtils.substringAfter(nodePath, entry.getKey()));
+    }
+
+    private Map.Entry<String, String> getWorkspaceEntry(String uri) {
+        for (Map.Entry<String, String> entry : rootPathsByUri.entrySet()) {
+            if (uri.startsWith(entry.getKey())) {
+                return entry;
+            }
+        }
+        return null;
     }
 
     private void pipe(InputStream inputStream, OutputStream outputStream) throws IOException {

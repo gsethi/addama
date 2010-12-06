@@ -18,22 +18,29 @@
 */
 package org.systemsbiology.addama.workspaces.fs.callbacks;
 
-import java.io.IOException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.systemsbiology.addama.registry.JsonConfigHandler;
+
+import java.util.Map;
 
 /**
  * @author hrovira
  */
-public class FSFileLocalFactory implements FileLocalFactory {
+public class RootPathsJsonConfigHandler implements JsonConfigHandler {
+    private final Map<String, String> rootPathsByUri;
 
-    public FileLocal getFileLocal(String databaseUri, final String localPath) {
-        return new FileLocal() {
-            public String getLocalFile() throws Exception {
-                return localPath;
+    public RootPathsJsonConfigHandler(Map<String, String> rootPathsByUri) {
+        this.rootPathsByUri = rootPathsByUri;
+    }
+
+    public void handle(JSONObject configuration) throws Exception {
+        if (configuration.has("locals")) {
+            JSONArray locals = configuration.getJSONArray("locals");
+            for (int i = 0; i < locals.length(); i++) {
+                JSONObject local = locals.getJSONObject(i);
+                rootPathsByUri.put(local.getString("uri"), local.getString("rootPath"));
             }
-
-            public void close() throws IOException {
-
-            }
-        };
+        }
     }
 }
