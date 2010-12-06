@@ -65,7 +65,6 @@ var statusBar = new Ext.ux.StatusBar({
 var browsePanel = {
     id: "layout-browser",
     layout: "fit",
-    title: "Browse",
     region:"west",
     border: true,
     split: true,
@@ -73,7 +72,6 @@ var browsePanel = {
     width: 275,
     minSize: 100,
     maxSize: 500,
-    collapsible: true,
     layoutConfig: {
         titleCollapse: true,
         hideCollapseTool: true,
@@ -81,6 +79,22 @@ var browsePanel = {
         activeOnTop: false
     },
     items: [tree]
+};
+
+var propertiesPanel = {
+    id: "panel-properties-control",
+    title: "Properties",
+    layout: "fit",
+    border:true,
+    margins: "33 5 5 0",
+    width: 320,
+    minSize: 100,
+    maxSize: 500,
+    animate: true,
+    activeOnTop: false,
+    bodyStyle: "padding-bottom:15px; background:#eee;",
+    autoScroll: true,
+    contentEl: "panel-properties"
 };
 
 var mainPanel = new Ext.TabPanel({
@@ -91,33 +105,14 @@ var mainPanel = new Ext.TabPanel({
     margins: "33 5 5 0",
     border: true,
     split: true,
-    items:[ contentPanel],
+    items:[ contentPanel, propertiesPanel],
     bbar: statusBar
 });
-
-var propertiesPanel = {
-    id: "panel-properties-control",
-    title: "Properties",
-    layout: "fit",
-    region:"east",
-    border:true,
-    margins: "33 5 5 0",
-    width: 320,
-    minSize: 100,
-    maxSize: 500,
-    collapsible: true,
-    titleCollapse: true,
-    animate: true,
-    activeOnTop: false,
-    bodyStyle: "padding-bottom:15px; background:#eee;",
-    autoScroll: true,
-    contentEl: "panel-properties"
-};
 
 Ext.onReady(function() {
     new Ext.Viewport({
         layout: "border",
-        items: [headerPanel, browsePanel, footerPanel, mainPanel, propertiesPanel],
+        items: [headerPanel, browsePanel, footerPanel, mainPanel],
         renderTo: Ext.getBody()
     });
     console.log("viewport completed");
