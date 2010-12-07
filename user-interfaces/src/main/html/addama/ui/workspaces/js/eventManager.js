@@ -35,20 +35,24 @@ eventManager.addListener("display-status-message", function(message) {
     });
 });
 eventManager.addListener("node-selection", function(node) {
+    selectedNode = node;
+});
+
+eventManager.addListener("node-selection", function(node) {
     var nodeCls = node.attributes.cls;
 
     var layout = contentPanel.layout;
     if (layout) {
         if (nodeCls == "repository") {
-            layout.setActiveItem("main-content-repository-panel");
-            renderReposSubFolderForm(node);
+            layout.setActiveItem("main-content-folder-panel");
+            renderFolderInMain(node);
             renderReposUploadFileForm(node);
         } else if (nodeCls == "file") {
             layout.setActiveItem("main-content-file-panel");
             renderFilePreviewAndLink(layout, node);
         } else if (nodeCls == "folder") {
             layout.setActiveItem("main-content-folder-panel");
-            renderSubFolderForm(node);
+            renderFolderInMain(node);
             renderUploadFileForm(node);
         } else {
             layout.setActiveItem("main-content-start-panel");

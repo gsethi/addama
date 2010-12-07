@@ -1,3 +1,42 @@
+Ext.onReady(function() {
+    Ext.get("btn-createfolder").on("click", function(e){
+        Ext.MessageBox.prompt("Create Folder", "Please enter new folder name", createNewFolder);
+    });
+});
+
+function renderFolderInMain(node) {
+    var label = node.attributes.label ? node.attributes.label : node.attributes.name;
+    var nodeUri = node.attributes.uri;
+
+    Ext.getDom("main-content-folder-item").innerHTML = "Selected Folder '" + label + "'";
+
+    Ext.getDom("btn-uploadfile").onclick = getUploadFileFunction(nodeUri);
+}
+
+function createNewFolder(btn, text){
+    if (selectedNode) {
+        Ext.Ajax.request({
+            url: selectedNode.attributes.uri + "/" + text,
+            method: "POST",
+            success: function() {
+                eventManager.fireEvent("display-status-message", { text: "Folder " + text + " Added Successfully", level: "info" });
+                eventManager.fireEvent("node-selection", selectedNode);
+            },
+            failure: function() {
+                eventManager.fireEvent("display-status-message", { text: "Failed to add New Folder", level: "error" });
+            }
+        });
+    } else {
+        eventManager.fireEvent("display-status-message", { text: "Invalid Folder Selected", level: "error" });
+    }
+}
+
+function getUploadFileFunction(uri) {
+    return function() {
+        console.log("getUploadFileFunction(" + uri + ")");
+    }
+}
+
 function renderFilePreviewAndLink(layout, node) {
     var uri = node.attributes.uri;
     var name = node.attributes.label ? node.attributes.label : node.attributes.name;
@@ -9,45 +48,6 @@ function renderFilePreviewAndLink(layout, node) {
     if (mimeType && mimeType.substring(0, 5) == "image") {
         Ext.getDom("main-content-file-preview").innerHTML = "<img src='" + uri + "' width='50%' heigth='50%'/>";
     }
-}
-
-function renderSubFolderForm(node) {
-    Ext.getDom("main-content-folder-addsub").innerHTML = "";
-    var uri = node.attributes.uri;
-    var subfolderFormPanel = new Ext.form.FormPanel({
-        id: 'folderAddSubForm',
-        title: 'New Folder',
-        method: 'POST',
-        renderTo: "main-content-folder-addsub",
-        border: true,
-        items: [
-            new Ext.form.FieldSet({
-                autoHeight: true,
-                autoWidth: true,
-                border: false,
-                items: [
-                    new Ext.form.TextField({
-                        fieldLabel: 'Folder Name',
-                        defaultAutoCreate : {tag:"input", size: "40", autocomplete: "off"},
-                        name: 'newSubfolder',
-                        id: 'newSubfolderId',
-                        allowBlank: false
-                    }),
-                    new Ext.Button({
-                        id: 'show-button',
-                        text: 'Add',
-                        listeners: {
-                            click: function() {
-                                createFolder(node, Ext.getCmp("newSubfolderId").getValue());
-                            }
-                        }
-                    })
-                ]
-            })
-        ]
-    });
-    subfolderFormPanel.render();
-    Ext.DomHelper.insertHtml("beforeEnd", Ext.getDom("main-content-folder-addsub"), "<br>");
 }
 
 function renderUploadFileForm(node) {
@@ -91,45 +91,6 @@ function renderUploadFileForm(node) {
     });
     uploadFileFormComponent.render();
     Ext.DomHelper.insertHtml("beforeEnd", Ext.getDom("main-content-folder-upload"), "<br>");
-}
-
-function renderReposSubFolderForm(node) {
-    Ext.getDom("main-content-repository-addsub").innerHTML = "";
-    var uri = node.attributes.uri;
-    var subfolderFormPanel = new Ext.form.FormPanel({
-        id: 'reposAddSubFormId',
-        title: 'New Folder',
-        method: 'POST',
-        renderTo: "main-content-repository-addsub",
-        border: true,
-        items: [
-            new Ext.form.FieldSet({
-                autoHeight: true,
-                autoWidth: true,
-                border: false,
-                items: [
-                    new Ext.form.TextField({
-                        fieldLabel: 'New Folder',
-                        defaultAutoCreate : {tag:"input", size: "40", autocomplete: "off"},
-                        name: 'reposNewSubfolder',
-                        id: 'reposNewSubfolderId',
-                        allowBlank: false
-                    }),
-                    new Ext.Button({
-                        id: 'show-button',
-                        text: 'Add',
-                        listeners: {
-                            click: function() {
-                                createFolder(node, Ext.getCmp("reposNewSubfolderId").getValue());
-                            }
-                        }
-                    })
-                ]
-            })
-        ]
-    });
-    subfolderFormPanel.render();
-    Ext.DomHelper.insertHtml("beforeEnd", Ext.getDom("main-content-repository-addsub"), "<br>");
 }
 
 function renderReposUploadFileForm(node) {
@@ -189,20 +150,6 @@ function uploadFile(formPanel, uploadFileName, node) {
         },
         failure: function(response) {
             eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
-        }
-    });
-}
-
-function createFolder(node, subfolder) {
-    Ext.Ajax.request({
-        url: node.attributes.uri + "/" + subfolder,
-        method: "POST",
-        success: function() {
-            eventManager.fireEvent("display-status-message", { text: "Folder " + subfolder + " Added Successfully", level: "info" });
-            eventManager.fireEvent("node-selection", node);
-        },
-        failure: function() {
-            eventManager.fireEvent("display-status-message", { text: "Failed to add New Folder", level: "error" });
         }
     });
 }
