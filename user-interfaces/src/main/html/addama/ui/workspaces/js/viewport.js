@@ -26,13 +26,6 @@ var startPanel = {
     contentEl: "main-content-start"
 };
 
-var repoViewPanel = {
-    id: "main-content-repository-panel",
-    layout: "fit",
-    bodyStyle: "padding:25px",
-    contentEl: "main-content-repository"
-};
-
 var folderViewPanel = {
     id: "main-content-folder-panel",
     layout: "fit",
@@ -53,7 +46,7 @@ var contentPanel = new Ext.Panel({
     layout: "card",
     activeItem: 0,
     border: false,
-    items: [ startPanel, repoViewPanel, folderViewPanel, fileViewPanel ]
+    items: [ startPanel, folderViewPanel, fileViewPanel ]
 });
 
 var statusBar = new Ext.ux.StatusBar({
