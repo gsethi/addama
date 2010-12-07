@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
     <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/examples/ux/statusbar/StatusBar.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/examples/ux/fileuploadfield/FileUploadField.js"></script>
 
     <script type="text/javascript" src="/js/topbar.js"></script>
 
@@ -59,8 +60,9 @@
         <div style="margin-left:50px;">
             <h2><span id="main-content-folder-item"></span></h2>
             <button id="btn-createfolder">Create Folder</button>
-            <button id="btn-uploadfile">Upload File</button>
-            <div id="main-content-folder-upload"></div>
+            <form id="frm-uploadfile" enctype="multipart/form-data">
+                <div id="fi-button"></div>
+            </form>
         </div>
     </div>
 

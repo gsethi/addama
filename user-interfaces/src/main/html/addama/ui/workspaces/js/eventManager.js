@@ -43,17 +43,15 @@ eventManager.addListener("node-selection", function(node) {
 
     var layout = contentPanel.layout;
     if (layout) {
-        if (nodeCls == "repository") {
+        if (nodeCls == "repository" || nodeCls == "folder") {
             layout.setActiveItem("main-content-folder-panel");
-            renderFolderInMain(node);
-            renderReposUploadFileForm(node);
+
+            var label = node.attributes.label ? node.attributes.label : node.attributes.name;
+            Ext.getDom("main-content-folder-item").innerHTML = "Selected Folder '" + label + "'";
+
         } else if (nodeCls == "file") {
             layout.setActiveItem("main-content-file-panel");
             renderFilePreviewAndLink(layout, node);
-        } else if (nodeCls == "folder") {
-            layout.setActiveItem("main-content-folder-panel");
-            renderFolderInMain(node);
-            renderUploadFileForm(node);
         } else {
             layout.setActiveItem("main-content-start-panel");
         }
