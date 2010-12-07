@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.InputStreamFileView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
+import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 import org.systemsbiology.addama.registry.JsonConfig;
 import org.systemsbiology.addama.workspaces.fs.callbacks.RootPathsJsonConfigHandler;
@@ -101,24 +102,25 @@ public class WorkspacesController implements InitializingBean, ServletContextAwa
                     FileItemStream itemStream = itr.next();
                     if (!itemStream.isFormField()) {
                         String filename = itemStream.getName();
-                        log.info("storeFile(" + filename + ")");
-                        storeFile(nodePath, filename, itemStream.openStream());
-                        json.accumulate("file", filename);
+                        File f = storeFile(nodePath, filename, itemStream.openStream());
+                        json.accumulate("items", getJsonForFile(nodePath, f));
                     }
                 }
 
                 json.put("success", true);
-                return new ModelAndView(new JsonItemsView()).addObject("json", json);
             } catch (Exception e) {
-                log.warning("saveFiles(): unable to extract content:" + e);
+                log.warning("unable to extract content:" + e);
             }
+            
+            return new ModelAndView(new JsonItemsView()).addObject("json", json);
         }
 
         File dir = getLocalFile(nodePath);
         dir.mkdirs();
+
         json.put("name", dir.getName());
         json.put("label", dir.getName());
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
@@ -199,12 +201,15 @@ public class WorkspacesController implements InitializingBean, ServletContextAwa
         return new ModelAndView(new OkResponseView());
     }
 
-    private void storeFile(String nodePath, String filename, InputStream inputStream) throws Exception {
+    private File storeFile(String nodePath, String filename, InputStream inputStream) throws Exception {
+        log.info(nodePath + "/" + filename);
+
         File dir = getLocalFile(nodePath);
         dir.mkdirs();
 
         String filepath = dir.getPath() + "/" + filename;
         pipe(inputStream, new FileOutputStream(filepath, false));
+        return new File(filepath);
     }
 
     private File getLocalFile(String nodePath) throws Exception {
