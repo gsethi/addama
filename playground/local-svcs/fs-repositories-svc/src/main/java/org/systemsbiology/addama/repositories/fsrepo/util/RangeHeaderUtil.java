@@ -276,6 +276,7 @@ public class RangeHeaderUtil implements ServletContextAware {
             }
         } finally {
             try {
+                outputStream.close();
                 if (randomAccessFile != null) {
                     randomAccessFile.close();
                 }
