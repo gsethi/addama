@@ -108,8 +108,6 @@ Ext.onReady(function() {
         items: [headerPanel, browsePanel, footerPanel, mainPanel],
         renderTo: Ext.getBody()
     });
-    console.log("viewport completed");
-
     loadTree();
 });
 
