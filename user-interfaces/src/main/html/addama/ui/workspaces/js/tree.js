@@ -16,34 +16,29 @@ var tree = new Ext.tree.TreePanel({
 
 function loadTree() {
     tree.render();
+    tree.addListener("expandnode", expandNode, {single: true});
+    tree.addListener("click", function(node) {
+        eventManager.fireEvent("node-refresh", node);
+    }, {single: true});
 
     Ext.Ajax.request({
         url: "/addama/workspaces",
         method: "GET",
-        success: loadWorkspaces,
+        success: function(response) {
+            var repos = Ext.util.JSON.decode(response.responseText);
+            transformJsonRepos(repos);
+
+            tree.setRootNode(new Ext.tree.AsyncTreeNode({
+                text: 'Workspaces',
+                draggable:false,
+                id:'addamatreetopid',
+                children: repos.items
+            }));
+        },
         failure: function(response) {
             eventManager.fireEvent("display-status-message", { text: "Failed to load workspaces", level: "error" });
         }
     });
-}
-
-function loadWorkspaces(response) {
-    var repos = Ext.util.JSON.decode(response.responseText);
-    transformJsonRepos(repos);
-
-    tree.addListener("click", function(node) {
-        eventManager.fireEvent("node-selection", node);
-    }, {single: true});
-    tree.addListener("expandnode", expandNode, {single: true});
-
-    var root = new Ext.tree.AsyncTreeNode({
-        text: 'Workspaces',
-        draggable:false,
-        id:'addamatreetopid',
-        children: repos.items
-    });
-    tree.setRootNode(root);
-    tree.render();
 }
 
 function transformJsonRepos(data) {
