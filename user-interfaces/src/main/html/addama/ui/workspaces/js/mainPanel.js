@@ -1,19 +1,3 @@
-var win = new Ext.Window({
-    title: 'Upload Status',
-    width: 400,
-    minWidth: 350,
-    height: 150,
-    modal: true,
-    closeAction: 'hide',
-    bodyStyle: 'padding:10px;',
-    html: "File uploading...",
-    bbar: new Ext.ux.StatusBar({ id: 'upload-file-statusbar', defaultText: 'Ready' })
-});
-win.on("show", function () {
-    var sb = Ext.getCmp("upload-file-statusbar");
-    sb.showBusy();
-});
-
 function renderFilePreviewAndLink(layout, node) {
     var uri = node.attributes.uri;
     var name = node.attributes.label ? node.attributes.label : node.attributes.name;
@@ -31,42 +15,6 @@ function doCreateFolder() {
     Ext.MessageBox.prompt("Create Folder", "Please enter new folder name", createNewFolder);
 }
 
-function doFileUpload() {
-    Ext.getDom("main-content-folder-addsub").innerHTML = "";
-
-    new Ext.form.FormPanel({
-        id: 'reposUploadFileForm',
-        title: 'Upload File',
-        renderTo: "main-content-folder-addsub",
-        method: 'POST',
-        fileUpload : true,
-        border: true,
-        items: [
-            new Ext.form.FieldSet({
-                autoHeight: true,
-                autoWidth: true,
-                border: false,
-                items: [
-                    new Ext.form.TextField({
-                        fieldLabel: 'Select file',
-                        defaultAutoCreate : {tag:"input", enctype:"multipart/form-data", type:"file", size: "35", autocomplete: "off"},
-                        name: 'FILE',
-                        id: 'reposUploadFileNameId',
-                        allowBlank: false
-                    }),
-                    new Ext.Button({
-                        id: 'show-button',
-                        text: 'Upload',
-                        listeners: {
-                            click: uploadFile
-                        }
-                    })
-                ]
-            })
-        ]
-    }).render();
-}
-
 function createNewFolder(btn, text){
     if (selectedNode) {
         Ext.Ajax.request({
@@ -81,39 +29,6 @@ function createNewFolder(btn, text){
     } else {
         msgFolderCreateFailed();
     }
-}
-
-function uploadFile() {
-    win.show();
-
-    Ext.Ajax.request({
-        url: selectedNode.attributes.uri + "/directlink",
-        method: "GET",
-        success: function(response) {
-            var json = Ext.util.JSON.decode(response.responseText);
-            if (json.location) {
-                Ext.getCmp('reposUploadFileForm').getForm().submit({
-                    clientValidation: true,
-                    url: json.location + "?x-addama-desired-contenttype=text/html",
-                    success: function() {
-                        eventManager.fireEvent("display-status-message", { text:  "File Uploaded Successfully", level: "info" });
-                        win.close();
-                        Ext.getDom("main-content-folder-addsub").innerHTML = "";
-                    },
-                    failure: msgFileFailed
-                });
-            } else {
-                msgFileFailed();
-            }
-        },
-        failure: msgFileFailed
-    });
-}
-
-function msgFileFailed() {
-    eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
-    win.close();
-    Ext.getDom("main-content-folder-addsub").innerHTML = "";
 }
 
 function msgFolderCreateFailed() {
