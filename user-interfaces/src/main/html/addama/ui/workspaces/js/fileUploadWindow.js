@@ -92,7 +92,7 @@ function uploadFile() {
                             uploadProgressWindow.hide();
                             fileUploadWindow.hide();
                             statusBar.displayMessage("File uploaded successfully");
-                            eventManager.fireEvent("node-refresh", selectedNode);
+                            refreshNodeTree(selectedNode);
                         },
                         failure: function() {
                             statusBar.displayError("Failed to upload file [form]");

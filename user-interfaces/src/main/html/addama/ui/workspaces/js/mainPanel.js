@@ -23,7 +23,7 @@ function createNewFolder(btn, text){
             method: "POST",
             success: function() {
                 statusBar.displayMessage("Folder '" + text + "' added successfully");
-                eventManager.fireEvent("node-refresh", selectedNode);
+                refreshNodeTree(selectedNode);
             },
             failure: function() {
                 statusBar.displayError("Failed to add new folder");

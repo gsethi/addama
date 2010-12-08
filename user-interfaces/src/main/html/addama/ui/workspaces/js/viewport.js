@@ -96,18 +96,12 @@ var mainPanel = new Ext.TabPanel({
     bbar: statusBar
 });
 
-var eventManager = new EventManager();
-
 Ext.onReady(function() {
     new Ext.Viewport({
         layout: "border",
         items: [headerPanel, browsePanel, footerPanel, mainPanel],
         renderTo: Ext.getBody()
     });
-    loadTree();
-
-    eventManager.addListener("node-refresh", displayNodeInContentPanel);
-    eventManager.addListener("node-refresh", displayNodeInPropertiesPanel);
-//    eventManager.addListener("node-refresh", expandNode);
 });
+Ext.onReady(loadTree);
 

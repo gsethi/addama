@@ -17,9 +17,11 @@ var tree = new Ext.tree.TreePanel({
 function loadTree() {
     tree.render();
     tree.addListener("expandnode", expandNode, {single: true});
-    tree.addListener("click", function(node) {
-        eventManager.fireEvent("node-refresh", node);
-    }, {single: true});
+    tree.addListener("expandnode", displayNodeInContentPanel, {single: true});
+    tree.addListener("expandnode", displayNodeInPropertiesPanel, {single: true});
+    tree.addListener("click", refreshNodeTree, {single: true});
+    tree.addListener("click", displayNodeInContentPanel, {single: true});
+    tree.addListener("click", displayNodeInPropertiesPanel, {single: true});
 
     Ext.Ajax.request({
         url: "/addama/workspaces",
@@ -98,4 +100,11 @@ function expandNode(node) {
             node.expandable = false;
         }
     });
+}
+
+function refreshNodeTree(node) {
+    if (node.isExpanded()) {
+        node.collapse();
+    }
+    node.expand();
 }
