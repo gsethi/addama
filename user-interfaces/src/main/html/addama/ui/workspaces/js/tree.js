@@ -63,10 +63,6 @@ function expandNode(node) {
         return;
     }
 
-    while (node.hasChildNodes()) {
-        node.removeChild(node.item(0), true);
-    }
-
     var parentPath = node.attributes.path;
     if (parentPath == "/") {
         parentPath = "";
@@ -80,18 +76,20 @@ function expandNode(node) {
             if (json && json.items) {
                 for (var i = 0; i < json.items.length; i++) {
                     var item = json.items[i];
-                    item.text = item.label ? item.label : item.name;
-                    item.id = item.uri;
-                    item.path = parentPath + "/" + item.name;
-                    if (item.isFile) {
-                        item.leaf = true;
-                        item.cls = "file";
-                    } else {
-                        item.leaf = false;
-                        item.cls = "folder";
-                        item.children = [];
+                    if (!tree.getNodeById(item.uri)) {
+                        item.text = item.label ? item.label : item.name;
+                        item.id = item.uri;
+                        item.path = parentPath + "/" + item.name;
+                        if (item.isFile) {
+                            item.leaf = true;
+                            item.cls = "file";
+                        } else {
+                            item.leaf = false;
+                            item.cls = "folder";
+                            item.children = [];
+                        }
+                        node.appendChild(item);
                     }
-                    node.appendChild(item);
                 }
                 node.renderChildren();
             }
