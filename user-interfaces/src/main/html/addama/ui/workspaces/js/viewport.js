@@ -49,12 +49,6 @@ var contentPanel = new Ext.Panel({
     items: [ startPanel, folderViewPanel, fileViewPanel ]
 });
 
-var statusBar = new Ext.ux.StatusBar({
-    text: "Ready",
-    id: 'basic-statusbar',
-    iconCls: "x-status-valid"
-});
-
 var browsePanel = {
     id: "layout-browser",
     layout: "fit",
@@ -115,6 +109,5 @@ Ext.onReady(function() {
     eventManager.addListener("node-refresh", displayNodeInContentPanel);
     eventManager.addListener("node-refresh", displayNodeInPropertiesPanel);
 //    eventManager.addListener("node-refresh", expandNode);
-    eventManager.addListener("display-status-message", displayStatusMessage);
 });
 

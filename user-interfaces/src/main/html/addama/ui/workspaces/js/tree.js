@@ -34,9 +34,11 @@ function loadTree() {
                 id:'addamatreetopid',
                 children: repos.items
             }));
+
+            statusBar.displayMessage("Workspaces loaded");
         },
         failure: function(response) {
-            eventManager.fireEvent("display-status-message", { text: "Failed to load workspaces", level: "error" });
+            statusBar.displayError("Failed to load workspaces");
         }
     });
 }

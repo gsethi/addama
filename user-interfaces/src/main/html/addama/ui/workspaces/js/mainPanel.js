@@ -16,23 +16,21 @@ function doCreateFolder() {
 }
 
 function createNewFolder(btn, text){
-    var createFailedFn = function() {
-        eventManager.fireEvent("display-status-message", { text: "Failed to add New Folder", level: "error" });
-    };
-
     var selectedNode = tree.getSelectionModel().getSelectedNode();
     if (selectedNode) {
         Ext.Ajax.request({
             url: selectedNode.attributes.uri + "/" + text,
             method: "POST",
             success: function() {
-                eventManager.fireEvent("display-status-message", { text: "Folder " + text + " Added Successfully", level: "info" });
+                statusBar.displayMessage("Folder '" + text + "' added successfully");
                 eventManager.fireEvent("node-refresh", selectedNode);
             },
-            failure: createFailedFn
+            failure: function() {
+                statusBar.displayError("Failed to add new folder");
+            }
         });
     } else {
-        createFailedFn();
+        statusBar.displayError("Please select a folder");
     }
 }
 
@@ -66,22 +64,4 @@ function displayNodeInPropertiesPanel(node) {
         source: node.attributes
     });
     annotationsGrid.render();
-}
-
-function displayStatusMessage(message) {
-    var level = message.level || "info";
-    var text = message.text || message;
-    var icon = "x-status-valid";
-    if (level === "error") {
-        icon = "x-status-error"
-    }
-    statusBar.setStatus({
-        text: text,
-        iconCls: icon,
-        clear: {
-            wait: 5000,
-            anim: false,
-            useDefaults: false
-        }
-    });
 }

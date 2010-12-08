@@ -79,11 +79,6 @@ function uploadFile() {
 
     var selectedNode = tree.getSelectionModel().getSelectedNode();
     if (selectedNode) {
-        var fileFailFn = function() {
-            eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
-            uploadProgressWindow.hide();
-        };
-
         Ext.Ajax.request({
             url: selectedNode.attributes.uri + "/directlink",
             method: "GET",
@@ -96,18 +91,25 @@ function uploadFile() {
                         success: function() {
                             uploadProgressWindow.hide();
                             fileUploadWindow.hide();
-                            eventManager.fireEvent("display-status-message", { text:  "File Uploaded Successfully", level: "info" });
+                            statusBar.displayMessage("File uploaded successfully");
                             eventManager.fireEvent("node-refresh", selectedNode);
                         },
-                        failure: fileFailFn
+                        failure: function() {
+                            statusBar.displayError("Failed to upload file [form]");
+                            uploadProgressWindow.hide();
+                        }
                     });
                 } else {
-                    fileFailFn();
+                    statusBar.displayError("Failed to upload file [location]");
+                    uploadProgressWindow.hide();
                 }
             },
-            failure: fileFailFn
+            failure: function() {
+                statusBar.displayError("Failed to upload file [broker]");
+                uploadProgressWindow.hide();
+            }
         });
     } else {
-        eventManager.fireEvent("display-status-message", { text: "Please select a folder", level: "error" });
+        statusBar.displayError("Please select a folder");
     }
 }

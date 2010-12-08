@@ -8,8 +8,7 @@ EventManager = function(config){
 
     Ext.apply(this, config);
     this.addEvents(
-        "node-refresh",
-        "display-status-message"
+        "node-refresh"
     );
     EventManager.superclass.constructor.call(this);
 };
