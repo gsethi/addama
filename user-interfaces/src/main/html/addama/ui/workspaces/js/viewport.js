@@ -102,6 +102,8 @@ var mainPanel = new Ext.TabPanel({
     bbar: statusBar
 });
 
+var eventManager = new EventManager();
+
 Ext.onReady(function() {
     new Ext.Viewport({
         layout: "border",
@@ -109,5 +111,10 @@ Ext.onReady(function() {
         renderTo: Ext.getBody()
     });
     loadTree();
+
+    eventManager.addListener("node-refresh", displayNodeInContentPanel);
+    eventManager.addListener("node-refresh", displayNodeInPropertiesPanel);
+//    eventManager.addListener("node-refresh", expandNode);
+    eventManager.addListener("display-status-message", displayStatusMessage);
 });
 
