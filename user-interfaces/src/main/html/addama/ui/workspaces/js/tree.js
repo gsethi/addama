@@ -1,6 +1,6 @@
 var tree = new Ext.tree.TreePanel({
     id: "tree-panel",
-    title: "Repositories",
+    title: "Workspaces",
     region:"north",
     split: true,
     minSize: 150,
@@ -37,7 +37,7 @@ function loadWorkspaces(response) {
     tree.addListener("expandnode", expandNode, {single: true});
 
     var root = new Ext.tree.AsyncTreeNode({
-        text: 'Repositories',
+        text: 'Workspaces',
         draggable:false,
         id:'addamatreetopid',
         children: repos.items
