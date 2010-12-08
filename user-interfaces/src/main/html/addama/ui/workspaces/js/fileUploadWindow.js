@@ -77,31 +77,37 @@ function doFileUpload() {
 function uploadFile() {
     uploadProgressWindow.show();
 
-    var fileFailFn = function() {
-        eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
-        uploadProgressWindow.hide();
-    };
-    
-    Ext.Ajax.request({
-        url: selectedNode.attributes.uri + "/directlink",
-        method: "GET",
-        success: function(response) {
-            var json = Ext.util.JSON.decode(response.responseText);
-            if (json.location) {
-                fileUploadFrm.getForm().submit({
-                    clientValidation: true,
-                    url: json.location + "?x-addama-desired-contenttype=text/html",
-                    success: function() {
-                        eventManager.fireEvent("display-status-message", { text:  "File Uploaded Successfully", level: "info" });
-                        uploadProgressWindow.hide();
-                        fileUploadWindow.hide();
-                    },
-                    failure: fileFailFn
-                });
-            } else {
-                fileFailFn();
-            }
-        },
-        failure: fileFailFn
-    });
+    var selectedNode = tree.getSelectionModel().getSelectedNode();
+    if (selectedNode) {
+        var fileFailFn = function() {
+            eventManager.fireEvent("display-status-message", { text: "Failed to upload file. Please try Again.", level: "error" });
+            uploadProgressWindow.hide();
+        };
+
+        Ext.Ajax.request({
+            url: selectedNode.attributes.uri + "/directlink",
+            method: "GET",
+            success: function(response) {
+                var json = Ext.util.JSON.decode(response.responseText);
+                if (json.location) {
+                    fileUploadFrm.getForm().submit({
+                        clientValidation: true,
+                        url: json.location + "?x-addama-desired-contenttype=text/html",
+                        success: function() {
+                            uploadProgressWindow.hide();
+                            fileUploadWindow.hide();
+                            eventManager.fireEvent("display-status-message", { text:  "File Uploaded Successfully", level: "info" });
+                            eventManager.fireEvent("node-refresh", selectedNode);
+                        },
+                        failure: fileFailFn
+                    });
+                } else {
+                    fileFailFn();
+                }
+            },
+            failure: fileFailFn
+        });
+    } else {
+        eventManager.fireEvent("display-status-message", { text: "Please select a folder", level: "error" });
+    }
 }
