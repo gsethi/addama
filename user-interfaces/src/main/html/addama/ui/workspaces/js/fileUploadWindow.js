@@ -22,8 +22,8 @@ Ext.onReady(function() {
     fileUploadWindow = new Ext.Window({
         title: 'Upload File',
         id: 'uploadfile-window',
-        autoWidth : true,
-        autoHeight : true,
+        width: 600,
+        height: 130,
         modal: true,
         closeAction : 'hide',
         items: []
