@@ -27,8 +27,7 @@ function loadTree() {
         url: "/addama/workspaces",
         method: "GET",
         success: function(response) {
-            var repos = Ext.util.JSON.decode(response.responseText);
-            transformJsonRepos(repos);
+            var repos = getJsonRepos(response);
 
             tree.setRootNode(new Ext.tree.AsyncTreeNode({
                 text: 'Workspaces',
@@ -45,7 +44,8 @@ function loadTree() {
     });
 }
 
-function transformJsonRepos(data) {
+function getJsonRepos(response) {
+    var data = Ext.util.JSON.decode(response.responseText)
     for (var i = 0; i < data.items.length; i++) {
         var item = data.items[i];
         item.text = item.label ? item.label : item.name;
@@ -54,8 +54,12 @@ function transformJsonRepos(data) {
         item.isRepository = true;
         item.cls = "repository";
         item.leaf = false;
+        if (i == 0) {
+            item.expanded = true;
+        }
         item.children = [];
     }
+    return data;
 }
 
 function expandNode(node) {
