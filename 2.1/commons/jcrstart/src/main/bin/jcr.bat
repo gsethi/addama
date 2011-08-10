@@ -1,1 +1,0 @@
-rem Not yet sure how to reproduce jcr.sh in bat file format
