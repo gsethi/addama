@@ -1,0 +1,37 @@
+<html>
+<head>
+    <title>Data Grid</title>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+
+    <script type="text/javascript" src="./metadata_links_grid.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var annotations = get_parameter("annotations");
+            var fileroot = get_parameter("fileroot");
+            new MetadataLinksGrid({
+                url: annotations,
+                contentEl: "container_grid",
+                linksPath: fileroot
+            });
+        });
+
+        function downloadAll() {
+            document.location = get_parameter("fileroot") + "/zip";
+        }
+    </script>
+</head>
+<body>
+<div id="container_grid"></div>
+<button onclick="downloadAll();">Download</button>
+</body>
+</html>

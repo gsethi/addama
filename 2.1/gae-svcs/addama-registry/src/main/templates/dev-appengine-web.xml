@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+    <!-- This is a development version of the appengine-web.xml -->
+    <application>dev-addama-registry</application>
+    <version>2</version>
+
+    <system-properties>
+        <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+        <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.svn"
+                  value="http://addama.googlecode.com/svn/branches/2.1/user-interfaces/src/main/html"/>
+        <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.other"
+                  value="https://contentroot.example.org"/>
+    </system-properties>
+
+</appengine-web-app>

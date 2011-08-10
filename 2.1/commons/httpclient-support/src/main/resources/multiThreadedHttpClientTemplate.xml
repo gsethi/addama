@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="httpClientTemplate" class="org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate">
+        <constructor-arg index="0">
+            <bean class="org.apache.commons.httpclient.HttpClient">
+                <property name="httpConnectionManager">
+                    <bean class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager"/>
+                </property>
+            </bean>
+        </constructor-arg>
+        <property name="connectionTimeout" value="5000"/>
+    </bean>
+
+</beans>

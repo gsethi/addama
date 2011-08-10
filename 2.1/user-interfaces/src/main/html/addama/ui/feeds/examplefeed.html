@@ -1,0 +1,37 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <title>Addama Feeds</title>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/feed-viewer/feed-viewer.css"/>
+
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/feeds/ext-feedviewer.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new TopBar("container_topbar");
+
+            new Ext.Viewport({
+                layout:'border',
+                items:[
+                    new Ext.BoxComponent({ region:'north', el: 'header', height:32 }),
+                    new FeedGrid('/addama/feeds/announcements/rss')
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="header">
+    <div style="float:right;margin:5px;" class="x-small-editor"></div>
+</div>
+</body>
+
+</html>
