@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<datastore-indexes autoGenerate="false">
-  <datastore-index kind="feed-item" ancestor="false">
-    <property name="date" direction="desc" />
-  </datastore-index>
-</datastore-indexes>

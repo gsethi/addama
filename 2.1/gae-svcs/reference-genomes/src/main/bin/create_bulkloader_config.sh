@@ -1,1 +1,0 @@
-appcfg.py create_bulkloader_config --filename=reference-genomes.yaml --url=https://reference-genomes.appspot.com/remote_api 
