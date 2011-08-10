@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            /WEB-INF/app-contexts/filters.xml
+            /WEB-INF/app-contexts/controllers.xml
+        </param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>log4jConfigLocation</param-name>
+        <param-value>/WEB-INF/log4j.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>memcache-external-content</servlet-name>
+        <servlet-class>org.systemsbiology.addama.appengine.servlet.ExternalContentMemcacheHttpServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>gaeregistry</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>memcache-external-content</servlet-name>
+        <url-pattern>/addama/ui/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>gaeregistry</servlet-name>
+        <url-pattern>/addama/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Order of Filters Matters -->
+    <filter>
+        <filter-name>filter-authentication</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>filter-authentication</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>filter-whiteList</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>filter-whiteList</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>filter-directlink</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>filter-directlink</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>filter-authorization-admin</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>filter-authorization-admin</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>filter-proxies</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetBeanName</param-name>
+            <param-value>filter-proxies</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>filter-authentication</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>filter-whiteList</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>filter-directlink</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>filter-authorization-admin</filter-name>
+        <url-pattern>/addama/registry/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>filter-authorization-admin</filter-name>
+        <url-pattern>/addama/memcache/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>filter-proxies</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

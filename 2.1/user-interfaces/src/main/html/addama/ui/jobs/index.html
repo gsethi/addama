@@ -1,0 +1,63 @@
+<html>
+<head>
+    <title>Job Results</title>
+    <link rel="shortcut icon" href="/addama/ui/isbfavicon.ico" type="image/x-icon"/>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/jobs/css/jobs.css"/>
+
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/examples/ux/RowExpander.js"></script>
+
+    <script type="text/javascript" src="/addama/ui/dateFormatting.js"></script>
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+    <script type="text/javascript" src="/addama/ui/channels/js/channel_listener.js"></script>
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+
+    <script type="text/javascript" src="/addama/ui/jobs/js/jobs.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new TopBar("container_topbar");
+
+            var jobsGrid = new JobsGrid({
+                channelListener: new ChannelListener(),
+                gridPanelConfig: {
+                    title: "Jobs",
+                    width: 1000,
+                    height: 1000,
+                    frame: true,
+                    border: false,
+                    autoScroll: true,
+                    margins: "5 5 5 5",
+                    region: "center",
+                    padding: "0 0 0 0"
+                }
+            });
+
+            new Ext.Viewport({
+                layout: "border",
+                items: [
+                    {
+                        id: "topbar-panel",
+                        region: "north",
+                        height: 30,
+                        border: false,
+                        contentEl: "container_topbar",
+                        frame: false
+                    },
+                    jobsGrid.grid
+                ],
+                renderTo: Ext.getBody()
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+</body>
+</html>

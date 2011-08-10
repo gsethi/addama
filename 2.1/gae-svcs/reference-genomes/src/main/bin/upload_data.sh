@@ -1,0 +1,1 @@
+appcfg.py upload_data --config_file=reference-genomes.yaml --filename=$1 --kind=indexed-uris --url=https://reference-genomes.appspot.com/remote_api

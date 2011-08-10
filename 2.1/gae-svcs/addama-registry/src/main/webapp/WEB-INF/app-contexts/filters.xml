@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="filter-authentication" class="org.systemsbiology.addama.coresvcs.gae.filters.UserServiceFilter"
+          autowire="byType"/>
+
+    <bean id="filter-whiteList" class="org.systemsbiology.addama.coresvcs.gae.filters.WhiteListFilter"
+          autowire="byType"/>
+
+    <bean id="filter-directlink" class="org.systemsbiology.addama.coresvcs.gae.filters.DirectLinkFilter"
+          autowire="byType"/>
+
+    <bean id="filter-authorization-admin" class="org.systemsbiology.addama.coresvcs.gae.filters.AdminOnlyFilter"
+          autowire="byType"/>
+
+    <bean id="filter-proxies" class="org.systemsbiology.addama.coresvcs.gae.filters.ProxiesFilter" autowire="byType"/>
+
+</beans>

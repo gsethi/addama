@@ -1,0 +1,1 @@
+java -Xms512m -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=n,suspend=y,address=5005 -jar jcrstart-jar-with-dependencies.jar > logs\jcrstart_debug.log 2>&1
