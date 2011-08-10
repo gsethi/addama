@@ -1,0 +1,93 @@
+<html>
+<head>
+    <title>Memberships</title>
+
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/ux/css/GroupTab.css"/>
+
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/examples/ux/GroupTabPanel.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/examples/ux/GroupTab.js"></script>
+
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+    <script type="text/javascript" src="./js/viewport.js"></script>
+    <script type="text/javascript" src="./js/controls.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var topBar = new TopBar("c_topbar");
+            topBar.addListener("whoami", function(json) {
+                if (json.isAdmin) {
+                    Ext.get("c_admin").setVisible(true);
+                    new DomainLevelUsersControl("c_domain_level_membership_list");
+                }
+            });
+
+            initViewport(true, true);
+
+            startUp_moderators();
+            startUp_members();
+        });
+
+        function startUp_moderators() {
+            Ext.Ajax.request({
+                url: "/addama/memberships/uris",
+                method: "get",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.numberOfItems) {
+                        Ext.get("c_moderator").setVisible(true);
+                        Ext.getDom("c_membership_uris").innerHTML = o.responseText;
+                    }
+                }
+            });
+        }
+
+        function startUp_members() {
+            Ext.Ajax.request({
+                url: "/addama/memberships/mine",
+                method: "get",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.numberOfItems) {
+                        Ext.getDom("c_member_uris").innerHTML = o.responseText;
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<div id="c_topbar"></div>
+<div id="c_admin" style="display:none;">
+    <div id="c_domain_level_membership_list"></div>
+
+    <div id="c_membership_domain_moderators"></div>
+</div>
+<div id="c_moderator" style="display:none;">
+    <h3>Moderator Controls</h3>
+
+    <br/>
+    <span>Moderated Memberships by URI</span>
+
+    <div id="c_membership_uris"></div>
+
+    <br/>
+    <span>Membership Applicants by URI</span>
+
+    <div id="c_membership_uris_applicants"></div>
+</div>
+<div id="c_member">
+    <h3>Member Controls</h3>
+
+    <br/>
+    <span>Memberships</span>
+
+    <div id="c_member_uris"></div>
+</div>
+</body>
+</html>

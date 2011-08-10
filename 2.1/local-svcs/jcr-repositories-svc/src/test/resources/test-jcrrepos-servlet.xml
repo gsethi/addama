@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+<!-- Note that I wish this was not a copy of the contents of
+ src/main/webapp/WEB-INF/jcrrepos-servlet.xml and
+ src/main/webapp/WEB-INF/app-contexts/controllers.xml I had to do it because
+ the org.systemsbiology.addama.jcr.support.JcrTemplateProvider bean does not
+ play nice in this unit test environment.  BE SURE TO UPDATE THIS FILE IF
+ YOU UPDATE controllers.xml -->
+  
+  <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    <property name="alwaysUseFullPath" value="true"/>
+    <property name="urlMap">
+      <map>
+        <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
+        <entry key="/**/search">
+          <bean class="org.systemsbiology.addama.rest.JcrSearchController" autowire="byType"/>
+        </entry>
+        <entry key="/**/labels">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.LabelsController"
+                autowire="byType"/>
+        </entry>
+        <entry key="/**/dir">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.DirectoryController"
+                autowire="byType"/>
+        </entry>
+        <entry key="/**/meta">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.MetaController" autowire="byType"/>
+        </entry>
+        <entry key="/**/parent">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.ParentController"
+                autowire="byType"/>
+        </entry>
+        <entry key="/**/annotations">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.AnnotationsController"
+                autowire="byType"/>
+        </entry>
+        <entry key="/**/annotations/terms">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.AnnotationsController"
+                autowire="byType"/>
+        </entry>
+        <entry key="/**/structured">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.StructuredController"
+                autowire="byType"/>
+        </entry>
+        <entry key="/**/file/**">
+          <bean class="org.systemsbiology.addama.rest.JcrFileController" autowire="byType">
+            <property name="fileAppender">
+              <bean class="org.systemsbiology.addama.jcr.util.AddamaFileAppender"/>
+            </property>
+          </bean>
+        </entry>
+        <entry key="/**">
+          <bean class="org.systemsbiology.addama.services.repositories.mvc.NodeCrudController"
+                autowire="byType"/>
+        </entry>
+      </map>
+    </property>
+<!-- This doesn't play nice in a unit test environment    
+    <property name="interceptors">
+      <list>
+        <bean class="org.systemsbiology.addama.jcr.support.JcrTemplateProvider" autowire="byType"/>
+      </list>
+    </property>
+-->
+  </bean>
+  
+  <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+  
+  <bean id="handlerExceptionResolver"
+        class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+    <property name="warnLogCategory" value="jcrrepos-servlet"/>
+    <property name="exceptionMappings">
+      <props>
+        <prop key="java.lang.UnsupportedOperationException">notImplementedView</prop>
+        <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">
+          resourceNotFoundView
+        </prop>
+        <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">invalidSyntaxView
+        </prop>
+        <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">
+          resourceStateConflictView
+        </prop>
+        <prop key="java.lang.Exception">genericExceptionView</prop>
+      </props>
+    </property>
+  </bean>
+  
+  <bean id="notImplementedView" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
+  
+  <bean id="resourceNotFoundView" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
+  
+  <bean id="invalidSyntaxView" class="org.systemsbiology.addama.commons.web.views.InvalidSyntaxView"/>
+  
+  <bean id="resourceStateConflictView" class="org.systemsbiology.addama.commons.web.views.ResourceStateConflictView"/>
+  
+  <bean id="genericExceptionView" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
+  
+</beans>

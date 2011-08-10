@@ -1,0 +1,63 @@
+<html>
+<head>
+    <title>Addama API Key</title>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+
+    <script type="text/javascript">
+        function loadTopBar() {
+            var topBar = new TopBar("container_topbar");
+            topBar.addListener("whoami", function(json) {
+                if (json.isAdmin) {
+                    Ext.get("container_addama_properties").setVisible(true);
+                }
+            });
+        }
+
+        function loadExistingApiKeys() {
+            Ext.Ajax.request({
+                url: "/addama/apikeys",
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    Ext.getDom("container_apikey").innerHTML = json.apikey;
+                },
+                failure: function(o, e) {
+                    Ext.MessageBox.show({
+                        title: "Error Retrieving API Key",
+                        msg: o + "<br/>" + e,
+                        buttons: Ext.MessageBox.OK,
+                        icon: Ext.MessageBox.ERROR
+                    });
+                }
+            });
+        }
+
+        Ext.onReady(loadTopBar);
+        Ext.onReady(loadExistingApiKeys);
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+
+<div id="container_toolbar">
+    <div>
+        <strong>API Key</strong>: <span id="container_apikey"></span>
+    </div>
+    <div>
+        <a href="/addama/apikeys/file" target="_blank">Download API Key File</a>
+    </div>
+    <div id="container_addama_properties" style="display:none;">
+        <a href="/addama/apikeys/addama.properties" target="_blank">Download addama.properties File</a>
+    </div>
+</div>
+
+<div id="container_footer">
+    Generated API Keys are managed by domain administrators through the App Engine Administration Console
+</div>
+</body>
+</html>
