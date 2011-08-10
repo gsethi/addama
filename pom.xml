@@ -5,7 +5,7 @@
     <groupId>org.systemsbiology.addama</groupId>
     <artifactId>addama</artifactId>
     <packaging>pom</packaging>
-    <version>2.0</version>
+    <version>2.0.1</version>
     <url>http://apps.systemsbiology.org/addama</url>
     <scm>
         <connection>scm:svn:http://svn.systemsbiology.net/repos/informatics/addama/branches/addama-2.0-alpha
@@ -41,17 +41,6 @@
             <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
             <roles>
                 <role>Software Engineer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>skillcoyne</id>
-            <email>skillcoyne@systemsbiology.org</email>
-            <name>Sarah Killcoyne</name>
-            <organization>Research Informatics Group</organization>
-            <organizationUrl>http://informatics.systemsbiology.net</organizationUrl>
-            <roles>
-                <role>Software Engineer</role>
-                <role>Project Manager</role>
             </roles>
         </developer>
         <developer>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>local-svcs</artifactId>
-        <version>2.0</version>
+        <version>2.0.1</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.coresvcs</groupId>
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
             <artifactId>commons-jcrutils</artifactId>
-            <version>2.0</version>
+            <version>${pom.parent.version}</version>
         </dependency>
 
         <!-- JCR -->

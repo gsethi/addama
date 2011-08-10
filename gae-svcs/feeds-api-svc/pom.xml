@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>gae-svcs</artifactId>
-        <version>2.0</version>
+        <version>2.0.1</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.gaesvcs</groupId>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
             <artifactId>web-registry</artifactId>
-            <version>2.0</version>
+            <version>${pom.parent.version}</version>
         </dependency>
 
         <!-- Joda Time -->
