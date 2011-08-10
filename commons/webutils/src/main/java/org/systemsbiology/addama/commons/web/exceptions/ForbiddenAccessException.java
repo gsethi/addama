@@ -22,8 +22,6 @@ package org.systemsbiology.addama.commons.web.exceptions;
  * @author hrovira
  */
 public class ForbiddenAccessException extends Exception {
-    private String user;
-
     public ForbiddenAccessException() {
         super("User must be logged in");
     }

@@ -2,14 +2,16 @@
 <head>
     <title>Addama Channels Service</title>
 
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
-    <script type="text/javascript" src="/js/topbar.js"></script>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
 
-    <script type="text/javascript" src="http://talkgadget.google.com/talkgadget/channel.js"></script>
-    
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+
     <script type="text/javascript">
         var channelUri;
 
@@ -19,12 +21,13 @@
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
-                    if (json && json.channel_id) {
-                        var channel = new goog.appengine.Channel(json.channel_id);
+                    if (json && json.token) {
+                        var channel = new goog.appengine.Channel(json.token);
                         var socket = channel.open();
-                        socket.onmessage = function(evt) {
-                            Ext.getDom("container_events").innerHTML += "<br/>" + evt.data;
-                        };
+                        socket.onopen = onOpened;
+                        socket.onmessage = onMessage;
+                        socket.onerror = onError;
+                        socket.onclose = onClose;
                     }
                 }
             });
@@ -35,20 +38,56 @@
             Ext.Ajax.request({
                 url: channelUri,
                 method: "POST",
-                params: Ext.util.JSON.encode({ event: ev }),
+                params: {
+                    event: Ext.util.JSON.encode({ event: ev })
+                },
                 success: function(o) {
-                    Ext.getDom("container_messages").innerHTML = o.responseText;
+                    Ext.getDom("container_messages").innerHTML += "<br/>publish success: " + o.responseText;
                 }
             });
         }
 
+        function doPublishText() {
+            var msg = Ext.getDom("container_message_entry").value;
+            Ext.Ajax.request({
+                url: channelUri,
+                method: "POST",
+                params: {
+                    event: Ext.util.JSON.encode({ message: msg })
+                },
+                success: function(o) {
+                    Ext.getDom("container_messages").innerHTML += "<br/>publish success: " + o.responseText;
+                }
+            });
+        }
+
+        function onOpened(a, b, c) {
+            Ext.getDom("container_messages").innerHTML += "<br/>Channel Opened Successfully";
+        }
+
+        function onMessage(a, b, c) {
+            Ext.getDom("container_events").innerHTML += "<br/>Received: " + a.data;
+        }
+
+        function onError(a, b, c) {
+            var container = Ext.getDom("container_messages");
+            container.innerHTML += "<br/>onerror.a=" + a;
+            container.innerHTML += "<br/>onerror.b=" + b;
+            container.innerHTML += "<br/>onerror.c=" + c;
+        }
+
+        function onClose() {
+            Ext.getDom("container_messages").innerHTML = "<br/>Channel Closed. Reopening...";
+
+            startListen();
+        }
+
         Ext.onReady(function() {
-            var topBar = new TopBar();
-            topBar.onWhoami(function(json) {
+            var topBar = new TopBar("container_topbar");
+            topBar.addListener("whoami", function(json) {
                 channelUri = json.channel;
                 startListen();
             });
-            topBar.initialize("container_topbar");
         });
     </script>
 
@@ -56,18 +95,27 @@
 <body>
 <div id="container_topbar"></div>
 
-<h3>Listen</h3>
-<div id="container_events"></div>
+<h3>Publish JSON</h3>
 
-<h3>Publish</h3>
 <div>
     <textarea id="container_event_entry" rows="10" cols="50"></textarea>
-    <button onclick="doPublish();">Publish</button>
+    <button onclick="doPublish();">Publish Event</button>
 </div>
 
-<h3>Messages</h3>
-<div id="container_messages">
+<h3>Publish Text</h3>
+
+<div>
+    <textarea id="container_message_entry" rows="10" cols="50"></textarea>
+    <button onclick="doPublishText();">Publish Text</button>
 </div>
+
+<h3>Listen</h3>
+
+<div id="container_events"></div>
+
+<h3>Messages</h3>
+
+<div id="container_messages"></div>
 
 </body>
 </html>

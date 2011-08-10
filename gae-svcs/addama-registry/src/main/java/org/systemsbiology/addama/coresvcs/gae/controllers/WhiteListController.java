@@ -18,23 +18,25 @@
 */
 package org.systemsbiology.addama.coresvcs.gae.controllers;
 
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
-import org.apache.commons.lang.StringUtils;
+import com.google.appengine.api.users.User;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.coresvcs.gae.services.Users;
-import org.systemsbiology.addama.coresvcs.gae.services.WhiteLists;
+import org.systemsbiology.addama.commons.web.views.OkResponseView;
+import org.systemsbiology.addama.coresvcs.gae.pojos.WhiteListEntry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
+
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang.StringUtils.substringBefore;
+import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
+import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
+import static org.systemsbiology.addama.appengine.util.WhiteLists.*;
 
 /**
  * @author aeakin
@@ -43,102 +45,67 @@ import java.util.logging.Logger;
 public class WhiteListController {
     private static final Logger log = Logger.getLogger(WhiteListController.class.getName());
 
-    private Users users;
-
-    private WhiteLists whiteLists;
-
-    public void setUsers(Users users) {
-        this.users = users;
-    }
-
-    public void setWhiteLists(WhiteLists whiteLists){
-        this.whiteLists = whiteLists;
-    }
-
     @RequestMapping(value = "/whitelist", method = RequestMethod.GET)
     @ModelAttribute
     public ModelAndView getWhiteList(HttpServletRequest request) throws Exception {
-        log.info("getWhiteList(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
         JSONObject json = new JSONObject();
         json.put("uri", request.getRequestURI());
-        for (String[] userItem : whiteLists.getWhiteListUsers()) {
-            JSONObject json2 = new JSONObject();
-            json2.put("user", userItem[0]);
-            json2.put("hasAccess", userItem[1]);
-            json2.put("uri",userItem[2]);
-            json.append("items", json2);
+
+        for (WhiteListEntry userItem : getWhiteListUsers()) {
+            json.append("items", userItem.toJSON());
         }
 
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
 
     }
 
     @RequestMapping(value = "/whitelist/**", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView addNewUser(HttpServletRequest request) throws Exception {
-        log.info("addNewUser(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
-        String accessPath = ServletRequestUtils.getStringParameter(request,"uri");
-        String userEmail = request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1);
-        whiteLists.addWhiteListUser(userEmail,accessPath);
-        return mav(new JSONObject());
+        String accessPath = getStringParameter(request, "uri");
+        String userEmail = substringAfterLast(request.getRequestURI(), "/");
+        addWhiteListUser(userEmail, accessPath);
+
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/whitelist", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView addLoggedInUser(HttpServletRequest request) throws Exception {
-        log.info("addLoggedInUser(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
-        String accessPath = ServletRequestUtils.getStringParameter(request,"uri");
-        whiteLists.addLoggedInWhiteListUser(accessPath);
-        return mav(new JSONObject());
-    }
+        User user = getCurrentUser();
+        String accessPath = getStringParameter(request, "uri");
+        addWhiteListUser(user.getEmail(), accessPath);
 
-    @RequestMapping(value = "/whitelist/**", method = RequestMethod.DELETE)
-    @ModelAttribute
-    public ModelAndView deleteWhiteListEntry(HttpServletRequest request) throws Exception {
-        log.info("deleteWhiteListEntry(" + request.getRequestURI() + ")");
-
-        String accessPath = ServletRequestUtils.getStringParameter(request,"uri");
-        String email = request.getRequestURI().substring(request.getRequestURI().lastIndexOf("/")+1);
-        whiteLists.deleteWhiteListUser(email,accessPath);
-        return mav(new JSONObject().put("uri", request.getRequestURI()));
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/whitelist/**/delete", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView deleteWhiteListEntryByPost(HttpServletRequest request) throws Exception {
-        log.info("deleteWhiteListEntryByPost(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
-        String accessPath = ServletRequestUtils.getStringParameter(request,"uri");
-        String userEmailTemp = StringUtils.substringBefore(request.getRequestURI(), "/delete");
-        String userEmail = userEmailTemp.substring(userEmailTemp.lastIndexOf("/")+1);
-        whiteLists.deleteWhiteListUser(userEmail, accessPath);
-        return mav(new JSONObject().put("uri", request.getRequestURI()));
+        String accessPath = getStringParameter(request, "uri");
+        String userEmail = substringAfterLast(substringBefore(request.getRequestURI(), "/delete"), "/");
+        deleteWhiteListUser(userEmail, accessPath);
+
+        return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "whitelist/**/grantaccess", method=RequestMethod.POST)
+    @RequestMapping(value = "whitelist/**/grantaccess", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView grantAccessByPost(HttpServletRequest request) throws Exception {
-        log.info("grantAccessByPost(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
-        String accessPath = ServletRequestUtils.getStringParameter(request,"uri");
-        String userEmailTemp = StringUtils.substringBefore(request.getRequestURI(), "/grantaccess");
-        String userEmail = userEmailTemp.substring(userEmailTemp.lastIndexOf("/")+1);
-        whiteLists.grantWhiteListAccess(userEmail,accessPath);
-        return mav(new JSONObject());
-    }
+        String accessPath = getStringParameter(request, "uri");
+        String userEmail = substringAfterLast(substringBefore(request.getRequestURI(), "/grantaccess"), "/");
+        grantWhiteListAccess(userEmail, accessPath);
 
-    /*
-     * Private Methods
-     */
-
-    private ModelAndView mav(JSONObject json) {
-        ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("json", json);
-        return mav;
+        return new ModelAndView(new OkResponseView());
     }
 }

@@ -24,7 +24,7 @@ import org.springmodules.jcr.JcrTemplate;
 import org.springmodules.jcr.SessionFactory;
 import org.springmodules.jcr.support.OpenSessionInViewInterceptor;
 import org.systemsbiology.addama.jcr.callbacks.JcrConnectionJsonConfigHandler;
-import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,14 +39,8 @@ public class JcrTemplateProvider extends OpenSessionInViewInterceptor {
     private static final Logger log = Logger.getLogger(JcrTemplateProvider.class.getName());
     protected final Map<String, SessionFactory> sessionFactorysByUri = new HashMap<String, SessionFactory>();
 
-    private JsonConfig jsonConfig;
-
     public void setJsonConfig(JsonConfig jsonConfig) {
-        this.jsonConfig = jsonConfig;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        jsonConfig.processConfiguration(new JcrConnectionJsonConfigHandler(sessionFactorysByUri));
+        jsonConfig.visit(new JcrConnectionJsonConfigHandler(sessionFactorysByUri));
     }
 
     /*
@@ -91,6 +85,10 @@ public class JcrTemplateProvider extends OpenSessionInViewInterceptor {
         } catch (Exception e) {
             log.warning(request.getRequestURI() + ":" + e);
         }
+    }
+
+    public static JcrTemplate getJcrTemplate(HttpServletRequest request) {
+        return (JcrTemplate) request.getAttribute("JCR_TEMPLATE");
     }
 
     /*

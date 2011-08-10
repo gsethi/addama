@@ -24,11 +24,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.jcr.JcrTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.rest.json.NodeStructuredJSONObject;
 
 import javax.jcr.Node;
 import javax.servlet.http.HttpServletRequest;
+
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
 
 /**
  * @author hrovira
@@ -44,6 +47,9 @@ public class JcrStructuredController extends AbstractJcrController {
         Node node = getNode(request, "/structured");
 
         JcrTemplate jcrTemplate = getJcrTemplate(request);
+        if (jcrTemplate == null) {
+            throw new ResourceNotFoundException(request.getRequestURI());
+        }
 
         ModelAndView mav = new ModelAndView(new JsonView());
         mav.addObject("json", new NodeStructuredJSONObject(node, request, dateFormat, jcrTemplate));

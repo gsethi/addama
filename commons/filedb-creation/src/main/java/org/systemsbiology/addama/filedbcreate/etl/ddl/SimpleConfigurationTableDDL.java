@@ -24,6 +24,8 @@ import org.json.JSONObject;
 import org.systemsbiology.addama.filedbcreate.etl.TableDDL;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -64,6 +66,14 @@ public class SimpleConfigurationTableDDL implements TableDDL {
             }
         }
         return indexSql.toArray(new String[indexSql.size()]);
+    }
+
+    public Map<String, String> getDataTypes(String[] columnHeaders) {
+        HashMap<String, String> dataTypes = new HashMap<String, String>();
+        for (String columnHeader : columnHeaders) {
+            dataTypes.put(columnHeader, getDataType(columnHeader));
+        }
+        return dataTypes;
     }
 
     /*

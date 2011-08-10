@@ -19,37 +19,26 @@
 package org.systemsbiology.addama.coresvcs.gae.filters.callbacks;
 
 import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
-import org.systemsbiology.addama.commons.gae.http.MapReduceTooLargeHTTPResponse;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.net.URL;
 
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
+import static org.systemsbiology.addama.appengine.util.HttpIO.mapReduce;
 
 /**
  * @author hrovira
  */
 public class UiBaseMemcacheLoaderCallback implements MemcacheLoaderCallback {
-    private static final String ADDAMA_UI_URL = System.getProperty("/addama/ui/base");
-    private final MapReduceTooLargeHTTPResponse mapReduce = new MapReduceTooLargeHTTPResponse();
+    private final String baseUrl;
+
+    public UiBaseMemcacheLoaderCallback(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
     public Serializable getCacheableObject(String key) throws Exception {
-        HTTPRequest proxyRequest = new HTTPRequest(new URL(ADDAMA_UI_URL + key), GET);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        HTTPResponse resp = mapReduce.fetch(proxyRequest, outputStream);
-        if (resp != null) {
-            if (resp.getResponseCode() == HttpServletResponse.SC_OK) {
-                return resp.getContent();
-            }
-        } else {
-            return outputStream.toByteArray();
-        }
-        return null;
+        return mapReduce(new HTTPRequest(new URL(baseUrl + key), GET));
     }
 
 }

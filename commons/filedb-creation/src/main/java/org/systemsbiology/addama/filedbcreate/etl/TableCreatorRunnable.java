@@ -20,11 +20,15 @@ package org.systemsbiology.addama.filedbcreate.etl;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.systemsbiology.addama.filedbcreate.jdbc.BatchInsertConnectionCallback;
+import org.systemsbiology.addama.filedbcreate.jdbc.CreateIndexesConnectionCallback;
 import org.systemsbiology.addama.filedbcreate.jdbc.CreateTableConnectionCallback;
 import org.systemsbiology.addama.filedbcreate.jdbc.DropTableConnectionCallback;
+import org.systemsbiology.addama.filedbcreate.jdbc.LoadDataInFileConnectionCallback;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 /**
@@ -34,21 +38,33 @@ public class TableCreatorRunnable implements Runnable {
     private static final Logger log = Logger.getLogger(TableCreatorRunnable.class.getName());
 
     private final JdbcTemplate jdbcTemplate;
-    private final String filename;
+    private final String localFile;
     private final String tableName;
     private final TableDDL tableDDL;
     private String separator = "\t";
 
-    public TableCreatorRunnable(JdbcTemplate jdbcTemplate, String filename, String tableName, TableDDL tableDDL) throws IOException {
+    /*
+     * Constructors
+     */
+
+    public TableCreatorRunnable(JdbcTemplate jdbcTemplate, TableDDL tableDDL, String tableName, String localFile) {
         this.jdbcTemplate = jdbcTemplate;
-        this.filename = filename;
-        this.tableName = tableName;
         this.tableDDL = tableDDL;
+        this.tableName = tableName;
+        this.localFile = localFile;
     }
+
+    /*
+     * Dependency Injection
+     */
 
     public void setSeparator(String separator) {
         this.separator = separator;
     }
+
+    /*
+     * Runnable
+     */
 
     public void run() {
         try {
@@ -57,26 +73,33 @@ public class TableCreatorRunnable implements Runnable {
             log.info("dropTable:" + tableName + ":" + e);
         }
 
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
-            String header = reader.readLine();
-
-            String[] columnHeaders = clean(header).split(separator);
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(localFile)));
+            String[] columnHeaders = clean(reader.readLine()).split(separator);
 
             jdbcTemplate.execute(new CreateTableConnectionCallback(tableDDL, tableName, columnHeaders));
-            jdbcTemplate.execute(new BatchInsertConnectionCallback(reader, separator, tableName, columnHeaders));
-
-            log.info("completed uploading " + tableName);
-
-            File f = new File(filename);
-            f.delete();
-            log.info("deleted " + filename);
+            jdbcTemplate.execute(new CreateIndexesConnectionCallback(tableDDL, tableName, columnHeaders));
+            jdbcTemplate.execute(new LoadDataInFileConnectionCallback(localFile, tableName));
         } catch (Exception e) {
-            log.warning("errored on " + tableName + ":" + e);
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException e) {
+                log.warning("unable to close:" + e);
+            }
         }
     }
+
+    /*
+    * Private Methods
+    */
 
     private String clean(String value) {
         return StringUtils.replace(value, "-", "_");
     }
+
 }

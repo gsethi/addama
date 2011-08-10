@@ -18,125 +18,174 @@
 */
 package org.systemsbiology.addama.services.execution.mvc;
 
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
+import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.commons.web.views.ResourceNotFoundView;
-import org.systemsbiology.addama.services.execution.io.Streamer;
-import org.systemsbiology.addama.services.execution.jobs.Executer;
-import org.systemsbiology.addama.services.execution.jobs.Results;
-import org.systemsbiology.addama.services.execution.jobs.ResultsExecutionCallback;
-import org.systemsbiology.addama.services.execution.util.Mailer;
+import org.systemsbiology.addama.commons.web.views.OkResponseView;
+import org.systemsbiology.addama.commons.web.views.ResourceStateConflictView;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.addama.services.execution.args.ArgumentStrategy;
+import org.systemsbiology.addama.services.execution.args.ArgumentStrategyJsonConfigHandler;
+import org.systemsbiology.addama.services.execution.dao.JobsDaoAware;
+import org.systemsbiology.addama.services.execution.jobs.Job;
+import org.systemsbiology.addama.services.execution.jobs.JobPackage;
+import org.systemsbiology.addama.services.execution.jobs.ReturnCodes;
+import org.systemsbiology.addama.services.execution.jobs.ReturnCodesConfigHandler;
+import org.systemsbiology.addama.services.execution.notification.ChannelNotifier;
+import org.systemsbiology.addama.services.execution.notification.EmailBean;
+import org.systemsbiology.addama.services.execution.notification.EmailJsonConfigHandler;
+import org.systemsbiology.addama.services.execution.notification.EmailNotifier;
+import org.systemsbiology.addama.services.execution.scheduling.EnvironmentVariablesJsonConfigHandler;
+import org.systemsbiology.addama.services.execution.scheduling.JobQueueHandlingRunnable;
+import org.systemsbiology.addama.services.execution.scheduling.JobQueuesJsonConfigHandler;
+import org.systemsbiology.addama.services.execution.scheduling.ProcessRegistry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static java.lang.Integer.parseInt;
+import static java.util.UUID.randomUUID;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.systemsbiology.addama.services.execution.jobs.JobStatus.*;
+import static org.systemsbiology.addama.services.execution.util.HttpJob.*;
+import static org.systemsbiology.addama.services.execution.util.IOJob.mkdirs;
+import static org.systemsbiology.addama.services.execution.util.IOJob.recursiveDelete;
 
 /**
  * @author hrovira
  */
 @Controller
-public class JobsController extends BaseController {
+public class JobsController extends JobsDaoAware implements InitializingBean {
     private static final Logger log = Logger.getLogger(JobsController.class.getName());
 
-    private final HashMap<String, Results> resultsByUri = new HashMap<String, Results>();
+    private final Map<String, ReturnCodes> returnCodesByUri = new HashMap<String, ReturnCodes>();
+    private final Map<String, Queue<JobPackage>> jobQueuesByUri = new HashMap<String, Queue<JobPackage>>();
+    private final Map<String, EmailBean> emailBeansByUri = new HashMap<String, EmailBean>();
+    private final Map<String, String> scriptAdminsByUri = new HashMap<String, String>();
+    private final Map<String, ArgumentStrategy> argumentStrategiesByUri = new HashMap<String, ArgumentStrategy>();
+    private final Map<String, String> workDirsByUri = new HashMap<String, String>();
+    private final Map<String, String> scriptsByUri = new HashMap<String, String>();
+    private final Map<String, String> logFilesByUri = new HashMap<String, String>();
+    private final Map<String, String> viewersByUri = new HashMap<String, String>();
+    private final Map<String, String> numberOfThreadsByUri = new HashMap<String, String>();
+    private final Map<String, String> jobExecutionDirectoryByUri = new HashMap<String, String>();
+    private final Set<String> environmentVariables = new HashSet<String>();
 
+    private final ProcessRegistry processRegistry = new ProcessRegistry();
 
-    @RequestMapping(value = "/**/execution", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView execution(HttpServletRequest request) throws Exception {
-        log.info("execution(" + request.getRequestURI() + ")");
+    private ChannelNotifier channelNotifier;
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/execution");
-        if (!workDirsByUri.containsKey(scriptUri) && !scriptsByUri.containsKey(scriptUri)) {
-            throw new ResourceNotFoundException(scriptUri);
-        }
+    public void setChannelNotifier(ChannelNotifier channelNotifier) {
+        this.channelNotifier = channelNotifier;
+    }
 
-        String jobId = UUID.randomUUID().toString();
-        String jobUri = scriptUri + "/jobs/" + jobId;
-        String jobDir = workDirsByUri.get(scriptUri) + "/jobs/" + jobId;
-        String script = scriptsByUri.get(scriptUri) + " \"" + getQueryString(request) + "\"";
-        String jobExecutionDirectory = getJobExecutionDirectory(scriptUri);
+    public void setJsonConfig(JsonConfig jsonConfig) {
+        super.setJsonConfig(jsonConfig);
+        jsonConfig.visit(new StringMapJsonConfigHandler(workDirsByUri, "workDir"));
+        jsonConfig.visit(new StringMapJsonConfigHandler(scriptsByUri, "script"));
+        jsonConfig.visit(new StringMapJsonConfigHandler(logFilesByUri, "logFile"));
+        jsonConfig.visit(new StringMapJsonConfigHandler(viewersByUri, "viewer"));
+        jsonConfig.visit(new StringMapJsonConfigHandler(jobExecutionDirectoryByUri, "jobExecutionDirectory"));
+        jsonConfig.visit(new StringMapJsonConfigHandler(scriptAdminsByUri, "scriptAdmin"));
+        jsonConfig.visit(new StringMapJsonConfigHandler(numberOfThreadsByUri, "numberOfThreads"));
+        jsonConfig.visit(new ReturnCodesConfigHandler(returnCodesByUri));
+        jsonConfig.visit(new EmailJsonConfigHandler(emailBeansByUri));
+        jsonConfig.visit(new JobQueuesJsonConfigHandler(jobQueuesByUri));
+        jsonConfig.visit(new ArgumentStrategyJsonConfigHandler(argumentStrategiesByUri));
+        jsonConfig.visit(new EnvironmentVariablesJsonConfigHandler(environmentVariables));
+    }
 
-        Results r = executeRobot(script, jobDir, null, jobExecutionDirectory);
+    public void afterPropertiesSet() throws Exception {
+        jobsDao.resetJobs(running, pending);
+        jobsDao.resetJobs(scheduled, pending);
+        jobsDao.resetJobs(stopping, stopped);
 
-        resultsByUri.put(jobUri, r);
-        while (!r.isSuccessful() && !r.hasErrors()) {
-            try {
-                // wait for results, should be quick
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                log.info("execution(" + request.getRequestURI() + "):" + e);
-                break;
+        scheduleJob(jobsDao.retrievePendingJobs());
+
+        String[] envVars = environmentVariables.toArray(new String[environmentVariables.size()]);
+
+        for (String scriptUri : jobQueuesByUri.keySet()) {
+            Queue<JobPackage> jobQueue = jobQueuesByUri.get(scriptUri);
+            for (int j = 0; j < getNumberOfThreads(scriptUri); j++) {
+                new Thread(new JobQueueHandlingRunnable(jobQueue, processRegistry, envVars)).start();
             }
         }
-
-        JSONObject json = getResultsJson(jobUri, r, scriptUri, workDirsByUri.get(scriptUri));
-        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/jobs", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView executeJob(HttpServletRequest request) throws Exception {
-        log.info("executeJob(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/jobs");
-        if (!workDirsByUri.containsKey(scriptUri) && !scriptsByUri.containsKey(scriptUri)) {
-            throw new ResourceNotFoundException(scriptUri);
-        }
+        String scriptUri = getScriptUri(request, "/jobs");
+        scriptExists(scriptUri);
 
-        String jobId = UUID.randomUUID().toString();
+        String jobId = randomUUID().toString();
         String jobUri = scriptUri + "/jobs/" + jobId;
-        String jobDir = workDirsByUri.get(scriptUri) + "/jobs/" + jobId;
-        String script = scriptsByUri.get(scriptUri) + " \"" + getQueryString(request) + "\"";
-        String label = request.getParameter("label");
-        String jobExecutionDirectory = getJobExecutionDirectory(scriptUri);
+        String workDir = workDirsByUri.get(scriptUri) + "/jobs/" + jobId;
+        String scriptPath = scriptsByUri.get(scriptUri);
 
-        String user = getUserEmail(request);
-        Mailer mailer = getMailer(scriptUri, label, user);
-        Results r = executeRobot(script, jobDir, mailer, jobExecutionDirectory);
-        r.setLabel(label);
+        Job job = new Job(jobUri, scriptUri, getUserUri(request), workDir, scriptPath);
+        job.setExecutionDirectoryFromConfiguration(jobExecutionDirectoryByUri.get(scriptUri));
 
-        resultsByUri.put(jobUri, r);
+        // WARNING:  This logic may need to obtain inputstream from request... DO NOT call request.getParameter before this logic, or it will not work!
+        // Major design flaw in Servlet Spec or Tomcat... not sure:  https://issues.apache.org/bugzilla/show_bug.cgi?id=47410
+        argumentStrategiesByUri.get(scriptUri).handle(job, request);
+
+        job.setLabel(request.getParameter("label"));
+        job.setChannelUri(getChannelUri(request));
+
+        jobsDao.create(job);
+
+        scheduleJob(job);
+
+        return new ModelAndView(new JsonView()).addObject("json", job.getJsonSummary());
+    }
+
+    @RequestMapping(value = "/**/tools/jobs", method = RequestMethod.GET)
+    @ModelAttribute
+    public ModelAndView getJobsForUser(HttpServletRequest request) throws Exception {
+        log.fine(request.getRequestURI());
+
+        String userUri = getUserUri(request);
+        Job[] jobs = jobsDao.retrieveAllForUser(userUri);
 
         JSONObject json = new JSONObject();
-        json.put("uri", jobUri);
-        json.put("label", label);
-
-        return new ModelAndView(new JsonView()).addObject("json", json);
+        for (Job job : jobs) {
+            json.append("items", job.getJsonSummary());
+        }
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/jobs", method = RequestMethod.GET)
     @ModelAttribute
     public ModelAndView getJobs(HttpServletRequest request) throws Exception {
-        log.info("getJobs(" + request.getRequestURI() + ")");
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/jobs");
+        log.fine(request.getRequestURI());
+
+        String scriptUri = getScriptUri(request, "/jobs");
+        scriptExists(scriptUri);
+
+        Job[] jobs;
+        if (isScriptAdmin(request, scriptUri, scriptAdminsByUri)) {
+            jobs = jobsDao.retrieveAllForScript(scriptUri);
+        } else {
+            jobs = jobsDao.retrieveAllForScript(scriptUri, getUserUri(request));
+        }
 
         JSONObject json = new JSONObject();
-
-        for (Map.Entry<String, Results> entry : resultsByUri.entrySet()) {
-            String jobUri = entry.getKey();
-            if (jobUri.startsWith(scriptUri)) {
-                JSONObject jobjson = new JSONObject();
-                jobjson.put("uri", jobUri);
-
-                Results r = entry.getValue();
-                if (!StringUtils.isEmpty(r.getLabel())) {
-                    jobjson.put("label", r.getLabel());
-                }
-                json.append("items", jobjson);
-            }
+        for (Job job : jobs) {
+            json.append("items", job.getJsonSummary());
         }
 
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
@@ -144,111 +193,106 @@ public class JobsController extends BaseController {
 
     @RequestMapping(value = "/**/jobs/*", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView getJob(HttpServletRequest request) throws Exception {
-        String jobUri = StringUtils.substringAfterLast(request.getRequestURI(), request.getContextPath());
+    public ModelAndView getJobById(HttpServletRequest request) throws Exception {
+        log.fine(request.getRequestURI());
 
-        Results r = resultsByUri.get(jobUri);
-        if (r == null) {
-            throw new ResourceNotFoundException(jobUri);
+        Job job = getJob(jobsDao, request, null);
+        return new ModelAndView(new JsonView()).addObject("json", job.getJsonDetail());
+    }
+
+    @RequestMapping(value = "/**/jobs/*/stop", method = POST)
+    @ModelAttribute
+    public ModelAndView stopJob(HttpServletRequest request) throws Exception {
+        log.info(request.getRequestURI());
+
+        Job job = getJob(jobsDao, request, "/stop");
+        if (isScriptOwner(request, job) || isScriptAdmin(request, job.getScriptUri(), scriptAdminsByUri)) {
+            switch (job.getJobStatus()) {
+                case pending:
+                case scheduled:
+                case running:
+                    // stops queued job
+                    JobPackage pkg = new JobPackage(job, jobsDao, null, channelNotifier);
+                    pkg.changeStatus(stopping);
+
+                    // stops running job
+                    processRegistry.end(pkg);
+
+                    Job freshCopy = jobsDao.retrieve(job.getJobUri());
+                    return new ModelAndView(new JsonView()).addObject("json", freshCopy.getJsonDetail());
+            }
+
+            return resourceStateConflict(job, "job status must be [pending, scheduled, running]");
         }
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/jobs");
-        if (!workDirsByUri.containsKey(scriptUri)) {
-            return new ModelAndView(new ResourceNotFoundView());
+        throw new ForbiddenAccessException(getUserUri(request));
+    }
+
+    @RequestMapping(value = "/**/jobs/*/delete", method = POST)
+    @ModelAttribute
+    public ModelAndView deleteJob(HttpServletRequest request) throws Exception {
+        log.info(request.getRequestURI());
+
+        Job job = getJob(jobsDao, request, "/delete");
+        if (isScriptOwner(request, job) || isScriptAdmin(request, job.getScriptUri(), scriptAdminsByUri)) {
+            switch (job.getJobStatus()) {
+                case completed:
+                case stopped:
+                case errored:
+                    recursiveDelete(new File(job.getJobDirectory()));
+                    jobsDao.delete(job);
+
+                    return new ModelAndView(new OkResponseView());
+            }
+
+            return resourceStateConflict(job, "job status must be [completed, stopped, errored]");
         }
 
-        JSONObject json = getResultsJson(jobUri, r, scriptUri, workDirsByUri.get(scriptUri));
-        return new ModelAndView(new JsonView()).addObject("json", json);
+        throw new ForbiddenAccessException(getUserUri(request));
     }
 
     /*
-     * Private Methods
-     */
+    * Private Methods
+    */
 
-    private JSONObject getResultsJson(String jobUri, Results r, String scriptUri, String baseWorkDir) throws JSONException {
-        List<File> outputs = new ArrayList<File>();
-        scanOutputs(outputs, r.getOutputDirectory());
+    private void scheduleJob(Job... jobs) throws IOException {
+        if (jobs == null || jobs.length == 0) {
+            log.info("no jobs scheduled");
+            return;
+        }
 
+        for (Job job : jobs) {
+            log.info(job.getJobUri());
+            String scriptUri = job.getScriptUri();
+
+            ReturnCodes returnCodes = returnCodesByUri.get(scriptUri);
+            EmailBean emailBean = emailBeansByUri.get(scriptUri);
+
+            mkdirs(new File(job.getExecutionDirectory()), new File(job.getOutputDirectoryPath()));
+
+            JobPackage pkg = new JobPackage(job, jobsDao, returnCodes, channelNotifier, new EmailNotifier(emailBean));
+            pkg.changeStatus(scheduled);
+
+            Queue<JobPackage> q = jobQueuesByUri.get(scriptUri);
+            q.add(pkg);
+        }
+    }
+
+    private ModelAndView resourceStateConflict(Job job, String message) throws Exception {
         JSONObject json = new JSONObject();
-        json.put("uri", jobUri);
-        json.put("log", jobUri + "/log");
-        if (!StringUtils.isEmpty(r.getLabel())) {
-            json.put("label", r.getLabel());
-        }
-        if (r.isSuccessful()) {
-            json.put("status", "completed");
-        } else {
-            json.put("status", "running");
-        }
-        if (r.hasErrors()) {
-            json.put("status", "error");
-            json.put("message", r.getErrorMessage());
-        }
-
-        for (File output : outputs) {
-            JSONObject outputJson = new JSONObject();
-            outputJson.put("uri", scriptUri + StringUtils.substringAfterLast(output.getPath(), baseWorkDir));
-            outputJson.put("name", output.getName());
-            json.append("outputs", outputJson);
-        }
-
-        return json;
+        json.put("uri", job.getJobUri());
+        json.put("label", job.getLabel());
+        json.put("status", job.getJobStatus());
+        json.put("message", message);
+        return new ModelAndView(new ResourceStateConflictView()).addObject("json", json);
     }
 
-    private Results executeRobot(String script, String jobDir, Mailer mailer, String jobExecutionDirectory) throws Exception {
-        log.fine("executeRobot(" + script + "," + jobDir + ")");
-
-        String jobExecAt = jobDir;
-        if (!StringUtils.isEmpty(jobExecutionDirectory)) {
-            jobExecAt = jobDir + "/" + jobExecutionDirectory;
+    private int getNumberOfThreads(String scriptUri) {
+        try {
+            return parseInt(numberOfThreadsByUri.get(scriptUri));
+        } catch (NumberFormatException e) {
+            return 1;
         }
-
-        File execAtDir = new File(jobExecAt);
-        execAtDir.mkdirs();
-        Process p = Runtime.getRuntime().exec(script, new String[0], execAtDir);
-
-        File outputDir = new File(jobDir + "/outputs");
-        if (!outputDir.exists()) {
-            outputDir.mkdirs();
-        }
-        Results r = new Results(outputDir);
-
-        String joblog = jobDir + "/job.log";
-        OutputStream logStream = new FileOutputStream(joblog);
-        Streamer stdoutStreamer = new Streamer(p.getInputStream(), logStream, true);
-        Streamer errorStreamer = new Streamer(p.getErrorStream(), logStream, true);
-
-        if (mailer != null) {
-            mailer.setJobLog(joblog);
-        }
-        Runnable executer = new Executer(p, new ResultsExecutionCallback(r, stdoutStreamer, errorStreamer, logStream), mailer);
-
-        new Thread(stdoutStreamer).start();
-        new Thread(errorStreamer).start();
-        new Thread(executer).start();
-
-        return r;
     }
 
-    private String getQueryString(HttpServletRequest request) {
-        if (request.getMethod().equalsIgnoreCase("get")) {
-            return request.getQueryString();
-        }
-
-        StringBuilder builder = new StringBuilder();
-        Enumeration paramNames = request.getParameterNames();
-        while (paramNames.hasMoreElements()) {
-            String paramName = (String) paramNames.nextElement();
-            String[] paramValues = request.getParameterValues(paramName);
-            for (String paramValue : paramValues) {
-                builder.append(paramName).append("=").append(paramValue).append("&");
-            }
-        }
-        log.info("getQueryString(" + request.getRequestURI() + "):[" + builder.toString() + "]");
-        String queryString = builder.toString();
-        if (queryString.endsWith("&")) {
-            return StringUtils.substringBeforeLast(queryString, "&");
-        }
-        return queryString;
-    }
 }

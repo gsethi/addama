@@ -18,83 +18,50 @@
 */
 package org.systemsbiology.addama.coresvcs.gae.controllers;
 
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.coresvcs.gae.services.Users;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.logging.Logger;
+import javax.servlet.http.HttpServletResponse;
+
+import static com.google.appengine.api.users.UserServiceFactory.getUserService;
+import static org.apache.commons.lang.StringUtils.substringBeforeLast;
 
 /**
  * @author hrovira
  */
 @Controller
 public class UserController {
-    private static final Logger log = Logger.getLogger(UserController.class.getName());
-
-    private Users users;
-
-    public void setUsers(Users users) {
-        this.users = users;
-    }
-
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView getUsers(HttpServletRequest request) throws Exception {
-        log.fine("getUsers(" + request.getRequestURI() + ")");
-
-        JSONArray jsonUsers = users.getAllUsers();
-        if (jsonUsers == null) {
-            jsonUsers = new JSONArray();
-        }
-
-        JSONObject json = new JSONObject();
-        json.put("uri", request.getRequestURI());
-        json.put("users", jsonUsers);
-        json.put("numberOfUsers", jsonUsers.length());
-
-        ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("json", json);
-        return mav;
-    }
-
-    @RequestMapping(value = "/users/*", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView getUser(HttpServletRequest request) throws Exception {
-        log.fine("getUser(" + request.getRequestURI() + ")");
-
-        JSONObject json = users.getUser(request.getRequestURI());
-        if (json == null) {
-            throw new ResourceNotFoundException(request.getRequestURI());
-        }
-        json.put("uri", request.getRequestURI());
-
-        ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("json", json);
-        return mav;
-    }
+    private final UserService userService = getUserService();
 
     @RequestMapping(value = "/users/whoami", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView whoami(HttpServletRequest request) throws Exception {
-        log.fine("whoami(" + request.getRequestURI() + ")");
+    public ModelAndView whoami(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String url = substringBeforeLast(request.getRequestURL().toString(), request.getRequestURI());
 
-        String url = StringUtils.substringBeforeLast(request.getRequestURL().toString(), request.getRequestURI());
-        JSONObject json = users.whoAmI(request.getUserPrincipal(), url);
-        if (json == null) {
-            throw new ResourceNotFoundException(request.getRequestURI());
+        if (!userService.isUserLoggedIn()) {
+            response.sendRedirect(userService.createLoginURL(url));
+            return null;
         }
 
-        ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("json", json);
-        return mav;
+        User user = userService.getCurrentUser();
+
+        JSONObject json = new JSONObject();
+        json.put("email", user.getEmail());
+        json.put("name", user.getNickname());
+        json.put("isAdmin", userService.isUserAdmin());
+        json.put("logoutUrl", userService.createLogoutURL(url));
+        json.put("uri", "/addama/users/" + user.getEmail());
+        json.put("channel", "/addama/channels/" + user.getEmail());
+
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
+
 }

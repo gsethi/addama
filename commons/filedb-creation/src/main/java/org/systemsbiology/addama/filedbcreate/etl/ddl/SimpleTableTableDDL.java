@@ -21,6 +21,8 @@ package org.systemsbiology.addama.filedbcreate.etl.ddl;
 import org.systemsbiology.addama.filedbcreate.etl.TableDDL;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author hrovira
@@ -46,5 +48,13 @@ public class SimpleTableTableDDL implements TableDDL {
             indexSql.add("create index idx_" + table + "_" + i + " on " + table + " ( " + columnHeaders[i] + "(10) )");
         }
         return indexSql.toArray(new String[indexSql.size()]);
+    }
+
+    public Map<String, String> getDataTypes(String[] columnHeaders) {
+        HashMap<String, String> dataTypes = new HashMap<String, String>();
+        for (String columnHeader : columnHeaders) {
+            dataTypes.put(columnHeader, "text");
+        }
+        return dataTypes;
     }
 }

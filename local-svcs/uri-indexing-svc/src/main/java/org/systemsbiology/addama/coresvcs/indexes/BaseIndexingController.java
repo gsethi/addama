@@ -19,12 +19,12 @@
 package org.systemsbiology.addama.coresvcs.indexes;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.InitializingBean;
 import org.springmodules.lucene.index.core.LuceneIndexTemplate;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneTemplatesJsonConfigHandler;
-import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneIndexTemplateJsonConfigHandler;
+import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneSearchTemplateJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -33,22 +33,13 @@ import java.util.Set;
 /**
  * @author hrovira
  */
-public abstract class BaseIndexingController implements InitializingBean {
+public abstract class BaseIndexingController {
     private final HashMap<String, LuceneSearchTemplate> searchTemplatesByUri = new HashMap<String, LuceneSearchTemplate>();
     private final HashMap<String, LuceneIndexTemplate> indexTemplatesByUri = new HashMap<String, LuceneIndexTemplate>();
 
-    private JsonConfig jsonConfig;
-
     public void setJsonConfig(JsonConfig jsonConfig) {
-        this.jsonConfig = jsonConfig;
-    }
-
-    /*
-     * InitializingBean
-     */
-
-    public void afterPropertiesSet() throws Exception {
-        jsonConfig.processConfiguration(new LuceneTemplatesJsonConfigHandler(indexTemplatesByUri, searchTemplatesByUri));
+        jsonConfig.visit(new LuceneSearchTemplateJsonConfigHandler(searchTemplatesByUri));
+        jsonConfig.visit(new LuceneIndexTemplateJsonConfigHandler(indexTemplatesByUri));
     }
 
     /*

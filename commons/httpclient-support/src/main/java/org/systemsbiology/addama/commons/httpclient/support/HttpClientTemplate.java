@@ -85,8 +85,6 @@ public class HttpClientTemplate implements InitializingBean {
         synchronized (this) {
             String action = getAction(method);
             try {
-                log.info(action + ":send");
-
                 int statusCode = httpClient.executeMethod(method);
                 log.info(action + ":" + statusCode);
 

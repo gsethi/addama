@@ -12,7 +12,8 @@ import org.systemsbiology.addama.commons.httpclient.support.HttpClientException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientResponseException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
 import org.systemsbiology.addama.commons.httpclient.support.ResponseCallback;
-import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.services.proxy.controllers.SimpleProxyController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,24 +33,18 @@ public class SimpleProxyControllerTest {
     public void setUp() throws Exception {
         httpClientTemplate = new MockHttpClientTemplate();
 
-        JsonConfig jsonConfig = new JsonConfig() {
-            public JSONObject getConfiguration() throws Exception {
-                JSONObject local = new JSONObject();
-                local.put("uri", "/addama/applications/edgelimma");
-                local.put("proxy", "http://jefferson:9081/cgi-bin");
-                local.put("excludeBaseUri", true);
+        JSONObject local = new JSONObject();
+        local.put("uri", "/addama/applications/edgelimma");
+        local.put("proxy", "http://jefferson:9081/cgi-bin");
+        local.put("excludeBaseUri", true);
 
-                JSONObject json = new JSONObject();
-                json.append("locals", local);
-                json.append("mappings", new JSONObject().put("uri", "/addama/applications/edgelimma"));
-                return json;
-            }
-        };
+        JSONObject json = new JSONObject();
+        json.append("locals", local);
+        json.append("mappings", new JSONObject().put("uri", "/addama/applications/edgelimma"));
 
         controller = new SimpleProxyController();
         controller.setHttpClientTemplate(httpClientTemplate);
-        controller.setJsonConfig(jsonConfig);
-        controller.afterPropertiesSet();
+        controller.setJsonConfig(new JsonConfig(json));
     }
 
     @Test

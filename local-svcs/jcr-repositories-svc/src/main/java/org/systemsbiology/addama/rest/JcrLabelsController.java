@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.jcr.JcrTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.commons.web.views.ResourceNotFoundView;
 import org.systemsbiology.addama.rest.json.NodeLabelsJSONObject;
@@ -40,6 +41,8 @@ import javax.jcr.Value;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
 
 /**
  * @author hrovira
@@ -61,31 +64,28 @@ public class JcrLabelsController extends AbstractJcrController {
 
     @RequestMapping(value = "/**/labels", method = RequestMethod.POST)
     @ModelAttribute
-    public ModelAndView labelsManage(HttpServletRequest request, @RequestParam("JSON")String json) throws Exception {
+    public ModelAndView labelsManage(HttpServletRequest request, @RequestParam("JSON") String json) throws Exception {
         log.info("labels(" + json + ")");
 
         String path = getPath(request, "/labels");
         JcrTemplate jcrTemplate = getJcrTemplate(request);
-        if (!jcrTemplate.itemExists(path)) {
-            ModelAndView mav = new ModelAndView(new ResourceNotFoundView());
-            mav.addObject("error_message", "No labels are defined");
+        if (jcrTemplate != null && jcrTemplate.itemExists(path)) {
+            Node node = (Node) jcrTemplate.getItem(path);
+            Set<String> set = new HashSet<String>(); //getExistingLabels(node);
+            addNewLabels(new JSONObject(json), set);
+            node.setProperty("labels", set.toArray(new String[set.size()]));
+
+            ModelAndView mav = new ModelAndView(new PostJsonView());
+            mav.addObject("json", new NodeLabelsJSONObject(node, request, dateFormat));
+            mav.addObject("node", node);
             return mav;
         }
-
-        Node node = (Node) jcrTemplate.getItem(path);
-        Set<String> set = new HashSet<String>(); //getExistingLabels(node);
-        addNewLabels(new JSONObject(json), set);
-        node.setProperty("labels", set.toArray(new String[set.size()]));
-
-        ModelAndView mav = new ModelAndView(new PostJsonView());
-        mav.addObject("json", new NodeLabelsJSONObject(node, request, dateFormat));
-        mav.addObject("node", node);
-        return mav;
+        throw new ResourceNotFoundException(request.getRequestURI());
     }
 
     @RequestMapping(value = "/**/labels/append", method = RequestMethod.POST)
     @ModelAttribute
-    public ModelAndView labelsAppend(HttpServletRequest request, @RequestParam("JSON")String json) throws Exception {
+    public ModelAndView labelsAppend(HttpServletRequest request, @RequestParam("JSON") String json) throws Exception {
         log.info("labels(" + json + ")");
 
         String path = getPath(request, "/labels/append");

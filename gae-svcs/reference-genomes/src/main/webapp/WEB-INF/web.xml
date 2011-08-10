@@ -4,7 +4,6 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             /WEB-INF/app-contexts/*.xml
-            classpath*:/datastoreServiceTemplate.xml
         </param-value>
     </context-param>
 

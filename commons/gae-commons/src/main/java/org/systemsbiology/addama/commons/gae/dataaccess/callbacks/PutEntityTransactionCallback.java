@@ -23,17 +23,23 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Transaction;
 import org.systemsbiology.addama.commons.gae.dataaccess.TransactionCallback;
 
+import static java.util.Arrays.asList;
+
 /**
  * @author hrovira
  */
 public class PutEntityTransactionCallback implements TransactionCallback {
-    private final Entity e;
+    private final Iterable<Entity> entityIterable;
 
-    public PutEntityTransactionCallback(Entity e) {
-        this.e = e;
+    public PutEntityTransactionCallback(Entity... e) {
+        this.entityIterable = asList(e);
+    }
+
+    public PutEntityTransactionCallback(Iterable<Entity> entityIterable) {
+        this.entityIterable = entityIterable;
     }
 
     public void execute(DatastoreService dss, Transaction tx) {
-        dss.put(tx, this.e);
+        dss.put(tx, this.entityIterable);
     }
 }

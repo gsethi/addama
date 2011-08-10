@@ -18,40 +18,47 @@
 */
 package org.systemsbiology.addama.services.execution.mvc;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
+
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.clientRedirect;
+import static org.systemsbiology.addama.services.execution.util.HttpJob.getScriptUri;
+import static org.systemsbiology.addama.services.execution.util.HttpJob.scriptExists;
 
 /**
  * @author hrovira
  */
 @Controller
-public class ViewerController extends BaseController {
+public class ViewerController {
     private static final Logger log = Logger.getLogger(ViewerController.class.getName());
+
+    private final Map<String, String> viewersByUri = new HashMap<String, String>();
+
+    public void setJsonConfig(JsonConfig jsonConfig) {
+        jsonConfig.visit(new StringMapJsonConfigHandler(viewersByUri, "viewer"));
+    }
 
     @RequestMapping(method = RequestMethod.GET)
     public void getViewer(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info("getViewer(" + request.getRequestURI() + ")");
+        log.info(request.getRequestURI());
 
-        String scriptUri = StringUtils.substringAfter(request.getRequestURI(), request.getContextPath());
-        log.info("getViewer(" + request.getRequestURI() + "): scriptUri=[" + scriptUri + "]");
-        if (!viewersByUri.containsKey(scriptUri)) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+        String uri = getScriptUri(request, "/ui");
+        scriptExists(uri);
+
+        if (!viewersByUri.containsKey(uri)) {
+            throw new ResourceNotFoundException(uri);
         }
 
-        String viewer = viewersByUri.get(scriptUri);
-        log.info("getViewer(" + request.getRequestURI() + "): viewer=[" + viewer + "]");
-        if (StringUtils.isEmpty(viewer)) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        response.sendRedirect(viewer);
+        clientRedirect(response, viewersByUri.get(uri));
     }
 }

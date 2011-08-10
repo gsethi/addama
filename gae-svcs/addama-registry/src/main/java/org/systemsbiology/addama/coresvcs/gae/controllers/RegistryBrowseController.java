@@ -28,12 +28,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
-import org.systemsbiology.addama.coresvcs.gae.services.Registry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import static org.systemsbiology.addama.appengine.util.Registry.*;
 
 /**
  * @author hrovira
@@ -41,12 +42,6 @@ import java.util.logging.Logger;
 @Controller
 public class RegistryBrowseController {
     private static final Logger log = Logger.getLogger(RegistryBrowseController.class.getName());
-
-    private Registry registry;
-
-    public void setRegistry(Registry registry) {
-        this.registry = registry;
-    }
 
     @RequestMapping(value = "/**", method = RequestMethod.GET)
     @ModelAttribute
@@ -57,28 +52,22 @@ public class RegistryBrowseController {
         json.put("uri", request.getRequestURI());
 
         HashSet<String> uritracker = new HashSet<String>();
-        appendItems(json, registry.getRegistryMappingFamily(request.getRequestURI()), uritracker);
-        appendItems(json, registry.getRegistryMappingsByUri(request.getRequestURI()), uritracker);
+        appendItems(json, getRegistryMappingFamily(request.getRequestURI()), uritracker);
+        appendItems(json, getRegistryMappingsByItsUri(request.getRequestURI()), uritracker);
 
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/services", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView getRegistryServices() throws Exception {
-        log.info("getRegistryServices()");
-
+    public ModelAndView registry_services() throws Exception {
         JSONObject json = new JSONObject();
         json.put("uri", "/addama/services");
 
-        RegistryService[] registryServices = registry.getRegistryServices();
+        RegistryService[] registryServices = getRegistryServices();
         if (registryServices != null) {
             for (RegistryService rs : registryServices) {
-                JSONObject item = new JSONObject();
-                item.put("url", rs.getUrl());
-                item.put("label", rs.getLabel());
-                item.put("uri", rs.getUri());
-                json.append("items", item);
+                json.append("items", toJSON(rs));
             }
         }
 

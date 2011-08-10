@@ -6,18 +6,22 @@ import ConfigParser
 try: import json #python 2.6 included simplejson as json
 except ImportError: import simplejson as json
 
-def doPost(configFile, uri, param):
+def doPost(configFile, uri, paramMap):
     config = ConfigParser.RawConfigParser()
     config.read(configFile)
 
     HOST = config.get("Connection", "host")
     APIKEY = config.get("Connection", "apikey")
 
-    headers = {"x-addama-apikey": APIKEY,"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain" }
-    params = urllib.urlencode(param)
+    headers = {"x-addama-apikey": APIKEY, "Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain" }
 
     print("POST https://" + HOST + uri)
-    print "params: " + params
+
+    params = "empty"
+    if paramMap:
+        params = urllib.urlencode(paramMap)
+
+    print "parameters: [" + params + "]"
 
     conn = httplib.HTTPSConnection(HOST)
     conn.request("POST", uri, params, headers)
@@ -35,21 +39,28 @@ def doPost(configFile, uri, param):
     conn.close()
 
 if __name__ == "__main__":
-    if (len(sys.argv) < 3):
-	print ""
-        print "python post.py <configFile> <uri> param1 value1 ... paramN valueN"
-        print "where configFile defines an apikey and host URL for a GAE appspot"
-        print "      uri defines a URI to the service/directory"
-        print "      valueX paramX are a pair of POST parameters to be sent"
-	sys.exit(0)
+    numberOfArgs = len(sys.argv)
+
+    if (numberOfArgs < 3):
+        print "Usage"
+        print "   python post_gae.py <configFile> <uri> [param1=value1 ... paramN=valueN]"
+        print "      configFile -> apikey file containing secret key and host URL for an Addama registry instance on GAE"
+        print "             obtain from (https://my-appspot.appspot.com/addama/apikeys/file)"
+        print "      uri -> location of service or resource within Addama registry"
+        print "      paramX=valueX -> (optional) pairs of POST parameters to be sent in request"
+        sys.exit(0)
+
     paramMap={}
-    paramList=[];
-    if (len(sys.argv) > 4):
-	paramList = sys.argv[3:]
-    print "param size: ", len(paramList)
-    for index in range(0,len(paramList),2):
-	print "index: ", index
-	print "name: " + paramList[index]
-	print "value: " + paramList[index+1]
-	paramMap[paramList[index]] = paramList[index+1]
-    doPost(sys.argv[1],sys.argv[2],paramMap)
+    paramList=[]
+    if (numberOfArgs > 3):
+        paramList = sys.argv[3:]
+
+    print "passing parameters:", paramList
+    for index in range(0, len(paramList), 1):
+        parameter = paramList[index]
+        eqpos = parameter.find("=")
+        key = parameter[0:eqpos]
+        value = parameter[eqpos+1:]
+        paramMap[key] = value
+
+    doPost(sys.argv[1], sys.argv[2], paramMap)

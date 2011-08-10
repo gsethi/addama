@@ -18,154 +18,97 @@
 */
 package org.systemsbiology.addama.coresvcs.gae.controllers;
 
-import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.users.UserService;
 import com.google.apphosting.api.ApiProxy;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
-import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.coresvcs.gae.pojos.ApiKey;
-import org.systemsbiology.addama.coresvcs.gae.services.ApiKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
+
+import static com.google.appengine.api.users.UserServiceFactory.getUserService;
+import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
+import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 
 /**
  * @author hrovira
  */
 @Controller
 public class ApiKeyController {
-    private static final String APPSPOT_HOST = ApiProxy.getCurrentEnvironment().getAppId() + ".appspot.com";
     private static final Logger log = Logger.getLogger(ApiKeyController.class.getName());
+    private static final String APPSPOT_ID = ApiProxy.getCurrentEnvironment().getAppId();
 
-    private ApiKeys apiKeys;
-
-    public void setApiKeys(ApiKeys apiKeys) {
-        this.apiKeys = apiKeys;
-    }
+    private final UserService userService = getUserService();
 
     @RequestMapping(value = "/apikeys", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView getApiKeys(HttpServletRequest request) throws Exception {
-        log.info("getApiKeys(" + request.getRequestURI() + ")");
+    public ModelAndView apikeys(HttpServletRequest request) throws Exception {
+        log.info(request.getRequestURI());
 
-        JSONObject json = new JSONObject();
-        json.put("uri", request.getRequestURI());
-        for (ApiKey apiKey : apiKeys.getApiKeys()) {
-            json.append("items", apiKey.toJSON());
-        }
-
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
-
+        ApiKey apiKey = getUserApiKey();
+        return new ModelAndView(new JsonView()).addObject("json", apiKey.toJSON());
     }
 
     @RequestMapping(value = "/apikeys/addama.properties", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView getAddamaProperties(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info("getAddamaProperties(" + request.getRequestURI() + ")");
-        if (!UserServiceFactory.getUserService().isUserAdmin()) {
+    public ModelAndView addama_properties(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.info(request.getRequestURI());
+
+        // TODO : Move this to a different registration controller
+        if (!userService.isUserAdmin()) {
             throw new ForbiddenAccessException("this functionality is only available to logged-in administrators");
         }
 
-        ApiKey apiKey = getFirstApiKey();
+        ApiKey apiKey = getUserApiKey();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("httpclient.secureHostUrl=https://").append(APPSPOT_HOST);
+        builder.append("httpclient.secureHostUrl=https://").append(APPSPOT_ID).append(".appspot.com");
         builder.append("\n");
         builder.append("httpclient.apikey=");
         builder.append(apiKey.getKey().toString());
         builder.append("\n");
 
-        response.setContentType("text/plain");
-        response.setHeader("Content-Disposition", "attachment;filename=\"addama.properties\"");
-
-        OutputStream outputStream = response.getOutputStream();
-        outputStream.write(builder.toString().getBytes());
+        outputFile(response, "addama.properties", builder.toString());
 
         return null;
     }
 
-    @RequestMapping(value = "/apikeys/addama.config", method = RequestMethod.GET)
+    @RequestMapping(value = "/apikeys/file", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView getPythonConfig(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info("getPythonConfig(" + request.getRequestURI() + ")");
+    public ModelAndView apikey_file(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.info(request.getRequestURI());
 
-        ApiKey apiKey = getFirstApiKey();
+        ApiKey apiKey = getUserApiKey();
 
         StringBuilder builder = new StringBuilder();
         builder.append("[Connection]");
-        builder.append("\n");
-        builder.append("host=").append(APPSPOT_HOST);
-        builder.append("\n");
-        builder.append("apikey=");
-        builder.append(apiKey.getKey().toString());
+        builder.append("\n").append("host=").append(APPSPOT_ID).append(".appspot.com");
+        builder.append("\n").append("apikey=").append(apiKey.getKey().toString());
+        builder.append("\n").append("owner=").append(getCurrentUser().getEmail());
         builder.append("\n");
 
-        response.setContentType("text/plain");
-        response.setHeader("Content-Disposition", "attachment;filename=\"addama.config\"");
-
-        OutputStream outputStream = response.getOutputStream();
-        outputStream.write(builder.toString().getBytes());
-
+        outputFile(response, APPSPOT_ID + ".apikey", builder.toString());
         return null;
-    }
-
-    @RequestMapping(value = "/apikeys", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView genApiKey(HttpServletRequest request) throws Exception {
-        log.info("genApiKey(" + request.getRequestURI() + ")");
-
-        ApiKey apiKey = apiKeys.generateKey();
-        return mav(apiKey.toJSON());
-    }
-
-    @RequestMapping(value = "/apikeys/**", method = RequestMethod.DELETE)
-    @ModelAttribute
-    public ModelAndView deleteApiKey(HttpServletRequest request) throws Exception {
-        log.info("deleteApiKey(" + request.getRequestURI() + ")");
-
-        String apiKey = request.getRequestURI();
-        apiKeys.deleteApiKey(apiKey);
-        return mav(new JSONObject().put("uri", request.getRequestURI()));
-    }
-
-    @RequestMapping(value = "/apikeys/**/delete", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView deleteApiKeyByPost(HttpServletRequest request) throws Exception {
-        log.info("deleteApiKeyByPost(" + request.getRequestURI() + ")");
-
-        String apiKey = StringUtils.substringBefore(request.getRequestURI(), "/delete");
-        apiKeys.deleteApiKey(apiKey);
-        return mav(new JSONObject().put("uri", request.getRequestURI()));
     }
 
     /*
      * Private Methods
      */
 
-    private ModelAndView mav(JSONObject json) {
-        ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("json", json);
-        return mav;
-    }
+    private void outputFile(HttpServletResponse response, String filename, String content) throws IOException {
+        response.setContentType("text/plain");
+        response.setHeader("Content-Disposition", "attachment;filename=\"" + filename + "\"");
 
-    private ApiKey getFirstApiKey() throws ForbiddenAccessException {
-        for (ApiKey ak : apiKeys.getApiKeysForCurrentUser()) {
-            if (ak.getKey() != null) {
-                return ak;
-            }
-        }
-
-        return apiKeys.generateKey();
+        OutputStream outputStream = response.getOutputStream();
+        outputStream.write(content.getBytes());
     }
 }

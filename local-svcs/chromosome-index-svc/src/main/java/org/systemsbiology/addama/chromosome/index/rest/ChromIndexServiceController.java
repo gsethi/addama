@@ -21,15 +21,19 @@ package org.systemsbiology.addama.chromosome.index.rest;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-import org.systemsbiology.addama.chromosome.index.callbacks.*;
+import org.systemsbiology.addama.chromosome.index.callbacks.ChromUriResultSetExtractor;
+import org.systemsbiology.addama.chromosome.index.callbacks.GeneChromUriResultSetExtractor;
+import org.systemsbiology.addama.chromosome.index.callbacks.ItemedResultSetExtractor;
+import org.systemsbiology.addama.chromosome.index.callbacks.LocusUriResultSetExtractor;
 import org.systemsbiology.addama.chromosome.index.pojos.ChromUriBean;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.impls.JSONObjectMapJsonConfigHandler;
+import org.systemsbiology.google.visualization.datasource.jdbc.JdbcTemplateJsonConfigHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,23 +44,17 @@ import java.util.logging.Logger;
 /**
  * @author hrovira
  */
-public class ChromIndexServiceController extends AbstractController implements InitializingBean {
+public class ChromIndexServiceController extends AbstractController {
     private static final Logger log = Logger.getLogger(ChromIndexServiceController.class.getName());
 
     private final Map<String, JdbcTemplate> jdbcTemplateByUri = new HashMap<String, JdbcTemplate>();
     private final Map<String, JSONObject> genesSchemasByUri = new HashMap<String, JSONObject>();
     private final Map<String, JSONObject> locusSchemasByUri = new HashMap<String, JSONObject>();
 
-    private JsonConfig jsonConfig;
-
     public void setJsonConfig(JsonConfig jsonConfig) {
-        this.jsonConfig = jsonConfig;
-    }
-
-    public void afterPropertiesSet() throws Exception {
-        jsonConfig.processConfiguration(new JdbcTemplateJsonConfigHandler(jdbcTemplateByUri));
-        jsonConfig.processConfiguration(new SchemasJsonConfigHandler("genesSchema", genesSchemasByUri));
-        jsonConfig.processConfiguration(new SchemasJsonConfigHandler("locusSchema", locusSchemasByUri));
+        jsonConfig.visit(new JdbcTemplateJsonConfigHandler(jdbcTemplateByUri));
+        jsonConfig.visit(new JSONObjectMapJsonConfigHandler(genesSchemasByUri, "genesSchema"));
+        jsonConfig.visit(new JSONObjectMapJsonConfigHandler(locusSchemasByUri, "locusSchema"));
     }
 
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {

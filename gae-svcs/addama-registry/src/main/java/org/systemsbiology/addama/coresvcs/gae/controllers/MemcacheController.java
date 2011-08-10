@@ -18,14 +18,17 @@
 */
 package org.systemsbiology.addama.coresvcs.gae.controllers;
 
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
-import org.apache.commons.lang.StringUtils;
+import com.google.appengine.api.memcache.MemcacheService;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
+
+import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringBetween;
 
 /**
  * @author hrovira
@@ -35,15 +38,16 @@ public class MemcacheController extends AbstractController {
 
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String requestUri = request.getRequestURI();
-        log.info("handleRequestInternal(" + requestUri + ")");
+        log.info(requestUri);
 
-        String cachedUri = StringUtils.substringAfter(requestUri, "/memcache/clear");
-        if (!StringUtils.isEmpty(cachedUri)) {
-            log.info("handleRequestInternal(" + requestUri + "): clearing " + cachedUri);
-            MemcacheServiceFactory.getMemcacheService().delete(cachedUri);
+        String targetCache = substringBetween("/memcache/", "/clear");
+        if (isEmpty(targetCache)) {
+            getMemcacheService().clearAll();
         } else {
-            log.info("handleRequestInternal(" + requestUri + "): clearing all");
-            MemcacheServiceFactory.getMemcacheService().clearAll();
+            MemcacheService memcache = getMemcacheService(targetCache);
+            if (memcache != null) {
+                memcache.clearAll();
+            }
         }
         return null;
     }

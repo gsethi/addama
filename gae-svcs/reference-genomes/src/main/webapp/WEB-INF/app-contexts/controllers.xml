@@ -25,18 +25,8 @@
                         </property>
                     </bean>
                 </entry>
-                <entry key="/**/features/**">
-                    <bean class="org.systemsbiology.addama.gaesvcs.refgenome.web.FeatureDatasourceController">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                                <value>HEAD</value>
-                            </list>
-                        </property>
-                    </bean>
-                </entry>
                 <entry key="/**/genes/**">
-                    <bean class="org.systemsbiology.addama.gaesvcs.refgenome.web.GeneIdentityController">
+                    <bean class="org.systemsbiology.addama.gaesvcs.refgenome.web.IndexedUriController">
                         <property name="supportedMethods">
                             <list>
                                 <value>GET</value>

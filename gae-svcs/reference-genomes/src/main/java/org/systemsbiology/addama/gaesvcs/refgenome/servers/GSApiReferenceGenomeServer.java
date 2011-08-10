@@ -19,7 +19,8 @@
 package org.systemsbiology.addama.gaesvcs.refgenome.servers;
 
 import com.google.appengine.api.urlfetch.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.IntRange;
+import org.apache.commons.lang.math.Range;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.gaesvcs.refgenome.ReferenceGenomeServer;
 
@@ -30,6 +31,13 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+
+import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
+import static com.google.appengine.api.urlfetch.HTTPMethod.HEAD;
+import static java.lang.Long.parseLong;
+import static java.util.Calendar.getInstance;
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * @author hrovira
@@ -65,37 +73,18 @@ public class GSApiReferenceGenomeServer implements ReferenceGenomeServer {
     }
 
     public Long getChromosomeLength(String chromosome) throws Exception {
-        String bucketObjectUri = bucketObjectUriByChromosome.get(chromosome);
-        if (StringUtils.isEmpty(bucketObjectUri)) {
-            throw new ResourceNotFoundException(bucketUrl + bucketObjectUri);
-        }
-
-        URL requestUrl = new URL(bucketUrl.toString() + bucketObjectUri);
-        HTTPRequest request = new HTTPRequest(requestUrl, HTTPMethod.HEAD);
-        request.addHeader(new HTTPHeader("Host", bucketUrl.getHost()));
-        request.addHeader(new HTTPHeader("Date", getCurrentDateGMT()));
-
+        HTTPRequest request = createHTTPrequest(chromosome, null);
         HTTPResponse response = fetchService.fetch(request);
         for (HTTPHeader header : response.getHeaders()) {
-            if (StringUtils.equalsIgnoreCase(header.getName(), "Content-Length")) {
-                return Long.parseLong(header.getValue());
+            if (equalsIgnoreCase(header.getName(), "Content-Length")) {
+                return parseLong(header.getValue());
             }
         }
         return (long) response.getContent().length;
     }
 
     public void loadSequence(OutputStream outputStream, String chromosome, long start, long end) throws Exception {
-        String bucketObjectUri = bucketObjectUriByChromosome.get(chromosome);
-        if (StringUtils.isEmpty(bucketObjectUri)) {
-            throw new ResourceNotFoundException(bucketUrl + bucketObjectUri);
-        }
-
-        URL requestUrl = new URL(bucketUrl.toString() + bucketObjectUri);
-        HTTPRequest request = new HTTPRequest(requestUrl, HTTPMethod.GET);
-        request.addHeader(new HTTPHeader("Range", "bytes=" + start + "-" + end));
-        request.addHeader(new HTTPHeader("Host", bucketUrl.getHost()));
-        request.addHeader(new HTTPHeader("Date", getCurrentDateGMT()));
-
+        HTTPRequest request = createHTTPrequest(chromosome, new IntRange(start, end));
         HTTPResponse response = fetchService.fetch(request);
         if (response != null) {
             outputStream.write(response.getContent());
@@ -108,12 +97,30 @@ public class GSApiReferenceGenomeServer implements ReferenceGenomeServer {
      */
 
     private String getCurrentDateGMT() {
-        Calendar gmtcal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar gmtcal = getInstance(TimeZone.getTimeZone("GMT"));
 
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = getInstance();
         cal.set(Calendar.HOUR_OF_DAY, gmtcal.get(Calendar.HOUR_OF_DAY));
 
         SimpleDateFormat sdf = new SimpleDateFormat("E',' dd MMM yyyy HH:mm:ss 'GMT'");
         return sdf.format(cal.getTime());
+    }
+
+    private HTTPRequest createHTTPrequest(String chromosome, Range r) throws Exception {
+        String bucketObjectUri = bucketObjectUriByChromosome.get(chromosome);
+        if (isEmpty(bucketObjectUri)) {
+            throw new ResourceNotFoundException(bucketUrl + "/" + bucketObjectUri);
+        }
+
+        URL requestUrl = new URL(bucketUrl.toString() + "/" + bucketObjectUri);
+        HTTPRequest request = new HTTPRequest(requestUrl, HEAD);
+        if (r != null) {
+            request = new HTTPRequest(requestUrl, GET);
+            request.addHeader(new HTTPHeader("Range", "bytes=" + r.getMinimumInteger() + "-" + r.getMaximumInteger()));
+        }
+
+        request.addHeader(new HTTPHeader("Host", bucketUrl.getHost()));
+        request.addHeader(new HTTPHeader("Date", getCurrentDateGMT()));
+        return request;
     }
 }

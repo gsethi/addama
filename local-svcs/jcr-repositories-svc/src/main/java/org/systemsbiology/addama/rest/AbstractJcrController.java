@@ -31,6 +31,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.logging.Logger;
 
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
+
 /**
  * @author hrovira
  */
@@ -99,10 +101,6 @@ public abstract class AbstractJcrController {
 
         log.fine("getPath: root");
         return "/";
-    }
-
-    protected JcrTemplate getJcrTemplate(HttpServletRequest request) throws ResourceNotFoundException {
-        return (JcrTemplate) request.getAttribute("JCR_TEMPLATE");
     }
 
     /*

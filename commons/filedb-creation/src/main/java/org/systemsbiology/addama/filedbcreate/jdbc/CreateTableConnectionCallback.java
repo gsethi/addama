@@ -44,21 +44,13 @@ public class CreateTableConnectionCallback implements ConnectionCallback {
     }
 
     public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
-        log.info("doInConnection");
-
         String tableSql = tableDDL.getStatement(tableName, columnHeaders);
-        log.info("tableSql=" + tableSql);
-
-        String[] indexSqls = tableDDL.getIndexStatement(tableName, columnHeaders);
+        log.info("creating table:" + tableSql);
 
         Statement stmt = connection.createStatement();
         stmt.execute(tableSql);
-        for (String indexSql : indexSqls) {
-            log.info("indexSql=" + indexSql);
-            stmt.execute(indexSql);
-        }
 
-        log.info("done with indexes");
+        log.info("completed");
         connection.commit();
         connection.close();
         return null;

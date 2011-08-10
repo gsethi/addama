@@ -20,12 +20,9 @@ package org.systemsbiology.addama.coresvcs.gae.filters;
 
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
-import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,9 +31,6 @@ import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException
 import org.systemsbiology.addama.coresvcs.gae.pojos.CachedUrl;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
-import org.systemsbiology.addama.coresvcs.gae.services.Proxy;
-import org.systemsbiology.addama.coresvcs.gae.services.Registry;
-import org.systemsbiology.addama.coresvcs.gae.services.Sharing;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -53,30 +47,22 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
+import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
+import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.systemsbiology.addama.appengine.util.Proxy.*;
+import static org.systemsbiology.addama.appengine.util.Registry.getMatchingRegistryMappings;
+import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
+import static org.systemsbiology.addama.appengine.util.Sharing.checkAccess;
+
 /**
  * @author hrovira
  */
 public class ProxiesFilter extends GenericFilterBean {
     private static final Logger log = Logger.getLogger(ProxiesFilter.class.getName());
 
-    private final URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
-    private final MemcacheService memcachedUrls = MemcacheServiceFactory.getMemcacheService(getClass().getName() + ".cachedurls");
-
-    private Registry registry;
-    private Proxy proxy;
-    private Sharing sharing;
-
-    public void setRegistry(Registry registry) {
-        this.registry = registry;
-    }
-
-    public void setProxy(Proxy proxy) {
-        this.proxy = proxy;
-    }
-
-    public void setSharing(Sharing sharing) {
-        this.sharing = sharing;
-    }
+    private final URLFetchService urlFetchService = getURLFetchService();
+    private final MemcacheService memcachedUrls = getMemcacheService(getClass().getName() + ".cachedurls");
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -90,20 +76,20 @@ public class ProxiesFilter extends GenericFilterBean {
             return;
         }
 
-        CachedUrl[] cachedUrls = getCachedUrls(requestUri);
+        CachedUrl[] cachedUrls = getCachedUrls(requestUri, request);
         if (cachedUrls == null || cachedUrls.length == 0) {
             log.warning("doFilter(" + requestUri + "): no mappings found in the registry");
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        if (StringUtils.equalsIgnoreCase(request.getMethod(), "get") && cachedUrls.length > 1) {
+        if (equalsIgnoreCase(request.getMethod(), "get") && cachedUrls.length > 1) {
             doGetMultiAction(request, response, cachedUrls);
         } else {
             CachedUrl cachedUrl = cachedUrls[0];
             try {
-                sharing.checkAccess(cachedUrl.getRegistryService(), request);
-                proxy.doAction(request, response, cachedUrl.getTargetUrl(), cachedUrl.getAccessKey());
+                checkAccess(cachedUrl.getRegistryService(), request);
+                doAction(request, response, cachedUrl.getTargetUrl(), cachedUrl.getAccessKey());
             } catch (ForbiddenAccessException e) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             }
@@ -131,7 +117,13 @@ public class ProxiesFilter extends GenericFilterBean {
             return true;
         }
 
+        if (requestUri.startsWith("/addama/ui")) {
+            return true;
+        }
         if (requestUri.startsWith("/addama/registry")) {
+            return true;
+        }
+        if (requestUri.startsWith("/addama/asynch")) {
             return true;
         }
         if (requestUri.startsWith("/addama/search")) {
@@ -146,16 +138,19 @@ public class ProxiesFilter extends GenericFilterBean {
         if (requestUri.startsWith("/addama/apikeys")) {
             return true;
         }
+        if (requestUri.startsWith("/addama/memcache")) {
+            return true;
+        }
         return false;
     }
 
-    private CachedUrl[] getCachedUrls(String requestUri) throws MalformedURLException {
+    private CachedUrl[] getCachedUrls(String requestUri, HttpServletRequest request) throws MalformedURLException {
         CachedUrl[] cachedUrls = (CachedUrl[]) memcachedUrls.get(requestUri);
         if (cachedUrls != null && cachedUrls.length > 0) {
             return cachedUrls;
         }
 
-        RegistryMapping[] mappings = registry.getRegistryMappings(requestUri);
+        RegistryMapping[] mappings = getMatchingRegistryMappings(requestUri);
         if (mappings == null || mappings.length == 0) {
             log.warning("getCachedUrls(" + requestUri + "): no mappings found in the registry");
             return null;
@@ -165,7 +160,7 @@ public class ProxiesFilter extends GenericFilterBean {
 
         for (RegistryMapping mapping : mappings) {
             String serviceUri = mapping.getServiceUri();
-            RegistryService registryService = registry.getRegistryService(serviceUri);
+            RegistryService registryService = getRegistryService(serviceUri);
             if (registryService == null) {
                 log.warning("getCachedUrls(" + requestUri + "): service not found for mapping: " + serviceUri);
             } else {
@@ -185,10 +180,10 @@ public class ProxiesFilter extends GenericFilterBean {
             for (CachedUrl cachedUrl : cachedUrls) {
                 RegistryService registryService = cachedUrl.getRegistryService();
                 try {
-                    sharing.checkAccess(registryService, request);
+                    checkAccess(registryService, request);
 
-                    HTTPRequest futureReq = proxy.getWithParams(request, cachedUrl.getTargetUrl());
-                    proxy.forwardHeaders(request, futureReq, cachedUrl.getAccessKey());
+                    HTTPRequest futureReq = getWithParams(request, cachedUrl.getTargetUrl());
+                    forwardHeaders(request, futureReq, cachedUrl.getAccessKey());
                     futureResponses.add(urlFetchService.fetchAsync(futureReq));
                 } catch (ForbiddenAccessException e) {
                     log.warning("access to service denied:" + registryService.getUri());
@@ -211,7 +206,7 @@ public class ProxiesFilter extends GenericFilterBean {
             response.setContentType("application/json");
             response.getWriter().write(json.toString());
         } catch (JSONException e) {
-            throw new IOException(e);
+            throw new IOException(e.getMessage());
         }
     }
 

@@ -7,8 +7,6 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             /WEB-INF/app-contexts/*.xml
-            classpath*:/addama-properties.xml
-            classpath*:/rangeHeaderUtil.xml
         </param-value>
     </context-param>
 

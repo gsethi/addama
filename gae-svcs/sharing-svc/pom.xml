@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>gae-svcs</artifactId>
-        <version>2.0.1</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.gaesvcs</groupId>
@@ -17,12 +17,31 @@
         <finalName>sharing-svc</finalName>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
                 <configuration>
                     <archiveClasses>true</archiveClasses>
+                    <overlays>
+                        <overlay>
+                            <groupId>org.systemsbiology.addama.gaesvcs</groupId>
+                            <artifactId>common-uis</artifactId>
+                            <type>zip</type>
+                            <classifier>zip</classifier>
+                        </overlay>
+                    </overlays>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.systemsbiology.addama.gaesvcs</groupId>
+            <artifactId>common-uis</artifactId>
+            <version>${project.parent.version}</version>
+            <type>zip</type>
+            <classifier>zip</classifier>
+        </dependency>
+    </dependencies>
 </project>

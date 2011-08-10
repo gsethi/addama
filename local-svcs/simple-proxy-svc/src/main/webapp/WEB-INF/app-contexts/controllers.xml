@@ -8,7 +8,7 @@
         <property name="urlMap">
             <map>
                 <entry key="/*">
-                    <bean class="org.systemsbiology.addama.sandbox.httpproxy.SimpleProxyController" autowire="byType"/>
+                    <bean class="org.systemsbiology.addama.services.proxy.controllers.SimpleProxyController" autowire="byType"/>
                 </entry>
             </map>
         </property>

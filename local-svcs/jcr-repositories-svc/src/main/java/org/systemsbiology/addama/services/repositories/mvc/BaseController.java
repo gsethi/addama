@@ -38,6 +38,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
+
 /**
  * @author hrovira
  */
@@ -58,6 +60,9 @@ public abstract class BaseController {
 
     protected Node getNode(HttpServletRequest request, String suffix) throws RepositoryException, ResourceNotFoundException {
         JcrTemplate jcrTemplate = getJcrTemplate(request);
+        if (jcrTemplate == null) {
+            throw new ResourceNotFoundException(request.getRequestURI());
+        }
 
         String requestUri = getDecodedRequestUri(request);
         if (StringUtils.contains(requestUri, "/path")) {
@@ -72,10 +77,6 @@ public abstract class BaseController {
         } else {
             return jcrTemplate.getRootNode();
         }
-    }
-
-    protected JcrTemplate getJcrTemplate(HttpServletRequest request) throws ResourceNotFoundException {
-        return (JcrTemplate) request.getAttribute("JCR_TEMPLATE");
     }
 
     protected void appendItems(String baseUri, Node node, JSONObject json, HttpServletRequest request) throws Exception {
@@ -222,6 +223,9 @@ public abstract class BaseController {
 
         if (StringUtils.contains(requestUri, "/uuid")) {
             JcrTemplate jcrTemplate = getJcrTemplate(request);
+            if (jcrTemplate == null) {
+                throw new ResourceNotFoundException(request.getRequestURI());
+            }
 
             String uuid = StringUtils.substringAfter(requestUri, "/uuid/");
             Node node = jcrTemplate.getNodeByUUID(uuid);

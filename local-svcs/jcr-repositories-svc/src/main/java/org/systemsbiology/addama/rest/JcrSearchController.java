@@ -18,19 +18,6 @@
 */
 package org.systemsbiology.addama.rest;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-
-import javax.jcr.Node;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -40,10 +27,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.jcr.JcrTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonResultsView;
 import org.systemsbiology.addama.jcr.util.XPathBuilder;
 import org.systemsbiology.addama.rest.json.CurrentNodeWithProjectionJSONObject;
 import org.systemsbiology.addama.rest.util.ResultsCollector;
+
+import javax.jcr.Node;
+import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Logger;
+
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
 
 /**
  * The search API exposed by this controller is currently ad hoc but it is
@@ -74,41 +71,45 @@ public class JcrSearchController extends AbstractJcrController {
 
         // Retrieve and remove our pagination parameters from the search query
         int startIndex = searchParams.containsKey(START_INDEX_PARAM)
-            ? Integer.valueOf(searchParams.remove(START_INDEX_PARAM)[0])
-            : DEFAULT_START_INDEX;
+                ? Integer.valueOf(searchParams.remove(START_INDEX_PARAM)[0])
+                : DEFAULT_START_INDEX;
         startIndex = (0 < startIndex) ? startIndex : DEFAULT_START_INDEX;
         int maxResults = searchParams.containsKey(MAX_RESULTS_PARAM)
-            ? Integer.valueOf(searchParams.remove(MAX_RESULTS_PARAM)[0])
-            : DEFAULT_MAX_RESULTS;
+                ? Integer.valueOf(searchParams.remove(MAX_RESULTS_PARAM)[0])
+                : DEFAULT_MAX_RESULTS;
         maxResults = (0 < maxResults) ? maxResults : DEFAULT_MAX_RESULTS;
 
         JcrTemplate jcrTemplate = getJcrTemplate(request);
-        List<ResultsCollector> collectors = loadResults(jcrTemplate, searchParams);
+        if (jcrTemplate != null) {
 
-        boolean matchAll = ServletRequestUtils.getBooleanParameter(request, "MATCHING_ALL_TERMS", false);
-        Map<String, Node> nodesByUuid = joinResults(matchAll, collectors);
+            List<ResultsCollector> collectors = loadResults(jcrTemplate, searchParams);
 
-        // Build our paginated result object, using a linear loop because folks
-        // generally only look at the first few pages of a search result, TODO
-        // figure out a meaningful ordering of these results, if there was any
-        // search rank it got lost in the join because a HashMap was used, once
-        // we have a meaningful ordering List.sublist can be used to get the
-        // slice to return
-        int currentIndex = 1;
-        int maxIndex = (Integer.MAX_VALUE == maxResults)
-            ? maxResults : startIndex + maxResults;
-        JSONObject json = new JSONObject();
-        for (Node node : nodesByUuid.values()) {
-            if (maxIndex <= currentIndex)
-                break;
-            if (startIndex <= currentIndex) {
-                json.append("results", new CurrentNodeWithProjectionJSONObject
+            boolean matchAll = ServletRequestUtils.getBooleanParameter(request, "MATCHING_ALL_TERMS", false);
+            Map<String, Node> nodesByUuid = joinResults(matchAll, collectors);
+
+            // Build our paginated result object, using a linear loop because folks
+            // generally only look at the first few pages of a search result, TODO
+            // figure out a meaningful ordering of these results, if there was any
+            // search rank it got lost in the join because a HashMap was used, once
+            // we have a meaningful ordering List.sublist can be used to get the
+            // slice to return
+            int currentIndex = 1;
+            int maxIndex = (Integer.MAX_VALUE == maxResults)
+                    ? maxResults : startIndex + maxResults;
+            JSONObject json = new JSONObject();
+            for (Node node : nodesByUuid.values()) {
+                if (maxIndex <= currentIndex)
+                    break;
+                if (startIndex <= currentIndex) {
+                    json.append("results", new CurrentNodeWithProjectionJSONObject
                             (node, request, dateFormat));
+                }
+                currentIndex++;
             }
-            currentIndex++;
-        }
 
-        return new ModelAndView(new JsonResultsView()).addObject("json", json);
+            return new ModelAndView(new JsonResultsView()).addObject("json", json);
+        }
+        throw new ResourceNotFoundException(request.getRequestURI());
     }
 
     /*
@@ -138,7 +139,7 @@ public class JcrSearchController extends AbstractJcrController {
 
         // Retrieve and remove our updated-min filter from the search query
         String updatedMin = searchParams.containsKey(UPDATED_MIN_PARAM)
-            ? searchParams.remove(UPDATED_MIN_PARAM)[0] : null;
+                ? searchParams.remove(UPDATED_MIN_PARAM)[0] : null;
 
         List<ResultsCollector> collectors = new ArrayList<ResultsCollector>();
         for (Map.Entry<String, String[]> entry : searchParams.entrySet()) {
@@ -156,12 +157,12 @@ public class JcrSearchController extends AbstractJcrController {
                 }
                 catch (Exception e) {
                     log.warning("Query exception: " + e + " for query "
-                                + queryString + ", msg: "
-                                + e.getMessage() + ", trace: ");
+                            + queryString + ", msg: "
+                            + e.getMessage() + ", trace: ");
                     e.printStackTrace();
                 }
                 log.fine("Queried: " + queryString + ", numResults: "
-                         + collector.getNumberOfResults());
+                        + collector.getNumberOfResults());
             }
 
             if (collector.hasResults()) {
@@ -178,10 +179,10 @@ public class JcrSearchController extends AbstractJcrController {
         // could filter only on the field @jcr:lastModified instead of
         // both @created-at and @last-modified-at
         String updatedMinFilter = (null == updatedMin)
-            ? ""
-            : " and (@created-at >= xs:dateTime('" + updatedMin + "')"
-            + " or @last-modified-at >= xs:dateTime('" + updatedMin
-            + "'))";
+                ? ""
+                : " and (@created-at >= xs:dateTime('" + updatedMin + "')"
+                + " or @last-modified-at >= xs:dateTime('" + updatedMin
+                + "'))";
 
         String propName = ".";
         if (!StringUtils.isEmpty(key) && !"q".equals(key)) {
@@ -193,7 +194,7 @@ public class JcrSearchController extends AbstractJcrController {
 
         // Free-text search
         queryStrings.add("//*[jcr:contains(" + propName + ", '" + value
-                         + "')" + updatedMinFilter + "]");
+                + "')" + updatedMinFilter + "]");
     }
 
     private Map<String, Node> joinResults(boolean matchAllTerms, List<ResultsCollector> collectors) {

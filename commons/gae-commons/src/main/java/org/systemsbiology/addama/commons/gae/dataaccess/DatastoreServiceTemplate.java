@@ -18,33 +18,21 @@
 */
 package org.systemsbiology.addama.commons.gae.dataaccess;
 
-import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.Transaction;
 
 /**
  * @author hrovira
  */
 public class DatastoreServiceTemplate {
-    private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 
-    public void inTransaction(TransactionCallback callback) {
-        Transaction x = datastoreService.beginTransaction();
+    public static void inTransaction(DatastoreService dssvc, TransactionCallback callback) {
+        Transaction x = dssvc.beginTransaction();
         try {
-            callback.execute(datastoreService, x);
+            callback.execute(dssvc, x);
         } finally {
             x.commit();
         }
-    }
-
-    public Entity getEntityByKey(Key k) throws EntityNotFoundException {
-        return datastoreService.get(k);
-    }
-
-    public PreparedQuery prepare(Query query) {
-        return datastoreService.prepare(query);
-    }
-
-    public DatastoreService getDatastoreService() {
-        return datastoreService;
     }
 
 }

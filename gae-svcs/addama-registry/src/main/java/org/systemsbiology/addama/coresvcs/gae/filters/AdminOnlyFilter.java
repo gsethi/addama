@@ -18,10 +18,7 @@
 */
 package org.systemsbiology.addama.coresvcs.gae.filters;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-import org.systemsbiology.addama.coresvcs.gae.services.ApiKeys;
-import org.systemsbiology.addama.coresvcs.gae.services.Users;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -32,22 +29,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static org.systemsbiology.addama.appengine.util.Users.isAdministrator;
+
 /**
  * @author hrovira
  */
 public class AdminOnlyFilter extends GenericFilterBean {
     private static final Logger log = Logger.getLogger(AdminOnlyFilter.class.getName());
-
-    private ApiKeys apiKeys;
-    private Users users;
-
-    public void setApiKeys(ApiKeys apiKeys) {
-        this.apiKeys = apiKeys;
-    }
-
-    public void setUsers(Users users) {
-        this.users = users;
-    }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -64,24 +52,4 @@ public class AdminOnlyFilter extends GenericFilterBean {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    /*
-     * Private Methods
-     */
-
-    private boolean isAdministrator(HttpServletRequest request) {
-        if (users.isUserAdmin()) {
-            return true;
-        }
-
-        String apiKey = request.getHeader("x-addama-apikey");
-        if (StringUtils.isEmpty(apiKey)) {
-            apiKey = request.getHeader("API_KEY"); // TODO : deprecated
-        }
-
-        if (!StringUtils.isEmpty(apiKey)) {
-            return apiKeys.isKeyAdmin(apiKey);
-        }
-
-        return false;
-    }
 }

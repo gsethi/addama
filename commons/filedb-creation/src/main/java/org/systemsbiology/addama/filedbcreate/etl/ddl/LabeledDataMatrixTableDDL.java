@@ -21,6 +21,8 @@ package org.systemsbiology.addama.filedbcreate.etl.ddl;
 import org.systemsbiology.addama.filedbcreate.etl.TableDDL;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author hrovira
@@ -47,4 +49,12 @@ public class LabeledDataMatrixTableDDL implements TableDDL {
         return indexSql.toArray(new String[indexSql.size()]);
     }
 
+    public Map<String, String> getDataTypes(String[] columnHeaders) {
+        HashMap<String, String> dataTypes = new HashMap<String, String>();
+        dataTypes.put(columnHeaders[0], "text");
+        for (int i = 1; i < columnHeaders.length; i++) {
+            dataTypes.put(columnHeaders[i], "double");
+        }
+        return dataTypes;
+    }
 }

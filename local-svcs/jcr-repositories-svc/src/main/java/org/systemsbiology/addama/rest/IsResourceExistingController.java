@@ -29,6 +29,8 @@ import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
+
 /**
  * @author hrovira
  */
@@ -39,7 +41,7 @@ public class IsResourceExistingController extends AbstractJcrController {
     public ModelAndView isExisting(HttpServletRequest request) throws Exception {
         String path = getPath(request, "/isExisting");
         JcrTemplate jcrTemplate = getJcrTemplate(request);
-        if (jcrTemplate.itemExists(path)) {
+        if (jcrTemplate != null && jcrTemplate.itemExists(path)) {
             return new ModelAndView(new OkResponseView());
         }
 

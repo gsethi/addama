@@ -18,18 +18,26 @@
 */
 package org.systemsbiology.addama.commons.web.views;
 
+import org.springframework.web.servlet.View;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getDesiredContentType;
+
 /**
  * @author hrovira
  */
-public class OkResponseView extends BaseView {
+public class OkResponseView implements View {
+
+    public String getContentType() {
+        return "application/json";
+    }
 
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType(getContentType(request));
+        response.setContentType(getDesiredContentType(request, this.getContentType()));
     }
 
 }

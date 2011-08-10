@@ -19,11 +19,10 @@
 package org.systemsbiology.addama.jcr.callbacks;
 
 import org.apache.jackrabbit.rmi.client.ClientRepositoryFactory;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springmodules.jcr.JcrSessionFactory;
 import org.springmodules.jcr.SessionFactory;
-import org.systemsbiology.addama.registry.JsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.impls.GenericMapJsonConfigHandler;
 
 import javax.jcr.Repository;
 import javax.jcr.SimpleCredentials;
@@ -32,34 +31,19 @@ import java.util.Map;
 /**
  * @author hrovira
  */
-public class JcrConnectionJsonConfigHandler implements JsonConfigHandler {
-    private final Map<String, SessionFactory> sessionFactoryMap;
-
+public class JcrConnectionJsonConfigHandler extends GenericMapJsonConfigHandler<SessionFactory> {
     public JcrConnectionJsonConfigHandler(Map<String, SessionFactory> map) {
-        this.sessionFactoryMap = map;
+        super(map);
     }
 
-    public void handle(JSONObject configuration) throws Exception {
-        if (configuration.has("locals")) {
-            JSONArray locals = configuration.getJSONArray("locals");
-            for (int i = 0; i < locals.length(); i++) {
-                JSONObject local = locals.getJSONObject(i);
+    public SessionFactory getSpecific(JSONObject item) throws Exception {
+        ClientRepositoryFactory repositoryFactory = new ClientRepositoryFactory();
+        Repository repository = repositoryFactory.getRepository(item.getString("rmiserver"));
 
-                String uri = local.getString("uri");
-                String rmiserver = local.getString("rmiserver");
-                String username = local.getString("username");
-                String password = local.getString("password");
-
-                ClientRepositoryFactory repositoryFactory = new ClientRepositoryFactory();
-                Repository repository = repositoryFactory.getRepository(rmiserver);
-
-                JcrSessionFactory jcrSF = new JcrSessionFactory();
-                jcrSF.setRepository(repository);
-                jcrSF.setCredentials(new SimpleCredentials(username, password.toCharArray()));
-                jcrSF.afterPropertiesSet();
-
-                this.sessionFactoryMap.put(uri, jcrSF);
-            }
-        }
+        JcrSessionFactory jcrSF = new JcrSessionFactory();
+        jcrSF.setRepository(repository);
+        jcrSF.setCredentials(new SimpleCredentials(item.getString("username"), item.getString("password").toCharArray()));
+        jcrSF.afterPropertiesSet();
+        return jcrSF;
     }
 }

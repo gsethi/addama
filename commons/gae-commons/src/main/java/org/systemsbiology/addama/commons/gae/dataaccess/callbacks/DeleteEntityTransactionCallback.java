@@ -23,17 +23,23 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
 import org.systemsbiology.addama.commons.gae.dataaccess.TransactionCallback;
 
+import static java.util.Arrays.asList;
+
 /**
  * @author hrovira
  */
 public class DeleteEntityTransactionCallback implements TransactionCallback {
-    private final Key key;
+    private final Iterable<Key> keyIterable;
 
-    public DeleteEntityTransactionCallback(Key k) {
-        this.key = k;
+    public DeleteEntityTransactionCallback(Key... k) {
+        this.keyIterable = asList(k);
+    }
+
+    public DeleteEntityTransactionCallback(Iterable<Key> keys) {
+        this.keyIterable = keys;
     }
 
     public void execute(DatastoreService dss, Transaction tx) {
-        dss.delete(tx, this.key);
+        dss.delete(tx, keyIterable);
     }
 }

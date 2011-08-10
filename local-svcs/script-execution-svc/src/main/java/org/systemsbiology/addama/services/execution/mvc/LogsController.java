@@ -18,49 +18,43 @@
 */
 package org.systemsbiology.addama.services.execution.mvc;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
+import org.systemsbiology.addama.services.execution.dao.JobsDaoAware;
+import org.systemsbiology.addama.services.execution.jobs.Job;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.logging.Logger;
+
+import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.systemsbiology.addama.services.execution.util.HttpJob.getJob;
 
 /**
  * @author hrovira
  */
 @Controller
-public class LogsController extends BaseController {
+public class LogsController extends JobsDaoAware {
     private static final Logger log = Logger.getLogger(LogsController.class.getName());
-
-    private String jobPath;
-
-    public void setJobPath(String jobPath) {
-        this.jobPath = jobPath;
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public void getJobLog(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String jobUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), "/log");
-        log.info("getJobLog(" + request.getRequestURI() + "):" + jobUri);
+        log.info(request.getRequestURI());
 
-        String scriptUri = StringUtils.substringBefore(jobUri, jobPath);
+        Job job = getJob(jobsDao, request, "/log");
 
-        String workDir = workDirsByUri.get(scriptUri);
-        if (StringUtils.isEmpty(workDir)) {
-            throw new ResourceNotFoundException("work directory for " + scriptUri);
+        File f = new File(job.getLogPath());
+        if (!f.exists()) {
+            response.setStatus(SC_NO_CONTENT);
+            return;
         }
 
-        String jobId = StringUtils.substringAfter(jobUri, jobPath);
-        String contents = getLogContents(workDir + jobPath + jobId + "/job.log");
-        if (StringUtils.isEmpty(contents)) {
-            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+        String contents = getLogContents(f);
+        if (isEmpty(contents)) {
+            response.setStatus(SC_NO_CONTENT);
             return;
         }
 
@@ -72,7 +66,7 @@ public class LogsController extends BaseController {
      * Private Methods
      */
 
-    private String getLogContents(String logFile) {
+    private String getLogContents(File logFile) {
         StringBuilder builder = new StringBuilder();
         BufferedReader logReader = null;
         try {
@@ -85,14 +79,14 @@ public class LogsController extends BaseController {
                 }
             }
         } catch (Exception e) {
-            log.warning("getLogContents(" + logFile + "):" + e);
+            log.warning(logFile + ":" + e);
         } finally {
             try {
                 if (logReader != null) {
                     logReader.close();
                 }
             } catch (IOException e) {
-                log.warning("getLogContents(" + logFile + "):" + e);
+                log.warning(logFile + ":" + e);
             }
         }
         return builder.toString();

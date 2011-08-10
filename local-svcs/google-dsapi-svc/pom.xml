@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>local-svcs</artifactId>
-        <version>2.0.1</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.coresvcs</groupId>
@@ -17,14 +17,9 @@
         <finalName>google-dsapi-svc</finalName>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>tomcat-maven-plugin</artifactId>
-                <configuration>
-                    <path>/google-dsapi-svc</path>
-                </configuration>
-            </plugin>
-            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
                 <configuration>
                     <archiveClasses>true</archiveClasses>
                 </configuration>
@@ -45,14 +40,13 @@
         <dependency>
             <groupId>commons-dbcp</groupId>
             <artifactId>commons-dbcp</artifactId>
-            <version>1.2.2</version>
+            <version>1.4</version>
         </dependency>
 
-        <!-- Google Data Sources Dependencies -->
         <dependency>
-            <groupId>com.google.visualization</groupId>
+            <groupId>org.systemsbiology.addama.apis</groupId>
             <artifactId>visualization-datasource</artifactId>
-            <version>1.0.2</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

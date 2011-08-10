@@ -3,7 +3,6 @@ package org.systemsbiology.addama.filedbcreate.mvc;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,10 +20,9 @@ import org.systemsbiology.addama.filedbcreate.etl.TableDDL;
 import org.systemsbiology.addama.filedbcreate.etl.ddl.LabeledDataMatrixTableDDL;
 import org.systemsbiology.addama.filedbcreate.etl.ddl.SimpleConfigurationTableDDL;
 import org.systemsbiology.addama.filedbcreate.etl.ddl.SimpleTableTableDDL;
-import org.systemsbiology.addama.filedbcreate.jdbc.JdbcTemplateDataSource;
-import org.systemsbiology.addama.filedbcreate.jdbc.JdbcTemplateJsonConfigHandler;
-import org.systemsbiology.addama.filedbcreate.jdbc.MappingTableConnectionCallback;
-import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.google.visualization.datasource.jdbc.JdbcTemplateJsonConfigHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -35,6 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
+import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.filedbcreate.dao.UriTableMappings.createTable;
+import static org.systemsbiology.addama.filedbcreate.dao.UriTableMappings.insertMapping;
+
 /**
  * @author dburdick
  */
@@ -42,21 +45,18 @@ import java.util.logging.Logger;
 public class FileDataSourceController implements InitializingBean {
     private static final Logger log = Logger.getLogger(FileDataSourceController.class.getName());
 
-    private final HashMap<String, JdbcTemplateDataSource> datasourcesByUri = new HashMap<String, JdbcTemplateDataSource>();
+    private final HashMap<String, JdbcTemplate> datasourcesByUri = new HashMap<String, JdbcTemplate>();
     private final HashMap<String, String> rootPathByUri = new HashMap<String, String>();
 
-    private JsonConfig jsonConfig;
-
     public void setJsonConfig(JsonConfig jsonConfig) {
-        this.jsonConfig = jsonConfig;
+        jsonConfig.visit(new StringMapJsonConfigHandler(rootPathByUri, "rootPath"));
+        jsonConfig.visit(new JdbcTemplateJsonConfigHandler(datasourcesByUri));
     }
 
-    /*
-    * InitializingBean
-    */
-
     public void afterPropertiesSet() throws Exception {
-        jsonConfig.processConfiguration(new JdbcTemplateJsonConfigHandler(datasourcesByUri, rootPathByUri));
+        for (Map.Entry<String, JdbcTemplate> entry : datasourcesByUri.entrySet()) {
+            createTable(entry.getValue());
+        }
     }
 
     /*
@@ -71,7 +71,7 @@ public class FileDataSourceController implements InitializingBean {
 
         JSONObject json = new JSONObject();
 
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        boolean isMultipart = isMultipartContent(request);
         if (!isMultipart) {
             log.warning("uploadFile(" + request.getRequestURI() + "): not multipart content");
             throw new InvalidSyntaxException("multipart request required");
@@ -128,12 +128,12 @@ public class FileDataSourceController implements InitializingBean {
         String tempFile = prepTempFile(datasourceUri, itemStream);
         log.info("uploadData():tempFile=" + tempFile);
 
-        JdbcTemplate jdbcTemplate = getDataSource(datasourceUri).getJdbcTemplate();
+        JdbcTemplate jdbcTemplate = getDataSource(datasourceUri);
 
         String databaseUri = datasourceUri + "/" + itemStream.getName();
         String tableName = "T_" + Math.abs(databaseUri.hashCode());
         String queryUri = addToMappingTable(databaseUri, tableName, jdbcTemplate);
-        new Thread(new TableCreatorRunnable(jdbcTemplate, tempFile, tableName, tableDDL)).start();
+        new Thread(new TableCreatorRunnable(jdbcTemplate, tableDDL, tableName, tempFile)).start();
         log.info("uploadData():tableName=" + tableName);
         log.info("uploadData():queryUri=" + queryUri);
         return queryUri;
@@ -142,8 +142,8 @@ public class FileDataSourceController implements InitializingBean {
     private String addToMappingTable(String databaseUri, String tableName, JdbcTemplate jdbcTemplate) {
         log.info("addToMappingTable(" + databaseUri + "," + tableName + ")");
 
-        String queryUri = StringUtils.replace(databaseUri, "/write/", "/");
-        jdbcTemplate.execute(new MappingTableConnectionCallback(queryUri, tableName));
+        String queryUri = replace(databaseUri, "/write/", "/");
+        insertMapping(jdbcTemplate, queryUri, tableName);
         return queryUri;
     }
 
@@ -168,17 +168,15 @@ public class FileDataSourceController implements InitializingBean {
     }
 
     private String getDatasourceUri(HttpServletRequest request) {
-        String databaseUri = StringUtils.substringAfterLast(request.getRequestURI(), request.getContextPath());
+        String databaseUri = substringAfterLast(request.getRequestURI(), request.getContextPath());
         if (databaseUri.endsWith("/query")) {
-            return StringUtils.substringBeforeLast(databaseUri, "/query");
+            return substringBeforeLast(databaseUri, "/query");
         }
         return databaseUri;
     }
 
-    private JdbcTemplateDataSource getDataSource(String databaseUri) throws Exception {
-        log.info("getDataSource(" + databaseUri + ")");
-
-        for (Map.Entry<String, JdbcTemplateDataSource> entry : datasourcesByUri.entrySet()) {
+    private JdbcTemplate getDataSource(String databaseUri) throws Exception {
+        for (Map.Entry<String, JdbcTemplate> entry : datasourcesByUri.entrySet()) {
             if (databaseUri.startsWith(entry.getKey())) {
                 return entry.getValue();
             }

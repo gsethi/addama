@@ -18,8 +18,6 @@
 */
 package org.systemsbiology.addama.services.execution.mvc;
 
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,33 +25,29 @@ import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
+import org.systemsbiology.addama.services.execution.dao.JobsDaoAware;
+import org.systemsbiology.addama.services.execution.jobs.Job;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.logging.Logger;
+import java.io.*;
+
+import static org.apache.commons.lang.StringUtils.contains;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringAfter;
+import static org.systemsbiology.addama.services.execution.util.HttpJob.getJob;
 
 /**
  * @author hrovira
  */
 @Controller
-public class OutputsController extends BaseController implements ServletContextAware {
-    private static final Logger log = Logger.getLogger(OutputsController.class.getName());
-
+public class OutputsController extends JobsDaoAware implements ServletContextAware {
     private ServletContext servletContext;
     private int bufferSize = 8096;
-    private String jobPath;
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
-    }
-
-    public void setJobPath(String jobPath) {
-        this.jobPath = jobPath;
     }
 
     public void setServletContext(ServletContext servletContext) {
@@ -62,50 +56,48 @@ public class OutputsController extends BaseController implements ServletContextA
 
     @RequestMapping(value = "/**/outputs/**", method = RequestMethod.GET)
     public ModelAndView getJobOutput(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info(request.getRequestURI());
+        Job job = getJob(jobsDao, request, "/outputs");
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), jobPath);
-        String workDir = workDirsByUri.get(scriptUri);
-        if (StringUtils.isEmpty(workDir)) {
-            throw new ResourceNotFoundException("work directory for " + scriptUri);
-        }
+        String filepath = substringAfter(request.getRequestURI(), "/outputs/");
+        if (contains(filepath, "_afdl/")) filepath = substringAfter(filepath, "_afdl/");
+        if (contains(filepath, "_afdl")) filepath = substringAfter(filepath, "_afdl");
 
-        String outputFilePath = StringUtils.substringAfter(request.getRequestURI(), jobPath);
-        String filepath = workDir + jobPath + outputFilePath;
-
-        log.info("filepath=" + filepath);
-        File outputDir = new File(filepath);
-        if (!outputDir.isDirectory()) {
-            String filename = StringUtils.substringAfterLast(filepath, "/");
-            response.setContentType(servletContext.getMimeType(filename));
-
-            InputStream inputStream = new FileInputStream(filepath);
-            OutputStream outputStream = response.getOutputStream();
-
-            byte[] buffer = new byte[this.bufferSize];
-            while (true) {
-                int bytesRead = inputStream.read(buffer);
-                if (bytesRead == -1) {
-                    break;
-                }
-                outputStream.write(buffer, 0, bytesRead);
-            }
+        if (!isEmpty(filepath)) {
+            outputFile(job, filepath, response);
             return null;
         }
 
-        JSONObject json = new JSONObject();
-
-        String baseUri = StringUtils.substringAfterLast(request.getRequestURI(), request.getContextPath());
-        if (outputDir.isDirectory()) {
-            for (File f : getOutputFiles(outputDir)) {
-                String uri = baseUri + StringUtils.substringAfterLast(f.getPath(), filepath);
-                json.append("items", new JSONObject().put("uri", uri).put("name", f.getName()));
-            }
-        }
-
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
+        return new ModelAndView(new JsonItemsView()).addObject("json", job.getJsonDetail());
     }
 
+    /*
+     * Private Methods
+     */
+
+    private void outputFile(Job job, String filepath, HttpServletResponse response)
+            throws ResourceNotFoundException, IOException {
+        File outputDir = new File(job.getOutputDirectoryPath());
+        if (!outputDir.exists()) {
+            throw new ResourceNotFoundException(job.getJobUri() + "/outputs");
+        }
+
+        File outputFile = new File(job.getOutputDirectoryPath(), filepath);
+        if (!outputFile.exists()) {
+            throw new ResourceNotFoundException(job.getJobUri() + "/outputs/_afdl/" + filepath);
+        }
+
+        response.setContentType(servletContext.getMimeType(outputFile.getName()));
+
+        InputStream inputStream = new FileInputStream(outputFile);
+        OutputStream outputStream = response.getOutputStream();
+
+        byte[] buffer = new byte[this.bufferSize];
+        while (true) {
+            int bytesRead = inputStream.read(buffer);
+            if (bytesRead == -1) {
+                break;
+            }
+            outputStream.write(buffer, 0, bytesRead);
+        }
+    }
 }

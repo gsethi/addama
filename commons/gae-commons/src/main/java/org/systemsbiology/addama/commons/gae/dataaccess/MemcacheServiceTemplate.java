@@ -21,7 +21,6 @@ package org.systemsbiology.addama.commons.gae.dataaccess;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheService.SetPolicy;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 import java.util.logging.Logger;
 
@@ -31,35 +30,50 @@ import java.util.logging.Logger;
 public class MemcacheServiceTemplate {
     private static final Logger log = Logger.getLogger(MemcacheServiceTemplate.class.getName());
 
-    public Object loadIfNotExisting(String key, MemcacheLoaderCallback callback) throws Exception {
-        return loadIfNotExisting(key, callback, Expiration.byDeltaSeconds(3600), SetPolicy.SET_ALWAYS);
+    public static Object loadIfNotExisting(MemcacheService memcache, String key,
+                                           MemcacheLoaderCallback callback) throws Exception {
+        return loadIfNotExisting(memcache, key, callback, null, null);
     }
 
-    public Object loadIfNotExisting(String key, MemcacheLoaderCallback callback, Expiration expiration, SetPolicy setPolicy) throws Exception {
-        log.fine("loadIfNotExisting(" + key + "," + callback + "," + expiration + "," + setPolicy + ")");
+    public static Object loadIfNotExisting(MemcacheService memcache, String key,
+                                           MemcacheLoaderCallback callback,
+                                           Expiration expiration) throws Exception {
+        return loadIfNotExisting(memcache, key, callback, expiration, null);
+    }
 
-        MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
+    public static Object loadIfNotExisting(MemcacheService memcache, String key,
+                                           MemcacheLoaderCallback callback,
+                                           Expiration expiration, SetPolicy setPolicy) throws Exception {
+        log.fine(key + "," + expiration + "," + setPolicy);
 
         Object existing = memcache.get(key);
         if (existing != null) {
-            log.info("loadIfNotExisting(" + key + "):existing");
+            log.fine(key + "," + expiration + "," + setPolicy + ": exists");
             return existing;
         }
 
         Object tocache = callback.getCacheableObject(key);
         if (tocache != null) {
-            log.fine("loadIfNotExisting(" + key + "):storing");
-            memcache.put(key, tocache, expiration, setPolicy);
+            log.fine(key + "," + expiration + "," + setPolicy + ": storing");
+            if (expiration != null) {
+                if (setPolicy != null) {
+                    memcache.put(key, tocache, expiration, setPolicy);
+                } else {
+                    memcache.put(key, tocache, expiration);
+                }
+            } else {
+                memcache.put(key, tocache);
+            }
         } else {
-            log.fine("loadIfNotExisting(" + key + "):no cached object");
+            log.fine(key + "," + expiration + "," + setPolicy + ": no cached object");
         }
         return tocache;
     }
 
-    public void clearMemcache(String key) {
-        MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
+    public static void clearMemcache(MemcacheService memcache, String key) {
         if (memcache.contains(key)) {
             memcache.delete(key);
         }
     }
+
 }

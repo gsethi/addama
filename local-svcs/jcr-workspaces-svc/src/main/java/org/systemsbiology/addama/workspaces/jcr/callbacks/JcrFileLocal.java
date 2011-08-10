@@ -23,7 +23,6 @@ import org.springmodules.jcr.JcrTemplate;
 import org.springmodules.jcr.SessionFactory;
 import org.springmodules.jcr.SessionFactoryUtils;
 import org.springmodules.jcr.SessionHolder;
-import org.systemsbiology.addama.workspaces.callbacks.FileLocal;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -33,7 +32,7 @@ import java.io.*;
 /**
  * @author hrovira
  */
-public class JcrFileLocal implements FileLocal {
+public class JcrFileLocal {
     private final JcrTemplate jcrTemplate;
     private final String localPath;
     private final String jcrPath;

@@ -6,7 +6,6 @@
 
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-        <property name="gae.addama.registration.page" value="/registration.html"/>
         <property name="gae.addama.registration.service.jsonConfig" value="feeds-api-svc.config"/>
         <property name="gae.addama.registry.dev.mode" value="true"/>
     </system-properties>

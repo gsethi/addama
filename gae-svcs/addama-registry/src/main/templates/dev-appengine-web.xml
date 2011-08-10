@@ -6,7 +6,10 @@
 
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-        <property name="/addama/ui/base" value="http://localhost:8080"/>
+        <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.svn"
+                  value="http://addama.googlecode.com/svn/branches/2.1/user-interfaces/src/main/html"/>
+        <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.other"
+                  value="https://contentroot.example.org"/>
     </system-properties>
 
 </appengine-web-app>

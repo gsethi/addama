@@ -3,8 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean id="jsonConfig" class="org.systemsbiology.addama.registry.JsonConfig">
-        <property name="config" value="fs-repositories-svc.config"/>
+    <bean id="jsonConfig" class="org.systemsbiology.addama.jsonconfig.JsonConfig">
+        <constructor-arg value="classpath:fs-repositories-svc.config"/>
     </bean>
 
 </beans>

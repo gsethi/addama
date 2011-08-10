@@ -1,235 +1,238 @@
 <html>
 <head>
-    <title>Addama Script Execution Service</title>
+<title>Addama Script Execution Service</title>
 
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css"/>
-    <script type="text/javascript" src="/addama/ui/prototype-1.6.0.3.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+<link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+<link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
 
-    <script type="text/javascript">
-        var queryResultsWindow = null;
-        var currentToolUri = null;
-        var currentJobLoader = null;
-        var items = new Hash();
+<script type="text/javascript" src="/addama/ui/prototype-1.6.0.3.js"></script>
 
-        Ext.onReady(function() {
-            var toolPanel = {
-                id: "tool-panel",
-                region: "west",
-                width: 400,
-                layout: {
-                    type: "vbox",
-                    pack: "start",
-                    align: "stretch"
+<script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/prototype/ext-prototype-adapter.js"></script>
+<script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+
+<script type="text/javascript">
+    var queryResultsWindow = null;
+    var currentToolUri = null;
+    var currentJobLoader = null;
+    var items = new Hash();
+
+    Ext.onReady(function() {
+        var toolPanel = {
+            id: "tool-panel",
+            region: "west",
+            width: 400,
+            layout: {
+                type: "vbox",
+                pack: "start",
+                align: "stretch"
+            },
+            defaults: {
+                frame: true, width: 150, height: 220, margins: "5 5 5 5", autoScroll: true
+            },
+            items: [
+                {
+                    title: "Tools",
+                    contentEl: "container_tools"
                 },
-                defaults: {
-                    frame: true, width: 150, height: 220, margins: "5 5 5 5", autoScroll: true
+                {
+                    title: "Jobs",
+                    contentEl: "container_jobs"
                 },
-                items: [
-                    {
-                        title: "Tools",
-                        contentEl: "container_tools"
-                    },
-                    {
-                        title: "Jobs",
-                        contentEl: "container_jobs"
-                    },
-                    {
-                        title: "Messages",
-                        contentEl: "container_messages"
-                    }
-                ]
-            };
-
-            var execPanel = {
-                id: "execPanel-panel",
-                region: "center",
-                width: 600,
-                layout: {
-                    type: "vbox",
-                    pack: "start",
-                    align: "stretch"
-                },
-                height: 100,
-                defaults: {
-                    frame: true, margins: "5 5 5 5", autoScroll: true
-                },
-                items: [
-                    {
-                        title: "Inputs",
-                        height: 500,
-                        contentEl: "container_form"
-                    },
-                    {
-                        title: "Results",
-                        height: 200,
-                        contentEl: "container_results"
-                    }
-                ]
-            };
-
-            queryResultsWindow = new Ext.Window({
-                id: "query-results-panel",
-                layout:"fit",
-                width: 600,
-                height: 600,
-                closeAction:"hide",
-                plain: true,
-                modal: true,
-                contentEl: "container_query_results"
-            });
-
-            new Ext.Viewport({
-                layout: "border",
-                title: "Addama Script Execution Service",
-                hideBorders: true,
-                items: [
-                    {
-                        id: "title-panel",
-                        region: "north",
-                        frame: true,
-                        margins: "5 5 5 5",
-                        contentEl: "container_welcome"
-                    },
-                    toolPanel,
-                    execPanel
-                ],
-                renderTo: Ext.getBody()
-            });
-
-            new Ajax.Request("/addama/tools", {
-                method: "get",
-                onSuccess: function(o) {
-                    var json = o.responseJSON;
-                    if (json) {
-                        doTemplate("container_tools", json.items, new Ext.Template(
-                                '<a href="#" onclick="selectTool(\'{uri}\'); return false;">{label}</a>'
-                                ));
-                    }
+                {
+                    title: "Messages",
+                    contentEl: "container_messages"
                 }
-            });
+            ]
+        };
 
+        var execPanel = {
+            id: "execPanel-panel",
+            region: "center",
+            width: 600,
+            layout: {
+                type: "vbox",
+                pack: "start",
+                align: "stretch"
+            },
+            height: 100,
+            defaults: {
+                frame: true, margins: "5 5 5 5", autoScroll: true
+            },
+            items: [
+                {
+                    title: "Inputs",
+                    height: 500,
+                    contentEl: "container_form"
+                },
+                {
+                    title: "Results",
+                    height: 200,
+                    contentEl: "container_results"
+                }
+            ]
+        };
+
+        queryResultsWindow = new Ext.Window({
+            id: "query-results-panel",
+            layout:"fit",
+            width: 600,
+            height: 600,
+            closeAction:"hide",
+            plain: true,
+            modal: true,
+            contentEl: "container_query_results"
         });
 
-        function selectTool(uri) {
-            if (!currentToolUri || uri != currentToolUri) {
-                currentToolUri = uri;
+        new Ext.Viewport({
+            layout: "border",
+            title: "Addama Script Execution Service",
+            hideBorders: true,
+            items: [
+                {
+                    id: "title-panel",
+                    region: "north",
+                    frame: true,
+                    margins: "5 5 5 5",
+                    contentEl: "container_welcome"
+                },
+                toolPanel,
+                execPanel
+            ],
+            renderTo: Ext.getBody()
+        });
 
-                $("container_form").innerHTML = "";
-
-                var iframe = document.createElement("iframe");
-                iframe.src = uri;
-                iframe.width = "100%";
-                iframe.height = "100%";
-                iframe.frameBorder = 0;
-                $("container_form").appendChild(iframe);
+        new Ajax.Request("/addama/tools", {
+            method: "get",
+            onSuccess: function(o) {
+                var json = o.responseJSON;
+                if (json) {
+                    doTemplate("container_tools", json.items, new Ext.Template(
+                            '<a href="#" onclick="selectTool(\'{uri}\'); return false;">{label}</a>'
+                            ));
+                }
             }
+        });
 
-            $("container_jobs").innerHTML = "";
-            new Ajax.Request(uri + "/jobs", {
-                method: "get",
-                onSuccess: function(o) {
-                    var json = o.responseJSON;
-                    if (json) {
-                        doTemplate("container_jobs", json.jobs, new Ext.Template(
-                                '<a href="#" onclick="selectJob(\'{uri}\'); return false;">{uri}</a>'
-                                ));
-                    }
-                }
-            });
-        }
+    });
 
-        function selectJob(jobUri) {
-            $("container_messages").innerHTML = "Listening to /addama/channels" + jobUri;
-            // TODO : register currentJobLoader as message listener for completed jobs
+    function selectTool(uri) {
+        if (!currentToolUri || uri != currentToolUri) {
+            currentToolUri = uri;
 
-            $("container_results").innerHTML = "";
-            new Ajax.Request(jobUri, {
-                method: "get",
-                onSuccess: function(o) {
-                    var json = o.responseJSON;
-                    if (json) {
-                        $("container_messages").innerHTML += ": status=" + json.status;
-
-                        doTemplate("container_results", json.outputs, new Ext.Template(
-                                '<a href="{uri}" target="_blank">Open {name}</a>&nbsp;<a href="#" onclick="queryOutput(\'{uri}\'); return false;">(Query)</a>'
-                                ));
-                        if (json.status && json.status == "completed") {
-                            if (currentJobLoader) {
-                                currentJobLoader(json);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function queryOutput(outputUri) {
-            $("container_query_results").innerHTML = "";
+            $("container_form").innerHTML = "";
 
             var iframe = document.createElement("iframe");
-            iframe.src = "script-execution-svc/query.html?datasource=" + outputUri;
+            iframe.src = uri;
             iframe.width = "100%";
             iframe.height = "100%";
             iframe.frameBorder = 0;
-            $("container_query_results").appendChild(iframe);
-
-            queryResultsWindow.show();
+            $("container_form").appendChild(iframe);
         }
 
-        function doTemplate(container, items, template) {
-            $(container).innerHTML = "";
-            if (items && items.length) {
-                $A(items).each(function(item) {
-                    var subContainer = document.createElement("div");
-                    $(container).appendChild(subContainer);
-                    template.overwrite(subContainer, item);
-                });
-            }
-        }
-
-        function registerJobLoader(jobLoader) {
-            currentJobLoader = jobLoader;
-        }
-
-        function submitNewJob(newJob) {
-            new Ajax.Request(currentToolUri + "/jobs", {
-                method: "post",
-                parameters: newJob,
-                onSuccess: function(o) {
-                    var json = o.responseJSON;
-                    selectJob(json.uri);
+        $("container_jobs").innerHTML = "";
+        new Ajax.Request(uri + "/jobs", {
+            method: "get",
+            onSuccess: function(o) {
+                var json = o.responseJSON;
+                if (json) {
+                    doTemplate("container_jobs", json.jobs, new Ext.Template(
+                            '<a href="#" onclick="selectJob(\'{uri}\'); return false;">{uri}</a>'
+                            ));
                 }
-            })
-        }
+            }
+        });
+    }
 
-    </script>
+    function selectJob(jobUri) {
+        $("container_messages").innerHTML = "Listening to /addama/channels" + jobUri;
+        // TODO : register currentJobLoader as message listener for completed jobs
+
+        $("container_results").innerHTML = "";
+        new Ajax.Request(jobUri, {
+            method: "get",
+            onSuccess: function(o) {
+                var json = o.responseJSON;
+                if (json) {
+                    $("container_messages").innerHTML += ": status=" + json.status;
+
+                    doTemplate("container_results", json.outputs, new Ext.Template(
+                            '<a href="{uri}" target="_blank">Open {name}</a>&nbsp;<a href="#" onclick="queryOutput(\'{uri}\'); return false;">(Query)</a>'
+                            ));
+                    if (json.status && json.status == "completed") {
+                        if (currentJobLoader) {
+                            currentJobLoader(json);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function queryOutput(outputUri) {
+        $("container_query_results").innerHTML = "";
+
+        var iframe = document.createElement("iframe");
+        iframe.src = "script-execution-svc/query.html?datasource=" + outputUri;
+        iframe.width = "100%";
+        iframe.height = "100%";
+        iframe.frameBorder = 0;
+        $("container_query_results").appendChild(iframe);
+
+        queryResultsWindow.show();
+    }
+
+    function doTemplate(container, items, template) {
+        $(container).innerHTML = "";
+        if (items && items.length) {
+            $A(items).each(function(item) {
+                var subContainer = document.createElement("div");
+                $(container).appendChild(subContainer);
+                template.overwrite(subContainer, item);
+            });
+        }
+    }
+
+    function registerJobLoader(jobLoader) {
+        currentJobLoader = jobLoader;
+    }
+
+    function submitNewJob(newJob) {
+        new Ajax.Request(currentToolUri + "/jobs", {
+            method: "post",
+            parameters: newJob,
+            onSuccess: function(o) {
+                var json = o.responseJSON;
+                selectJob(json.uri);
+            }
+        })
+    }
+
+</script>
 </head>
 <body>
-    <div id="container_welcome">
-        <h3>Welcome to the Script Execution Service</h3>
-        <span>This service allows you to execute scripts registered with Addama</span>
-        <a href="/">Back to Main Page</a>
-    </div>
+<div id="container_welcome">
+    <h3>Welcome to the Script Execution Service</h3>
+    <span>This service allows you to execute scripts registered with Addama</span>
+    <a href="/">Back to Main Page</a>
+</div>
 
-    <div id="container_tools">
-    </div>
-    <div id="container_jobs">
-        /addama/tools/**/jobs
-    </div>
-    <div id="container_messages">
-        /addama/channels/**
-    </div>
+<div id="container_tools">
+</div>
+<div id="container_jobs">
+    /addama/tools/**/jobs
+</div>
+<div id="container_messages">
+    /addama/channels/**
+</div>
 
-    <div id="container_form">
-        /addama/tools/**
-    </div>
-    <div id="container_results">
-        /addama/tools/**/jobs/*/outputs
-    </div>
-    <div id="container_query_results">
-    </div>
+<div id="container_form">
+    /addama/tools/**
+</div>
+<div id="container_results">
+    /addama/tools/**/jobs/*/outputs
+</div>
+<div id="container_query_results">
+</div>
 </body>
 </html>

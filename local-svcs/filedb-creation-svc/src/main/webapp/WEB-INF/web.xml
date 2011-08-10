@@ -49,16 +49,16 @@
     </servlet-mapping>
 
     <filter>
-        <filter-name>filter-registration-simple</filter-name>
+        <filter-name>filter-registration</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
         <init-param>
             <param-name>targetBeanName</param-name>
-            <param-value>filter-registration-simple</param-value>
+            <param-value>filter-registration</param-value>
         </init-param>
     </filter>
 
     <filter-mapping>
-        <filter-name>filter-registration-simple</filter-name>
+        <filter-name>filter-registration</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 

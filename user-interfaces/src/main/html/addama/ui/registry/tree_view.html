@@ -1,83 +1,83 @@
 <html>
-    <head>
-        <title>Addama Registry Tree View</title>
-        <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">
-        <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css" />
-        <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/examples/shared/examples.css" />
-        <link rel="stylesheet" type="text/css" href="/addama/ui/registry/tree_view.css" />
+<head>
+    <title>Addama Registry Tree View</title>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/registry/css/tree_view.css"/>
 
-        <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
-        <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
 
-        <script type="text/javascript" src="/addama/ui/protovis-1.0/protovis-r3.2.js"></script>
+    <script type="text/javascript" src="/addama/ui/protovis-1.0/protovis-r3.2.js"></script>
 
-        <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
+    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+    <script type="text/javascript" src="/addama/ui/registry/js/tree_view.js"></script>
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new TopBar("container_topbar");
+        });
+    </script>
+    <script type="text/javascript">
+        function loadVisualization(allItems) {
+            var treefn = function(item) {
+                var uri = item.uri;
+                var parts = new Array();
+                var splits = uri.substring(1).split("/");
+                for (var i = 0; i < splits.length; i++) {
+                    console.log("splits[" + i + "]:" + splits[i]);
+                    parts.push(splits[i]);
+                }
+                return parts;
+            };
 
-        <script type="text/javascript" src="/js/topbar.js"></script>
-        <script type="text/javascript" src="tree_view.js"></script>
-        <script type="text/javascript">
-            Ext.onReady(function() {
-                new TopBar().initialize("container_topbar");
-            });            
-        </script>
-        <script type="text/javascript">
-            function loadVisualization(allItems) {
-                var treefn = function(item) {
-                    var uri = item.uri;
-                    var parts = new Array();
-                    var splits = uri.substring(1).split("/");
-                    for (var i = 0; i < splits.length; i++) {
-                        console.log("splits[" + i + "]:" + splits[i]);
-                        parts.push(splits[i]);
-                    }
-                    return parts;
-                };
+            var valuefn = function(item) {
+                return item.label;
+            };
 
-                var valuefn = function(item) {
-                    return item.label;
-                };
+            var sortfn = function(a, b) {
+                return pv.naturalOrder(a.nodeName, b.nodeName);
+            };
 
-                var sortfn = function(a, b) {
-                    return pv.naturalOrder(a.nodeName, b.nodeName);
-                };
+            var fillfn = function(n) {
+                if (n.firstChild) {
+                    return "#aec7e8";
+                }
+                return "#ff7f0e";
+            };
 
-                var fillfn = function(n) {
-                    if (n.firstChild) {
-                        return "#aec7e8";
-                    }
-                    return "#ff7f0e";
-                };
+            //                var tree = pv.tree(allItems).keys(treefn).value(valuefn).map();
+            var tree = pv.tree(allItems).keys(treefn).map();
+            var vis = new pv.Panel().width(400).height(1000).left(10).right(200).top(10).bottom(10);
 
-                //                var tree = pv.tree(allItems).keys(treefn).value(valuefn).map();
-                var tree = pv.tree(allItems).keys(treefn).map();
-                var vis = new pv.Panel().width(400).height(1000).left(10).right(200).top(10).bottom(10);
+            //                    .nodes(pv.dom(tree).nodes())
+            //                    .nodes(pv.dom(tree).root("/").sort(sortfn).nodes())
 
-//                    .nodes(pv.dom(tree).nodes())
-//                    .nodes(pv.dom(tree).root("/").sort(sortfn).nodes())
-                
-                var layout = vis.add(pv.Layout.Cluster)
+            var layout = vis.add(pv.Layout.Cluster)
                     .nodes(pv.dom(tree).root("/").nodes())
                     .group(true).orient("left");
 
-                layout.link.add(pv.Line).strokeStyle("#ccc").lineWidth(1).antialias(false);
+            layout.link.add(pv.Line).strokeStyle("#ccc").lineWidth(1).antialias(false);
 
-                layout.node.add(pv.Dot).fillStyle(fillfn);
+            layout.node.add(pv.Dot).fillStyle(fillfn);
 
-                layout.label.add(pv.Label);
+            layout.label.add(pv.Label);
 
-                vis.render();
-            }
+            vis.render();
+        }
 
-            Ext.onReady(function() {
-                var tl = new TreeLoader();               
-                tl.generateTree({ uri: "/addama", name: "registry", label: "Registry" }, loadVisualization);
-            });
-        </script>
-    </head>
-    <body>
-        <div id="container_topbar"></div>
-        <div id="center">
-            <div id="fig"></div>
-        </div>
-    </body>
+        Ext.onReady(function() {
+            var tl = new TreeLoader();
+            tl.generateTree({ uri: "/addama", name: "registry", label: "Registry" }, loadVisualization);
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="center">
+    <div id="fig"></div>
+</div>
+</body>
 </html>

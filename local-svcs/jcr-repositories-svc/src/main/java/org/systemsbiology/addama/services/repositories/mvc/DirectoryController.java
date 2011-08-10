@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.commons.web.views.FilesDirectoriesJsonView;
 import org.systemsbiology.addama.jcr.util.NodeUtil;
-import org.systemsbiology.addama.services.repositories.mvc.views.FilesDirectoriesJsonView;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;

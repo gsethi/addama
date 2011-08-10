@@ -19,14 +19,10 @@
 package org.systemsbiology.addama.coresvcs.gae.filters;
 
 import com.google.appengine.api.urlfetch.*;
-import com.google.apphosting.api.ApiProxy;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
-import org.systemsbiology.addama.coresvcs.gae.services.Registry;
-import org.systemsbiology.addama.coresvcs.gae.services.Sharing;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -41,26 +37,21 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.urlfetch.FetchOptions.Builder.doNotFollowRedirects;
 import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
+import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
+import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
+import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.appengine.util.Registry.getMatchingRegistryMappings;
+import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
+import static org.systemsbiology.addama.appengine.util.Sharing.checkAccess;
 
 /**
  * @author hrovira
  */
 public class DirectLinkFilter extends GenericFilterBean {
     private static final Logger log = Logger.getLogger(DirectLinkFilter.class.getName());
-    private static final String APPSPOT_HOST = ApiProxy.getCurrentEnvironment().getAppId() + ".appspot.com";
+    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
-    private final URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
-
-    private Registry registry;
-    private Sharing sharing;
-
-    public void setRegistry(Registry registry) {
-        this.registry = registry;
-    }
-
-    public void setSharing(Sharing sharing) {
-        this.sharing = sharing;
-    }
+    private final URLFetchService urlFetchService = getURLFetchService();
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -68,19 +59,19 @@ public class DirectLinkFilter extends GenericFilterBean {
 
         String requestUri = request.getRequestURI();
         if (requestUri.endsWith("/directlink")) {
-            String directLinkUri = StringUtils.substringBeforeLast(requestUri, "/directlink");
+            String directLinkUri = substringBeforeLast(requestUri, "/directlink");
             log.info("doFilter(" + directLinkUri + "): directlink");
 
             HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-            RegistryService registryService = getRegistryService(directLinkUri);
+            RegistryService registryService = getServiceForRequest(directLinkUri);
             if (registryService == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
 
             try {
-                sharing.checkAccess(registryService, request);
+                checkAccess(registryService, request);
             } catch (ForbiddenAccessException e) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
@@ -89,7 +80,8 @@ public class DirectLinkFilter extends GenericFilterBean {
             URL url = new URL(registryService.getUrl().toString() + directLinkUri);
             UUID accessKey = registryService.getAccessKey();
 
-            HTTPRequest req = new HTTPRequest(new URL(url.toString() + "/client_redirect"), POST, doNotFollowRedirects());
+            FetchOptions fetchOpts = doNotFollowRedirects().setDeadline(10.0);
+            HTTPRequest req = new HTTPRequest(new URL(url.toString() + "/client_redirect"), POST, fetchOpts);
             req.setHeader(new HTTPHeader("x-addama-registry-key", accessKey.toString()));
             req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
             req.setHeader(new HTTPHeader("x-addama-registry-client", request.getRemoteAddr()));
@@ -97,7 +89,7 @@ public class DirectLinkFilter extends GenericFilterBean {
             HTTPResponse resp = urlFetchService.fetch(req);
             if (resp.getResponseCode() == 302) {
                 String location = getLocation(resp);
-                if (!StringUtils.isEmpty(location)) {
+                if (!isEmpty(location)) {
                     response.setContentType("application/json");
                     response.getWriter().write("{location:\"" + location + "\"}");
                     return;
@@ -113,14 +105,15 @@ public class DirectLinkFilter extends GenericFilterBean {
     * Private Methods
     */
 
-    private RegistryService getRegistryService(String requestUri) {
-        RegistryMapping mapping = registry.getRegistryMapping(requestUri);
-        if (mapping == null) {
+    private RegistryService getServiceForRequest(String requestUri) {
+        RegistryMapping[] mappings = getMatchingRegistryMappings(requestUri);
+        if (mappings == null || mappings.length == 0) {
             return null;
         }
 
+        RegistryMapping mapping = mappings[0];
         String serviceUri = mapping.getServiceUri();
-        RegistryService registryService = registry.getRegistryService(serviceUri);
+        RegistryService registryService = getRegistryService(serviceUri);
         if (registryService == null) {
             return null;
         }
@@ -129,7 +122,7 @@ public class DirectLinkFilter extends GenericFilterBean {
 
     private String getLocation(HTTPResponse response) {
         for (HTTPHeader header : response.getHeaders()) {
-            if (StringUtils.equalsIgnoreCase(header.getName(), "Location")) {
+            if (equalsIgnoreCase(header.getName(), "Location")) {
                 return header.getValue();
             }
         }

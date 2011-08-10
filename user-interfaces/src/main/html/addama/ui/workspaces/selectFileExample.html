@@ -1,38 +1,41 @@
 <html>
-    <head>
-        <title>Selected File Control</title>
-        <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.2.1/resources/css/ext-all.css">        
-        <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/adapter/ext/ext-base.js"></script>
-        <script type="text/javascript" src="/addama/ui/ext-js-3.2.1/ext-all.js"></script>
-        <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
-        <script type="text/javascript" src="/addama/ui/workspaces/selectFileControl.js"></script>
+<head>
+    <title>Selected File Control</title>
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="/addama/ui/ext-js-3.3.1/examples/ux/fileuploadfield/css/fileuploadfield.css"/>
 
-        <script type="text/javascript">
-            var selectFileControl;
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript"
+            src="/addama/ui/ext-js-3.3.1/examples/ux/fileuploadfield/FileUploadField.js"></script>
 
-            function loadControl() {
-                console.log("loadControl");
+    <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
+    <script type="text/javascript" src="./selectFileControl.js"></script>
 
-                selectFileControl = new SelectFileControl();
-                selectFileControl.setWorkspace("edgelimma");
-                selectFileControl.onSelectFile(function(fileUri) {
-                    console.log("selectFile(" + fileUri + ")");
-                    Ext.get("selected_file").dom.innerHTML = fileUri;
-                });
-            }
+    <script type="text/javascript">
+        var selectFileControl;
 
-            function activateControl() {
-                console.log("activateControl");
+        function browseWorkspace() {
+            selectFileControl = new SelectFileControl({
+                workspace: "edgelimma",
+                listeners: {
+                    selectFile: function(fileUri) {
+                        console.log("selectFile(" + fileUri + ")");
+                        Ext.get("selected_file").dom.innerHTML = fileUri;
+                    }
+                }
+            });
+            selectFileControl.activate();
+        }
+    </script>
+</head>
+<body>
+<button onclick="browseWorkspace();">Browse Workspace</button>
+<hr/>
+<h3>Selected File</h3>
 
-                selectFileControl.activate();
-            }
-
-            Ext.onReady(loadControl);
-        </script>
-    </head>
-    <body>
-        <button onclick="activateControl();">Select File</button>
-        <h3>Selected File</h3>
-        <div id="selected_file">No File Selected</div>
-    </body>
+<div id="selected_file">No File Selected</div>
+</body>
 </html>

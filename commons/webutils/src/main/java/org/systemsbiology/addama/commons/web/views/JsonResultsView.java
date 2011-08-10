@@ -20,16 +20,23 @@ package org.systemsbiology.addama.commons.web.views;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getDesiredContentType;
+
 /**
  * @author hrovira
  */
-public class JsonResultsView extends JsonView {
+public class JsonResultsView implements View {
+
+    public String getContentType() {
+        return "application/json";
+    }
 
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject json = (JSONObject) map.get("json");
@@ -41,7 +48,7 @@ public class JsonResultsView extends JsonView {
 
         json.put("numberOfResults", json.getJSONArray("results").length());
 
-        response.setContentType(getContentType(request));
+        response.setContentType(getDesiredContentType(request, this.getContentType()));
 
         PrintWriter writer = response.getWriter();
         writer.print(json.toString());

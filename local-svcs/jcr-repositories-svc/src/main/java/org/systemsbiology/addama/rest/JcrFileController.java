@@ -41,6 +41,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
+
 /**
  * @author hrovira
  */
@@ -65,7 +67,7 @@ public class JcrFileController extends AbstractJcrController {
 
         String path = "/" + StringUtils.substringAfterLast(request.getRequestURI(), "/file/");
         JcrTemplate jcrTemplate = getJcrTemplate(request);
-        if (jcrTemplate.itemExists(path)) {
+        if (jcrTemplate != null && jcrTemplate.itemExists(path)) {
             Node node = (Node) jcrTemplate.getItem(path);
             if (NodeUtil.isFileNode(node)) {
                 return new ModelAndView(new NodeFileView(), "node", node);

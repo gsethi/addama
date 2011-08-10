@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>commons</artifactId>
-        <version>2.0.1</version>
+        <version>2.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.commons</groupId>
@@ -14,13 +14,6 @@
     <name>Commons: Web Utilities</name>
 
     <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>

@@ -38,6 +38,8 @@ import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
 
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
+
 /**
  * @author hrovira
  */
@@ -69,6 +71,10 @@ public class NodeCrudController extends BaseController {
         String path = getPath(request, null);
 
         JcrTemplate jcrTemplate = getJcrTemplate(request);
+        if (jcrTemplate == null) {
+            throw new ResourceNotFoundException(request.getRequestURI());
+        }
+
         Node node = (Node) jcrTemplate.execute(new GetNodeAtPathJcrCallback(path));
 
         if (StringUtils.isEmpty(json)) json = "{}";
@@ -78,7 +84,7 @@ public class NodeCrudController extends BaseController {
         JSONObject responseJson = constructNodeMetaJson(request, null, node);
 
         return new ModelAndView(new JsonItemsView()).addObject("json",
-                                                               responseJson);
+                responseJson);
     }
 
     @RequestMapping(value = "/**/delete", method = RequestMethod.POST)
@@ -126,6 +132,9 @@ public class NodeCrudController extends BaseController {
 
         if (StringUtils.contains(requestUri, "/uuid")) {
             JcrTemplate jcrTemplate = getJcrTemplate(request);
+            if (jcrTemplate == null) {
+                throw new ResourceNotFoundException(request.getRequestURI());
+            }
 
             String uuid = StringUtils.substringAfter(requestUri, "/uuid/");
             Node node = jcrTemplate.getNodeByUUID(uuid);
@@ -141,9 +150,9 @@ public class NodeCrudController extends BaseController {
 
         uriSuffix = (null == uriSuffix) ? "/" : uriSuffix;
         String baseUri = StringUtils.chomp(StringUtils.substringAfter
-                                           (request.getRequestURI(),
-                                            request.getContextPath()),
-                                           uriSuffix);
+                (request.getRequestURI(),
+                        request.getContextPath()),
+                uriSuffix);
 
         JSONObject ops = new JSONObject();
         ops.put("annotations", baseUri + "/annotations");

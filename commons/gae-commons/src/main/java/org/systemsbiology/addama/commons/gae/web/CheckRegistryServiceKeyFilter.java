@@ -25,7 +25,6 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import org.apache.commons.lang.StringUtils;
-import org.systemsbiology.addama.registry.MockHttpServletReq;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Logger;
+
+import static org.systemsbiology.addama.commons.web.servlet.HttpRequestUriInvocationHandler.instrumentRequest;
 
 /**
  * @author hrovira
@@ -82,7 +83,7 @@ public class CheckRegistryServiceKeyFilter implements Filter {
                         String actualUri = StringUtils.substringBeforeLast(requestUri, "/client_redirect");
                         String fileUri = StringUtils.substringAfterLast(actualUri, "/");
                         String temporaryUri = singleCall + UUID.randomUUID().toString() + "/" + fileUri;
-                        log.info("adding single call: " + temporaryUri + ":" + actualUri);
+                        log.fine("adding single call: " + temporaryUri + ":" + actualUri);
                         memcacheService.put(temporaryUri, actualUri);
 
                         response.sendRedirect(temporaryUri);
@@ -95,14 +96,15 @@ public class CheckRegistryServiceKeyFilter implements Filter {
             }
 
             if (requestUri.startsWith(singleCall)) {
-                log.info("processing single call");
+                log.fine("processing single call");
                 String temporaryUri = request.getRequestURI();
                 if (memcacheService.contains(temporaryUri)) {
                     String actualUri = (String) memcacheService.get(temporaryUri);
-                    log.info("removing single call from memcache: " + actualUri);
+                    log.fine("removing single call from memcache: " + actualUri);
                     memcacheService.delete(temporaryUri);
 
-                    filterChain.doFilter(new MockHttpServletReq(request, actualUri), servletResponse);
+                    HttpServletRequest instrumented = instrumentRequest(request, actualUri);
+                    filterChain.doFilter(instrumented, servletResponse);
                     return;
                 }
             }

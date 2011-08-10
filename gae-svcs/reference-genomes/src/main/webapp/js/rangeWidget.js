@@ -6,16 +6,16 @@ var RangeWidget = Class.create({
     },
 
     load: function() {
-        var eventPublisher = this;
         Ext.Ajax.request({
             url: "/addama/refgenome/hg18/chr1",
             method: "get",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.length) {
-                    eventPublisher.drawWidget(0, json.length);
+                    this.drawWidget(0, json.length);
                 }
-            }
+            },
+            scope: this
         })
     },
 

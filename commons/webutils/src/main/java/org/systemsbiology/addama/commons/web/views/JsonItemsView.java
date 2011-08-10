@@ -19,6 +19,7 @@
 package org.systemsbiology.addama.commons.web.views;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.servlet.View;
 
@@ -27,10 +28,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getDesiredContentType;
+
 /**
  * @author hrovira
  */
-public class JsonItemsView extends JsonView {
+public class JsonItemsView implements View {
+
+    public String getContentType() {
+        return "application/json";
+    }
 
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject json = (JSONObject) map.get("json");
@@ -42,10 +49,24 @@ public class JsonItemsView extends JsonView {
 
         json.put("numberOfItems", json.getJSONArray("items").length());
 
-        response.setContentType(getContentType(request));
+        response.setContentType(getDesiredContentType(request, this.getContentType()));
 
         PrintWriter writer = response.getWriter();
         writer.print(json.toString());
+    }
+
+    public static JSONObject getItems(Jsonable... jsonables) throws JSONException {
+        JSONObject json = new JSONObject();
+        appendItems(json, jsonables);
+        return json;
+    }
+
+    public static void appendItems(JSONObject json, Jsonable... jsonables) throws JSONException {
+        if (json != null && jsonables != null) {
+            for (Jsonable jsonable : jsonables) {
+                json.append("items", jsonable.toJSON());
+            }
+        }
     }
 
 }

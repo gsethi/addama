@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.jcr.JcrTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.commons.web.views.ResourceNotFoundView;
 import org.systemsbiology.addama.rest.json.NodeAnnotationsJSONObject;
 import org.systemsbiology.addama.rest.json.NodeAnnotationsTermsJSONObject;
 import org.systemsbiology.addama.rest.transforms.CreateOrUpdateNode;
@@ -35,6 +35,8 @@ import org.systemsbiology.addama.rest.views.PostJsonView;
 
 import javax.jcr.Node;
 import javax.servlet.http.HttpServletRequest;
+
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
 
 /**
  * @author hrovira
@@ -69,20 +71,17 @@ public class JcrAnnotationsController extends AbstractJcrController {
 
         String path = getPath(request, "/annotations");
         JcrTemplate jcrTemplate = getJcrTemplate(request);
-        if (!jcrTemplate.itemExists(path)) {
-            ModelAndView mav = new ModelAndView(new ResourceNotFoundView());
-            mav.addObject("error_message", "Specified resource not found at " + path);
+        if (jcrTemplate != null && jcrTemplate.itemExists(path)) {
+            Node node = (Node) jcrTemplate.getItem(path);
+            CreateOrUpdateNode createNode = new CreateOrUpdateNode();
+            createNode.doUpdate(node, annotationsJson);
+
+            ModelAndView mav = new ModelAndView(new PostJsonView());
+            mav.addObject("json", new NodeAnnotationsJSONObject(node, request, dateFormat));
+            mav.addObject("node", node);
             return mav;
         }
 
-        Node node = (Node) jcrTemplate.getItem(path);
-
-        CreateOrUpdateNode createNode = new CreateOrUpdateNode();
-        createNode.doUpdate(node, annotationsJson);
-
-        ModelAndView mav = new ModelAndView(new PostJsonView());
-        mav.addObject("json", new NodeAnnotationsJSONObject(node, request, dateFormat));
-        mav.addObject("node", node);
-        return mav;
+        throw new ResourceNotFoundException(request.getRequestURI());
     }
 }

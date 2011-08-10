@@ -4,105 +4,105 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="hg18server" class="org.systemsbiology.addama.gaesvcs.refgenome.servers.GSApiReferenceGenomeServer">
-        <property name="bucketUrl" value="https://commondatastorage.googleapis.com/org_systemsbiology_gene_hg18"/>
+        <property name="bucketUrl" value="https://commondatastorage.googleapis.com/refgenomes/hg18"/>
         <property name="bucketObjectUriByChromosome">
             <map>
-                <entry key="chr1" value="/chr1.fabytes"/>
-                <entry key="chr2" value="/chr2.fabytes"/>
-                <entry key="chr3" value="/chr3.fabytes"/>
-                <entry key="chr4" value="/chr4.fabytes"/>
-                <entry key="chr5" value="/chr5.fabytes"/>
-                <entry key="chr6" value="/chr6.fabytes"/>
-                <entry key="chr7" value="/chr7.fabytes"/>
-                <entry key="chr8" value="/chr8.fabytes"/>
-                <entry key="chr9" value="/chr9.fabytes"/>
-                <entry key="chr10" value="/chr10.fabytes"/>
-                <entry key="chr11" value="/chr11.fabytes"/>
-                <entry key="chr12" value="/chr12.fabytes"/>
-                <entry key="chr13" value="/chr13.fabytes"/>
-                <entry key="chr14" value="/chr14.fabytes"/>
-                <entry key="chr15" value="/chr15.fabytes"/>
-                <entry key="chr16" value="/chr16.fabytes"/>
-                <entry key="chr17" value="/chr17.fabytes"/>
-                <entry key="chr18" value="/chr18.fabytes"/>
-                <entry key="chr19" value="/chr19.fabytes"/>
-                <entry key="chr20" value="/chr20.fabytes"/>
-                <entry key="chr21" value="/chr21.fabytes"/>
-                <entry key="chr22" value="/chr22.fabytes"/>
-                <entry key="chrX" value="/chrX.fabytes"/>
-                <entry key="chrY" value="/chrY.fabytes"/>
-                <entry key="chrM" value="/chrM.fabytes"/>
+                <entry key="chr1" value="chr1.fabytes"/>
+                <entry key="chr2" value="chr2.fabytes"/>
+                <entry key="chr3" value="chr3.fabytes"/>
+                <entry key="chr4" value="chr4.fabytes"/>
+                <entry key="chr5" value="chr5.fabytes"/>
+                <entry key="chr6" value="chr6.fabytes"/>
+                <entry key="chr7" value="chr7.fabytes"/>
+                <entry key="chr8" value="chr8.fabytes"/>
+                <entry key="chr9" value="chr9.fabytes"/>
+                <entry key="chr10" value="chr10.fabytes"/>
+                <entry key="chr11" value="chr11.fabytes"/>
+                <entry key="chr12" value="chr12.fabytes"/>
+                <entry key="chr13" value="chr13.fabytes"/>
+                <entry key="chr14" value="chr14.fabytes"/>
+                <entry key="chr15" value="chr15.fabytes"/>
+                <entry key="chr16" value="chr16.fabytes"/>
+                <entry key="chr17" value="chr17.fabytes"/>
+                <entry key="chr18" value="chr18.fabytes"/>
+                <entry key="chr19" value="chr19.fabytes"/>
+                <entry key="chr20" value="chr20.fabytes"/>
+                <entry key="chr21" value="chr21.fabytes"/>
+                <entry key="chr22" value="chr22.fabytes"/>
+                <entry key="chrX" value="chrX.fabytes"/>
+                <entry key="chrY" value="chrY.fabytes"/>
+                <entry key="chrM" value="chrM.fabytes"/>
             </map>
         </property>
     </bean>
 
     <bean id="musculus37server" class="org.systemsbiology.addama.gaesvcs.refgenome.servers.GSApiReferenceGenomeServer">
-        <property name="bucketUrl" value="https://commondatastorage.googleapis.com/org_systemsbiology_gene_musculus37"/>
+        <property name="bucketUrl" value="https://commondatastorage.googleapis.com/refgenomes/musculus37"/>
         <property name="bucketObjectUriByChromosome">
             <map>
-                <entry key="chr1" value="/chr1.fabytes"/>
-                <entry key="chr2" value="/chr2.fabytes"/>
-                <entry key="chr3" value="/chr3.fabytes"/>
-                <entry key="chr4" value="/chr4.fabytes"/>
-                <entry key="chr5" value="/chr5.fabytes"/>
-                <entry key="chr6" value="/chr6.fabytes"/>
-                <entry key="chr7" value="/chr7.fabytes"/>
-                <entry key="chr8" value="/chr8.fabytes"/>
-                <entry key="chr9" value="/chr9.fabytes"/>
-                <entry key="chr10" value="/chr10.fabytes"/>
-                <entry key="chr11" value="/chr11.fabytes"/>
-                <entry key="chr12" value="/chr12.fabytes"/>
-                <entry key="chr13" value="/chr13.fabytes"/>
-                <entry key="chr14" value="/chr14.fabytes"/>
-                <entry key="chr15" value="/chr15.fabytes"/>
-                <entry key="chr16" value="/chr16.fabytes"/>
-                <entry key="chr17" value="/chr17.fabytes"/>
-                <entry key="chr18" value="/chr18.fabytes"/>
-                <entry key="chr19" value="/chr19.fabytes"/>
-                <entry key="chrX" value="/chrX.fabytes"/>
-                <entry key="chrY" value="/chrY.fabytes"/>
-                <entry key="chrM" value="/chrM.fabytes"/>
+                <entry key="chr1" value="chr1.fabytes"/>
+                <entry key="chr2" value="chr2.fabytes"/>
+                <entry key="chr3" value="chr3.fabytes"/>
+                <entry key="chr4" value="chr4.fabytes"/>
+                <entry key="chr5" value="chr5.fabytes"/>
+                <entry key="chr6" value="chr6.fabytes"/>
+                <entry key="chr7" value="chr7.fabytes"/>
+                <entry key="chr8" value="chr8.fabytes"/>
+                <entry key="chr9" value="chr9.fabytes"/>
+                <entry key="chr10" value="chr10.fabytes"/>
+                <entry key="chr11" value="chr11.fabytes"/>
+                <entry key="chr12" value="chr12.fabytes"/>
+                <entry key="chr13" value="chr13.fabytes"/>
+                <entry key="chr14" value="chr14.fabytes"/>
+                <entry key="chr15" value="chr15.fabytes"/>
+                <entry key="chr16" value="chr16.fabytes"/>
+                <entry key="chr17" value="chr17.fabytes"/>
+                <entry key="chr18" value="chr18.fabytes"/>
+                <entry key="chr19" value="chr19.fabytes"/>
+                <entry key="chrX" value="chrX.fabytes"/>
+                <entry key="chrY" value="chrY.fabytes"/>
+                <entry key="chrM" value="chrM.fabytes"/>
             </map>
         </property>
     </bean>
 
     <bean id="s288cServer" class="org.systemsbiology.addama.gaesvcs.refgenome.servers.GSApiReferenceGenomeServer">
-        <property name="bucketUrl" value="https://commondatastorage.googleapis.com/org_systemsbiology_gene_s288c"/>
+        <property name="bucketUrl" value="https://commondatastorage.googleapis.com/refgenomes/s288c"/>
         <property name="bucketObjectUriByChromosome">
             <map>
-                <entry key="chr1" value="/S288C_chr01.fabytes"/>
-                <entry key="chr2" value="/S288C_chr02.fabytes"/>
-                <entry key="chr3" value="/S288C_chr03.fabytes"/>
-                <entry key="chr4" value="/S288C_chr04.fabytes"/>
-                <entry key="chr5" value="/S288C_chr05.fabytes"/>
-                <entry key="chr6" value="/S288C_chr06.fabytes"/>
-                <entry key="chr7" value="/S288C_chr07.fabytes"/>
-                <entry key="chr8" value="/S288C_chr08.fabytes"/>
-                <entry key="chr9" value="/S288C_chr09.fabytes"/>
-                <entry key="chr10" value="/S288C_chr10.fabytes"/>
-                <entry key="chr11" value="/S288C_chr11.fabytes"/>
-                <entry key="chr12" value="/S288C_chr12.fabytes"/>
-                <entry key="chr13" value="/S288C_chr13.fabytes"/>
-                <entry key="chr14" value="/S288C_chr14.fabytes"/>
-                <entry key="chr15" value="/S288C_chr15.fabytes"/>
-                <entry key="chr16" value="/S288C_chr16.fabytes"/>
+                <entry key="chr1" value="chr01.fabytes"/>
+                <entry key="chr2" value="chr02.fabytes"/>
+                <entry key="chr3" value="chr03.fabytes"/>
+                <entry key="chr4" value="chr04.fabytes"/>
+                <entry key="chr5" value="chr05.fabytes"/>
+                <entry key="chr6" value="chr06.fabytes"/>
+                <entry key="chr7" value="chr07.fabytes"/>
+                <entry key="chr8" value="chr08.fabytes"/>
+                <entry key="chr9" value="chr09.fabytes"/>
+                <entry key="chr10" value="chr10.fabytes"/>
+                <entry key="chr11" value="chr11.fabytes"/>
+                <entry key="chr12" value="chr12.fabytes"/>
+                <entry key="chr13" value="chr13.fabytes"/>
+                <entry key="chr14" value="chr14.fabytes"/>
+                <entry key="chr15" value="chr15.fabytes"/>
+                <entry key="chr16" value="chr16.fabytes"/>
 
-                <entry key="chrI" value="/S288C_chr01.fabytes"/>
-                <entry key="chrII" value="/S288C_chr02.fabytes"/>
-                <entry key="chrIII" value="/S288C_chr03.fabytes"/>
-                <entry key="chrIV" value="/S288C_chr04.fabytes"/>
-                <entry key="chrV" value="/S288C_chr05.fabytes"/>
-                <entry key="chrVI" value="/S288C_chr06.fabytes"/>
-                <entry key="chrVII" value="/S288C_chr07.fabytes"/>
-                <entry key="chrVIII" value="/S288C_chr08.fabytes"/>
-                <entry key="chrIX" value="/S288C_chr09.fabytes"/>
-                <entry key="chrX" value="/S288C_chr10.fabytes"/>
-                <entry key="chrXI" value="/S288C_chr11.fabytes"/>
-                <entry key="chrXII" value="/S288C_chr12.fabytes"/>
-                <entry key="chrXIII" value="/S288C_chr13.fabytes"/>
-                <entry key="chrXIV" value="/S288C_chr14.fabytes"/>
-                <entry key="chrXV" value="/S288C_chr15.fabytes"/>
-                <entry key="chrXVI" value="/S288C_chr16.fabytes"/>
+                <entry key="chrI" value="chr01.fabytes"/>
+                <entry key="chrII" value="chr02.fabytes"/>
+                <entry key="chrIII" value="chr03.fabytes"/>
+                <entry key="chrIV" value="chr04.fabytes"/>
+                <entry key="chrV" value="chr05.fabytes"/>
+                <entry key="chrVI" value="chr06.fabytes"/>
+                <entry key="chrVII" value="chr07.fabytes"/>
+                <entry key="chrVIII" value="chr08.fabytes"/>
+                <entry key="chrIX" value="chr09.fabytes"/>
+                <entry key="chrX" value="chr10.fabytes"/>
+                <entry key="chrXI" value="chr11.fabytes"/>
+                <entry key="chrXII" value="chr12.fabytes"/>
+                <entry key="chrXIII" value="chr13.fabytes"/>
+                <entry key="chrXIV" value="chr14.fabytes"/>
+                <entry key="chrXV" value="chr15.fabytes"/>
+                <entry key="chrXVI" value="chr16.fabytes"/>
             </map>
         </property>
     </bean>

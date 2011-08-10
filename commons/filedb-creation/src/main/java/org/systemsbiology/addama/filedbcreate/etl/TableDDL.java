@@ -18,6 +18,8 @@
 */
 package org.systemsbiology.addama.filedbcreate.etl;
 
+import java.util.Map;
+
 /**
  * @author hrovira
  */
@@ -30,4 +32,5 @@ public interface TableDDL {
 
     String[] getIndexStatement(String tableName, String[] columnHeaders);
 
+    Map<String, String> getDataTypes(String[] columnHeaders);
 }

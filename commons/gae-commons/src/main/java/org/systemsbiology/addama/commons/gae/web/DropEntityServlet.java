@@ -19,11 +19,8 @@
 package org.systemsbiology.addama.commons.gae.web;
 
 import com.google.appengine.api.datastore.*;
-import com.google.appengine.api.labs.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-import org.apache.commons.lang.StringUtils;
-import org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
 
 import javax.servlet.ServletException;
@@ -35,7 +32,15 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import static com.google.appengine.api.labs.taskqueue.TaskOptions.Builder.url;
+import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
+import static com.google.appengine.api.taskqueue.QueueFactory.getDefaultQueue;
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
+import static com.google.appengine.api.users.UserServiceFactory.getUserService;
+import static java.util.UUID.fromString;
+import static java.util.UUID.randomUUID;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira
@@ -43,11 +48,12 @@ import static com.google.appengine.api.labs.taskqueue.TaskOptions.Builder.url;
 public class DropEntityServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(DropEntityServlet.class.getName());
 
-    private final UserService userService = UserServiceFactory.getUserService();
-    private final DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+    private final UserService userService = getUserService();
+    private final DatastoreService datastore = getDatastoreService();
+    private final Queue queue = getDefaultQueue();
 
     private final String HEADER_NAME = "x-addama-dropentity-header";
-    private final UUID ACCESS_KEY = UUID.randomUUID();
+    private final UUID ACCESS_KEY = randomUUID();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!isValid(request)) {
@@ -58,9 +64,9 @@ public class DropEntityServlet extends HttpServlet {
         String requestUri = request.getRequestURI();
         log.info("doPost(" + requestUri + ")");
 
-        String entityName = StringUtils.substringAfterLast(requestUri, "/entities/");
+        String entityName = substringAfterLast(requestUri, "/entities/");
 
-        PreparedQuery pq = datastoreService.prepare(new Query(entityName));
+        PreparedQuery pq = datastore.prepare(new Query(entityName));
         int count = pq.countEntities();
         if (count == 0) {
             log.info("should have completed");
@@ -81,17 +87,16 @@ public class DropEntityServlet extends HttpServlet {
             }
         }
 
-        DatastoreServiceTemplate template = new DatastoreServiceTemplate();
         for (Key k : keys) {
             if (k != null) {
-                template.inTransaction(new DeleteEntityTransactionCallback(k));
+                inTransaction(datastore, new DeleteEntityTransactionCallback(k));
             }
         }
 
         log.info("finished: " + count);
 
         log.info("dispatching task: " + requestUri);
-        QueueFactory.getDefaultQueue().add(url(requestUri).header(HEADER_NAME, ACCESS_KEY.toString()));
+        queue.add(withUrl(requestUri).header(HEADER_NAME, ACCESS_KEY.toString()));
     }
 
     /*
@@ -104,10 +109,10 @@ public class DropEntityServlet extends HttpServlet {
         }
 
         String actualValue = request.getHeader(HEADER_NAME);
-        if (StringUtils.isEmpty(actualValue)) {
+        if (isEmpty(actualValue)) {
             return false;
         }
 
-        return ACCESS_KEY.equals(UUID.fromString(actualValue));
+        return ACCESS_KEY.equals(fromString(actualValue));
     }
 }

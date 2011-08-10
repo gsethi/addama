@@ -25,6 +25,7 @@ public class RegistryMapping {
     private String uri;
     private String serviceUri;
     private String label;
+    private boolean handleAsynch;
 
     public String getUri() {
         return uri;
@@ -50,12 +51,21 @@ public class RegistryMapping {
         this.label = label;
     }
 
+    public boolean isHandleAsynch() {
+        return handleAsynch;
+    }
+
+    public void setHandleAsynch(boolean handleAsynch) {
+        this.handleAsynch = handleAsynch;
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
         builder.append(uri).append(",");
         builder.append(serviceUri).append(",");
         builder.append(label).append(",");
+        builder.append(handleAsynch).append(",");
         builder.append("]");
         return builder.toString();
     }

@@ -20,21 +20,11 @@ package org.systemsbiology.addama.commons.httpclient.support;
 
 import org.apache.commons.httpclient.HttpMethod;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
 /**
  * @author hrovira
  */
 public final class NoOpResponseCallback implements ResponseCallback {
-    private static final Logger log = Logger.getLogger(NoOpResponseCallback.class.getName());
-
     public Object onResponse(int statusCode, HttpMethod method) throws HttpClientResponseException {
-        try {
-            log.info("onResponse(" + statusCode + "," + method.getURI() + "): " + method.getResponseBodyAsString());
-            return null;
-        } catch (IOException e) {
-            throw new HttpClientResponseException(statusCode, method, e);
-        }
+        return null;
     }
 }

@@ -5,27 +5,33 @@
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
 
-    <bean id="handlerExceptionResolver" class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+    <bean id="handlerExceptionResolver"
+          class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+        <property name="verbose" value="true"/>
         <property name="warnLogCategory" value="scriptexec-servlet"/>
         <property name="exceptionMappings">
             <props>
-                <prop key="java.lang.UnsupportedOperationException">notImplementedView</prop>
-                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">resourceNotFoundView</prop>
-                <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">invalidSyntaxView</prop>
-                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">resourceStateConflictView</prop>
-                <prop key="java.lang.Exception">genericExceptionView</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">view_400</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException">view_403</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">view_404</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">view_409
+                </prop>
+                <prop key="java.lang.UnsupportedOperationException">view_501</prop>
+                <prop key="java.lang.Exception">view_500</prop>
             </props>
         </property>
     </bean>
 
-    <bean id="notImplementedView" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
+    <bean id="view_400" class="org.systemsbiology.addama.commons.web.views.InvalidSyntaxView"/>
 
-    <bean id="resourceNotFoundView" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
+    <bean id="view_403" class="org.systemsbiology.addama.commons.web.views.ForbiddenAccessView"/>
 
-    <bean id="invalidSyntaxView" class="org.systemsbiology.addama.commons.web.views.InvalidSyntaxView"/>
+    <bean id="view_404" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
 
-    <bean id="resourceStateConflictView" class="org.systemsbiology.addama.commons.web.views.ResourceStateConflictView"/>
-    
-    <bean id="genericExceptionView" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
+    <bean id="view_409" class="org.systemsbiology.addama.commons.web.views.ResourceStateConflictView"/>
+
+    <bean id="view_500" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
+
+    <bean id="view_501" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
 
 </beans>

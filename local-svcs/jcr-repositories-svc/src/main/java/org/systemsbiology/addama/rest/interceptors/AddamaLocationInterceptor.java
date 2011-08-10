@@ -26,8 +26,8 @@ import org.springmodules.jcr.JcrSessionFactory;
 import org.springmodules.jcr.JcrTemplate;
 import org.springmodules.jcr.SessionFactory;
 import org.springmodules.jcr.support.OpenSessionInViewInterceptor;
-import org.systemsbiology.addama.registry.JsonConfig;
-import org.systemsbiology.addama.registry.JsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.JsonConfigHandler;
 import org.systemsbiology.addama.repositories.jcrrepo.JcrConnection;
 import org.systemsbiology.addama.repositories.jcrrepo.register.JcrConnectionImpl;
 
@@ -130,9 +130,9 @@ public class AddamaLocationInterceptor extends OpenSessionInViewInterceptor {
         return sf;
     }
 
-    private JcrConnection getLocalConnection(String repositoryUri) throws Exception {
+    private JcrConnection getLocalConnection(String repositoryUri) {
         JcrConnectionJsonConfigHandler configHandler = new JcrConnectionJsonConfigHandler(repositoryUri);
-        jsonConfig.processConfiguration(configHandler);
+        jsonConfig.visit(configHandler);
         return configHandler.getJcrConnection();
     }
 

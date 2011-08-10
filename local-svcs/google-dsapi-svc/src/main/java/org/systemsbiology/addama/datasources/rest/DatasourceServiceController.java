@@ -18,11 +18,7 @@
 */
 package org.systemsbiology.addama.datasources.rest;
 
-import com.google.visualization.datasource.DataSourceHelper;
-import com.google.visualization.datasource.DataTableGenerator;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,15 +27,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.datasources.datasource.JsonArrayDatasourceHelper;
-import org.systemsbiology.addama.datasources.handlers.LocalsJsonConfigHandler;
-import org.systemsbiology.addama.datasources.jdbctemplate.JdbcTemplateDataSource;
-import org.systemsbiology.addama.datasources.jdbctemplate.SimpleSqlDataTableGenerator;
-import org.systemsbiology.addama.datasources.jdbctemplate.SingleStringResultSetExtractor;
-import org.systemsbiology.addama.datasources.rest.callbacks.DatabaseTableColumnConnectionCallback;
-import org.systemsbiology.addama.datasources.rest.callbacks.DatabaseTablesConnectionCallback;
-import org.systemsbiology.addama.datasources.util.TqxParser;
-import org.systemsbiology.addama.registry.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.google.visualization.datasource.jdbc.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,28 +38,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.executeDataSourceServletFlow;
+
 /**
  * @author hrovira
  */
 @Controller
-public class DatasourceServiceController implements InitializingBean {
+public class DatasourceServiceController {
     private static final Logger log = Logger.getLogger(DatasourceServiceController.class.getName());
 
-    private final Map<String, JdbcTemplateDataSource> jdbcTemplateDsByDatabaseUri = new HashMap<String, JdbcTemplateDataSource>();
+    private final Map<String, JdbcTemplate> jdbcTemplateDsByDatabaseUri = new HashMap<String, JdbcTemplate>();
     private final Map<String, String> uriMappingsByDatasource = new HashMap<String, String>();
 
-    private JsonConfig jsonConfig;
-
     public void setJsonConfig(JsonConfig jsonConfig) {
-        this.jsonConfig = jsonConfig;
-    }
-
-    /*
-     * InitializingBean
-     */
-
-    public void afterPropertiesSet() throws Exception {
-        jsonConfig.processConfiguration(new LocalsJsonConfigHandler(jdbcTemplateDsByDatabaseUri, uriMappingsByDatasource));
+        jsonConfig.visit(new StringMapJsonConfigHandler(uriMappingsByDatasource, "uriMappings"));
+        jsonConfig.visit(new JdbcTemplateJsonConfigHandler(jdbcTemplateDsByDatabaseUri));
     }
 
     /*
@@ -82,51 +66,40 @@ public class DatasourceServiceController implements InitializingBean {
         String requestUri = request.getRequestURI();
         log.info("processRequest(" + requestUri + ")");
 
-        if (StringUtils.equalsIgnoreCase(requestUri, request.getContextPath())) {
+        if (equalsIgnoreCase(requestUri, request.getContextPath())) {
             return getDatabases();
         }
 
         String databaseUri = getDatabaseUri(request);
-        if (StringUtils.isEmpty(databaseUri)) {
+        if (isEmpty(databaseUri)) {
             return getDatabases();
         }
 
-        JdbcTemplateDataSource jdbcTemplateDs = jdbcTemplateDsByDatabaseUri.get(databaseUri);
-        if (jdbcTemplateDs == null) {
+        JdbcTemplate jdbcTemplate = jdbcTemplateDsByDatabaseUri.get(databaseUri);
+        if (jdbcTemplate == null) {
             throw new ResourceNotFoundException(databaseUri);
         }
 
         if (requestUri.endsWith("/query") || requestUri.endsWith("/google-ds-api")) {
             String tableUri = getTargetUri(request);
-            String tableName = getTableName(tableUri, jdbcTemplateDs);
+            String tableName = getTableName(tableUri, databaseUri, jdbcTemplate);
             log.info("processRequest(" + requestUri + "):" + tableName);
 
-            boolean isJsonArray = false;
-            String tqx = request.getParameter("tqx");
-            if (!StringUtils.isEmpty(tqx)) {
-                TqxParser tqxParser = new TqxParser(tqx);
-                isJsonArray = StringUtils.equalsIgnoreCase(tqxParser.getOut(), "json_array");
-            }
-
-            DataTableGenerator tableGenerator = new SimpleSqlDataTableGenerator(jdbcTemplateDs, tableName);
-            if (isJsonArray) {
-                JsonArrayDatasourceHelper.executeDataSourceServletFlow(request, response, tableGenerator);
-            } else {
-                DataSourceHelper.executeDataSourceServletFlow(request, response, tableGenerator, false);
-            }
+            SimpleSqlDataTableGenerator tableGenerator = new SimpleSqlDataTableGenerator(jdbcTemplate, tableName);
+            executeDataSourceServletFlow(request, response, tableGenerator);
             return null;
         }
 
         String targetUri = getTargetUri(request);
-        if (StringUtils.equals(targetUri, databaseUri)) {
-            return getDatabase(jdbcTemplateDs);
+        if (equalsIgnoreCase(targetUri, databaseUri)) {
+            return getDatabase(databaseUri, jdbcTemplate);
         }
 
-        if (StringUtils.equalsIgnoreCase(requestUri, databaseUri)) {
-            return getDatabase(jdbcTemplateDs);
+        if (equalsIgnoreCase(requestUri, databaseUri)) {
+            return getDatabase(databaseUri, jdbcTemplate);
         }
 
-        return getTable(targetUri, jdbcTemplateDs);
+        return getTable(targetUri, databaseUri, jdbcTemplate);
     }
 
     /*
@@ -146,25 +119,22 @@ public class DatasourceServiceController implements InitializingBean {
         return mav;
     }
 
-    protected ModelAndView getDatabase(JdbcTemplateDataSource dataSource) throws Exception {
+    protected ModelAndView getDatabase(String databaseUri, JdbcTemplate jdbcTemplate) throws Exception {
         JSONObject json = new JSONObject();
-        for (String tableUri : getTableUris(dataSource)) {
+        for (String tableUri : getTableUris(databaseUri, jdbcTemplate)) {
             JSONObject tableJson = new JSONObject();
-            tableJson.put("name", StringUtils.substringAfterLast(tableUri, "/"));
+            tableJson.put("name", substringAfterLast(tableUri, "/"));
             tableJson.put("uri", tableUri);
             json.append("items", tableJson);
         }
 
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    protected ModelAndView getTable(String tableUri, JdbcTemplateDataSource dataSource) throws Exception {
+    protected ModelAndView getTable(String tableUri, String databaseUri, JdbcTemplate jdbcTemplate) throws Exception {
         log.info("getTable(" + tableUri + ")");
 
-        String tableName = getTableName(tableUri, dataSource);
-        JdbcTemplate jdbcTemplate = dataSource.getJdbcTemplate();
+        String tableName = getTableName(tableUri, databaseUri, jdbcTemplate);
         JSONObject json = (JSONObject) jdbcTemplate.execute(new DatabaseTableColumnConnectionCallback(tableName));
 
         ModelAndView mav = new ModelAndView(new JsonItemsView());
@@ -192,19 +162,16 @@ public class DatasourceServiceController implements InitializingBean {
     }
 
     private String getTargetUri(HttpServletRequest request) {
-        String targetUri = StringUtils.substringAfterLast(request.getRequestURI(), request.getContextPath());
+        String targetUri = substringAfterLast(request.getRequestURI(), request.getContextPath());
         if (targetUri.endsWith("/")) {
-            targetUri = StringUtils.substringBeforeLast(targetUri, "/");
+            targetUri = substringBeforeLast(targetUri, "/");
         }
-        targetUri = StringUtils.substringBeforeLast(targetUri, "/google-ds-api");
-        targetUri = StringUtils.substringBeforeLast(targetUri, "/query");
+        targetUri = substringBeforeLast(targetUri, "/google-ds-api");
+        targetUri = substringBeforeLast(targetUri, "/query");
         return targetUri;
     }
 
-    private String[] getTableUris(JdbcTemplateDataSource dataSource) {
-        String databaseUri = dataSource.getDatabaseUri();
-        JdbcTemplate jdbcTemplate = dataSource.getJdbcTemplate();
-
+    private String[] getTableUris(String databaseUri, JdbcTemplate jdbcTemplate) {
         if (uriMappingsByDatasource.containsKey(databaseUri)) {
             String prepSql = "SELECT URI FROM " + uriMappingsByDatasource.get(databaseUri);
             return (String[]) jdbcTemplate.query(prepSql, new SingleStringResultSetExtractor());
@@ -220,12 +187,10 @@ public class DatasourceServiceController implements InitializingBean {
         return tables.toArray(new String[tables.size()]);
     }
 
-    private String getTableName(String targetUri, JdbcTemplateDataSource dataSource) throws ResourceNotFoundException {
-        String databaseUri = dataSource.getDatabaseUri();
+    private String getTableName(String targetUri, String databaseUri, JdbcTemplate jdbcTemplate) throws ResourceNotFoundException {
         if (uriMappingsByDatasource.containsKey(databaseUri)) {
             String mappingsTable = uriMappingsByDatasource.get(databaseUri);
 
-            JdbcTemplate jdbcTemplate = dataSource.getJdbcTemplate();
             String prepSql = "SELECT TABLE_NAME FROM " + mappingsTable + " WHERE URI = ? ";
             String[] tableNames = (String[]) jdbcTemplate.query(prepSql, new Object[]{targetUri}, new SingleStringResultSetExtractor());
             if (tableNames == null || tableNames.length == 0) {
@@ -234,12 +199,12 @@ public class DatasourceServiceController implements InitializingBean {
 
             // TODO : what if this returns more than one table?
             String tableName = tableNames[0];
-            if (StringUtils.isEmpty(tableName)) {
+            if (isEmpty(tableName)) {
                 throw new ResourceNotFoundException(databaseUri);
             }
             return tableName;
         }
 
-        return StringUtils.substringAfterLast(targetUri, "/");
+        return substringAfterLast(targetUri, "/");
     }
 }

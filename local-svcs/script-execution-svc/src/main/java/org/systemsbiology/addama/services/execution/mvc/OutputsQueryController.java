@@ -18,92 +18,65 @@
 */
 package org.systemsbiology.addama.services.execution.mvc;
 
-import com.google.visualization.datasource.DataSourceHelper;
-import com.google.visualization.datasource.DataTableGenerator;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.services.execution.datasource.CsvFileDataTableGenerator;
-import org.systemsbiology.addama.services.execution.datasource.TsvFileDataTableGenerator;
+import org.systemsbiology.addama.services.execution.dao.JobsDaoAware;
+import org.systemsbiology.addama.services.execution.jobs.Job;
+import org.systemsbiology.google.visualization.datasource.impls.AbstractDataTableGenerator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.logging.Logger;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringBetween;
+import static org.systemsbiology.addama.services.execution.util.HttpJob.getJob;
+import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.executeDataSourceServletFlow;
+import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.getDataTableGeneratorByOutputType;
 
 /**
  * @author hrovira
  */
 @Controller
-public class OutputsQueryController extends BaseController {
+public class OutputsQueryController extends JobsDaoAware {
     private static final Logger log = Logger.getLogger(OutputsQueryController.class.getName());
-
-    private String jobPath;
-
-    public void setJobPath(String jobPath) {
-        this.jobPath = jobPath;
-    }
 
     @RequestMapping(method = RequestMethod.GET)
     public void queryJobOutput(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info("queryJobOutput(" + request.getRequestURI() + ")");
+        Job job = getJob(jobsDao, request, "/outputs");
 
-        String scriptUri = StringUtils.substringBetween(request.getRequestURI(), request.getContextPath(), jobPath);
-        String workDir = workDirsByUri.get(scriptUri);
-        if (StringUtils.isEmpty(workDir)) {
-            throw new ResourceNotFoundException("work directory for " + scriptUri);
+        File outputDir = new File(job.getOutputDirectoryPath());
+        if (!outputDir.exists()) {
+            throw new ResourceNotFoundException(job.getJobUri() + "/outputs");
         }
 
-        String outputFilePath = StringUtils.substringBetween(request.getRequestURI(), jobPath, "/query");
-        InputStream checkStream = new FileInputStream(workDir + jobPath + outputFilePath);
-        InputStream inputStream = new FileInputStream(workDir + jobPath + outputFilePath);
+        String filepath = substringBetween(request.getRequestURI(), "/outputs", "/query");
+        log.fine("filepath=" + filepath);
+        if (!isEmpty(filepath)) {
+            File queryFile = new File(outputDir + filepath);
+            InputStream checkStream = new FileInputStream(queryFile);
+            InputStream inputStream = new FileInputStream(queryFile);
 
-        try {
-            DataTableGenerator dataTableGenerator = getDataTableGeneratorByOutputType(checkStream, inputStream);
-            if (dataTableGenerator == null) {
-                throw new InvalidSyntaxException("file cannot be queried");
-            }
-
-            DataSourceHelper.executeDataSourceServletFlow(request, response, dataTableGenerator, false);
-        } catch (Exception e) {
-            log.warning("queryJobOutput(" + request.getRequestURI() + "):" + e);
-        } finally {
-            checkStream.close();
-            inputStream.close();
-        }
-    }
-
-    /*
-     * Private Methods
-     */
-
-    private DataTableGenerator getDataTableGeneratorByOutputType(InputStream checkStream, InputStream inputStream) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(checkStream));
-            String columnHeader = reader.readLine();
-            if (!StringUtils.isEmpty(columnHeader)) {
-                if (StringUtils.contains(columnHeader, "\t")) {
-                    return new TsvFileDataTableGenerator(inputStream, columnHeader);
-                }
-                if (StringUtils.contains(columnHeader, ",")) {
-                    return new CsvFileDataTableGenerator(inputStream, columnHeader);
-                }
-            }
-        } catch (Exception e) {
-            log.warning("getDataTableGeneratorByOutputType(): " + e);
-        } finally {
             try {
-                if (reader != null) {
-                    reader.close();
+                AbstractDataTableGenerator dataTableGenerator = getDataTableGeneratorByOutputType(checkStream, inputStream);
+                if (dataTableGenerator == null) {
+                    throw new InvalidSyntaxException("file cannot be queried");
                 }
-            } catch (IOException e) {
-                log.warning("getDataTableGeneratorByOutputType(): " + e);
+
+                executeDataSourceServletFlow(request, response, dataTableGenerator);
+            } catch (Exception e) {
+                log.warning("queryJobOutput(" + request.getRequestURI() + "):" + e);
+            } finally {
+                checkStream.close();
+                inputStream.close();
             }
         }
-        return null;
     }
+
 }

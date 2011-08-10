@@ -7,7 +7,6 @@
         <param-name>contextConfigLocation</param-name>
         <param-value>
             /WEB-INF/app-contexts/*.xml
-            classpath*:/addama-properties.xml
         </param-value>
     </context-param>
 
@@ -29,6 +28,21 @@
     <servlet-mapping>
         <servlet-name>workspaces</servlet-name>
         <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>addama-version</servlet-name>
+        <servlet-class>org.systemsbiology.addama.commons.web.MavenPomVersionServlet</servlet-class>
+        <init-param>
+            <param-name>pom_location</param-name>
+            <param-value>/META-INF/maven/org.systemsbiology.addama.coresvcs/fs-workspaces-svc</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>addama-version</servlet-name>
+        <url-pattern>/version</url-pattern>
     </servlet-mapping>
 
 </web-app>

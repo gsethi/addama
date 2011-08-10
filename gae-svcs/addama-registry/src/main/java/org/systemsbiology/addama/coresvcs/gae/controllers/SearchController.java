@@ -18,8 +18,10 @@
 */
 package org.systemsbiology.addama.coresvcs.gae.controllers;
 
-import com.google.appengine.api.urlfetch.*;
-import com.google.apphosting.api.ApiProxy;
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -33,7 +35,6 @@ import org.systemsbiology.addama.commons.web.views.JsonResultsView;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 import org.systemsbiology.addama.coresvcs.gae.pojos.SearchableResponse;
-import org.systemsbiology.addama.coresvcs.gae.services.Registry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URL;
@@ -41,8 +42,11 @@ import java.util.ArrayList;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
-import static com.google.appengine.api.urlfetch.FetchOptions.Builder.withDeadline;
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
+import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
+import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
+import static org.systemsbiology.addama.appengine.util.Registry.getRegistryMappings;
+import static org.systemsbiology.addama.appengine.util.Registry.getSearchableServices;
 
 /**
  * @author hrovira
@@ -50,15 +54,9 @@ import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 @Controller
 public class SearchController {
     private static final Logger log = Logger.getLogger(SearchController.class.getName());
-    private static final String APPSPOT_HOST = ApiProxy.getCurrentEnvironment().getAppId() + ".appspot.com";
+    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
-    private final URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
-
-    private Registry registry;
-
-    public void setRegistry(Registry registry) {
-        this.registry = registry;
-    }
+    private final URLFetchService urlFetchService = getURLFetchService();
 
     @RequestMapping(value = "/searchables", method = RequestMethod.GET)
     @ModelAttribute
@@ -68,7 +66,7 @@ public class SearchController {
         JSONObject json = new JSONObject();
         json.put("uri", request.getRequestURI());
 
-        for (RegistryService registryService : registry.getSearchableServices()) {
+        for (RegistryService registryService : getSearchableServices()) {
             JSONObject item = new JSONObject();
             item.put("uri", registryService.getUri());
             item.put("label", registryService.getLabel());
@@ -85,8 +83,8 @@ public class SearchController {
         log.info(request.getRequestURI() + "," + query + ":" + request.getParameterMap());
 
         ArrayList<SearchableResponse> searchableResponses = new ArrayList<SearchableResponse>();
-        for (RegistryService registryService : registry.getSearchableServices()) {
-            for (RegistryMapping registryMapping : registry.getRegistryMappings(registryService)) {
+        for (RegistryService registryService : getSearchableServices()) {
+            for (RegistryMapping registryMapping : getRegistryMappings(registryService)) {
                 searchableResponses.add(doSearch(registryService, registryMapping, request));
             }
         }
@@ -106,7 +104,7 @@ public class SearchController {
         log.fine("doSearch(" + registryService + "," + registryMapping + "," + request.getQueryString() + ")");
 
         URL getUrl = getUrlWithParams(request, registryService, registryMapping);
-        HTTPRequest searchReq = new HTTPRequest(getUrl, GET, withDeadline(20));
+        HTTPRequest searchReq = new HTTPRequest(getUrl, GET);
         searchReq.setHeader(new HTTPHeader("x-addama-registry-key", registryService.getAccessKey().toString()));
         searchReq.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
 
@@ -123,7 +121,7 @@ public class SearchController {
             int responseCode = resp.getResponseCode();
             log.info("collectResults(" + registryService + "):" + responseCode);
             if (responseCode == 200) {
-                JSONObject searchResponse = new JSONObject(resp.getContent());
+                JSONObject searchResponse = new JSONObject(new String(resp.getContent()));
                 if (searchResponse.has("results")) {
                     JSONArray results = searchResponse.getJSONArray("results");
                     for (int i = 0; i < results.length(); i++) {

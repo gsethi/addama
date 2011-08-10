@@ -20,65 +20,47 @@ package org.systemsbiology.addama.coresvcs.gae.filters.callbacks;
 
 import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
-import com.google.apphosting.api.ApiProxy;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
-import org.systemsbiology.addama.commons.gae.http.MapReduceTooLargeHTTPResponse;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
-import org.systemsbiology.addama.coresvcs.gae.services.Registry;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import static com.google.appengine.api.urlfetch.FetchOptions.Builder.withDeadline;
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
+import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
+import static org.systemsbiology.addama.appengine.util.HttpIO.mapReduce;
+import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
+import static org.systemsbiology.addama.appengine.util.Registry.getStaticContentRegistryMapping;
 
 /**
  * @author hrovira
  */
 public class StaticContentMemcacheLoaderCallback implements MemcacheLoaderCallback {
     private static final Logger log = Logger.getLogger(StaticContentMemcacheLoaderCallback.class.getName());
-    private static final String APPSPOT_HOST = ApiProxy.getCurrentEnvironment().getAppId() + ".appspot.com";
-
-    private final MapReduceTooLargeHTTPResponse mapReduce = new MapReduceTooLargeHTTPResponse();
-
-    private final Registry registry;
-
-    public StaticContentMemcacheLoaderCallback(Registry registry) {
-        this.registry = registry;
-    }
+    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
     public Serializable getCacheableObject(String requestUri) throws Exception {
         log.info("getCacheableObject(" + requestUri + ")");
 
-        RegistryMapping registryMapping = registry.getStaticContentRegistryMapping(requestUri);
+        RegistryMapping registryMapping = getStaticContentRegistryMapping(requestUri);
         if (registryMapping == null) {
             log.info("getCacheableObject(" + requestUri + "): no mapping found");
             return null;
         }
 
-        RegistryService service = registry.getRegistryService(registryMapping.getServiceUri());
+        RegistryService service = getRegistryService(registryMapping.getServiceUri());
         if (service == null) {
             log.info("getCacheableObject(" + requestUri + "): no service found");
             return null;
         }
 
-        HTTPRequest proxyRequest = new HTTPRequest(new URL(service.getUrl().toString() + requestUri), GET);
+        HTTPRequest proxyRequest = new HTTPRequest(new URL(service.getUrl().toString() + requestUri), GET, withDeadline(10.0));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-key", service.getAccessKey().toString()));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        HTTPResponse resp = mapReduce.fetch(proxyRequest, outputStream);
-        if (resp != null) {
-            if (resp.getResponseCode() == HttpServletResponse.SC_OK) {
-                return resp.getContent();
-            }
-        } else {
-            return outputStream.toByteArray();
-        }
-        return null;
+        return mapReduce(proxyRequest);
     }
 }

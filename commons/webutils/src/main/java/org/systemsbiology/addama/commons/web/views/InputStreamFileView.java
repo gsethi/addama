@@ -26,19 +26,29 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+
 /**
  * @author hrovira
  */
 public class InputStreamFileView implements View {
+    public static final String INPUTSTREAM = "inputStream";
+    public static final String MIMETYPE = "mimeType";
+    public static final String FILENAME = "filename";
 
     public String getContentType() {
         return null;
     }
 
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        InputStream inputStream = (InputStream) map.get("inputStream");
-        String mimeType = (String) map.get("mimeType");
-        String filename = (String) map.get("filename");
+        InputStream inputStream = (InputStream) map.get(INPUTSTREAM);
+        if (inputStream == null) {
+            response.setStatus(SC_NOT_FOUND);
+            return;
+        }
+
+        String mimeType = (String) map.get(MIMETYPE);
+        String filename = (String) map.get(FILENAME);
 
         response.setContentType(mimeType);
         response.setHeader("Content-Disposition", "attachment;filename=\"" + filename + "\"");

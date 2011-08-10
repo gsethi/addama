@@ -25,11 +25,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.jcr.JcrTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.rest.json.NodeMetaJSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
+
+import static org.systemsbiology.addama.jcr.support.JcrTemplateProvider.getJcrTemplate;
 
 /**
  * @author hrovira
@@ -48,7 +51,10 @@ public class JcrRepositoryController extends AbstractJcrController {
         log.info(request.getRequestURI());
 
         JcrTemplate jcrTemplate = getJcrTemplate(request);
-        JSONObject json = new NodeMetaJSONObject(jcrTemplate.getRootNode(), request, dateFormat);
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        if (jcrTemplate != null) {
+            JSONObject json = new NodeMetaJSONObject(jcrTemplate.getRootNode(), request, dateFormat);
+            return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        }
+        throw new ResourceNotFoundException(request.getRequestURI());
     }
 }
