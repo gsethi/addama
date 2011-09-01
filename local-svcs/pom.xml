@@ -25,6 +25,7 @@
         <module>filedb-creation-svc</module>
         <module>chromosome-index-svc</module>
         <module>jobsdao-svc</module>
+        <module>ws-eventing-svc</module>
     </modules>
 
     <build>
