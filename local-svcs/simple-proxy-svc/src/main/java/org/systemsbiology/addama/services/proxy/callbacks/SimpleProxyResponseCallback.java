@@ -92,6 +92,14 @@ public class SimpleProxyResponseCallback implements ResponseCallback {
             if (contentType != null) {
                 this.response.setContentType(contentType.getValue());
             }
+            
+            for (Header header : method.getResponseHeaders()) {
+                String headerName = header.getName();
+                if (!"Content-Type".equalsIgnoreCase(headerName)) {
+                    this.response.setHeader(headerName, header.getValue());
+                }
+            }
+            
             pipe(inputStream, response.getOutputStream());
         } catch (Exception e) {
             throw new HttpClientResponseException(statusCode, method, e);
