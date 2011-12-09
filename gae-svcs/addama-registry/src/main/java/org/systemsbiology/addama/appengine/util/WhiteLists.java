@@ -2,7 +2,6 @@ package org.systemsbiology.addama.appengine.util;
 
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.memcache.MemcacheService;
-import org.apache.commons.lang.StringUtils;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.coresvcs.gae.pojos.WhiteListEntry;
@@ -15,6 +14,7 @@ import static com.google.appengine.api.datastore.DatastoreServiceFactory.getData
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static java.lang.Boolean.parseBoolean;
+import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -30,6 +30,8 @@ public class WhiteLists {
         log.fine(userUri + "," + accessPath);
 
         try {
+            userUri = userUri.toLowerCase();
+
             String tempUri = accessPath;
             //if there are no users in the white list, then move up the stack of uri's and see if there
             //is one to query
@@ -48,7 +50,7 @@ public class WhiteLists {
                 if (entityCount != 0)
                     break;
 
-                tempUri = StringUtils.substringBeforeLast(tempUri, "/");
+                tempUri = substringBeforeLast(tempUri, "/");
             }
 
             if (tempUri.equals(""))
@@ -83,7 +85,7 @@ public class WhiteLists {
         Iterator<Entity> itr = pq.asIterator();
         while (itr.hasNext()) {
             String accessPath = null;
-            String userEmail = null;
+            String userEmail = "";
 
             Entity e = itr.next();
             if (e.hasProperty("uri")) {
@@ -91,10 +93,12 @@ public class WhiteLists {
             }
             if (e.hasProperty("userUri")) {
                 String userUri = e.getProperty("userUri").toString();
-                userEmail = StringUtils.substringAfterLast(userUri, "/");
+                userEmail = substringAfterLast(userUri, "/");
             }
 
-            userEmails.add(new WhiteListEntry(userEmail, accessPath, hasAccess(e)));
+            if (!isEmpty(userEmail)) {
+                userEmails.add(new WhiteListEntry(userEmail.toLowerCase(), accessPath, hasAccess(e)));
+            }
         }
 
         return userEmails.toArray(new WhiteListEntry[userEmails.size()]);
@@ -103,7 +107,7 @@ public class WhiteLists {
     public static void addWhiteListUser(String userEmail, String accessPath) {
         log.fine(userEmail + "," + accessPath);
 
-        String userUri = "/addama/users/" + userEmail;
+        String userUri = "/addama/users/" + userEmail.toLowerCase();
         Entity e = new Entity(createKey("white-list", userUri + accessPath));
         e.setProperty("hasAccess", false);
         e.setProperty("uri", accessPath);
@@ -115,20 +119,19 @@ public class WhiteLists {
     public static void deleteWhiteListUser(String userEmail, String accessPath) {
         log.fine(userEmail + "," + accessPath);
 
-        if (!StringUtils.isEmpty(userEmail) && !StringUtils.isEmpty(accessPath)) {
-            Key k = createKey("white-list", "/addama/users/" + userEmail + accessPath);
+        if (!isEmpty(userEmail) && !isEmpty(accessPath)) {
+            Key k = createKey("white-list", "/addama/users/" + userEmail.toLowerCase() + accessPath);
             inTransaction(datastore, new DeleteEntityTransactionCallback(k));
         }
-
     }
 
     public static void grantWhiteListAccess(String userEmail, String accessPath) {
         log.fine(userEmail + "," + accessPath);
 
-        Entity e = new Entity(createKey("white-list", "/addama/users/" + userEmail + accessPath));
+        Entity e = new Entity(createKey("white-list", "/addama/users/" + userEmail.toLowerCase() + accessPath));
         e.setProperty("hasAccess", true);
         e.setProperty("uri", accessPath);
-        e.setProperty("userUri", "/addama/users/" + userEmail);
+        e.setProperty("userUri", "/addama/users/" + userEmail.toLowerCase());
         inTransaction(datastore, new PutEntityTransactionCallback(e));
     }
 
