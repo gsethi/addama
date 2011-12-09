@@ -20,7 +20,6 @@ package org.systemsbiology.addama.commons.gae.web;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.apphosting.api.ApiProxy;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
@@ -41,12 +40,12 @@ import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
+import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
 
 /**
  * @author hrovira
  */
 public class ServiceRegistrationServlet extends HttpServlet {
-    private static final String APPSPOT = ApiProxy.getCurrentEnvironment().getAppId();
     private static final Queue queue = QueueFactory.getDefaultQueue();
 
     private static final Logger log = Logger.getLogger(ServiceRegistrationServlet.class.getName());
@@ -146,7 +145,7 @@ public class ServiceRegistrationServlet extends HttpServlet {
         try {
             String url = rb.getHttpsHost() + "/addama/channels/" + rb.getOwner();
             JSONObject json = new JSONObject();
-            json.put("message", "Successfully Registered [" + APPSPOT + "] to [" + rb.getHost() + "]");
+            json.put("message", "Successfully Registered [" + APP_ID + "] to [" + rb.getHost() + "]");
 
             queue.add(withUrl(url).param("event", json.toString()).header("x-addama-apikey", rb.getApikey()));
         } catch (Exception e) {

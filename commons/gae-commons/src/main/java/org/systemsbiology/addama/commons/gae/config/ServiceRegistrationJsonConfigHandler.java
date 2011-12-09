@@ -36,8 +36,8 @@ import static com.google.appengine.api.datastore.DatastoreServiceFactory.getData
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -45,7 +45,6 @@ import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceT
  */
 public class ServiceRegistrationJsonConfigHandler implements JsonConfigHandler {
     private static final Logger log = Logger.getLogger(ServiceRegistrationJsonConfigHandler.class.getName());
-    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
     private final URLFetchService urlfetch = getURLFetchService();
     private final DatastoreService datastore = getDatastoreService();
@@ -61,7 +60,7 @@ public class ServiceRegistrationJsonConfigHandler implements JsonConfigHandler {
     public void handle(JSONObject configuration) throws Exception {
         if (configuration.has("service")) {
             JSONObject service = configuration.getJSONObject("service");
-            service.put("url", "https://" + APPSPOT_HOST);
+            service.put("url", APPSPOT_URL);
 
             String serviceUri = service.getString("uri");
             String registerUri = replace(serviceUri, "/addama/services", "/addama/registry/services");

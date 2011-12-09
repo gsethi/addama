@@ -39,19 +39,18 @@ import static com.google.appengine.api.urlfetch.FetchOptions.Builder.withDeadlin
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.replace;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
  */
 public class Proxy {
     private static final Logger log = Logger.getLogger(Proxy.class.getName());
-    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
     private static final URLFetchService fetchService = getURLFetchService();
 
     public static void doAction(HttpServletRequest request, HttpServletResponse response, URL targetUrl, UUID accessKey) throws IOException {
@@ -153,7 +152,7 @@ public class Proxy {
         }
 
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-key", accessKey.toString()));
-        proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
+        proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-user", getLoggedInUserUri(request)));
     }
 
@@ -210,7 +209,7 @@ public class Proxy {
 
         HTTPRequest redirect = new HTTPRequest(new URL(targetUrl.toString() + "/client_redirect"), POST, withDeadline(10.0));
         redirect.setHeader(new HTTPHeader("x-addama-registry-key", accessKey.toString()));
-        redirect.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
+        redirect.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
         redirect.setHeader(new HTTPHeader("x-addama-registry-client", request.getRemoteAddr()));
 
         HTTPResponse resp = fetchService.fetch(redirect);

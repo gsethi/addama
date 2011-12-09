@@ -38,18 +38,17 @@ import java.util.logging.Logger;
 import static com.google.appengine.api.urlfetch.FetchOptions.Builder.doNotFollowRedirects;
 import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.Registry.getMatchingRegistryMappings;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Sharing.checkAccess;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
  */
 public class DirectLinkFilter extends GenericFilterBean {
     private static final Logger log = Logger.getLogger(DirectLinkFilter.class.getName());
-    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
     private final URLFetchService urlFetchService = getURLFetchService();
 
@@ -83,7 +82,7 @@ public class DirectLinkFilter extends GenericFilterBean {
             FetchOptions fetchOpts = doNotFollowRedirects().setDeadline(10.0);
             HTTPRequest req = new HTTPRequest(new URL(url.toString() + "/client_redirect"), POST, fetchOpts);
             req.setHeader(new HTTPHeader("x-addama-registry-key", accessKey.toString()));
-            req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
+            req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
             req.setHeader(new HTTPHeader("x-addama-registry-client", request.getRemoteAddr()));
 
             HTTPResponse resp = urlFetchService.fetch(req);

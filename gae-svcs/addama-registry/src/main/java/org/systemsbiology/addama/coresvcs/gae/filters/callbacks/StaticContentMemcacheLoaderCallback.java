@@ -30,17 +30,16 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.urlfetch.FetchOptions.Builder.withDeadline;
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static org.systemsbiology.addama.appengine.util.HttpIO.mapReduce;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Registry.getStaticContentRegistryMapping;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
  */
 public class StaticContentMemcacheLoaderCallback implements MemcacheLoaderCallback {
     private static final Logger log = Logger.getLogger(StaticContentMemcacheLoaderCallback.class.getName());
-    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
     public Serializable getCacheableObject(String requestUri) throws Exception {
         log.info("getCacheableObject(" + requestUri + ")");
@@ -59,7 +58,7 @@ public class StaticContentMemcacheLoaderCallback implements MemcacheLoaderCallba
 
         HTTPRequest proxyRequest = new HTTPRequest(new URL(service.getUrl().toString() + requestUri), GET, withDeadline(10.0));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-key", service.getAccessKey().toString()));
-        proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
+        proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
 
         return mapReduce(proxyRequest);
     }

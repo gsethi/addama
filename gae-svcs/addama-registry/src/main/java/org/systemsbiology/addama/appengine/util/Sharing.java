@@ -27,18 +27,16 @@ import java.io.IOException;
 import java.net.URL;
 
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
  */
 public class Sharing {
-    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
-
     private static final URLFetchService urlFetchService = getURLFetchService();
 
     /**
@@ -60,7 +58,7 @@ public class Sharing {
 
             HTTPRequest req = new HTTPRequest(new URL(sharingUrl + sharingUri + sharingOp), HTTPMethod.GET);
             req.setHeader(new HTTPHeader("x-addama-registry-key", accessKey));
-            req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
+            req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
             req.setHeader(new HTTPHeader("x-addama-registry-user", getLoggedInUserUri(request)));
             String serviceUri = request.getHeader("x-addama-service-uri");
             if (!isEmpty(serviceUri)) {

@@ -14,11 +14,11 @@ import java.util.logging.Logger;
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.util.Memberships.Membership.*;
+import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -26,7 +26,6 @@ import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceT
  */
 public class Memberships {
     private static final Logger log = Logger.getLogger(Memberships.class.getName());
-    private static final String APP_ID = getCurrentEnvironment().getAppId();
 
     private static final String MEMBERSHIPS_DOMAIN_ACTIVE = "memberships-domain-active";
     private static final String MEMBERSHIPS_DOMAIN = "memberships-domain";

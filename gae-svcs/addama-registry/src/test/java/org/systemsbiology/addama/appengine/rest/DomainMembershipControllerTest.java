@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
+import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.ModelAndViewAssert.assertAndReturnModelAttributeOfType;
 
@@ -34,6 +35,8 @@ public class DomainMembershipControllerTest {
         helper.setEnvIsAdmin(true);
         helper.setEnvIsLoggedIn(true);
         helper.setUp();
+
+        getCurrentEnvironment().getAttributes().put("com.google.appengine.runtime.default_version_hostname", "testappspot");
     }
 
     @After

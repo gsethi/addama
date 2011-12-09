@@ -44,9 +44,9 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryMappings;
 import static org.systemsbiology.addama.appengine.util.Registry.getSearchableServices;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
@@ -54,7 +54,6 @@ import static org.systemsbiology.addama.appengine.util.Registry.getSearchableSer
 @Controller
 public class SearchController {
     private static final Logger log = Logger.getLogger(SearchController.class.getName());
-    private static final String APPSPOT_HOST = getCurrentEnvironment().getAppId() + ".appspot.com";
 
     private final URLFetchService urlFetchService = getURLFetchService();
 
@@ -106,7 +105,7 @@ public class SearchController {
         URL getUrl = getUrlWithParams(request, registryService, registryMapping);
         HTTPRequest searchReq = new HTTPRequest(getUrl, GET);
         searchReq.setHeader(new HTTPHeader("x-addama-registry-key", registryService.getAccessKey().toString()));
-        searchReq.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_HOST));
+        searchReq.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
 
         log.info("doSearch():" + getUrl);
         Future<HTTPResponse> response = urlFetchService.fetchAsync(searchReq);

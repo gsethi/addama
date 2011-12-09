@@ -19,7 +19,6 @@
 package org.systemsbiology.addama.coresvcs.gae.controllers;
 
 import com.google.appengine.api.users.UserService;
-import com.google.apphosting.api.ApiProxy;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +37,7 @@ import java.util.logging.Logger;
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
+import static org.systemsbiology.addama.commons.gae.Appspot.*;
 
 /**
  * @author hrovira
@@ -45,7 +45,6 @@ import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 @Controller
 public class ApiKeyController {
     private static final Logger log = Logger.getLogger(ApiKeyController.class.getName());
-    private static final String APPSPOT_ID = ApiProxy.getCurrentEnvironment().getAppId();
 
     private final UserService userService = getUserService();
 
@@ -71,11 +70,8 @@ public class ApiKeyController {
         ApiKey apiKey = getUserApiKey();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("httpclient.secureHostUrl=https://").append(APPSPOT_ID).append(".appspot.com");
-        builder.append("\n");
-        builder.append("httpclient.apikey=");
-        builder.append(apiKey.getKey().toString());
-        builder.append("\n");
+        builder.append("httpclient.secureHostUrl=").append(APPSPOT_URL).append("\n");
+        builder.append("httpclient.apikey=").append(apiKey.getKey().toString()).append("\n");
 
         outputFile(response, "addama.properties", builder.toString());
 
@@ -91,12 +87,12 @@ public class ApiKeyController {
 
         StringBuilder builder = new StringBuilder();
         builder.append("[Connection]");
-        builder.append("\n").append("host=").append(APPSPOT_ID).append(".appspot.com");
+        builder.append("\n").append("host=").append(APPSPOT_ID);
         builder.append("\n").append("apikey=").append(apiKey.getKey().toString());
         builder.append("\n").append("owner=").append(getCurrentUser().getEmail());
         builder.append("\n");
 
-        outputFile(response, APPSPOT_ID + ".apikey", builder.toString());
+        outputFile(response, APP_ID + ".apikey", builder.toString());
         return null;
     }
 

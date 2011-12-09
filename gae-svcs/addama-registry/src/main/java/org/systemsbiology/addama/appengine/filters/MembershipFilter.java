@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.HttpIO.shouldSendRedirect;
@@ -20,12 +19,12 @@ import static org.systemsbiology.addama.appengine.util.Memberships.Membership.gu
 import static org.systemsbiology.addama.appengine.util.Memberships.Membership.member;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
 import static org.systemsbiology.addama.appengine.util.Users.isAdministrator;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
 
 /**
  * @author hrovira
  */
 public class MembershipFilter extends GenericFilterBean {
-    private static final String HOST = "https://" + getCurrentEnvironment().getAppId() + ".appspot.com";
     private static final String PAGE = "/addama/ui/memberships/apply.html";
 
     private static final Logger log = Logger.getLogger(MembershipFilter.class.getName());
@@ -78,7 +77,7 @@ public class MembershipFilter extends GenericFilterBean {
         if (shouldSendRedirect(request)) {
             response.sendRedirect(page);
         } else {
-            response.sendError(SC_UNAUTHORIZED, "Request access here: " + HOST + page);
+            response.sendError(SC_UNAUTHORIZED, "Request access here: " + APPSPOT_URL + page);
         }
     }
 
