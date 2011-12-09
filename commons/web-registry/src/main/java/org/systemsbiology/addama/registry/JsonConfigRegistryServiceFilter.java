@@ -198,6 +198,10 @@ public class JsonConfigRegistryServiceFilter extends GenericFilterBean implement
             return false;
         }
 
+        if (host.startsWith("s~")) {
+            host = replace(host, "s~", "");
+        }
+
         String savedKey = registryServiceKeyByHost.get(host);
         if (isEmpty(savedKey)) {
             return false;

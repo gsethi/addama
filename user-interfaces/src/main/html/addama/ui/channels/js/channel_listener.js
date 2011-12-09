@@ -3,12 +3,12 @@ ChannelListener = Ext.extend(Ext.util.Observable, {
         this.numberOfReopens = 0;
         this.maxReopens = 10;
         this.listeners = [];
+        this.channelUri = "/addama/channels/mine";
         this.addEvents('open', 'message', 'error', 'close');
 
         if (!config) config = {};
-
-        if (config.maxReopens) this.maxReopens = config.maxReopens;
-        if (config.listeners) this.listeners = config.listeners;
+        
+        Ext.apply(this, config);
 
         ChannelListener.superclass.constructor.call(this, config);
 
@@ -41,7 +41,7 @@ ChannelListener = Ext.extend(Ext.util.Observable, {
 
     openChannel: function() {
         Ext.Ajax.request({
-            url: "/addama/channels/mine",
+            url: this.channelUri,
             method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
