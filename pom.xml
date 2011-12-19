@@ -8,7 +8,7 @@
     <version>2.2-SNAPSHOT</version>
     <url>http://addama.org</url>
     <scm>
-        <url>https://addama.googlecode.com/svn</url>
+        <url>https://addama.googlecode.com/hg</url>
     </scm>
     <licenses>
         <license>
