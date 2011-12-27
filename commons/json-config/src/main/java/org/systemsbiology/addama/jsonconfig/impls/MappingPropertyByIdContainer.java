@@ -13,7 +13,9 @@ public abstract class MappingPropertyByIdContainer<T> {
     protected final T defaultValue;
 
     public MappingPropertyByIdContainer(Map<String, T> map, String propertyName) {
-        this(map, propertyName, null);
+        this.propertiesById = map;
+        this.propertyName = propertyName;
+        this.defaultValue = null;
     }
 
     public MappingPropertyByIdContainer(Map<String, T> map, String propertyName, T defaultValue) {

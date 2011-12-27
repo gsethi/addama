@@ -1,6 +1,5 @@
 package org.systemsbiology.addama.jsonconfig.impls;
 
-import org.json.JSONObject;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.MappingsHandler;
 
