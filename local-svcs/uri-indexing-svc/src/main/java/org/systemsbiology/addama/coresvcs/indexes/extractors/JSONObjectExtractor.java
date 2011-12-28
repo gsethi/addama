@@ -18,12 +18,13 @@
 */
 package org.systemsbiology.addama.coresvcs.indexes.extractors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springmodules.lucene.search.core.HitExtractor;
+
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 
 /**
  * @author hrovira
@@ -48,7 +49,7 @@ public class JSONObjectExtractor implements HitExtractor {
     private boolean isIncluded(String fieldName) {
         String[] excludedFields = new String[]{"paths"};
         for (String excludedField : excludedFields) {
-            if (StringUtils.equalsIgnoreCase(excludedField, fieldName)) {
+            if (equalsIgnoreCase(excludedField, fieldName)) {
                 return false;
             }
         }

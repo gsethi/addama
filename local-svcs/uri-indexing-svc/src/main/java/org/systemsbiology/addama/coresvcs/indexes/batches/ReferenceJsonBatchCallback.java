@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.apache.commons.lang.StringUtils.*;
+
 /**
  * @author hrovira
  */
@@ -64,12 +66,12 @@ public class ReferenceJsonBatchCallback implements BatchCallback {
         if (refJson.has("name")) {
             document.add(new Field("name", refJson.getString("name"), Field.Store.YES, Field.Index.UN_TOKENIZED));
         } else {
-            if (StringUtils.contains(uri, "/")) {
+            if (contains(uri, "/")) {
                 if (uri.endsWith("/")) {
-                    String name = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(uri, "/"), "/");
+                    String name = substringAfterLast(substringBeforeLast(uri, "/"), "/");
                     document.add(new Field("name", name, Field.Store.YES, Field.Index.UN_TOKENIZED));
                 } else {
-                    String name = StringUtils.substringAfterLast(uri, "/");
+                    String name = substringAfterLast(uri, "/");
                     document.add(new Field("name", name, Field.Store.YES, Field.Index.UN_TOKENIZED));
                 }
             }
@@ -134,20 +136,20 @@ public class ReferenceJsonBatchCallback implements BatchCallback {
      */
 
     private void addPath(String path, BatchItem batchItem, String uri) {
-        if (!StringUtils.isEmpty(uri)) {
+        if (!isEmpty(uri)) {
             Document document = new Document();
             document.add(new Field("uri", uri, Field.Store.YES, Field.Index.UN_TOKENIZED));
             document.add(new Field("paths", path, Field.Store.YES, Field.Index.UN_TOKENIZED));
             document.add(new Field("batch", batchItem.getBatchUri(), Field.Store.YES, Field.Index.UN_TOKENIZED));
-            document.add(new Field("name", StringUtils.substringAfterLast(uri, "/"), Field.Store.YES, Field.Index.UN_TOKENIZED));
+            document.add(new Field("name", substringAfterLast(uri, "/"), Field.Store.YES, Field.Index.UN_TOKENIZED));
             synchronized (this) {
                 indexTemplate.addDocument(document);
             }
         }
 
-        if (path.contains("/")) {
-            String parentPath = StringUtils.substringBeforeLast(path, "/");
-            if (!StringUtils.isEmpty(parentPath)) {
+        if (contains(path, "/")) {
+            String parentPath = substringBeforeLast(path, "/");
+            if (!isEmpty(parentPath)) {
                 addPath(parentPath, batchItem, path);
             }
         }
