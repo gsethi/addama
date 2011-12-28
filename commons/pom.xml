@@ -23,7 +23,6 @@
         <module>springutils</module>
         <module>httpclient-support</module>
         <module>gae-commons</module>
-        <module>filedb-creation</module>
         <module>fs-utils</module>
     </modules>
 
