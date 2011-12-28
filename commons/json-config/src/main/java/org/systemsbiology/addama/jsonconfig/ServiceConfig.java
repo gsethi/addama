@@ -79,6 +79,10 @@ public class ServiceConfig {
         return mappingsById.get(id);
     }
 
+    public JSONObject JSON() {
+        return this.JSON;
+    }
+
     public void visit(MappingsHandler handler) throws Exception {
         try {
             for (Mapping mapping : mappingsById.values()) {
