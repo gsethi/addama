@@ -4,6 +4,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.systemsbiology.addama.jsonconfig.Mapping;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,11 +16,9 @@ import static org.junit.Assert.*;
 /**
  * @author hrovira
  */
-public class EmailJsonConfigHandlerTest {
-    private static final String URI = "/addama/uri";
-
+public class EmailInstructionsMappingsHandlerTest {
     private final Map<String, EmailBean> emailBeansByUri = new HashMap<String, EmailBean>();
-    private final EmailJsonConfigHandler handler = new EmailJsonConfigHandler(emailBeansByUri);
+    private final EmailInstructionsMappingsHandler handler = new EmailInstructionsMappingsHandler(emailBeansByUri);
 
     private File testEmailMsg;
 
@@ -38,12 +37,12 @@ public class EmailJsonConfigHandlerTest {
         emailJson.put("host", "localhost");
 
         JSONObject json = new JSONObject();
-        json.put("uri", URI);
+        json.put("id", "id");
         json.put("emailInstructions", emailJson);
 
-        handler.handle(new JSONObject().append("locals", json));
+        handler.handle(new Mapping("id", "label", "base", json));
 
-        EmailBean bean = emailBeansByUri.get(URI);
+        EmailBean bean = emailBeansByUri.get("id");
         assertNotNull(bean);
         assertNotNull(bean.getFrom());
         assertNotNull(bean.getSubject());
@@ -58,11 +57,11 @@ public class EmailJsonConfigHandlerTest {
     @Test
     public void noemail() throws Exception {
         JSONObject json = new JSONObject();
-        json.put("uri", URI);
+        json.put("id", "id");
 
-        handler.handle(new JSONObject().append("locals", json));
+        handler.handle(new Mapping("id", "label", "base", json));
 
-        assertFalse(emailBeansByUri.containsKey(URI));
-        assertNull(emailBeansByUri.get(URI));
+        assertFalse(emailBeansByUri.containsKey("id"));
+        assertNull(emailBeansByUri.get("id"));
     }
 }

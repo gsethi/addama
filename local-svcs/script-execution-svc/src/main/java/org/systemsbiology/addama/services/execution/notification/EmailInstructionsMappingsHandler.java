@@ -18,10 +18,11 @@
  */
 package org.systemsbiology.addama.services.execution.notification;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.systemsbiology.addama.jsonconfig.impls.GenericMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.MappingsHandler;
+import org.systemsbiology.addama.jsonconfig.impls.MappingPropertyByIdContainer;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -32,23 +33,26 @@ import java.util.Map;
 /**
  * @author hrovira
  */
-public class EmailJsonConfigHandler extends GenericMapJsonConfigHandler<EmailBean> {
-    public EmailJsonConfigHandler(Map<String, EmailBean> emailBeansByUri) {
-        super(emailBeansByUri, "emailInstructions");
+public class EmailInstructionsMappingsHandler extends MappingPropertyByIdContainer<EmailBean> implements MappingsHandler {
+    public EmailInstructionsMappingsHandler(Map<String, EmailBean> emailBeansByUri) {
+        super(emailBeansByUri);
     }
 
-    public EmailBean getSpecific(JSONObject json) throws JSONException, IOException {
-        JSONObject emailInstructions = json.getJSONObject("emailInstructions");
+    public void handle(Mapping mapping) throws Exception {
+        JSONObject json = mapping.JSON();
+        if (json.has("emailInstructions")) {
+            JSONObject emailInstructions = json.getJSONObject("emailInstructions");
 
-        String from = emailInstructions.getString("from");
-        String subject = emailInstructions.getString("subject");
-        String message = getMessage(emailInstructions.getString("emailText"));
-        String host = emailInstructions.getString("host");
+            String from = emailInstructions.getString("from");
+            String subject = emailInstructions.getString("subject");
+            String message = getMessage(emailInstructions.getString("emailText"));
+            String host = emailInstructions.getString("host");
 
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(host);
+            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(host);
 
-        return new EmailBean(mailSender, from, subject, message);
+            addValue(mapping, new EmailBean(mailSender, from, subject, message));
+        }
     }
 
     /*
