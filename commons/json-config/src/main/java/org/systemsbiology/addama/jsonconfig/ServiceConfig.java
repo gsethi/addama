@@ -25,6 +25,8 @@ import org.springframework.core.io.Resource;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.chomp;
@@ -38,6 +40,7 @@ public class ServiceConfig {
     private static final Logger log = Logger.getLogger(ServiceConfig.class.getName());
 
     private final JSONObject JSON;
+    private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
 
     public ServiceConfig(Resource resource) throws Exception {
         InputStream inputStream = resource.getInputStream();
@@ -53,20 +56,23 @@ public class ServiceConfig {
         }
 
         this.JSON = new JSONObject(builder.toString());
+
+        if (JSON.has(mappings.name())) {
+            String sBase = chomp(JSON.getString(base.name()), "/");
+            JSONArray cMappings = JSON.getJSONArray(mappings.name());
+            for (int i = 0; i < cMappings.length(); i++) {
+                JSONObject cMapping = cMappings.getJSONObject(i);
+                String cId = cMapping.getString(id.name());
+                String cLabel = cMapping.getString(label.name());
+                mappingsById.put(cId, new Mapping(cId, cLabel, sBase, cMapping));
+            }
+        }
     }
 
     public void visit(MappingsHandler handler) throws Exception {
         try {
-            if (JSON.has(mappings.name())) {
-                String sBase = chomp(this.JSON.getString(base.name()), "/");
-
-                JSONArray cMappings = JSON.getJSONArray(mappings.name());
-                for (int i = 0; i < cMappings.length(); i++) {
-                    JSONObject cMapping = cMappings.getJSONObject(i);
-                    String cId = cMapping.getString(id.name());
-                    String cLabel = cMapping.getString(label.name());
-                    handler.handle(new Mapping(cId, cLabel, sBase, cMapping));
-                }
+            for (Mapping mapping : mappingsById.values()) {
+                handler.handle(mapping);
             }
         } catch (Exception e) {
             log.warning(e.getMessage());
