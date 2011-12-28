@@ -19,8 +19,8 @@ public class StringPropertyByIdMappingsHandler extends MappingPropertyByIdContai
     }
 
     public void handle(Mapping mapping) throws Exception {
-        if (jsonHasProperty(mapping)) {
-            this.addProperty(mapping, mapping.JSON().getString(this.propertyName));
+        if (this.jsonHasProperty(mapping)) {
+            this.addValue(mapping, mapping.JSON().getString(this.propertyName));
         }
     }
 }

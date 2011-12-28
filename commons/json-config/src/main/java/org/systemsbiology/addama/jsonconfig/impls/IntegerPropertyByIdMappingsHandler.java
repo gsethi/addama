@@ -20,7 +20,7 @@ public class IntegerPropertyByIdMappingsHandler extends MappingPropertyByIdConta
 
     public void handle(Mapping mapping) throws Exception {
         if (jsonHasProperty(mapping)) {
-            this.addProperty(mapping, mapping.JSON().getInt(this.propertyName));
+            this.addValue(mapping, mapping.JSON().getInt(this.propertyName));
         }
     }
 }

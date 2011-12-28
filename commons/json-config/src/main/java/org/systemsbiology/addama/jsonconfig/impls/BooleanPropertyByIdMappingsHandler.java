@@ -18,8 +18,8 @@ public class BooleanPropertyByIdMappingsHandler extends MappingPropertyByIdConta
     }
 
     public void handle(Mapping mapping) throws Exception {
-        if (jsonHasProperty(mapping)) {
-            addProperty(mapping, mapping.JSON().getBoolean(this.propertyName));
+        if (this.jsonHasProperty(mapping)) {
+            this.addValue(mapping, mapping.JSON().getBoolean(this.propertyName));
         }
     }
 }

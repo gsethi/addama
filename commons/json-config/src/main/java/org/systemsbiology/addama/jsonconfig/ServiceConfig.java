@@ -25,6 +25,7 @@ import org.springframework.core.io.Resource;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -69,6 +70,15 @@ public class ServiceConfig {
         }
     }
 
+    public Mapping[] getMappings() {
+        Collection<Mapping> mappings = mappingsById.values();
+        return mappings.toArray(new Mapping[mappings.size()]);
+    }
+
+    public Mapping getMapping(String id) {
+        return mappingsById.get(id);
+    }
+
     public void visit(MappingsHandler handler) throws Exception {
         try {
             for (Mapping mapping : mappingsById.values()) {
@@ -80,4 +90,5 @@ public class ServiceConfig {
             throw e;
         }
     }
+
 }
