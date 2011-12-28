@@ -9,7 +9,10 @@ import org.springmodules.lucene.index.core.LuceneIndexTemplate;
 import org.springmodules.lucene.index.factory.IndexFactory;
 import org.springmodules.lucene.index.support.FSDirectoryFactoryBean;
 import org.springmodules.lucene.index.support.SimpleIndexFactoryBean;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.MappingsHandler;
 import org.systemsbiology.addama.jsonconfig.impls.GenericMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.impls.MappingPropertyByIdContainer;
 
 import java.util.Map;
 
@@ -18,14 +21,16 @@ import static org.systemsbiology.addama.coresvcs.indexes.handlers.FSDirectory.ge
 /**
  * @author hrovira
  */
-public class LuceneIndexTemplateJsonConfigHandler extends GenericMapJsonConfigHandler<LuceneIndexTemplate> {
+public class LuceneIndexTemplateMappingsHandler extends MappingPropertyByIdContainer<LuceneIndexTemplate> implements MappingsHandler {
 
-    public LuceneIndexTemplateJsonConfigHandler(Map<String, LuceneIndexTemplate> map) {
-        super(map, "luceneStore");
+    public LuceneIndexTemplateMappingsHandler(Map<String, LuceneIndexTemplate> map) {
+        super(map);
     }
 
-    public LuceneIndexTemplate getSpecific(JSONObject item) throws Exception {
-        FSDirectoryFactoryBean fsDirectory = getFSDirectory(item.getString(propertyName));
+    public void handle(Mapping mapping) throws Exception {
+        JSONObject item = mapping.JSON();
+
+        FSDirectoryFactoryBean fsDirectory = getFSDirectory(item.getString("luceneStore"));
 
         Analyzer analyzer = new SimpleAnalyzer();
 
@@ -39,7 +44,8 @@ public class LuceneIndexTemplateJsonConfigHandler extends GenericMapJsonConfigHa
         indexTemplate.setIndexFactory((IndexFactory) indexFactory.getObject());
         indexTemplate.setAnalyzer(analyzer);
         indexTemplate.afterPropertiesSet();
-        return indexTemplate;
+
+        addValue(mapping, indexTemplate);
     }
 
 }

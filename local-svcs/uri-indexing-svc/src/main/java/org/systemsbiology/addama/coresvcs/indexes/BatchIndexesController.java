@@ -21,18 +21,18 @@ package org.systemsbiology.addama.coresvcs.indexes;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.lucene.index.core.LuceneIndexTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.commons.web.views.ResourceNotFoundView;
 import org.systemsbiology.addama.coresvcs.indexes.batches.BatchCallback;
 import org.systemsbiology.addama.coresvcs.indexes.batches.BatchItem;
 import org.systemsbiology.addama.coresvcs.indexes.batches.BatchSplitter;
@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static org.apache.commons.lang.StringUtils.*;
+
 /**
  * @author hrovira
  */
@@ -57,59 +59,46 @@ public class BatchIndexesController extends BaseIndexingController {
     // TODO : Persist batches
     private static final Map<String, BatchItem> batchesByUri = new HashMap<String, BatchItem>();
 
-    @RequestMapping(value = "**/batches", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView batches(HttpServletRequest request) throws Exception {
-        log.info("batches(" + request.getRequestURI() + ")");
+    @RequestMapping(value = "/**/indexes/{indexId}/batches", method = RequestMethod.POST)
+    public ModelAndView batches(HttpServletRequest request, @PathVariable("indexId") String indexId) throws Exception {
+        log.info(indexId);
 
-        String baseUri = StringUtils.substringAfterLast(request.getRequestURI(), request.getContextPath());
-        if (baseUri.endsWith("/")) {
-            baseUri = StringUtils.substringBeforeLast(baseUri, "/");
-        }
+        String baseUri = chomp(substringAfterLast(request.getRequestURI(), request.getContextPath()), "/");
 
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", executeBatch(baseUri, request));
-        return mav;
+        JSONObject json = executeBatch(indexId, baseUri, request);
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "**/batches", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView getBatches(HttpServletRequest request) throws Exception {
-        log.info("getBatches(" + request.getRequestURI() + ")");
-
+    @RequestMapping(value = "/**/batches", method = RequestMethod.GET)
+    public ModelAndView getBatches() throws Exception {
         JSONObject json = new JSONObject();
         for (BatchItem batchItem : batchesByUri.values()) {
             json.append("items", getBatchJson(batchItem));
         }
 
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
     @RequestMapping(value = "**/batches/*", method = RequestMethod.GET)
     @ModelAttribute
     public ModelAndView getBatch(HttpServletRequest request) throws Exception {
-        String batchUri = StringUtils.substringAfter(request.getRequestURI(), request.getContextPath());
+        String batchUri = substringAfter(request.getRequestURI(), request.getContextPath());
 
         BatchItem batch = batchesByUri.get(batchUri);
         if (batch == null) {
-            return new ModelAndView(new ResourceNotFoundView());
+            throw new ResourceNotFoundException(batchUri);
         }
 
         JSONObject json = getBatchJson(batch);
-
-        ModelAndView mav = new ModelAndView(new JsonView());
-        mav.addObject("json", json);
-        return mav;
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     /*
      * Private Methods
      */
 
-    private JSONObject executeBatch(String baseUri, HttpServletRequest request) throws Exception {
-        log.info("executeBatch(" + baseUri + ")");
+    private JSONObject executeBatch(String indexId, String baseUri, HttpServletRequest request) throws Exception {
+        log.info(baseUri);
 
         Map<String, Long> countsByFilename = new HashMap<String, Long>();
         List<JSONObject> refJsons = new ArrayList<JSONObject>();
@@ -132,8 +121,7 @@ public class BatchIndexesController extends BaseIndexingController {
             json.append("items", batchJson);
 
             if (isNewBatch(batchUri)) {
-                String rootUri = StringUtils.substringBetween(batchUri, "/addama/indexes", "/batches");
-                BatchItem batchItem = new BatchItem(batchUri, rootUri, totalCount);
+                BatchItem batchItem = new BatchItem(batchUri, indexId, totalCount);
                 batchesToExecute.add(batchItem);
                 batchesByUri.put(batchUri, batchItem);
             } else {
@@ -141,7 +129,7 @@ public class BatchIndexesController extends BaseIndexingController {
             }
         }
 
-        LuceneIndexTemplate indexTemplate = getLuceneIndexTemplate(request);
+        LuceneIndexTemplate indexTemplate = getLuceneIndexTemplate(indexId);
         BatchCallback batchCallback = new ReferenceJsonBatchCallback(indexTemplate);
         new Thread(new BatchSplitter(batchCallback, batchesToExecute, refJsons)).start();
         return json;

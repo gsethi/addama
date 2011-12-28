@@ -18,65 +18,44 @@
 */
 package org.systemsbiology.addama.coresvcs.indexes;
 
-import org.apache.commons.lang.StringUtils;
 import org.springmodules.lucene.index.core.LuceneIndexTemplate;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneIndexTemplateJsonConfigHandler;
-import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneSearchTemplateJsonConfigHandler;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneIndexTemplateMappingsHandler;
+import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneSearchTemplateMappingsHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * @author hrovira
  */
 public abstract class BaseIndexingController {
-    private final HashMap<String, LuceneSearchTemplate> searchTemplatesByUri = new HashMap<String, LuceneSearchTemplate>();
-    private final HashMap<String, LuceneIndexTemplate> indexTemplatesByUri = new HashMap<String, LuceneIndexTemplate>();
+    private final HashMap<String, LuceneSearchTemplate> searchTemplates = new HashMap<String, LuceneSearchTemplate>();
+    private final HashMap<String, LuceneIndexTemplate> indexTemplates = new HashMap<String, LuceneIndexTemplate>();
 
-    public void setJsonConfig(JsonConfig jsonConfig) {
-        jsonConfig.visit(new LuceneSearchTemplateJsonConfigHandler(searchTemplatesByUri));
-        jsonConfig.visit(new LuceneIndexTemplateJsonConfigHandler(indexTemplatesByUri));
+    public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
+        serviceConfig.visit(new LuceneSearchTemplateMappingsHandler(searchTemplates));
+        serviceConfig.visit(new LuceneIndexTemplateMappingsHandler(indexTemplates));
     }
 
     /*
      * Protected Methods
      */
 
-    protected LuceneSearchTemplate getLuceneSearchTemplate(HttpServletRequest request) throws ResourceNotFoundException {
-        String mappingUri = getMappingUri(request, searchTemplatesByUri.keySet());
-        if (!StringUtils.isEmpty(mappingUri)) {
-            return searchTemplatesByUri.get(mappingUri);
+    protected LuceneSearchTemplate getLuceneSearchTemplate(String indexId) throws ResourceNotFoundException {
+        LuceneSearchTemplate lst = searchTemplates.get(indexId);
+        if (lst != null) {
+            return lst;
         }
-        throw new ResourceNotFoundException(getUri(request));
+        throw new ResourceNotFoundException(indexId);
     }
 
-    protected LuceneIndexTemplate getLuceneIndexTemplate(HttpServletRequest request) throws ResourceNotFoundException {
-        String mappingUri = getMappingUri(request, indexTemplatesByUri.keySet());
-        if (!StringUtils.isEmpty(mappingUri)) {
-            return indexTemplatesByUri.get(mappingUri);
+    protected LuceneIndexTemplate getLuceneIndexTemplate(String indexId) throws ResourceNotFoundException {
+        LuceneIndexTemplate lit = indexTemplates.get(indexId);
+        if (lit != null) {
+            return lit;
         }
-        throw new ResourceNotFoundException(getUri(request));
-    }
-
-    /*
-     * Private Methods
-     */
-
-    private String getMappingUri(HttpServletRequest request, Set<String> mappings) {
-        String uri = getUri(request);
-        for (String key : mappings) {
-            if (uri.startsWith(key)) {
-                return key;
-            }
-        }
-        return null;
-    }
-
-    private String getUri(HttpServletRequest request) {
-        return StringUtils.substringAfter(request.getRequestURI(), request.getContextPath());
+        throw new ResourceNotFoundException(indexId);
     }
 }

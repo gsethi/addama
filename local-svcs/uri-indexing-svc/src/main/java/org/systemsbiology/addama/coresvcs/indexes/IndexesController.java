@@ -18,7 +18,6 @@
 */
 package org.systemsbiology.addama.coresvcs.indexes;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
@@ -26,7 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,6 +40,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.logging.Logger;
 
+import static org.apache.commons.lang.StringUtils.*;
+
 /**
  * @author hrovira
  */
@@ -48,59 +49,56 @@ import java.util.logging.Logger;
 public class IndexesController extends BaseIndexingController {
     private static final Logger log = Logger.getLogger(IndexesController.class.getName());
 
-    @RequestMapping(method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView getIndex(HttpServletRequest request) throws Exception {
-        log.info("getIndex(" + request.getRequestURI() + ")");
+    @RequestMapping(value = "/**/indexes/{indexId}", method = RequestMethod.GET)
+    protected ModelAndView getIndex(HttpServletRequest request, @PathVariable("indexId") String indexId) throws Exception {
+        log.info(indexId);
 
-        LuceneSearchTemplate searchTemplate = getLuceneSearchTemplate(request);
+        LuceneSearchTemplate searchTemplate = getLuceneSearchTemplate(indexId);
 
-        String uri = getIndexedUri(request);
+        String uri = getIndexedUri(indexId, request);
 
         JSONObject json = new JSONObject();
         json.put("uri", uri);
-
         appendOwnProperties(searchTemplate, uri, json);
 
         JSONObject[] items = searchByTerm(searchTemplate, "paths", uri);
-        log.info("getIndex(" + uri + "): items=" + items.length);
+        log.info(indexId + ": items=" + items.length);
         for (JSONObject item : items) {
             json.append("items", item);
         }
-
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "**/attachments", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView getAttachments(HttpServletRequest request) throws Exception {
-        log.info("getAttachments(" + request.getRequestURI() + ")");
+    @RequestMapping(value = "/**/indexes/{indexId}/**/attachments", method = RequestMethod.GET)
+    public ModelAndView getAttachments(HttpServletRequest request, @PathVariable("indexId") String indexId) throws Exception {
+        log.info(indexId);
 
-        LuceneSearchTemplate searchTemplate = getLuceneSearchTemplate(request);
+        LuceneSearchTemplate searchTemplate = getLuceneSearchTemplate(indexId);
 
-        String uri = StringUtils.substringBeforeLast(getIndexedUri(request), "/attachments");
+        String uri = substringBeforeLast(getIndexedUri(indexId, request), "/attachments");
 
         JSONObject json = new JSONObject();
         json.put("uri", uri);
 
         String[] attachments = getAttachments(searchTemplate, "uri", uri);
-        log.info("getAttachments(" + uri + "): attachments=" + attachments.length);
+        log.info(indexId + ": attachments=" + attachments.length);
         for (String attachment : attachments) {
-            json.append("items", attachment);
+            json.append("items", new JSONObject().put("attachment", attachment));
         }
 
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "**/search", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView searchByParam(HttpServletRequest request, @RequestParam("q") String query) throws Exception {
-        log.info("searchByParam(" + request.getRequestURI() + "," + query + "):" + request.getParameterMap());
+    @RequestMapping(value = "/**/indexes/{indexId}/search", method = RequestMethod.GET)
+    public ModelAndView searchByParam(HttpServletRequest request,
+                                      @PathVariable("indexId") String indexId,
+                                      @RequestParam("q") String query) throws Exception {
+        log.info(indexId + ":" + query + ":" + request.getParameterMap());
 
-        LuceneSearchTemplate searchTemplate = getLuceneSearchTemplate(request);
+        LuceneSearchTemplate searchTemplate = getLuceneSearchTemplate(indexId);
 
-        query = StringUtils.replace(query, "%20", " ");
-        query = StringUtils.replace(query, "+", " ");
+        query = replace(query, "%20", " ");
+        query = replace(query, "+", " ");
 
         JSONObject json = new JSONObject();
         for (JSONObject obj : searchByTerm(searchTemplate, "keywords", query)) {
@@ -113,14 +111,13 @@ public class IndexesController extends BaseIndexingController {
     /*
     * Private Methods
     */
-
-    private String getIndexedUri(HttpServletRequest request) {
-        String uri = StringUtils.substringAfter(request.getRequestURI(), request.getContextPath() + "/addama/indexes");
-        if (uri != null) {
-            uri = StringUtils.replace(uri, "%20", " ");
-            uri = StringUtils.replace(uri, "+", " ");
+    private String getIndexedUri(String indexId, HttpServletRequest request) {
+        String uri = "/" + indexId + substringAfter(request.getRequestURI(), indexId);
+        if (!isEmpty(uri)) {
+            uri = replace(uri, "%20", " ");
+            uri = replace(uri, "+", " ");
         }
-        if (StringUtils.isEmpty(uri)) {
+        if (isEmpty(uri)) {
             return "/";
         }
         return uri;
@@ -166,7 +163,7 @@ public class IndexesController extends BaseIndexingController {
 
         HashSet<String> attachments = new HashSet<String>();
         for (Object item : items) {
-            if (item != null && StringUtils.isEmpty(item.toString())) {
+            if (item != null && isEmpty(item.toString())) {
                 attachments.add(item.toString());
             }
         }

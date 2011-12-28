@@ -8,7 +8,9 @@ import org.springmodules.lucene.index.support.FSDirectoryFactoryBean;
 import org.springmodules.lucene.search.core.DefaultLuceneSearchTemplate;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 import org.springmodules.lucene.search.factory.SimpleSearcherFactory;
-import org.systemsbiology.addama.jsonconfig.impls.GenericMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.MappingsHandler;
+import org.systemsbiology.addama.jsonconfig.impls.MappingPropertyByIdContainer;
 
 import java.util.Map;
 
@@ -17,16 +19,16 @@ import static org.systemsbiology.addama.coresvcs.indexes.handlers.FSDirectory.ge
 /**
  * @author hrovira
  */
-public class LuceneSearchTemplateJsonConfigHandler extends GenericMapJsonConfigHandler<LuceneSearchTemplate> {
+public class LuceneSearchTemplateMappingsHandler extends MappingPropertyByIdContainer<LuceneSearchTemplate> implements MappingsHandler {
 
-    public LuceneSearchTemplateJsonConfigHandler(Map<String, LuceneSearchTemplate> map) {
-        super(map, "luceneStore");
+    public LuceneSearchTemplateMappingsHandler(Map<String, LuceneSearchTemplate> map) {
+        super(map);
     }
 
-    @Override
-    public LuceneSearchTemplate getSpecific(JSONObject item) throws Exception {
-        String luceneStore = item.getString("luceneStore");
-        FSDirectoryFactoryBean fsDirectory = getFSDirectory(luceneStore);
+    public void handle(Mapping mapping) throws Exception {
+        JSONObject item = mapping.JSON();
+
+        FSDirectoryFactoryBean fsDirectory = getFSDirectory(item.getString("luceneStore"));
         Analyzer analyzer = new SimpleAnalyzer();
 
         SimpleSearcherFactory searcherFactory = new SimpleSearcherFactory();
@@ -36,7 +38,8 @@ public class LuceneSearchTemplateJsonConfigHandler extends GenericMapJsonConfigH
         searchTemplate.setSearcherFactory(searcherFactory);
         searchTemplate.setAnalyzer(analyzer);
         searchTemplate.afterPropertiesSet();
-        return searchTemplate;
+
+        addValue(mapping, searchTemplate);
     }
 
 }
