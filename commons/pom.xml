@@ -21,8 +21,6 @@
         <module>web-registry</module>
         <module>webutils</module>
         <module>springutils</module>
-        <module>jcrutils</module>
-        <module>jcrstart</module>
         <module>httpclient-support</module>
         <module>gae-commons</module>
         <module>filedb-creation</module>

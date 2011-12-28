@@ -18,8 +18,6 @@
         <module>fs-repositories-svc</module>
         <module>fs-workspaces-svc</module>
         <module>fs-datasources-svc</module>
-        <module>jcr-repositories-svc</module>
-        <module>jcr-workspaces-svc</module>
         <module>script-execution-svc</module>
         <module>simple-proxy-svc</module>
         <module>filedb-creation-svc</module>
