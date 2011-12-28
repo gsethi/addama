@@ -37,6 +37,8 @@ import org.systemsbiology.addama.coresvcs.indexes.batches.BatchCallback;
 import org.systemsbiology.addama.coresvcs.indexes.batches.BatchItem;
 import org.systemsbiology.addama.coresvcs.indexes.batches.BatchSplitter;
 import org.systemsbiology.addama.coresvcs.indexes.batches.ReferenceJsonBatchCallback;
+import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneIndexTemplateMappingsHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -53,11 +55,16 @@ import static org.apache.commons.lang.StringUtils.*;
  * @author hrovira
  */
 @Controller
-public class BatchIndexesController extends BaseIndexingController {
+public class BatchIndexesController {
     private static final Logger log = Logger.getLogger(BatchIndexesController.class.getName());
-
     // TODO : Persist batches
     private static final Map<String, BatchItem> batchesByUri = new HashMap<String, BatchItem>();
+
+    private final HashMap<String, LuceneIndexTemplate> indexTemplates = new HashMap<String, LuceneIndexTemplate>();
+
+    public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
+        serviceConfig.visit(new LuceneIndexTemplateMappingsHandler(indexTemplates));
+    }
 
     @RequestMapping(value = "/**/indexes/{indexId}/batches", method = RequestMethod.POST)
     public ModelAndView batches(HttpServletRequest request, @PathVariable("indexId") String indexId) throws Exception {
@@ -96,6 +103,14 @@ public class BatchIndexesController extends BaseIndexingController {
     /*
      * Private Methods
      */
+
+    private LuceneIndexTemplate getLuceneIndexTemplate(String indexId) throws ResourceNotFoundException {
+        LuceneIndexTemplate lit = indexTemplates.get(indexId);
+        if (lit != null) {
+            return lit;
+        }
+        throw new ResourceNotFoundException(indexId);
+    }
 
     private JSONObject executeBatch(String indexId, String baseUri, HttpServletRequest request) throws Exception {
         log.info(baseUri);

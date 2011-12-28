@@ -32,9 +32,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springmodules.lucene.search.core.HitExtractor;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonResultsView;
 import org.systemsbiology.addama.coresvcs.indexes.extractors.JSONObjectExtractor;
+import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneSearchTemplateMappingsHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -46,8 +49,14 @@ import static org.apache.commons.lang.StringUtils.*;
  * @author hrovira
  */
 @Controller
-public class IndexesController extends BaseIndexingController {
+public class IndexesController {
     private static final Logger log = Logger.getLogger(IndexesController.class.getName());
+
+    private final HashMap<String, LuceneSearchTemplate> searchTemplates = new HashMap<String, LuceneSearchTemplate>();
+
+    public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
+        serviceConfig.visit(new LuceneSearchTemplateMappingsHandler(searchTemplates));
+    }
 
     @RequestMapping(value = "/**/indexes/{indexId}", method = RequestMethod.GET)
     protected ModelAndView getIndex(HttpServletRequest request, @PathVariable("indexId") String indexId) throws Exception {
@@ -111,6 +120,14 @@ public class IndexesController extends BaseIndexingController {
     /*
     * Private Methods
     */
+    private LuceneSearchTemplate getLuceneSearchTemplate(String indexId) throws ResourceNotFoundException {
+        LuceneSearchTemplate lst = searchTemplates.get(indexId);
+        if (lst != null) {
+            return lst;
+        }
+        throw new ResourceNotFoundException(indexId);
+    }
+
     private String getIndexedUri(String indexId, HttpServletRequest request) {
         String uri = "/" + indexId + substringAfter(request.getRequestURI(), indexId);
         if (!isEmpty(uri)) {
