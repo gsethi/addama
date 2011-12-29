@@ -17,7 +17,7 @@
         <!-- Addama Dependencies -->
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>json-config</artifactId>
+            <artifactId>service-config</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>

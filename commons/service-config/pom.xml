@@ -9,8 +9,8 @@
     </parent>
 
     <groupId>org.systemsbiology.addama.commons</groupId>
-    <artifactId>json-config</artifactId>
+    <artifactId>service-config</artifactId>
     <packaging>jar</packaging>
-    <name>Commons: JSON Config</name>
+    <name>Commons: Service Configuration</name>
 
 </project>

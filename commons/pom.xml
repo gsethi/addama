@@ -16,7 +16,7 @@
     </description>
 
     <modules>
-        <module>json-config</module>
+        <module>service-config</module>
         <module>io-utils</module>
         <module>web-registry</module>
         <module>webutils</module>
