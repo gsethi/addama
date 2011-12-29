@@ -4,14 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
-        <artifactId>apis</artifactId>
+        <artifactId>commons</artifactId>
         <version>3.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.systemsbiology.addama.apis</groupId>
+    <groupId>org.systemsbiology.addama.commons</groupId>
     <artifactId>visualization-datasource</artifactId>
     <packaging>jar</packaging>
-    <name>APIs: Visualization Datasource Extension</name>
+    <name>Commons: Google Visualization Datasource Extension</name>
 
     <dependencies>
         <!-- Apache Commons -->

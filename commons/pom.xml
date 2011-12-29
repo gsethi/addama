@@ -24,6 +24,7 @@
         <module>httpclient-support</module>
         <module>gae-commons</module>
         <module>fs-utils</module>
+        <module>visualization-datasource</module>
     </modules>
 
     <dependencies>

@@ -30,7 +30,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.systemsbiology.addama.apis</groupId>
+            <groupId>org.systemsbiology.addama.commons</groupId>
             <artifactId>visualization-datasource</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>

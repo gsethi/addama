@@ -17,7 +17,6 @@
 
     <modules>
         <module>feeds-api</module>
-        <module>visualization-datasource</module>
     </modules>
 
 </project>
