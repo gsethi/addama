@@ -20,7 +20,6 @@
 
     <modules>
         <module>commons</module>
-        <module>apis</module>
         <module>local-svcs</module>
         <module>gae-svcs</module>
         <module>user-interfaces</module>
