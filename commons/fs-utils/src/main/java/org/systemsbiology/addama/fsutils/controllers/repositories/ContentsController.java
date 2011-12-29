@@ -20,33 +20,31 @@ package org.systemsbiology.addama.fsutils.controllers.repositories;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.pipe;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.setContentType;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getRepositoryUri;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getResourcePath;
-import static org.systemsbiology.addama.fsutils.rest.UriScheme.contents;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 
 /**
  * @author hrovira
  */
 @Controller
-public class ContentsController extends FileSystemController {
+public class ContentsController extends AbstractRepositoriesController {
 
-    @RequestMapping(value = "/**/contents/**", method = RequestMethod.GET)
-    public void contents(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String repositoryUri = getRepositoryUri(request, contents);
-        assertServesFiles(repositoryUri);
+    @RequestMapping(value = "/**/repositories/{repositoryId}/contents/**", method = RequestMethod.GET)
+    public void contents(HttpServletRequest request, HttpServletResponse response,
+                         @PathVariable("repositoryId") String repositoryId) throws Exception {
+        assertServesFiles(repositoryId);
 
-        String resourcePath = getResourcePath(request, contents);
+        String uri = getSpacedURI(request);
+        String resourcePath = substringAfterLast(uri, "/contents");
+        Resource resource = getTargetResource(repositoryId, resourcePath);
 
-        Resource resource = getTargetResource(repositoryUri, resourcePath);
         setContentType(request, response, resource.getFilename());
         pipe(resource.getInputStream(), response.getOutputStream());
     }

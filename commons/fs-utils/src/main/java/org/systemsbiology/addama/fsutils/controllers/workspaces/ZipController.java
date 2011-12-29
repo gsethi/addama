@@ -20,24 +20,22 @@ package org.systemsbiology.addama.fsutils.controllers.workspaces;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.commons.lang.StringUtils.substringBeforeLast;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.collectFiles;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.getCleanUri;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.zip;
+import static org.apache.commons.lang.StringUtils.substringAfter;
+import static org.apache.commons.lang.StringUtils.substringBetween;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 
 /**
  * @author hrovira
@@ -45,21 +43,22 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.zip;
 @Controller
 public class ZipController extends FileSystemController {
 
-    @RequestMapping(method = RequestMethod.GET)
-    public void zipDir(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String uri = substringBeforeLast(getCleanUri(request), "/zip");
-        Resource r = getWorkspaceResource(uri);
-        if (!r.exists()) {
-            throw new ResourceNotFoundException(uri);
-        }
-        zip(response, r);
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = RequestMethod.GET)
+    public void zipDir(HttpServletRequest request, HttpServletResponse response,
+                       @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringBetween(uri, workspaceId, "/zip");
+        Resource resource = getTargetResource(workspaceId, path);
+        zip(response, resource);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public void zipFiles(HttpServletResponse response, @RequestParam("name") String name, @RequestParam("uris") String[] fileUris) throws Exception {
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = RequestMethod.POST)
+    public void zipFiles(HttpServletResponse response, @PathVariable("workspaceId") String workspaceId,
+                         @RequestParam("name") String name, @RequestParam("uris") String[] fileUris) throws Exception {
         Map<String, InputStream> inputStreamsByName = new HashMap<String, InputStream>();
         for (String fileUri : fileUris) {
-            Resource resource = getWorkspaceResource(fileUri);
+            String path = substringAfter(fileUri, workspaceId);
+            Resource resource = getTargetResource(workspaceId, path);
             File f = resource.getFile();
             if (f.isDirectory()) {
                 collectFiles(inputStreamsByName, f);

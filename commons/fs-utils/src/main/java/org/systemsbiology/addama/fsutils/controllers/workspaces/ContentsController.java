@@ -20,6 +20,7 @@ package org.systemsbiology.addama.fsutils.controllers.workspaces;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
@@ -28,6 +29,7 @@ import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.apache.commons.lang.StringUtils.substringBetween;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 
 /**
@@ -36,11 +38,12 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 @Controller
 public class ContentsController extends FileSystemController {
 
-    @RequestMapping(value = "/**/contents", method = RequestMethod.GET)
-    public void contents(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String uri = getCleanUri(request, "/contents");
-
-        Resource resource = getWorkspaceResource(uri);
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/contents", method = RequestMethod.GET)
+    public void contents(HttpServletRequest request, HttpServletResponse response,
+                         @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringBetween(uri, workspaceId, "/contents");
+        Resource resource = getTargetResource(workspaceId, path);
         if (!resource.exists()) {
             throw new ResourceNotFoundException(uri);
         }

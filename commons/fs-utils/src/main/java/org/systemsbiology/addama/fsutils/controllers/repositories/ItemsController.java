@@ -21,10 +21,10 @@ package org.systemsbiology.addama.fsutils.controllers.repositories;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.commons.web.views.FilesDirectoriesJsonView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 
@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getRepositoryUri;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getResourcePath;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getSpacedURI;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 import static org.systemsbiology.addama.fsutils.rest.UriScheme.*;
 
 /**
@@ -41,25 +41,23 @@ import static org.systemsbiology.addama.fsutils.rest.UriScheme.*;
  */
 @Controller
 public class ItemsController extends FileSystemController {
-    private static final String DIR = "/dir";
 
-    @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView get(HttpServletRequest request) throws Exception {
-        String repositoryUri = getRepositoryUri(request, path);
-        String resourcePath = getResourcePath(request, path, DIR);
+    @RequestMapping(value = "/**/repositories/{repositoryId}", method = RequestMethod.GET)
+    public ModelAndView get(HttpServletRequest request, @PathVariable("repositoryId") String repositoryId) throws Exception {
+        String uri = getURI(request);
+        File f = getTargetResource(repositoryId, "").getFile();
+        JSONObject json = getJson(uri, f);
+        appendItems(json, f);
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+    }
 
-        String uri = chomp(repositoryUri + "/" + path.name() + resourcePath, "/" + path.name());
-        File f = getTargetResource(repositoryUri, resourcePath).getFile();
-        boolean serveFiles = allowsServingFiles(repositoryUri);
-
-        JSONObject json = getJson(uri, f, serveFiles);
-
-        if (request.getRequestURI().endsWith(DIR)) {
-            appendFiles(json, f, serveFiles);
-            return new ModelAndView(new FilesDirectoriesJsonView()).addObject("json", json);
-        }
-
-        appendItems(json, f, serveFiles);
+    @RequestMapping(value = "/**/repositories/{repositoryId}/path/**", method = RequestMethod.GET)
+    public ModelAndView path(HttpServletRequest request, @PathVariable("repositoryId") String repositoryId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringAfterLast(uri, "/path");
+        File f = getTargetResource(repositoryId, path).getFile();
+        JSONObject json = getJson(uri, f);
+        appendItems(json, f);
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
@@ -67,47 +65,26 @@ public class ItemsController extends FileSystemController {
      * Private Methods
      */
 
-    private JSONObject getJson(String uri, File f, boolean serveFiles) throws JSONException {
+    private JSONObject getJson(String uri, File f) throws JSONException {
         JSONObject json = new JSONObject();
         json.put("uri", uri);
         json.put("isFile", f.isFile());
         json.put("name", f.getName());
 
-        if (f.isFile()) {
-            if (serveFiles) {
-                if (contains(uri, path.name())) {
-                    json.put(file.name(), replace(uri, path.name(), file.name()));
-                    json.put(contents.name(), replace(uri, path.name(), contents.name()));
-                    json.put("zip", uri + "/zip");
-                }
-            } else {
-                // TODO : append operating system specific local paths
-                json.put("local", f.getPath());
-            }
+        if (f.isFile() && contains(uri, path.name())) {
+            json.put(file.name(), replace(uri, path.name(), file.name()));
+            json.put(contents.name(), replace(uri, path.name(), contents.name()));
+            json.put("zip", uri + "/zip");
         }
+
         return json;
     }
 
-    private void appendItems(JSONObject parent, File f, boolean serveFiles) throws JSONException {
+    private void appendItems(JSONObject parent, File f) throws JSONException {
         if (f.isDirectory()) {
             for (File subfile : f.listFiles()) {
                 String childUri = getSubUri(parent.getString("uri"), subfile);
-                parent.append("items", getJson(childUri, subfile, serveFiles));
-            }
-        }
-    }
-
-    private void appendFiles(JSONObject parent, File f, boolean serveFiles) throws JSONException {
-        if (f.isDirectory()) {
-            for (File subfile : f.listFiles()) {
-                String childUri = getSubUri(parent.getString("uri"), subfile);
-                JSONObject child = getJson(childUri, subfile, serveFiles);
-
-                if (subfile.isFile()) {
-                    parent.append("files", child);
-                } else {
-                    parent.append("directories", child);
-                }
+                parent.append("items", getJson(childUri, subfile));
             }
         }
     }

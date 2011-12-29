@@ -25,26 +25,27 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.fsutils.util.EndlineFixingInputStream;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 import org.systemsbiology.addama.commons.web.views.ResourceFileView;
 import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
+import org.systemsbiology.addama.fsutils.util.EndlineFixingInputStream;
 import org.systemsbiology.addama.fsutils.util.NotStartsWithFilenameFilter;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Logger;
 
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
-import static org.apache.commons.lang.StringUtils.contains;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 import static org.systemsbiology.addama.commons.web.views.ResourceFileView.RESOURCE;
 
@@ -55,21 +56,18 @@ import static org.systemsbiology.addama.commons.web.views.ResourceFileView.RESOU
 public class CrudController extends FileSystemController {
     private static final Logger log = Logger.getLogger(CrudController.class.getName());
 
-    @RequestMapping(method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView get(HttpServletRequest request) throws Exception {
-        String baseUri = getCleanUri(request);
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = RequestMethod.GET)
+    public ModelAndView get(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
 
-        Resource resource = getWorkspaceResource(baseUri);
-        if (!resource.exists()) {
-            throw new ResourceNotFoundException(baseUri);
-        }
+        String path = substringAfterLast(uri, workspaceId);
+        Resource resource = getTargetResource(workspaceId, path);
 
         File resourceFile = resource.getFile();
         if (resourceFile.isDirectory()) {
             JSONObject json = new JSONObject();
             for (File f : resourceFile.listFiles(new NotStartsWithFilenameFilter("."))) {
-                json.append("items", fileAsJson(baseUri + "/" + f.getName(), f, request));
+                json.append("items", fileAsJson(uri + "/" + f.getName(), f, request));
             }
             return new ModelAndView(new JsonItemsView()).addObject("json", json);
         }
@@ -77,43 +75,26 @@ public class CrudController extends FileSystemController {
         return new ModelAndView(new ResourceFileView()).addObject(RESOURCE, resource);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView post(HttpServletRequest request) throws Exception {
-        String uri = getCleanUri(request);
-        assertAllowsWrites(uri);
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = RequestMethod.POST)
+    public ModelAndView post(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringAfterLast(uri, workspaceId);
 
         if (!isMultipartContent(request)) {
-            return mavNewDir(uri);
+            Resource r = getTargetResource(workspaceId, path);
+
+            File dir = r.getFile();
+            dir.mkdirs();
+
+            JSONObject json = new JSONObject();
+            json.put("uri", uri);
+            json.put("name", dir.getName());
+            json.put("label", dir.getName());
+            return new ModelAndView(new JsonView()).addObject("json", json);
         }
 
-        return mavFile(request, uri);
-    }
-
-
-    @RequestMapping(value = "/**/delete", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView delete_by_post(HttpServletRequest request) throws Exception {
-        String uri = getCleanUri(request, "/delete");
-        assertAllowsWrites(uri);
-        return mavDelete(uri);
-    }
-
-    @RequestMapping(method = RequestMethod.DELETE)
-    @ModelAttribute
-    public ModelAndView delete(HttpServletRequest request) throws Exception {
-        String uri = getCleanUri(request);
-        assertAllowsWrites(uri);
-        return mavDelete(uri);
-    }
-
-    /*
-    * Private Methods
-    */
-
-    private ModelAndView mavFile(HttpServletRequest request, String requestUri) throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("uri", requestUri);
+        json.put("uri", uri);
 
         try {
             ServletFileUpload upload = new ServletFileUpload();
@@ -126,11 +107,10 @@ public class CrudController extends FileSystemController {
                         filename = substringAfterLast(filename, "\\");
                     }
 
-                    String fileUri = requestUri + "/" + filename;
-                    Resource r = getWorkspaceResource(requestUri + "/" + filename);
+                    Resource r = getTargetResource(workspaceId, path + "/" + filename);
                     store(r, itemStream.openStream());
 
-                    json.append("items", fileAsJson(fileUri, r.getFile(), request));
+                    json.append("items", fileAsJson(uri + "/" + filename, r.getFile(), request));
                 }
             }
 
@@ -142,25 +122,27 @@ public class CrudController extends FileSystemController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    private ModelAndView mavNewDir(String requestUri) throws ResourceNotFoundException, IOException, JSONException {
-        Resource r = getWorkspaceResource(requestUri);
 
-        File dir = r.getFile();
-        dir.mkdirs();
-
-        JSONObject json = new JSONObject();
-        json.put("uri", requestUri);
-        json.put("name", dir.getName());
-        json.put("label", dir.getName());
-        return new ModelAndView(new JsonView()).addObject("json", json);
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/delete", method = RequestMethod.POST)
+    public ModelAndView delete_by_post(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringBetween(uri, workspaceId, "/delete");
+        return mavDelete(workspaceId, path);
     }
 
-    private ModelAndView mavDelete(String uri) throws Exception {
-        Resource resource = getWorkspaceResource(uri);
-        if (!resource.exists()) {
-            throw new ResourceNotFoundException(uri);
-        }
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = RequestMethod.DELETE)
+    public ModelAndView delete(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringAfterLast(uri, workspaceId);
+        return mavDelete(workspaceId, path);
+    }
 
+    /*
+    * Private Methods
+    */
+
+    private ModelAndView mavDelete(String workspaceId, String path) throws Exception {
+        Resource resource = getTargetResource(workspaceId, path);
         recurseDelete(resource.getFile());
         return new ModelAndView(new OkResponseView());
     }

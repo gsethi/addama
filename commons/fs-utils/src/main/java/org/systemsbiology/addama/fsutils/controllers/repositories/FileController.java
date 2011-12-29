@@ -20,31 +20,31 @@ package org.systemsbiology.addama.fsutils.controllers.repositories;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getRepositoryUri;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getResourcePath;
-import static org.systemsbiology.addama.fsutils.rest.UriScheme.file;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getSpacedURI;
 import static org.systemsbiology.addama.fsutils.util.RangeHeaderUtil.outputResource;
 
 /**
  * @author hrovira
  */
 @Controller
-public class FileController extends FileSystemController {
+public class FileController extends AbstractRepositoriesController {
 
-    @RequestMapping(value = "/**/file/**", method = RequestMethod.GET)
-    public void file(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String repositoryUri = getRepositoryUri(request, file);
-        assertServesFiles(repositoryUri);
+    @RequestMapping(value = "/**/repositories/{repositoryId}/file/**", method = RequestMethod.GET)
+    public void file(HttpServletRequest request, HttpServletResponse response,
+                     @PathVariable("repositoryId") String repositoryId) throws Exception {
+        assertServesFiles(repositoryId);
 
-        String resourcePath = getResourcePath(request, file);
-        Resource resource = getTargetResource(repositoryUri, resourcePath);
+        String uri = getSpacedURI(request);
+        String path = substringAfterLast(uri, "/file");
+        Resource resource = getTargetResource(repositoryId, path);
         outputResource(request, response, resource);
     }
 
