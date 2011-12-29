@@ -97,7 +97,7 @@
         </dependency>
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>web-registry</artifactId>
+            <artifactId>service-config</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
