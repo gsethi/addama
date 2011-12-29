@@ -34,12 +34,12 @@ public class ChromUriBeanTest {
     @Before
     public void setUp() {
         request = new MockHttpServletRequest();
-        request.setServletPath("/addama");
+        request.setServletPath("/refgenome");
     }
 
     @Test
     public void fullRange() {
-        request.setRequestURI("/addama/rg/build/chromosome/100/200");
+        request.setRequestURI("/refgenome/build/chromosome/100/200");
 
         ChromUriBean bean = new ChromUriBean(request);
         assertEquals("build", bean.getBuild());
@@ -50,7 +50,7 @@ public class ChromUriBeanTest {
 
     @Test
     public void fullRangeWithOperation() {
-        request.setRequestURI("/addama/rg/build/chromosome/100/200/operation");
+        request.setRequestURI("/refgenome/build/chromosome/100/200/operation");
 
         ChromUriBean bean = new ChromUriBean(request);
         assertEquals("build", bean.getBuild());
@@ -61,7 +61,7 @@ public class ChromUriBeanTest {
 
     @Test
     public void noEnd() {
-        request.setRequestURI("/addama/rg/build/chromosome/100");
+        request.setRequestURI("/refgenome/build/chromosome/100");
         ChromUriBean bean = new ChromUriBean(request);
         assertEquals("build", bean.getBuild());
         assertEquals("chromosome", bean.getChromosome());
@@ -71,7 +71,7 @@ public class ChromUriBeanTest {
 
     @Test
     public void noRange() {
-        request.setRequestURI("/addama/rg/build/chromosome");
+        request.setRequestURI("/refgenome/build/chromosome");
         ChromUriBean bean = new ChromUriBean(request);
         assertEquals("build", bean.getBuild());
         assertEquals("chromosome", bean.getChromosome());
@@ -81,7 +81,7 @@ public class ChromUriBeanTest {
 
     @Test
     public void noChromosome() {
-        request.setRequestURI("/addama/rg/build");
+        request.setRequestURI("/refgenome/build");
         ChromUriBean bean = new ChromUriBean(request);
         assertEquals("build", bean.getBuild());
         assertNull(bean.getChromosome());
@@ -91,7 +91,7 @@ public class ChromUriBeanTest {
 
     @Test
     public void noBuild() {
-        request.setRequestURI("/addama/rg");
+        request.setRequestURI("/refgenome");
         ChromUriBean bean = new ChromUriBean(request);
         assertNull(bean.getBuild());
         assertNull(bean.getChromosome());

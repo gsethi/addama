@@ -39,35 +39,8 @@
 
     <servlet-mapping>
         <servlet-name>refgenome</servlet-name>
-        <url-pattern>/addama/*</url-pattern>
+        <url-pattern>/refgenome/*</url-pattern>
     </servlet-mapping>
-
-    <!-- Registration Controls -->
-    <servlet>
-        <servlet-name>registration</servlet-name>
-        <servlet-class>org.systemsbiology.addama.commons.gae.web.ServiceRegistrationServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>registration</servlet-name>
-        <url-pattern>/registration</url-pattern>
-    </servlet-mapping>
-
-    <filter>
-        <filter-name>filter-registration-gae</filter-name>
-        <filter-class>org.systemsbiology.addama.commons.gae.web.CheckRegistryServiceKeyFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>filter-registration-gae</filter-name>
-        <url-pattern>/addama/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>filter-registration-gae</filter-name>
-        <url-pattern>/singlecall/*</url-pattern>
-    </filter-mapping>
 
     <security-constraint>
         <web-resource-collection>

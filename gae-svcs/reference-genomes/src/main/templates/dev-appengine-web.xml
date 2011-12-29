@@ -6,8 +6,6 @@
 
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-        <property name="gae.addama.registration.service.jsonConfig" value="refgenome.config"/>
-        <property name="gae.addama.registry.dev.mode" value="true"/>
     </system-properties>
 
 </appengine-web-app>

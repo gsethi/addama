@@ -1,17 +1,12 @@
 <html>
 <head>
-    <title>Addama Reference Genome Service</title>
+    <title>Reference Genome Service</title>
 
-    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-        google.load("prototype", "1.6.1.0");
-    </script>
+    <script type="text/javascript" language="javascript" src="https://informatics-apps.systemsbiology.net/protovis-1.0/protovis-r3.2.js"></script>
+    <script type="text/javascript" language="javascript" src="https://informatics-apps.systemsbiology.net/prototype-1.6.0.3.js"></script>
+    <script type="text/javascript" language="javascript" src="https://informatics-apps.systemsbiology.net/protovis-1.0/visdata.js"></script>
+    <script type="text/javascript" language="javascript" src="https://informatics-apps.systemsbiology.net/flexscroll.js"></script>
     <script type="text/javascript" src="js/refgenome.js"></script>
-
-       <script type="text/javascript" language="javascript" src="js/protovis-core-1.0/js/protovis-r3.2.js"></script>
-        <script type="text/javascript" language="javascript" src="js/protovis-core-1.0/js/visdata.js"></script>
-        <script type="text/javascript" language="javascript" src="js/flexscroll/js/flexscroll.js"></script>
-        
 
     <script type="text/javascript">
         function loadGenomeBuilds() {
@@ -82,35 +77,34 @@
 
         Event.observe(window, "load", loadGenomeBuilds);
     
-    function drawScrollBar(scrollbarContainer,minPosition,maxPosition) {
-            var listener = function(x,dx) {
-                Ext.getDom("input_start").value = x;
-                Ext.getDom("input_end").value = parseInt(x) + parseInt(dx) };
+        function drawScrollBar(scrollbarContainer,minPosition,maxPosition) {
+                var listener = function(x,dx) {
+                    Ext.getDom("input_start").value = x;
+                    Ext.getDom("input_end").value = parseInt(x) + parseInt(dx) };
 
-            var activateFetch = function() {
-              fetchSequence();  
-            };
-            scrollbarContainer.style.height ="50px";
+                var activateFetch = function() {
+                  fetchSequence();
+                };
+                scrollbarContainer.style.height ="50px";
 
-            var flexbar = new org.systemsbiology.visualization.protovis.FlexScroll( scrollbarContainer, listener);
-
-            var data ={DATATYPE : "org.systemsbiology.visualization.protovis.models.FlexScrollData", CONTENTS : "test"};
+                var flexbar = new org.systemsbiology.visualization.protovis.FlexScroll( scrollbarContainer, listener);
 
                 var data ={DATATYPE : "org.systemsbiology.visualization.protovis.models.FlexScrollData", CONTENTS : "test"};
 
-                var options = {plotWidth : 700, plotHeight: 50, dblclick_notifier : zoomScrollBar,
-                verticalPadding : 10, horizontalPadding: 30, font :"sans", minPosition: Math.round(minPosition / 1000) ,
-                maxPosition: Math.round(maxPosition / 1000), scaleMultiplier : 1000};
+                    var data ={DATATYPE : "org.systemsbiology.visualization.protovis.models.FlexScrollData", CONTENTS : "test"};
 
-            flexbar.draw(data, options);
+                    var options = {plotWidth : 700, plotHeight: 50, dblclick_notifier : zoomScrollBar,
+                    verticalPadding : 10, horizontalPadding: 30, font :"sans", minPosition: Math.round(minPosition / 1000) ,
+                    maxPosition: Math.round(maxPosition / 1000), scaleMultiplier : 1000};
 
-    }
+                flexbar.draw(data, options);
+
+        }
 
         function zoomScrollBar() {
             Ext.getDom("flexContainer").innerHTML = "";
             drawScrollBar(Ext.getDom("flexContainer"),Ext.getDom("input_start").value,Ext.getDom("input_end").value);
         }
-
 </script>
     
 </head>

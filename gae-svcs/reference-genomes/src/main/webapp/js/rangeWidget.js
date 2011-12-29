@@ -7,7 +7,7 @@ var RangeWidget = Class.create({
 
     load: function() {
         Ext.Ajax.request({
-            url: "/addama/refgenome/hg18/chr1",
+            url: "/refgenome/hg18/chr1",
             method: "get",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
@@ -45,7 +45,7 @@ var RangeWidget = Class.create({
 
     calculateRange: function(slider) {
         var values = slider.getValues();
-        this.publishEvent({ chromosomeUri: "/addama/refgenome/hg18/chr1/" + values[0] + "/" + values[1] });
+        this.publishEvent({ chromosomeUri: "/refgenome/hg18/chr1/" + values[0] + "/" + values[1] });
     },
 
     addEventListener: function(listener) {

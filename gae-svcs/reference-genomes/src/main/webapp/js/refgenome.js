@@ -1,6 +1,6 @@
 var referenceGenomeService = {
     getChromUri: function(build, chromosome, start, end) {
-        var chromUri = "/addama/refgenome";
+        var chromUri = "/refgenome";
         if (!build) {
             return chromUri;
         }
@@ -25,7 +25,7 @@ var referenceGenomeService = {
     },
 
     getGeneInformation: function(geneIdentity, geneCallback) {
-        this.loadItems("/addama/refgenome/genes/" + geneIdentity, geneCallback);
+        this.loadItems("/refgenome/genes/" + geneIdentity, geneCallback);
     },
 
     getGeneByChromosomeUri: function(chromuri, geneCallback) {
@@ -33,7 +33,7 @@ var referenceGenomeService = {
     },
 
     loadBuilds: function(buildItemCallback) {
-        this.loadItems("/addama/refgenome", buildItemCallback);
+        this.loadItems("/refgenome", buildItemCallback);
     },
 
     loadChromosomes: function(buildUri, chromItemCallback) {

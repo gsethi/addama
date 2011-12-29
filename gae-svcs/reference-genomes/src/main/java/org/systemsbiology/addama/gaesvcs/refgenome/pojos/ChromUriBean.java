@@ -52,13 +52,14 @@ public class ChromUriBean {
 
         String chromosomeUri = StringUtils.substringAfterLast(this.uri, request.getServletPath());
 
+        int i = 1;
         String[] splits = chromosomeUri.split("/");
-        this.build = getSplit(splits, 2);
-        this.chromosome = getSplit(splits, 3);
-        this.start = getLongSplit(splits, 4);
-        this.end = getLongSplit(splits, 5);
+        this.build = getSplit(splits, i++);
+        this.chromosome = getSplit(splits, i++);
+        this.start = getLongSplit(splits, i++);
+        this.end = getLongSplit(splits, i++);
 
-        String sign = getSplit(splits, 6);
+        String sign = getSplit(splits, i++);
         if (StringUtils.equals(sign, "+")) {
             this.strand = Strand.positive;
         } else if (StringUtils.equals(sign, "-")) {
