@@ -12,19 +12,19 @@ import static org.systemsbiology.google.visualization.datasource.JdbcTemplateHel
 /**
  * @author hrovira
  */
-public class JobsDaoAware {
+public class JobsDaoAware implements MappingsHandler {
     protected JobsDao jobsDao = new InMemoryJobsDao();
 
     public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
-        serviceConfig.visit(new MappingsHandler() {
-            public void handle(Mapping mapping) throws Exception {
-                JSONObject item = mapping.JSON();
-                if (item.has("jobsDb")) {
-                    JSONObject jobsDb = item.getJSONObject("jobsDb");
-                    jobsDb.put("defaultAutoCommit", true);
-                    jobsDao = new JdbcTemplateJobsDao(getJdbcTemplate(jobsDb));
-                }
-            }
-        });
+        serviceConfig.visit(this);
+    }
+
+    public void handle(Mapping mapping) throws Exception {
+        JSONObject item = mapping.JSON();
+        if (item.has("jobsDb")) {
+            JSONObject jobsDb = item.getJSONObject("jobsDb");
+            jobsDb.put("defaultAutoCommit", true);
+            this.jobsDao = new JdbcTemplateJobsDao(getJdbcTemplate(jobsDb));
+        }
     }
 }

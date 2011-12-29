@@ -21,21 +21,23 @@ package org.systemsbiology.addama.services.execution.mvc;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
-import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
+import org.systemsbiology.addama.jsonconfig.impls.CollectIdsMappingsHandler;
+import org.systemsbiology.addama.jsonconfig.impls.StringPropertyByIdMappingsHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang.StringUtils.chomp;
 import static org.apache.commons.lang.StringUtils.substringAfter;
 
 /**
@@ -45,41 +47,44 @@ import static org.apache.commons.lang.StringUtils.substringAfter;
 public class RootController {
     private static final Logger log = Logger.getLogger(RootController.class.getName());
 
-    private final Map<String, String> scriptsByUri = new HashMap<String, String>();
-    private final Map<String, String> viewersByUri = new HashMap<String, String>();
+    private final HashSet<String> toolIds = new HashSet<String>();
+    private final Map<String, String> viewersById = new HashMap<String, String>();
 
-    public void setJsonConfig(JsonConfig jsonConfig) {
-        jsonConfig.visit(new StringMapJsonConfigHandler(scriptsByUri, "script"));
-        jsonConfig.visit(new StringMapJsonConfigHandler(viewersByUri, "viewer"));
+    public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
+        serviceConfig.visit(new CollectIdsMappingsHandler(toolIds));
+        serviceConfig.visit(new StringPropertyByIdMappingsHandler(viewersById, "viewer"));
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView root(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
+    @RequestMapping(value = "/**/tools", method = RequestMethod.GET)
+    public ModelAndView tools(HttpServletRequest request) throws Exception {
+        String uri = chomp(substringAfter(request.getRequestURI(), request.getContextPath()), "/");
+        log.fine(uri);
 
-        String uri = substringAfter(request.getRequestURI(), request.getContextPath());
-        log.fine(request.getRequestURI() + ": uri=[" + uri + "]");
-        if (equalsIgnoreCase(uri, "/addama/tools")) {
-            JSONObject json = new JSONObject();
-            for (String scriptUri : scriptsByUri.keySet()) {
-                json.append("items", getItem(scriptUri));
-            }
-            return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        JSONObject json = new JSONObject();
+        json.put("uri", uri);
+        for (String toolId : toolIds) {
+            json.append("items", getItem(toolId, uri + "/" + toolId));
         }
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+    }
 
-        return new ModelAndView(new JsonView()).addObject("json", getItem(uri));
+    @RequestMapping(value = "/**/tools/{toolId}", method = RequestMethod.GET)
+    public ModelAndView tool(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
+        log.fine(toolId);
+        String uri = chomp(substringAfter(request.getRequestURI(), request.getContextPath()), "/");
+        return new ModelAndView(new JsonView()).addObject("json", getItem(toolId, uri));
     }
 
     /*
      * Private Methods
      */
 
-    private JSONObject getItem(String uri) throws JSONException {
+    private JSONObject getItem(String toolId, String uri) throws JSONException {
         JSONObject json = new JSONObject();
+        json.put("id", toolId);
         json.put("uri", uri);
         json.put("jobs", uri + "/jobs");
-        if (viewersByUri.containsKey(uri)) {
+        if (viewersById.containsKey(uri)) {
             json.put("ui", uri + "/ui");
         }
         return json;
