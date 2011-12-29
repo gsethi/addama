@@ -17,7 +17,6 @@
         <module>addama-registry</module>
         <module>emailuri-sharing-svc</module>
         <module>reference-genomes</module>
-        <module>channels-api-svc</module>
         <module>feeds-api-svc</module>
     </modules>
 
