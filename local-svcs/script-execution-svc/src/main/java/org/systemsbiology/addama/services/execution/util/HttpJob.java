@@ -159,11 +159,4 @@ public class HttpJob {
         return scriptUri;
     }
 
-    public static void scriptExists(String scriptUri, Map<String, String>... maps) throws ResourceNotFoundException {
-        for (Map<String, String> map : maps) {
-            if (!map.containsKey(scriptUri)) {
-                throw new ResourceNotFoundException(scriptUri);
-            }
-        }
-    }
 }
