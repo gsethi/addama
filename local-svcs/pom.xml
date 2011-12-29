@@ -92,7 +92,7 @@
         <!-- Addama Dependencies -->
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>commons-webutils</artifactId>
+            <artifactId>webutils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -102,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>commons-httpclient-support</artifactId>
+            <artifactId>httpclient-support</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

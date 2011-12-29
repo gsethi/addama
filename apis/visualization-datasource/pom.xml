@@ -66,7 +66,7 @@
 
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>commons-webutils</artifactId>
+            <artifactId>webutils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

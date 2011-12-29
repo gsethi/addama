@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>org.systemsbiology.addama.commons</groupId>
-    <artifactId>commons-springutils</artifactId>
+    <artifactId>springutils</artifactId>
     <packaging>jar</packaging>
     <name>Commons: Spring Utilities</name>
 

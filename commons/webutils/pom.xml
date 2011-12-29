@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>org.systemsbiology.addama.commons</groupId>
-    <artifactId>commons-webutils</artifactId>
+    <artifactId>webutils</artifactId>
     <packaging>jar</packaging>
     <name>Commons: Web Utilities</name>
 
