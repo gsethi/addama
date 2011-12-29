@@ -24,7 +24,7 @@ public class EmailInstructionsMappingsHandlerTest {
 
     @Before
     public void setup() throws IOException {
-        ClassPathResource resource = new ClassPathResource("email-json-config-handler-test/TestEmailMessage.txt");
+        ClassPathResource resource = new ClassPathResource("email-handler-test/TestEmailMessage.txt");
         testEmailMsg = resource.getFile();
     }
 
