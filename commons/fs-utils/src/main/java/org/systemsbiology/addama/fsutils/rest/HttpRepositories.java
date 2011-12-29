@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.cleanSpaces;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
  * @author hrovira
@@ -18,7 +19,7 @@ public class HttpRepositories {
      * @return String - repository URI
      */
     public static String getRepositoryUri(HttpServletRequest request, UriScheme uriScheme) {
-        String uri = substringAfter(request.getRequestURI(), request.getContextPath());
+        String uri = getURI(request);
         if (uri.contains(uriScheme.name())) {
             uri = substringBeforeLast(uri, uriScheme.name());
         }

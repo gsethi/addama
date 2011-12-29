@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
  * @author hrovira
@@ -95,7 +96,7 @@ public class SimpleProxyController {
     }
 
     private String getProxyUrl(HttpServletRequest request) throws ResourceNotFoundException {
-        String requestUri = substringAfter(request.getRequestURI(), request.getContextPath());
+        String requestUri = getURI(request);
         for (Map.Entry<String, String> entry : proxyMappings.entrySet()) {
             String uri = entry.getKey();
             if (requestUri.startsWith(uri)) {
@@ -109,7 +110,7 @@ public class SimpleProxyController {
     }
 
     private String getDefaultPage(HttpServletRequest request) throws ResourceNotFoundException {
-        String requestUri = substringAfter(request.getRequestURI(), request.getContextPath());
+        String requestUri = getURI(request);
         for (Map.Entry<String, String> entry : defaultPages.entrySet()) {
             String uri = entry.getKey();
             if (requestUri.startsWith(uri)) {

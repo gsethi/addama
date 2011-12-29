@@ -151,6 +151,14 @@ public class HttpIO {
         return substringBeforeLast(uri, suffix);
     }
 
+    public static String getURI(HttpServletRequest request) {
+        return chomp(substringAfter(request.getRequestURI(), request.getContextPath()), "/");
+    }
+
+    public static String getSpacedURI(HttpServletRequest request) {
+        return cleanSpaces(getURI(request));
+    }
+
     /**
      * Cleans encoding for spaces
      *

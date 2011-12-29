@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
  * @author hrovira
@@ -85,9 +86,9 @@ public class HttpJob {
     }
 
     public static Job getJob(JobsDao jobsDao, HttpServletRequest request, String suffix) throws ResourceNotFoundException {
-        String jobUri = substringAfter(request.getRequestURI(), request.getContextPath());
+        String jobUri = getURI(request);
         if (!isEmpty(suffix)) {
-            jobUri = substringBetween(request.getRequestURI(), request.getContextPath(), suffix);
+            jobUri = substringBeforeLast(jobUri, suffix);
         }
         log.fine(jobUri);
         Job job = jobsDao.retrieve(jobUri);
@@ -150,9 +151,9 @@ public class HttpJob {
     }
 
     public static String getScriptUri(HttpServletRequest request, String suffix) throws ResourceNotFoundException {
-        String scriptUri = substringAfter(request.getRequestURI(), request.getContextPath());
+        String scriptUri = getURI(request);
         if (!isEmpty(suffix)) {
-            scriptUri = substringBetween(request.getRequestURI(), request.getContextPath(), suffix);
+            scriptUri = substringBeforeLast(scriptUri, suffix);
         }
 
         log.fine(scriptUri);

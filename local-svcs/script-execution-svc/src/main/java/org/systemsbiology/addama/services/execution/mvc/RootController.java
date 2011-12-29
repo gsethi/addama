@@ -37,8 +37,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static org.apache.commons.lang.StringUtils.chomp;
-import static org.apache.commons.lang.StringUtils.substringAfter;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
  * @author hrovira
@@ -57,7 +56,7 @@ public class RootController {
 
     @RequestMapping(value = "/**/tools", method = RequestMethod.GET)
     public ModelAndView tools(HttpServletRequest request) throws Exception {
-        String uri = chomp(substringAfter(request.getRequestURI(), request.getContextPath()), "/");
+        String uri = getURI(request);
         log.fine(uri);
 
         JSONObject json = new JSONObject();
@@ -71,7 +70,7 @@ public class RootController {
     @RequestMapping(value = "/**/tools/{toolId}", method = RequestMethod.GET)
     public ModelAndView tool(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
         log.fine(toolId);
-        String uri = chomp(substringAfter(request.getRequestURI(), request.getContextPath()), "/");
+        String uri = getURI(request);
         return new ModelAndView(new JsonView()).addObject("json", getItem(toolId, uri));
     }
 

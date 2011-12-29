@@ -34,9 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.collectFiles;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.getCleanUri;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.zip;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getRepositoryUri;
 import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getResourcePath;
 import static org.systemsbiology.addama.fsutils.rest.UriScheme.path;

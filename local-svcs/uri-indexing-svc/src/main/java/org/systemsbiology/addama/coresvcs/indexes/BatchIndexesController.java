@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
  * @author hrovira
@@ -89,7 +90,7 @@ public class BatchIndexesController {
     @RequestMapping(value = "**/batches/*", method = RequestMethod.GET)
     @ModelAttribute
     public ModelAndView getBatch(HttpServletRequest request) throws Exception {
-        String batchUri = substringAfter(request.getRequestURI(), request.getContextPath());
+        String batchUri = getURI(request);
 
         BatchItem batch = batchesByUri.get(batchUri);
         if (batch == null) {
