@@ -33,21 +33,26 @@
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.4.2</version>
+            <version>1.6.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-labs</artifactId>
-            <version>1.4.2</version>
+            <version>1.6.0</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>1.6.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>1.6.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -56,7 +61,6 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
             <artifactId>webutils</artifactId>
@@ -69,26 +73,6 @@
             <artifactId>commons-fileupload</artifactId>
             <version>1.2</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>2.5.4</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-testing</artifactId>
-            <version>1.4.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine</groupId>
-            <artifactId>appengine-api-stubs</artifactId>
-            <version>1.4.2</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>
