@@ -23,6 +23,7 @@
         <module>gae-commons</module>
         <module>fs-utils</module>
         <module>visualization-datasource</module>
+        <module>emailuri-sharing-api</module>
     </modules>
 
     <dependencies>
