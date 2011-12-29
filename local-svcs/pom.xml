@@ -20,7 +20,6 @@
         <module>script-execution-svc</module>
         <module>simple-proxy-svc</module>
         <module>chromosome-index-svc</module>
-        <module>jobsdao-svc</module>
     </modules>
 
     <build>
