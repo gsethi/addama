@@ -17,7 +17,6 @@
 
     <modules>
         <module>service-config</module>
-        <module>io-utils</module>
         <module>webutils</module>
         <module>springutils</module>
         <module>httpclient-support</module>

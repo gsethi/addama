@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.commons.io.utils;
+package org.systemsbiology.addama.fsutils.util;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

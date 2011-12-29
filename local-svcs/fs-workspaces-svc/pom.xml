@@ -37,12 +37,6 @@
 
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>io-utils</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.systemsbiology.addama.commons</groupId>
             <artifactId>visualization-datasource</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
