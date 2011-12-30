@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockServletContext;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import java.util.HashMap;
@@ -21,7 +22,10 @@ public class BooleanPropertyByIdMappingsHandlerTest {
 
     @Before
     public void setup() throws Exception {
-        serviceConfig = new ServiceConfig(new ClassPathResource("testservice.config"));
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("testservice");
+        serviceConfig = new ServiceConfig();
+        serviceConfig.setServletContext(msc);
         serviceConfig.visit(new BooleanPropertyByIdMappingsHandler(noDefaults, "goodBoolean"));
         serviceConfig.visit(new BooleanPropertyByIdMappingsHandler(withDefaults, "goodBoolean", true));
     }

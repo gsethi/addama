@@ -2,7 +2,7 @@ package org.systemsbiology.addama.jsonconfig.impls;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockServletContext;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import java.util.HashMap;
@@ -19,7 +19,11 @@ public class StringPropertyByIdMappingsHandlerTest {
 
     @Before
     public void setup() throws Exception {
-        ServiceConfig serviceConfig = new ServiceConfig(new ClassPathResource("testservice.config"));
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("testservice");
+
+        ServiceConfig serviceConfig = new ServiceConfig();
+        serviceConfig.setServletContext(msc);
         serviceConfig.visit(new StringPropertyByIdMappingsHandler(noDefaults, "goodString"));
         serviceConfig.visit(new StringPropertyByIdMappingsHandler(withDefaults, "goodString", "DEFAULT_VALUE"));
         serviceConfig.visit(new StringPropertyByIdMappingsHandler(noDefaults, "badString"));

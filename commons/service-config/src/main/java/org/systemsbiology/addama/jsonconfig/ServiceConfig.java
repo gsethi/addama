@@ -20,8 +20,10 @@ package org.systemsbiology.addama.jsonconfig;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.context.ServletContextAware;
 
+import javax.servlet.ServletContext;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,36 +39,41 @@ import static org.systemsbiology.addama.jsonconfig.ConfigKeys.*;
 /**
  * @author hrovira
  */
-public class ServiceConfig {
+public class ServiceConfig implements ServletContextAware {
     private static final Logger log = Logger.getLogger(ServiceConfig.class.getName());
 
-    private final JSONObject JSON;
     private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
+    private JSONObject JSON;
 
-    public ServiceConfig(Resource resource) throws Exception {
-        InputStream inputStream = resource.getInputStream();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+    public void setServletContext(ServletContext servletContext) {
+        try {
+            ClassPathResource resource = new ClassPathResource(servletContext.getContextPath() + ".config");
+            InputStream inputStream = resource.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-        StringBuilder builder = new StringBuilder();
-        String line = "";
-        while (line != null) {
-            line = bufferedReader.readLine();
-            if (line != null) {
-                builder.append(line);
+            StringBuilder builder = new StringBuilder();
+            String line = "";
+            while (line != null) {
+                line = bufferedReader.readLine();
+                if (line != null) {
+                    builder.append(line);
+                }
             }
-        }
 
-        this.JSON = new JSONObject(builder.toString());
+            this.JSON = new JSONObject(builder.toString());
 
-        if (JSON.has(mappings.name())) {
-            String sBase = chomp(JSON.getString(base.name()), "/");
-            JSONArray cMappings = JSON.getJSONArray(mappings.name());
-            for (int i = 0; i < cMappings.length(); i++) {
-                JSONObject cMapping = cMappings.getJSONObject(i);
-                String cId = cMapping.getString(id.name());
-                String cLabel = cMapping.getString(label.name());
-                mappingsById.put(cId, new Mapping(cId, cLabel, sBase, cMapping));
+            if (JSON.has(mappings.name())) {
+                String sBase = chomp(JSON.getString(base.name()), "/");
+                JSONArray cMappings = JSON.getJSONArray(mappings.name());
+                for (int i = 0; i < cMappings.length(); i++) {
+                    JSONObject cMapping = cMappings.getJSONObject(i);
+                    String cId = cMapping.getString(id.name());
+                    String cLabel = cMapping.getString(label.name());
+                    mappingsById.put(cId, new Mapping(cId, cLabel, sBase, cMapping));
+                }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
