@@ -16,7 +16,6 @@
         <module>common-uis</module>
         <module>addama-registry</module>
         <module>reference-genomes</module>
-        <module>feeds-api-svc</module>
     </modules>
 
     <dependencies>
