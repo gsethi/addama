@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.chomp;
-import static org.systemsbiology.addama.jsonconfig.ConfigKeys.*;
 
 
 /**
@@ -45,7 +44,6 @@ public class ServiceConfig implements ServletContextAware {
     private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
     private JSONObject JSON;
     private String ID;
-    private String BASE;
     private String LABEL;
 
     public void setServletContext(ServletContext servletContext) {
@@ -65,16 +63,16 @@ public class ServiceConfig implements ServletContextAware {
 
             this.JSON = new JSONObject(builder.toString());
             this.ID = this.JSON.getString("id");
-            this.BASE = chomp(this.JSON.getString("base"), "/");
             this.LABEL = this.JSON.getString("label");
 
-            if (JSON.has(mappings.name())) {
-                JSONArray cMappings = JSON.getJSONArray(mappings.name());
+            if (JSON.has("mappings")) {
+                String base = chomp(JSON.getString("base"), "/");
+                JSONArray cMappings = JSON.getJSONArray("mappings");
                 for (int i = 0; i < cMappings.length(); i++) {
                     JSONObject cMapping = cMappings.getJSONObject(i);
-                    String cId = cMapping.getString(id.name());
-                    String cLabel = cMapping.getString(label.name());
-                    mappingsById.put(cId, new Mapping(cId, cLabel, this.BASE, cMapping));
+                    String cId = cMapping.getString("id");
+                    String cLabel = cMapping.getString("label");
+                    mappingsById.put(cId, new Mapping(cId, cLabel, base, cMapping));
                 }
             }
         } catch (Exception e) {
