@@ -105,6 +105,11 @@
             <artifactId>httpclient-support</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.systemsbiology.addama.commons</groupId>
+            <artifactId>springutils</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
     </dependencies>
 
