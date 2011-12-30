@@ -38,9 +38,10 @@ public class EmailInstructionsMappingsHandlerTest {
 
         JSONObject json = new JSONObject();
         json.put("id", "id");
+        json.put("label", "label");
         json.put("emailInstructions", emailJson);
 
-        handler.handle(new Mapping("id", "label", "base", json));
+        handler.handle(new Mapping("base", json));
 
         EmailBean bean = emailBeansByUri.get("id");
         assertNotNull(bean);
@@ -58,8 +59,9 @@ public class EmailInstructionsMappingsHandlerTest {
     public void noemail() throws Exception {
         JSONObject json = new JSONObject();
         json.put("id", "id");
+        json.put("label", "label");
 
-        handler.handle(new Mapping("id", "label", "base", json));
+        handler.handle(new Mapping("base", json));
 
         assertFalse(emailBeansByUri.containsKey("id"));
         assertNull(emailBeansByUri.get("id"));
