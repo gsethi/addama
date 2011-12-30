@@ -3,7 +3,6 @@ package org.systemsbiology.addama.sandbox.httpproxy;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -13,7 +12,6 @@ import org.systemsbiology.addama.commons.httpclient.support.HttpClientException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientResponseException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
 import org.systemsbiology.addama.commons.httpclient.support.ResponseCallback;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.services.proxy.controllers.SimpleProxyController;
 
