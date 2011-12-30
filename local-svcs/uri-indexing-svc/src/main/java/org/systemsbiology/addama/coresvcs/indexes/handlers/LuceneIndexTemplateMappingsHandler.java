@@ -11,7 +11,6 @@ import org.springmodules.lucene.index.support.FSDirectoryFactoryBean;
 import org.springmodules.lucene.index.support.SimpleIndexFactoryBean;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.MappingsHandler;
-import org.systemsbiology.addama.jsonconfig.impls.GenericMapJsonConfigHandler;
 import org.systemsbiology.addama.jsonconfig.impls.MappingPropertyByIdContainer;
 
 import java.util.Map;
