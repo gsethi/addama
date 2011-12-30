@@ -22,16 +22,13 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.filter.GenericFilterBean;
-import org.systemsbiology.addama.commons.httpclient.support.HttpClientException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientResponseException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
 import org.systemsbiology.addama.commons.httpclient.support.ResponseCallback;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
-import org.systemsbiology.addama.jsonconfig.JsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.registry.brokering.MaxContentLengthHttpServletResponse;
 
 import javax.servlet.FilterChain;
@@ -54,8 +51,9 @@ import static org.systemsbiology.addama.commons.web.servlet.HttpRequestUriInvoca
 /**
  * @author hrovira
  */
-public class JsonConfigRegistryServiceFilter extends GenericFilterBean implements JsonConfigHandler {
-    private static final Logger log = Logger.getLogger(JsonConfigRegistryServiceFilter.class.getName());
+public class RegistryServiceFilter extends GenericFilterBean implements ResponseCallback {
+    private static final Logger log = Logger.getLogger(RegistryServiceFilter.class.getName());
+    public static final Integer MAX_CONTENT_LENGTH = 10000000;
 
     protected final Map<String, String> registryServiceKeyByHost = new HashMap<String, String>();
 
@@ -63,19 +61,83 @@ public class JsonConfigRegistryServiceFilter extends GenericFilterBean implement
 
     private HttpClientTemplate httpClientTemplate;
     private URL secureHostUrl;
-
-    private final Integer maxContentLength = 10000000;
+    private URL serviceHostUrl;
+    private ServiceConfig serviceConfig;
 
     public void setHttpClientTemplate(HttpClientTemplate httpClientTemplate) {
         this.httpClientTemplate = httpClientTemplate;
     }
 
-    public void setJsonConfig(JsonConfig jsonConfig) {
-        jsonConfig.visit(this);
-    }
-
     public void setSecureHostUrl(URL secureHostUrl) {
         this.secureHostUrl = secureHostUrl;
+    }
+
+    public void setServiceHostUrl(URL serviceHostUrl) {
+        this.serviceHostUrl = serviceHostUrl;
+    }
+
+    public void setServiceConfig(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
+
+    public void afterPropertiesSet() throws ServletException {
+        super.afterPropertiesSet();
+
+        try {
+            JSONObject registration = new JSONObject();
+            registration.put("id", serviceConfig.ID());
+            registration.put("host", serviceHostUrl.toString());
+            registration.put("label", serviceConfig.LABEL());
+
+            for (Mapping m : serviceConfig.getMappings()) {
+                registration.append("mappings", new JSONObject().put("uri", m.URI()).put("label", m.label));
+            }
+
+            PostMethod post = new PostMethod("/addama/registry");
+            post.setQueryString(new NameValuePair[]{new NameValuePair("registration", registration.toString())});
+            httpClientTemplate.executeMethod(post, this);
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
+
+    /*
+     * ResponseCallback
+     */
+    public Object onResponse(int statusCode, HttpMethod method) throws HttpClientResponseException {
+        String message = null;
+        try {
+            if (statusCode == 200) {
+                Header header = method.getResponseHeader("x-addama-registry-key");
+                if (header != null) {
+                    registryServiceKeyByHost.put(secureHostUrl.getHost(), header.getValue());
+                }
+            }
+            message = method.getResponseBodyAsString();
+        } catch (Exception e) {
+            log.warning(e.getMessage());
+        } finally {
+            StringBuilder builder = new StringBuilder();
+            builder.append("\n===============================================\n");
+            builder.append("Service Registration");
+            builder.append("\n\t").append(serviceConfig.LABEL());
+            if (statusCode == SC_OK) {
+                builder.append(" [ OK ]");
+            } else {
+                builder.append(" [ ").append(statusCode).append(" ]");
+            }
+            if (!isEmpty(message)) {
+                builder.append("\n\t").append(message);
+            }
+
+            for (Mapping mapping : serviceConfig.getMappings()) {
+                builder.append("\n\t").append(mapping.label);
+            }
+            builder.append("\n===============================================\n");
+            log.info(builder.toString());
+        }
+
+        return null;
     }
 
     /*
@@ -122,11 +184,11 @@ public class JsonConfigRegistryServiceFilter extends GenericFilterBean implement
                 response.setHeader("Location", getSingleCallTemporaryUri(request, singleCall, requestUri));
                 return;
             }
-            
-            MaxContentLengthHttpServletResponse max = new MaxContentLengthHttpServletResponse(response, maxContentLength);
+
+            MaxContentLengthHttpServletResponse max = new MaxContentLengthHttpServletResponse(response, MAX_CONTENT_LENGTH);
             filterChain.doFilter(servletRequest, max);
             if (max.isLimitExceeded()) {
-                log.fine("size limit exceeded:" + maxContentLength);
+                log.fine("size limit exceeded:" + MAX_CONTENT_LENGTH);
 
                 String location = getSingleCallTemporaryUri(request, singleCall, requestUri);
                 response.setStatus(SC_REQUEST_ENTITY_TOO_LARGE);
@@ -140,52 +202,8 @@ public class JsonConfigRegistryServiceFilter extends GenericFilterBean implement
     }
 
     /*
-    * JsonConfigHandler
-    */
-
-    public void handle(JSONObject configuration) throws Exception {
-        if (configuration.has("service")) {
-            JSONObject service = configuration.getJSONObject("service");
-            String serviceUri = service.getString("uri");
-            httpClientTemplate.setServiceUri(serviceUri);
-
-            String registerUri = replace(serviceUri, "/addama/services", "/addama/registry/services");
-            PostMethod post = new PostMethod(registerUri);
-            post.setQueryString(new NameValuePair[]{new NameValuePair("service", service.toString())});
-
-            String key = (String) httpClientTemplate.executeMethod(post, new RegistrationResponseCallback(service));
-            if (!isEmpty(key)) {
-                registryServiceKeyByHost.put(secureHostUrl.getHost(), key);
-
-                if (configuration.has("mappings")) {
-                    JSONArray mappings = configuration.getJSONArray("mappings");
-                    for (int i = 0; i < mappings.length(); i++) {
-                        JSONObject mapping = mappings.getJSONObject(i);
-                        mapping.put("service", serviceUri);
-                        registerMapping(mapping);
-                    }
-                }
-            }
-
-            registrationReport(service, configuration.optJSONArray("mappings"));
-        }
-    }
-
-    /*
     * Private Methods
     */
-
-    private void registerMapping(JSONObject mapping) throws JSONException, HttpClientException, HttpClientResponseException {
-        String uri = mapping.getString("uri");
-        String registerUri = "/addama/registry/mappings" + uri;
-        if (uri.startsWith("/addama")) {
-            registerUri = replace(uri, "/addama", "/addama/registry/mappings");
-        }
-
-        PostMethod method = new PostMethod(registerUri);
-        method.addParameter(new NameValuePair("mapping", mapping.toString()));
-        httpClientTemplate.executeMethod(method, new RegistrationResponseCallback(mapping));
-    }
 
     private boolean hasRegistryKey(HttpServletRequest request) {
         String key = request.getHeader("x-addama-registry-key");
@@ -198,16 +216,8 @@ public class JsonConfigRegistryServiceFilter extends GenericFilterBean implement
             return false;
         }
 
-        if (host.startsWith("s~")) {
-            host = replace(host, "s~", "");
-        }
-
         String savedKey = registryServiceKeyByHost.get(host);
-        if (isEmpty(savedKey)) {
-            return false;
-        }
-
-        return equalsIgnoreCase(key, savedKey);
+        return !isEmpty(savedKey) && equalsIgnoreCase(key, savedKey);
     }
 
     private String getSingleCallTemporaryUri(HttpServletRequest request, String singleCall, String actualUri) {
@@ -218,64 +228,4 @@ public class JsonConfigRegistryServiceFilter extends GenericFilterBean implement
         return chomp(substringBefore(request.getRequestURL().toString(), actualUri), "/") + temporaryUri;
     }
 
-    private void registrationReport(JSONObject service, JSONArray mappings) {
-        try {
-            StringBuilder builder = new StringBuilder();
-            builder.append("\n===============================================\n");
-            builder.append("Registering Service");
-            appendRegistrationReport(builder, service);
-
-            if (mappings != null) {
-                builder.append("\n\nRegistering ").append(mappings.length()).append(" Mappings");
-                for (int i = 0; i < mappings.length(); i++) {
-                    appendRegistrationReport(builder, mappings.getJSONObject(i));
-                }
-            }
-
-            builder.append("\n===============================================\n");
-            log.info(builder.toString());
-        } catch (JSONException e) {
-            log.warning("unable to print registration report:" + e);
-        }
-    }
-
-    private void appendRegistrationReport(StringBuilder builder, JSONObject item) throws JSONException {
-        String uri = item.getString("uri");
-        String label = item.optString("label", uri);
-        Integer responseCode = item.optInt("responseCode", 404);
-
-        if (responseCode == SC_OK) {
-            builder.append("\n\t").append(label).append(" [ OK ]");
-        } else {
-            builder.append("\n\t").append(label).append(" [ ").append(responseCode).append(" ]");
-        }
-    }
-
-    /*
-    * Private Classes
-    */
-
-    private class RegistrationResponseCallback implements ResponseCallback {
-        private final JSONObject item;
-
-        private RegistrationResponseCallback(JSONObject item) {
-            this.item = item;
-        }
-
-        public Object onResponse(int statusCode, HttpMethod method) throws HttpClientResponseException {
-            try {
-                item.put("responseCode", statusCode);
-            } catch (JSONException e) {
-                throw new HttpClientResponseException(statusCode, method, e);
-            }
-
-            if (statusCode == 200) {
-                Header header = method.getResponseHeader("x-addama-registry-key");
-                if (header != null) {
-                    return header.getValue();
-                }
-            }
-            return null;
-        }
-    }
 }

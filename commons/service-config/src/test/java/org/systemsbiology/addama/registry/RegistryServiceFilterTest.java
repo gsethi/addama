@@ -18,16 +18,16 @@ import static org.springframework.mock.web.MockHttpServletResponse.SC_REQUEST_EN
 /**
  * @author hrovira
  */
-public class JsonConfigRegistryServiceFilterTest {
+public class RegistryServiceFilterTest {
     private static final Integer MAX_CONTENT_LEN = 10000000;
 
-    private JsonConfigRegistryServiceFilter filter;
+    private RegistryServiceFilter filter;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
     @Before
     public void setup() {
-        filter = new JsonConfigRegistryServiceFilter();
+        filter = new RegistryServiceFilter();
         filter.registryServiceKeyByHost.put("host", "key");
 
         request = new MockHttpServletRequest("get", "/toolarge.file");

@@ -3,9 +3,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean id="filter-registration" class="org.systemsbiology.addama.registry.JsonConfigRegistryServiceFilter"
+    <bean id="filter-registration" class="org.systemsbiology.addama.registry.RegistryServiceFilter"
           autowire="byType">
         <property name="secureHostUrl" value="${httpclient.secureHostUrl}"/>
+        <property name="serviceHostUrl" value="${service.hostUrl}"/>
     </bean>
 
 </beans>

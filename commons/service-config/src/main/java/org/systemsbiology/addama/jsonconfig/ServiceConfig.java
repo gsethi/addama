@@ -44,6 +44,9 @@ public class ServiceConfig implements ServletContextAware {
 
     private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
     private JSONObject JSON;
+    private String ID;
+    private String BASE;
+    private String LABEL;
 
     public void setServletContext(ServletContext servletContext) {
         try {
@@ -61,15 +64,17 @@ public class ServiceConfig implements ServletContextAware {
             }
 
             this.JSON = new JSONObject(builder.toString());
+            this.ID = this.JSON.getString("id");
+            this.BASE = chomp(this.JSON.getString("base"), "/");
+            this.LABEL = this.JSON.getString("label");
 
             if (JSON.has(mappings.name())) {
-                String sBase = chomp(JSON.getString(base.name()), "/");
                 JSONArray cMappings = JSON.getJSONArray(mappings.name());
                 for (int i = 0; i < cMappings.length(); i++) {
                     JSONObject cMapping = cMappings.getJSONObject(i);
                     String cId = cMapping.getString(id.name());
                     String cLabel = cMapping.getString(label.name());
-                    mappingsById.put(cId, new Mapping(cId, cLabel, sBase, cMapping));
+                    mappingsById.put(cId, new Mapping(cId, cLabel, this.BASE, cMapping));
                 }
             }
         } catch (Exception e) {
@@ -84,6 +89,14 @@ public class ServiceConfig implements ServletContextAware {
 
     public Mapping getMapping(String id) {
         return mappingsById.get(id);
+    }
+
+    public String ID() {
+        return this.ID;
+    }
+
+    public String LABEL() {
+        return this.LABEL;
     }
 
     public JSONObject JSON() {
