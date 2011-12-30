@@ -16,13 +16,13 @@
     </description>
 
     <modules>
-        <module>service-config</module>
-        <module>webutils</module>
         <module>springutils</module>
+        <module>webutils</module>
         <module>httpclient-support</module>
-        <module>gae-commons</module>
-        <module>fs-utils</module>
         <module>visualization-datasource</module>
+        <module>fs-utils</module>
+        <module>service-config</module>
+        <module>gae-commons</module>
         <module>emailuri-sharing-api</module>
     </modules>
 
