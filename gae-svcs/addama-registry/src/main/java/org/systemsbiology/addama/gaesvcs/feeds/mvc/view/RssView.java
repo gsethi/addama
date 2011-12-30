@@ -51,7 +51,7 @@ public class RssView implements View {
         builder.append("<generator>").append(APPSPOT_ID).append("</generator>");
         builder.append("<ttl>60</ttl>");
         builder.append("<image>");
-        builder.append("<url>").append("/addama/services/feeds-api-svc/images/rss.png</url>");
+        builder.append("<url>").append("/rss.png</url>");
         builder.append("<title>Addama Feeds</title>");
         builder.append("<link>").append("/addama/feeds</link>");
         builder.append("</image>");

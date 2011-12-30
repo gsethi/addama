@@ -66,6 +66,10 @@
                 <entry key="/addama/channels" value-ref="channelServiceController"/>
                 <entry key="/addama/channels/*" value-ref="channelServiceController"/>
 
+                <!-- Feed Controller -->
+                <entry key="/addama/feeds" value-ref="feedsController"/>
+                <entry key="/addama/feeds/*" value-ref="feedsController"/>
+
                 <!-- API Keys Controllers -->
                 <entry key="/addama/apikeys/**">
                     <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.ApiKeyController"
@@ -115,5 +119,14 @@
     </bean>
 
     <bean id="channelServiceController" class="org.systemsbiology.addama.appengine.rest.ChannelServiceController"/>
+
+    <bean id="feedsController" class="org.systemsbiology.addama.gaesvcs.feeds.mvc.FeedsController" autowire="byType">
+        <property name="supportedMethods">
+            <list>
+                <value>GET</value>
+                <value>POST</value>
+            </list>
+        </property>
+    </bean>
 
 </beans>
