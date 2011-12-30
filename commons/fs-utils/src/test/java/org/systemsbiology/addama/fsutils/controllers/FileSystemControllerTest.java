@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.mock.web.MockServletContext;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
@@ -19,9 +20,15 @@ public class FileSystemControllerTest {
 
     @Before
     public void setup() throws Exception {
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("fileSystemControllerTest");
+
+        ServiceConfig config = new ServiceConfig();
+        config.setServletContext(msc);
+
         controller = new FileSystemController() {
         };
-        controller.setServiceConfig(new ServiceConfig(new ClassPathResource("fileSystemControllerTest.config")));
+        controller.setServiceConfig(config);
     }
 
     @Test

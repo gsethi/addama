@@ -4,8 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
@@ -22,9 +22,14 @@ public class SchemaControllerTest {
 
     @Before
     public void setup() throws Exception {
-        controller = new SchemaController();
-        controller.setServiceConfig(new ServiceConfig(new ClassPathResource("schemaControllerTest.config")));
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("schemaControllerTest");
 
+        ServiceConfig config = new ServiceConfig();
+        config.setServletContext(msc);
+
+        controller = new SchemaController();
+        controller.setServiceConfig(config);
         request = new MockHttpServletRequest("get", "/addama/repositories/repo1/dataset.tsv/schema");
     }
 
