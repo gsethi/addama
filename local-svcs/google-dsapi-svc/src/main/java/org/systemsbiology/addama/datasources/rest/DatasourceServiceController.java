@@ -70,8 +70,8 @@ public class DatasourceServiceController implements InitializingBean {
         for (Mapping mapping : this.serviceConfig.getMappings()) {
             JSONObject item = new JSONObject();
             item.put("uri", mapping.URI());
-            item.put("label", mapping.label);
-            item.put("id", mapping.id);
+            item.put("label", mapping.LABEL());
+            item.put("id", mapping.ID());
             json.append("items", item);
         }
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
