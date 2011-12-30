@@ -5,13 +5,14 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
-import org.systemsbiology.addama.jsonconfig.impls.BooleanMapJsonConfigHandler;
-import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.MappingsHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.services.proxy.callbacks.SimpleProxyResponseCallback;
 import org.systemsbiology.addama.services.proxy.transforms.Transforms;
 import org.systemsbiology.addama.services.proxy.transforms.TsvToJsonArrayResponseTransform;
@@ -31,7 +32,7 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
  * @author hrovira
  */
 @Controller
-public class SimpleProxyController {
+public class SimpleProxyController implements MappingsHandler {
     private final Map<String, String> proxyMappings = new HashMap<String, String>();
     private final Map<String, Boolean> excludeBaseUris = new HashMap<String, Boolean>();
     private final Map<String, String> defaultPages = new HashMap<String, String>();
@@ -42,10 +43,16 @@ public class SimpleProxyController {
         this.httpClientTemplate = httpClientTemplate;
     }
 
-    public void setJsonConfig(JsonConfig jsonConfig) {
-        jsonConfig.visit(new StringMapJsonConfigHandler(proxyMappings, "proxy"));
-        jsonConfig.visit(new StringMapJsonConfigHandler(defaultPages, "defaultPage"));
-        jsonConfig.visit(new BooleanMapJsonConfigHandler(excludeBaseUris, "excludeBaseUri"));
+    public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
+        serviceConfig.visit(this);
+    }
+
+    public void handle(Mapping mapping) throws Exception {
+        JSONObject json = mapping.JSON();
+        String uri = json.getString("uri");
+        proxyMappings.put(uri, json.getString("proxy"));
+        excludeBaseUris.put(uri, json.optBoolean("excludeBaseUri", false));
+        defaultPages.put(uri, json.optString("defaultPage"));
     }
 
     @RequestMapping
