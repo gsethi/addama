@@ -27,6 +27,7 @@ import org.springframework.web.filter.GenericFilterBean;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientResponseException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
 import org.systemsbiology.addama.commons.httpclient.support.ResponseCallback;
+import org.systemsbiology.addama.commons.spring.PropertiesFileLoader;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.registry.brokering.MaxContentLengthHttpServletResponse;
@@ -60,20 +61,18 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
     private transient HashMap<String, String> temporaryUris = new HashMap<String, String>();
 
     private HttpClientTemplate httpClientTemplate;
+    private PropertiesFileLoader propertiesFileLoader;
     private URL secureHostUrl;
-    private URL serviceHostUrl;
+    private boolean runUnregistered = false;
+
     private ServiceConfig serviceConfig;
 
     public void setHttpClientTemplate(HttpClientTemplate httpClientTemplate) {
         this.httpClientTemplate = httpClientTemplate;
     }
 
-    public void setSecureHostUrl(URL secureHostUrl) {
-        this.secureHostUrl = secureHostUrl;
-    }
-
-    public void setServiceHostUrl(URL serviceHostUrl) {
-        this.serviceHostUrl = serviceHostUrl;
+    public void setPropertiesFileLoader(PropertiesFileLoader propertiesFileLoader) {
+        this.propertiesFileLoader = propertiesFileLoader;
     }
 
     public void setServiceConfig(ServiceConfig serviceConfig) {
@@ -83,7 +82,26 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
 
+        if (!propertiesFileLoader.loaded()) {
+            log.warning("service will run in STAND-ALONE mode :: no addama.properties found in classpath");
+            this.runUnregistered = true;
+            return;
+        }
+
+        String hostUrl = propertiesFileLoader.getProperty("httpclient.secureHostUrl");
+        if (isEmpty(hostUrl)) {
+            throw new ServletException("registry URL not configured in 'addama.properties' [httpclient.secureHostUrl]");
+        }
+
+        String serviceUrl = propertiesFileLoader.getProperty("service.hostUrl");
+        if (isEmpty(serviceUrl)) {
+            throw new ServletException("service host not configured  in 'addama.properties' [service.hostUrl]");
+        }
+
         try {
+            this.secureHostUrl = new URL(hostUrl);
+            URL serviceHostUrl = new URL(serviceUrl);
+
             JSONObject registration = new JSONObject();
             registration.put("id", serviceConfig.ID());
             registration.put("host", serviceHostUrl.toString());
@@ -146,6 +164,11 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
+        if (this.runUnregistered) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
