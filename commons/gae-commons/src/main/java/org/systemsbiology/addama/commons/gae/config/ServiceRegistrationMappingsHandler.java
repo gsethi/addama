@@ -27,7 +27,9 @@ import com.google.appengine.api.urlfetch.URLFetchService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
-import org.systemsbiology.addama.jsonconfig.JsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.MappingsHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import java.net.URL;
 import java.util.logging.Logger;
@@ -43,43 +45,46 @@ import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceT
 /**
  * @author hrovira
  */
-public class ServiceRegistrationJsonConfigHandler implements JsonConfigHandler {
-    private static final Logger log = Logger.getLogger(ServiceRegistrationJsonConfigHandler.class.getName());
+public class ServiceRegistrationMappingsHandler implements MappingsHandler {
+    private static final Logger log = Logger.getLogger(ServiceRegistrationMappingsHandler.class.getName());
 
     private final URLFetchService urlfetch = getURLFetchService();
     private final DatastoreService datastore = getDatastoreService();
 
+    private final ServiceConfig config;
     private final String registryDomain;
     private final String apiKey;
 
-    public ServiceRegistrationJsonConfigHandler(String registryDomain, String apiKey) {
+    // TODO : Correct logic based on new registration interface
+
+    public ServiceRegistrationMappingsHandler(ServiceConfig config, String registryDomain, String apiKey) {
+        this.config = config;
         this.registryDomain = registryDomain;
         this.apiKey = apiKey;
     }
 
-    public void handle(JSONObject configuration) throws Exception {
-        if (configuration.has("service")) {
-            JSONObject service = configuration.getJSONObject("service");
-            service.put("url", APPSPOT_URL);
+    public void handle(Mapping mapping) throws Exception {
+        JSONObject service = config.JSON();
 
-            String serviceUri = service.getString("uri");
-            String registerUri = replace(serviceUri, "/addama/services", "/addama/registry/services");
-            String payload = "service=" + service.toString();
+        service.put("url", APPSPOT_URL);
 
-            URL url = new URL(registryDomain + registerUri);
-            HTTPRequest httpRequest = new HTTPRequest(url, POST);
-            httpRequest.setHeader(new HTTPHeader("x-addama-apikey", apiKey));
-            httpRequest.setPayload(payload.getBytes());
+        String serviceUri = service.getString("uri");
+        String registerUri = replace(serviceUri, "/addama/services", "/addama/registry/services");
+        String payload = "service=" + service.toString();
 
-            HTTPResponse resp = urlfetch.fetch(httpRequest);
-            if (resp.getResponseCode() == 200) {
-                String registryKey = getRegistryKey(resp);
-                if (!isEmpty(registryKey)) {
-                    Entity e = new Entity(createKey("registration", url.getHost()));
-                    e.setProperty("REGISTRY_SERVICE_KEY", registryKey);
-                    inTransaction(datastore, new PutEntityTransactionCallback(e));
-                    registerMappings(serviceUri, configuration);
-                }
+        URL url = new URL(registryDomain + registerUri);
+        HTTPRequest httpRequest = new HTTPRequest(url, POST);
+        httpRequest.setHeader(new HTTPHeader("x-addama-apikey", apiKey));
+        httpRequest.setPayload(payload.getBytes());
+
+        HTTPResponse resp = urlfetch.fetch(httpRequest);
+        if (resp.getResponseCode() == 200) {
+            String registryKey = getRegistryKey(resp);
+            if (!isEmpty(registryKey)) {
+                Entity e = new Entity(createKey("registration", url.getHost()));
+                e.setProperty("REGISTRY_SERVICE_KEY", registryKey);
+                inTransaction(datastore, new PutEntityTransactionCallback(e));
+                registerMappings(serviceUri, mapping.JSON());
             }
         }
     }
