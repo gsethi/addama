@@ -18,13 +18,18 @@
 */
 package org.systemsbiology.addama.commons.gae.web;
 
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.json.JSONObject;
-import org.systemsbiology.addama.commons.gae.config.ServiceRegistrationMappingsHandler;
+import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
+import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import javax.servlet.ServletException;
@@ -32,16 +37,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
+import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.taskqueue.QueueFactory.getDefaultQueue;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
+import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
+import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
+import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
+import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira
@@ -66,7 +80,7 @@ public class ServiceRegistrationServlet extends HttpServlet {
 
             ServiceConfig config = new ServiceConfig();
             config.setServletContext(super.getServletContext());
-            config.visit(new ServiceRegistrationMappingsHandler(config, rb.getHttpsHost(), rb.apikey));
+            doRegistration(config, rb, new URL(rb.getHttpsHost()));
 
             broadcastSuccess(rb);
             response.sendRedirect(getRegistrationPage() + "?success=true");
@@ -79,6 +93,42 @@ public class ServiceRegistrationServlet extends HttpServlet {
     /*
      * Private Methods
      */
+    private void doRegistration(ServiceConfig serviceConfig, RegistrationBean rb, URL registryUrl) throws Exception {
+        JSONObject registration = new JSONObject();
+        registration.put("id", serviceConfig.ID());
+        registration.put("host", thisHostUrl());
+        registration.put("label", serviceConfig.LABEL());
+        registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
+
+        for (Mapping m : serviceConfig.getMappings()) {
+            registration.append("mappings", new JSONObject().put("uri", m.URI()).put("label", m.LABEL()));
+        }
+
+        HTTPRequest post = new HTTPRequest(registryUrl, POST);
+        post.setHeader(new HTTPHeader("x-addama-apikey", rb.apikey));
+        post.setPayload(("registration=" + registration.toString()).getBytes());
+
+        HTTPResponse resp = getURLFetchService().fetch(post);
+        if (resp.getResponseCode() == SC_OK) {
+            List<HTTPHeader> headers = resp.getHeaders();
+            if (headers != null) {
+                for (HTTPHeader header : headers) {
+                    if (equalsIgnoreCase(header.getName(), "x-addama-registry-key")) {
+                        String registryKey = header.getValue();
+                        if (!isEmpty(registryKey)) {
+                            Entity e = new Entity(createKey("registration", registryUrl.getHost()));
+                            e.setProperty("REGISTRY_SERVICE_KEY", registryKey);
+                            inTransaction(getDatastoreService(), new PutEntityTransactionCallback(e));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private String thisHostUrl() {
+        return "https://" + getCurrentEnvironment().getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+    }
 
     private String getRegistrationPage() {
         String regPage = System.getProperty("gae.addama.registration.page");
