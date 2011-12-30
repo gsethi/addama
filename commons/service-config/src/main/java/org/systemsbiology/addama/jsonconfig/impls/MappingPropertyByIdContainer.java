@@ -46,7 +46,7 @@ public abstract class MappingPropertyByIdContainer<T> {
 
     protected void addValue(Mapping mapping, T value) {
         if (value != null) {
-            this.valuesById.put(mapping.id, value);
+            this.valuesById.put(mapping.ID(), value);
         } else {
             this.addDefaultValue(mapping);
         }
@@ -54,7 +54,7 @@ public abstract class MappingPropertyByIdContainer<T> {
 
     protected void addDefaultValue(Mapping mapping) {
         if (this.defaultValue != null) {
-            this.valuesById.put(mapping.id, this.defaultValue);
+            this.valuesById.put(mapping.ID(), this.defaultValue);
         }
     }
 

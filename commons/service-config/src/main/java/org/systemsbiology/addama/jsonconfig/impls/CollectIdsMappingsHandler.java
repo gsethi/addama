@@ -16,6 +16,6 @@ public class CollectIdsMappingsHandler implements MappingsHandler {
     }
 
     public void handle(Mapping mapping) throws Exception {
-        this.ids.add(mapping.id);
+        this.ids.add(mapping.ID());
     }
 }

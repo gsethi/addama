@@ -1,5 +1,6 @@
 package org.systemsbiology.addama.jsonconfig;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import static org.apache.commons.lang.StringUtils.chomp;
@@ -8,22 +9,28 @@ import static org.apache.commons.lang.StringUtils.chomp;
  * @author hrovira
  */
 public final class Mapping {
-    public final String id;
-    public final String label;
-    public final String base;
+    private final String id;
+    private final String label;
+    private final String uri;
     private final JSONObject mapping;
 
-    public Mapping(String id, String label, String base, JSONObject mapping) {
-        this.id = id;
-        this.label = label;
-        this.base = chomp(base, "/");
-
-        if (mapping == null) mapping = new JSONObject();
+    public Mapping(String base, JSONObject mapping) throws JSONException {
         this.mapping = mapping;
+        this.id = this.mapping.getString("id");
+        this.label = this.mapping.getString("label");
+        this.uri = chomp(this.mapping.optString("uri", base), "/");
+    }
+
+    public String ID() {
+        return this.id;
+    }
+
+    public String LABEL() {
+        return this.label;
     }
 
     public String URI() {
-        return this.base + "/" + this.id;
+        return this.uri;
     }
 
     public JSONObject JSON() {
