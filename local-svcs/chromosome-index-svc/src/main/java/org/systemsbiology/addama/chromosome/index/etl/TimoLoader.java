@@ -100,14 +100,14 @@ public class TimoLoader {
 
     private static void initTemplate() throws Exception {
         GaeHostConfiguration hc = new GaeHostConfiguration();
-        hc.setSecureHostUrl(new URL("https://addama-systemsbiology-public.appspot.com"));
+//        hc.setSecureHostUrl(new URL("https://addama-systemsbiology-public.appspot.com"));
         hc.afterPropertiesSet();
 
         HttpClient client = new HttpClient();
         client.setHostConfiguration(hc);
 
         template = new ApiKeyHttpClientTemplate(client);
-        template.setApikey("60667408-363a-45a5-b771-42a8e4ecc0a7");
+//        template.setApikey("60667408-363a-45a5-b771-42a8e4ecc0a7");
         template.afterPropertiesSet();
 
     }
