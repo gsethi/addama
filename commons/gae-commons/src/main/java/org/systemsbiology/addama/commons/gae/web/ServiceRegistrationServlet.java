@@ -52,8 +52,7 @@ import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
@@ -80,7 +79,7 @@ public class ServiceRegistrationServlet extends HttpServlet {
 
             ServiceConfig config = new ServiceConfig();
             config.setServletContext(super.getServletContext());
-            doRegistration(config, rb, new URL(rb.getHttpsHost()));
+            doRegistration(config, rb);
 
             broadcastSuccess(rb);
             response.sendRedirect(getRegistrationPage() + "?success=true");
@@ -93,7 +92,9 @@ public class ServiceRegistrationServlet extends HttpServlet {
     /*
      * Private Methods
      */
-    private void doRegistration(ServiceConfig serviceConfig, RegistrationBean rb, URL registryUrl) throws Exception {
+    private void doRegistration(ServiceConfig serviceConfig, RegistrationBean rb) throws Exception {
+        URL registryUrl = new URL(rb.getHttpsHost() + "/addama/registry");
+
         JSONObject registration = new JSONObject();
         registration.put("id", serviceConfig.ID());
         registration.put("host", thisHostUrl());
@@ -101,7 +102,16 @@ public class ServiceRegistrationServlet extends HttpServlet {
         registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 
         for (Mapping m : serviceConfig.getMappings()) {
-            registration.append("mappings", new JSONObject().put("uri", m.URI()).put("label", m.LABEL()));
+            JSONObject mapping = new JSONObject();
+            mapping.put("uri", m.URI());
+            mapping.put("label", m.LABEL());
+            if (m.JSON().has("family")) {
+                mapping.put("family", chomp(m.JSON().getString("family"), "/"));
+            }
+            if (m.JSON().has("pattern")) {
+                mapping.put("pattern", m.JSON().getString("pattern"));
+            }
+            registration.append("mappings", mapping);
         }
 
         HTTPRequest post = new HTTPRequest(registryUrl, POST);

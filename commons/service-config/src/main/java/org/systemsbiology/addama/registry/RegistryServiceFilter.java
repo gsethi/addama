@@ -109,7 +109,16 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
             registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 
             for (Mapping m : serviceConfig.getMappings()) {
-                registration.append("mappings", new JSONObject().put("uri", m.URI()).put("label", m.LABEL()));
+                JSONObject mapping = new JSONObject();
+                mapping.put("uri", m.URI());
+                mapping.put("label", m.LABEL());
+                if (m.JSON().has("family")) {
+                    mapping.put("family", chomp(m.JSON().getString("family"), "/"));
+                }
+                if (m.JSON().has("pattern")) {
+                    mapping.put("pattern", chomp(m.JSON().getString("pattern"), "/"));
+                }
+                registration.append("mappings", mapping);
             }
 
             PostMethod post = new PostMethod("/addama/registry");
