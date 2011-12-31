@@ -2,6 +2,7 @@ package org.systemsbiology.addama.coresvcs.gae.controllers;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,13 +12,13 @@ import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTrans
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
-import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static java.util.UUID.randomUUID;
-import static org.apache.commons.lang.StringUtils.*;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static org.systemsbiology.addama.appengine.util.Registry.*;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -29,69 +30,33 @@ public class RegistryController {
 
     private final DatastoreService datastore = getDatastoreService();
 
-    @RequestMapping(value = "/registry/services/**", method = RequestMethod.POST)
-    public void setService(HttpServletRequest request, HttpServletResponse response,
-                           @RequestParam("service") String service) throws Exception {
+    @RequestMapping(value = "/registry", method = RequestMethod.POST)
+    public void register(HttpServletRequest request, HttpServletResponse response,
+                         @RequestParam("registration") String registration) throws Exception {
         log.info(request.getRequestURI());
+        try {
+            JSONObject json = new JSONObject(registration);
+            String serviceId = json.getString("id");
 
-        String serviceUri = "/addama/services" + substringAfterLast(request.getRequestURI(), "/registry/services");
-        JSONObject json = new JSONObject(service);
+            checkExistingService(serviceId, json.getString("host"));
+            clearExistingMappings(serviceId);
 
-        Entity e = new Entity(createKey("registry-services", serviceUri));
-        e.setProperty("url", new URL(json.getString("url")).toString());
-        if (json.has("label")) {
-            e.setProperty("label", json.getString("label"));
-        }
-        if (json.has("searchable")) {
-            e.setProperty("searchable", json.getBoolean("searchable"));
-        }
-        if (json.has("sharing")) {
-            e.setProperty("sharing", json.getString("sharing"));
-        }
+            ArrayList<Entity> entities = new ArrayList<Entity>();
 
-        String uuid = randomUUID().toString();
-        e.setUnindexedProperty("REGISTRY_SERVICE_KEY", uuid);
-        inTransaction(datastore, new PutEntityTransactionCallback(e));
+            String registryKey = randomUUID().toString();
+            entities.add(newServiceEntity(registryKey, json));
 
-        response.addHeader("x-addama-registry-key", uuid);
-    }
-
-    @RequestMapping(value = "/registry/mappings/**", method = RequestMethod.POST)
-    public void setMapping(HttpServletRequest request, HttpServletResponse response,
-                           @RequestParam("mapping") String mapping) throws Exception {
-        log.fine(request.getRequestURI() + ":" + mapping);
-
-        String mappingUri = substringAfterLast(request.getRequestURI(), "/registry/mappings");
-        JSONObject json = new JSONObject(mapping);
-
-        String uri = json.getString("uri");
-        if (!json.has("family")) {
-            String familyName = substringBetween(uri, "/addama/", "/");
-            if (!isEmpty(familyName)) {
-                json.put("family", "/addama/" + familyName);
+            JSONArray mappings = json.getJSONArray("mappings");
+            for (int i = 0; i < mappings.length(); i++) {
+                entities.add(newMappingEntity(serviceId, mappings.getJSONObject(i)));
             }
-        }
-        if (!json.has("pattern")) {
-            json.put("pattern", uri + "/**");
-        }
 
-        Entity e = new Entity(createKey("registry-mappings", mappingUri));
-        for (String required : new String[]{"service", "pattern", "uri"}) {
-            e.setProperty(required, json.getString(required));
+            inTransaction(datastore, new PutEntityTransactionCallback(entities));
+
+            response.addHeader("x-addama-registry-key", registryKey);
+        } catch (Exception e) {
+            response.setStatus(SC_BAD_REQUEST);
+            response.getWriter().write("Bad Registration");
         }
-
-        for (String optional : new String[]{"label", "family"}) {
-            if (json.has(optional)) {
-                e.setProperty(optional, json.getString(optional));
-            }
-        }
-
-        for (String optBoolean : new String[]{"staticContent", "handleAsynch"}) {
-            e.setProperty(optBoolean, json.optBoolean(optBoolean, false));
-        }
-
-        inTransaction(datastore, new PutEntityTransactionCallback(e));
-
-        response.addHeader("x-addama-success", "true");
     }
 }

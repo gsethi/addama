@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.AntPathMatcher;
+import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
 import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
@@ -17,8 +18,10 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
+import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static java.lang.Boolean.parseBoolean;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira
@@ -179,6 +182,73 @@ public class Registry {
         json.put("uri", registryService.getUri());
         return json;
     }
+
+    /*
+    * Persistence
+    */
+    public static void checkExistingService(String serviceId, String serviceHost) throws Exception {
+        try {
+            Key pk = createKey("registry-services", serviceId);
+            Entity e = datastore.get(pk);
+            String existingHost = e.getProperty("url").toString();
+            if (!equalsIgnoreCase(existingHost, serviceHost)) {
+                log.warning("host does not match service [" + serviceId + "," + serviceHost + "," + existingHost + "]");
+                throw new Exception("host does not match, cannot change service [" + serviceId + "," + serviceHost + "]");
+            }
+        } catch (EntityNotFoundException e) {
+            log.info("did not find existing service [" + serviceId + "]:" + e);
+        }
+    }
+
+    public static void clearExistingMappings(String serviceId) {
+        Query q = new Query("registry-mappings").addFilter("service", EQUAL, serviceId);
+        PreparedQuery pq = datastore.prepare(q);
+        ArrayList<Key> keys = new ArrayList<Key>();
+        for (Entity e : pq.asIterable()) {
+            keys.add(e.getKey());
+        }
+        inTransaction(datastore, new DeleteEntityTransactionCallback(keys));
+    }
+
+    public static Entity newServiceEntity(String registryKey, JSONObject json) throws JSONException, MalformedURLException {
+        String serviceId = json.getString("id");
+        String serviceHost = json.getString("host");
+
+        Entity e = new Entity(createKey("registry-services", serviceId));
+        e.setProperty("url", new URL(serviceHost).toString());
+        e.setProperty("label", json.getString("label"));
+        if (json.has("searchable")) {
+            e.setProperty("searchable", json.getBoolean("searchable"));
+        }
+        if (json.has("sharing")) {
+            e.setProperty("sharing", json.getString("sharing"));
+        }
+
+        e.setUnindexedProperty("REGISTRY_SERVICE_KEY", registryKey);
+        return e;
+    }
+
+    public static Entity newMappingEntity(String serviceId, JSONObject json) throws JSONException {
+        String uri = json.getString("uri");
+
+        Entity e = new Entity(createKey("registry-mappings", uri));
+        e.setProperty("service", serviceId);
+        e.setProperty("uri", uri);
+        e.setProperty("label", json.getString("label"));
+        if (json.has("pattern")) {
+            e.setProperty("pattern", json.getString("pattern"));
+        } else {
+            e.setProperty("pattern", uri + "/**");
+        }
+        if (json.has("family")) {
+            e.setProperty("family", json.getString("family"));
+        } else {
+            e.setProperty("family", "/addama/" + substringBetween(uri, "/addama/", "/"));
+        }
+        return e;
+    }
+
+
     /*
     * Private Methods
     */

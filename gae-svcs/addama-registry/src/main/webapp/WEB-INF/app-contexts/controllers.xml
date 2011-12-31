@@ -10,7 +10,7 @@
                 <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
                 <entry key="/addama" value-ref="rootCtrlr"/>
                 <entry key="/addama/" value-ref="rootCtrlr"/>
-                <entry key="/addama/registry/**">
+                <entry key="/addama/registry">
                     <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.RegistryController"/>
                 </entry>
 
