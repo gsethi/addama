@@ -97,7 +97,7 @@ public class ServiceRegistrationServlet extends HttpServlet {
 
         JSONObject registration = new JSONObject();
         registration.put("id", serviceConfig.ID());
-        registration.put("host", thisHostUrl());
+        registration.put("url", thisHostUrl());
         registration.put("label", serviceConfig.LABEL());
         registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 

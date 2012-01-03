@@ -100,11 +100,11 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
 
         try {
             this.secureHostUrl = new URL(hostUrl);
-            URL serviceHostUrl = new URL(serviceUrl);
+            URL serviceHostUrl = new URL(chomp(serviceUrl) + "/" + super.getServletContext().getContextPath());
 
             JSONObject registration = new JSONObject();
             registration.put("id", serviceConfig.ID());
-            registration.put("host", serviceHostUrl.toString());
+            registration.put("url", serviceHostUrl.toString());
             registration.put("label", serviceConfig.LABEL());
             registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 

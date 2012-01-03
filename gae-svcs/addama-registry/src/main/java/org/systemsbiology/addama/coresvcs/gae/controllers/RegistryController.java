@@ -38,7 +38,7 @@ public class RegistryController {
             JSONObject json = new JSONObject(registration);
             String serviceId = json.getString("id");
 
-            checkExistingService(serviceId, json.getString("host"));
+            checkExistingService(serviceId, json.getString("url"));
             clearExistingMappings(serviceId);
 
             ArrayList<Entity> entities = new ArrayList<Entity>();

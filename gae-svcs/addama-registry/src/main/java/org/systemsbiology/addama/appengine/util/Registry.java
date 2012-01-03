@@ -212,7 +212,7 @@ public class Registry {
 
     public static Entity newServiceEntity(String registryKey, JSONObject json) throws JSONException, MalformedURLException {
         String serviceId = json.getString("id");
-        String serviceHost = json.getString("host");
+        String serviceHost = json.getString("url");
 
         Entity e = new Entity(createKey("registry-services", serviceId));
         e.setProperty("url", new URL(serviceHost).toString());
