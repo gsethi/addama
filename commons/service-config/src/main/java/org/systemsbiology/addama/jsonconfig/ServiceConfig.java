@@ -47,7 +47,7 @@ public class ServiceConfig implements ServletContextAware {
 
     public void setServletContext(ServletContext servletContext) {
         try {
-            ClassPathResource resource = new ClassPathResource(servletContext.getContextPath() + ".config");
+            ClassPathResource resource = new ClassPathResource("services/" + servletContext.getContextPath() + ".config");
             InputStream inputStream = resource.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
