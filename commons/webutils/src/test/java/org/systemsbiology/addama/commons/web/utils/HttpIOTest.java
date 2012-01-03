@@ -4,6 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.junit.Assert.*;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
@@ -140,4 +143,16 @@ public class HttpIOTest {
         assertTrue(isEmpty(cleanUri));
     }
 
+    @Test
+    public void asPackage_fromUrl() throws MalformedURLException {
+        for (String hoster : new String[]{"http://example.com", "https://example.com"}) {
+            for (String trailing : new String[]{"", "/"}) {
+                assertEquals("com.example", asPackage(new URL(hoster + trailing)));
+                assertEquals("com.example.servicename", asPackage(new URL(hoster + "/servicename" + trailing)));
+                assertEquals("com.example.somepath.servicename", asPackage(new URL(hoster + "/somepath/servicename" + trailing)));
+                assertEquals("com.example.servicename.cgi", asPackage(new URL(hoster + "/servicename.cgi" + trailing)));
+                assertEquals("com.example.somepath.servicename.cgi", asPackage(new URL(hoster + "/somepath/servicename.cgi" + trailing)));
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.CRC32;
@@ -173,4 +174,18 @@ public class HttpIO {
         return path;
     }
 
+    public static String asPackage(URL url) {
+        StringBuilder builder = new StringBuilder();
+
+        String host = url.getHost();
+        if (!isEmpty(host)) {
+            builder.append(reverseDelimited(host, '.'));
+        }
+
+        String path = url.getPath();
+        if (!isEmpty(path)) {
+            builder.append(replace(path, "/", "."));
+        }
+        return chomp(builder.toString(), ".");
+    }
 }
