@@ -66,10 +66,10 @@ public class ServiceConfig implements ServletContextAware {
             this.LABEL = this.JSON.getString("label");
 
             if (JSON.has("mappings")) {
-                String base = chomp(JSON.getString("base"), "/");
+                String family = chomp(JSON.getString("family"), "/");
                 JSONArray mappings = JSON.getJSONArray("mappings");
                 for (int i = 0; i < mappings.length(); i++) {
-                    Mapping m = new Mapping(base, mappings.getJSONObject(i));
+                    Mapping m = new Mapping(family, mappings.getJSONObject(i));
                     mappingsById.put(m.ID(), m);
                 }
             }

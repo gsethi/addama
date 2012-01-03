@@ -14,11 +14,11 @@ public final class Mapping {
     private final String uri;
     private final JSONObject mapping;
 
-    public Mapping(String base, JSONObject mapping) throws JSONException {
+    public Mapping(String family, JSONObject mapping) throws JSONException {
         this.mapping = mapping;
         this.id = this.mapping.getString("id");
         this.label = this.mapping.getString("label");
-        this.uri = chomp(this.mapping.optString("uri", base), "/");
+        this.uri = chomp(this.mapping.optString("uri", family), "/");
     }
 
     public String ID() {
