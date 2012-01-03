@@ -1,13 +1,10 @@
 package org.systemsbiology.addama.services.execution.notification;
 
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.io.ClassPathResource;
-import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.springframework.mock.web.MockServletContext;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,28 +17,18 @@ public class EmailInstructionsMappingsHandlerTest {
     private final Map<String, EmailBean> emailBeansByUri = new HashMap<String, EmailBean>();
     private final EmailInstructionsMappingsHandler handler = new EmailInstructionsMappingsHandler(emailBeansByUri);
 
-    private File testEmailMsg;
-
     @Before
-    public void setup() throws IOException {
-        ClassPathResource resource = new ClassPathResource("email-handler-test/TestEmailMessage.txt");
-        testEmailMsg = resource.getFile();
+    public void setup() throws Exception {
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("emailInstructionsMappingsHandlerTest");
+        ServiceConfig serviceConfig = new ServiceConfig();
+        serviceConfig.setServletContext(msc);
+        serviceConfig.visit(handler);
     }
 
     @Test
     public void normal() throws Exception {
-        JSONObject emailJson = new JSONObject();
-        emailJson.put("from", "email@addama.org");
-        emailJson.put("subject", "Subject");
-        emailJson.put("emailText", testEmailMsg.getAbsolutePath());
-        emailJson.put("host", "localhost");
-
-        JSONObject json = new JSONObject();
-        json.put("id", "id");
-        json.put("label", "label");
-        json.put("emailInstructions", emailJson);
-
-        handler.handle(new Mapping("base", json));
+        assertTrue(emailBeansByUri.containsKey("id"));
 
         EmailBean bean = emailBeansByUri.get("id");
         assertNotNull(bean);
@@ -57,13 +44,7 @@ public class EmailInstructionsMappingsHandlerTest {
 
     @Test
     public void noemail() throws Exception {
-        JSONObject json = new JSONObject();
-        json.put("id", "id");
-        json.put("label", "label");
-
-        handler.handle(new Mapping("base", json));
-
-        assertFalse(emailBeansByUri.containsKey("id"));
-        assertNull(emailBeansByUri.get("id"));
+        assertFalse(emailBeansByUri.containsKey("noemail"));
+        assertNull(emailBeansByUri.get("noemail"));
     }
 }
