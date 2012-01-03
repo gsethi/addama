@@ -20,7 +20,8 @@ import static com.google.appengine.api.datastore.DatastoreServiceFactory.getData
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static java.lang.Boolean.parseBoolean;
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringBetween;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -186,32 +187,18 @@ public class Registry {
     /*
     * Persistence
     */
-    public static void checkExistingService(String serviceId, String serviceHost) throws Exception {
-        try {
-            Key pk = createKey("registry-services", serviceId);
-            Entity e = datastore.get(pk);
-            String existingHost = e.getProperty("url").toString();
-            if (!equalsIgnoreCase(existingHost, serviceHost)) {
-                log.warning("host does not match service [" + serviceId + "," + serviceHost + "," + existingHost + "]");
-                throw new Exception("host does not match, cannot change service [" + serviceId + "," + serviceHost + "]");
-            }
-        } catch (EntityNotFoundException e) {
-            log.info("did not find existing service [" + serviceId + "]:" + e);
-        }
-    }
-
-    public static void clearExistingMappings(String serviceId) {
+    public static void clearExistingService(String serviceId) {
         Query q = new Query("registry-mappings").addFilter("service", EQUAL, serviceId);
         PreparedQuery pq = datastore.prepare(q);
         ArrayList<Key> keys = new ArrayList<Key>();
+        keys.add(createKey("registry-services", serviceId));
         for (Entity e : pq.asIterable()) {
             keys.add(e.getKey());
         }
         inTransaction(datastore, new DeleteEntityTransactionCallback(keys));
     }
 
-    public static Entity newServiceEntity(String registryKey, JSONObject json) throws JSONException, MalformedURLException {
-        String serviceId = json.getString("id");
+    public static Entity newServiceEntity(String serviceId, String registryKey, JSONObject json) throws Exception {
         String serviceHost = json.getString("url");
 
         Entity e = new Entity(createKey("registry-services", serviceId));

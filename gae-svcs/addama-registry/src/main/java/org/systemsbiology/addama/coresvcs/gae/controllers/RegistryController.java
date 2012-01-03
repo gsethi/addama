@@ -12,6 +12,7 @@ import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTrans
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -20,6 +21,7 @@ import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.systemsbiology.addama.appengine.util.Registry.*;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.asPackage;
 
 /**
  * @author hrovira
@@ -36,15 +38,14 @@ public class RegistryController {
         log.info(request.getRequestURI());
         try {
             JSONObject json = new JSONObject(registration);
-            String serviceId = json.getString("id");
 
-            checkExistingService(serviceId, json.getString("url"));
-            clearExistingMappings(serviceId);
+            String serviceId = asPackage(new URL(json.getString("url")));
+            clearExistingService(serviceId);
 
             ArrayList<Entity> entities = new ArrayList<Entity>();
 
             String registryKey = randomUUID().toString();
-            entities.add(newServiceEntity(registryKey, json));
+            entities.add(newServiceEntity(serviceId, registryKey, json));
 
             JSONArray mappings = json.getJSONArray("mappings");
             for (int i = 0; i < mappings.length(); i++) {
