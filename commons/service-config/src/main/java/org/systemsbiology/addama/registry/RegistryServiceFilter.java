@@ -103,7 +103,6 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
             URL serviceHostUrl = new URL(chomp(serviceUrl) + "/" + super.getServletContext().getContextPath());
 
             JSONObject registration = new JSONObject();
-            registration.put("id", serviceConfig.ID());
             registration.put("url", serviceHostUrl.toString());
             registration.put("label", serviceConfig.LABEL());
             registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));

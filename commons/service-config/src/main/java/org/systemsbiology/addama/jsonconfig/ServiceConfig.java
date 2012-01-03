@@ -43,7 +43,6 @@ public class ServiceConfig implements ServletContextAware {
 
     private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
     private JSONObject JSON;
-    private String ID;
     private String LABEL;
 
     public void setServletContext(ServletContext servletContext) {
@@ -62,7 +61,6 @@ public class ServiceConfig implements ServletContextAware {
             }
 
             this.JSON = new JSONObject(builder.toString());
-            this.ID = this.JSON.getString("id");
             this.LABEL = this.JSON.getString("label");
 
             if (JSON.has("mappings")) {
@@ -85,10 +83,6 @@ public class ServiceConfig implements ServletContextAware {
 
     public Mapping getMapping(String id) {
         return mappingsById.get(id);
-    }
-
-    public String ID() {
-        return this.ID;
     }
 
     public String LABEL() {
