@@ -96,8 +96,7 @@ public class ServiceRegistrationServlet extends HttpServlet {
         URL registryUrl = new URL(rb.getHttpsHost() + "/addama/registry");
 
         JSONObject registration = new JSONObject();
-        registration.put("id", serviceConfig.ID());
-        registration.put("url", thisHostUrl());
+        registration.put("url", "https://" + getCurrentEnvironment().getAttributes().get("com.google.appengine.runtime.default_version_hostname"));
         registration.put("label", serviceConfig.LABEL());
         registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 
@@ -134,10 +133,6 @@ public class ServiceRegistrationServlet extends HttpServlet {
                 }
             }
         }
-    }
-
-    private String thisHostUrl() {
-        return "https://" + getCurrentEnvironment().getAttributes().get("com.google.appengine.runtime.default_version_hostname");
     }
 
     private String getRegistrationPage() {
