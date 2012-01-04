@@ -23,8 +23,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.coresvcs.gae.pojos.ApiKey;
 
@@ -32,10 +32,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.logging.Logger;
 
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 import static org.systemsbiology.addama.commons.gae.Appspot.*;
 
@@ -59,19 +62,21 @@ public class ApiKeyController {
 
     @RequestMapping(value = "/apikeys/addama.properties", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView addama_properties(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView addama_properties(HttpServletRequest request, HttpServletResponse response,
+                                          @RequestParam(value = "serviceUrl", required = false) String serviceUrl) throws Exception {
         log.info(request.getRequestURI());
 
-        // TODO : Move this to a different registration controller
-        if (!userService.isUserAdmin()) {
-            throw new ForbiddenAccessException("this functionality is only available to logged-in administrators");
-        }
+        checkAdmin(request);
 
         ApiKey apiKey = getUserApiKey();
 
         StringBuilder builder = new StringBuilder();
         builder.append("httpclient.secureHostUrl=").append(APPSPOT_URL).append("\n");
         builder.append("httpclient.apikey=").append(apiKey.getKey().toString()).append("\n");
+        if (!isEmpty(serviceUrl)) {
+            URL hostUrl = new URL(serviceUrl);
+            builder.append("service.hostUrl=").append(hostUrl.toString()).append("\n");
+        }
 
         outputFile(response, "addama.properties", builder.toString());
 

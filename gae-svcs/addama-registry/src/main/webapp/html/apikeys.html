@@ -18,7 +18,20 @@
 
     </style>
     <script type="text/javascript">
-        function loadExistingApiKeys() {
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar",
+                listeners: {
+                    whoami: function(json) {
+                        if (json.isAdmin) {
+                            Ext.get("container_addama_properties").setVisible(true);
+                        }
+                    }
+                }
+            });
+        });
+
+        Ext.onReady(function() {
             Ext.Ajax.request({
                 url: "/addama/apikeys",
                 method: "GET",
@@ -35,21 +48,16 @@
                     });
                 }
             });
-        }
-
-        Ext.onReady(function() {
-            new org.systemsbiology.addama.js.TopBar({
-                contentEl: "container_topbar",
-                listeners: {
-                    whoami: function(json) {
-                        if (json.isAdmin) {
-                            Ext.get("container_addama_properties").setVisible(true);
-                        }
-                    }
-                }
-            });
         });
-        Ext.onReady(loadExistingApiKeys);
+
+        function SubmitHostUrl() {
+            var serviceUrl = Ext.getDom("i_service_url").value;
+            if (serviceUrl) {
+                document.location = "/addama/apikeys/addama.properties?serviceUrl=" + serviceUrl;
+            } else {
+                document.location = "/addama/apikeys/addama.properties";
+            }
+        }
     </script>
 </head>
 <body>
@@ -63,7 +71,10 @@
         <a href="/addama/apikeys/file" target="_blank">Download API Key File</a>
     </div>
     <div id="container_addama_properties" style="display:none;">
-        <a href="/addama/apikeys/addama.properties" target="_blank">Download addama.properties File</a>
+        <label for="i_service_url">Enter Service Host URL</label>
+        <input type="text" id="i_service_url"/>
+        <br/>
+        <button onclick="SubmitHostUrl();">Download addama.properties</button>
     </div>
 </div>
 
