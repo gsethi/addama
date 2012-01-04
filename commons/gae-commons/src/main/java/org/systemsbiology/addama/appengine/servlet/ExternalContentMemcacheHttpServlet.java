@@ -39,9 +39,11 @@ import java.util.logging.Logger;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
+import static org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent.serveContent;
 
 /**
  * @author hrovira
@@ -109,19 +111,7 @@ public class ExternalContentMemcacheHttpServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HTTPResponseContent content = lookupExternalContent(request);
-        if (content == null) {
-            response.setStatus(SC_NOT_FOUND);
-            return;
-        }
-
-        // enforce login if required on HTML pages... not JS, CSS or Images
-        if (content.isHtml() && !userService.isUserLoggedIn()) {
-            response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
-            return;
-        }
-
-        setContentType(request, response, content);
-        response.getOutputStream().write(content.getBytes());
+        serveContent(content, request, response);
     }
 
     /**
@@ -162,21 +152,6 @@ public class ExternalContentMemcacheHttpServlet extends HttpServlet {
             log.warning(e.getMessage());
         }
         return null;
-    }
-
-    private void setContentType(HttpServletRequest request, HttpServletResponse response, HTTPResponseContent content) {
-        String mimeType = super.getServletContext().getMimeType(request.getRequestURI());
-        if (!isEmpty(mimeType)) {
-            response.setContentType(mimeType);
-            return;
-        }
-
-        // output external content
-        String contentType = content.getContentType();
-        if (!isEmpty(contentType)) {
-            response.setContentType(contentType);
-        }
-
     }
 
     private class ExternalContentMemcacheLoaderCallback implements MemcacheLoaderCallback {
