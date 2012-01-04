@@ -1,20 +1,19 @@
-TopBar = Ext.extend(Ext.util.Observable, {
-    toolbar: new Ext.Toolbar({ buttonAlign: "right" }),
-    contentEl: "container_topbar",
+Ext.ns("org.systemsbiology.addama.js");
 
-    constructor: function(container) {
-        Ext.apply(this, {});
+org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
+
+    constructor: function(config) {
+        Ext.apply(this, config);
 
         if (get_parameter("no_topbar")) {
             return;
         }
 
-        if (container) {
-            this.contentEl = container;
-        }
-
-        Ext.get(this.contentEl).applyStyles({ width: "100%", height: "20px", border: "1px solid #c3daf9" });
-        this.toolbar.render(this.contentEl);
+//        Ext.get(this.contentEl).applyStyles({ width: "100%", height: "20px", border: "1px solid #c3daf9" });
+        this.toolbar = new Ext.Toolbar({
+            buttonAlign: "right",
+            renderTo: this.contentEl
+        });
 
         this.addEvents({
             /**
@@ -25,7 +24,7 @@ TopBar = Ext.extend(Ext.util.Observable, {
             whoami: true
         });
 
-        TopBar.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.TopBar.superclass.constructor.call(this);
 
         Ext.Ajax.request({
             url: "/addama/users/whoami",

@@ -69,7 +69,7 @@ a:hover {
 }
 
 .x-tab-panel-header-plain .x-tab-strip-top {
-    background: #DFE8F6 url("/addama/ui/ext-js-3.3.1/resources/images/default/tabs/tab-strip-bg.gif") repeat-x scroll center bottom !important;
+    background: #DFE8F6 url("https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/images/default/tabs/tab-strip-bg.gif") repeat-x scroll center bottom !important;
 }
 
 .custom-accordion .x-panel-body {
@@ -115,5 +115,5 @@ a:hover {
 }
 
 .upload-icon {
-    background: url("/addama/ui/ext-js-3.3.1/examples/shared/icons/fam/folder_go.png") no-repeat 0 0 !important;
+    background: url("https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/icons/fam/folder_go.png") no-repeat 0 0 !important;
 }

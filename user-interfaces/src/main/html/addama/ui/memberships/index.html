@@ -2,14 +2,14 @@
 <head>
     <title>Memberships</title>
 
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/ux/css/GroupTab.css"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/ux/css/GroupTab.css"/>
 
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/examples/ux/GroupTabPanel.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/examples/ux/GroupTab.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/ux/GroupTabPanel.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/ux/GroupTab.js"></script>
 
     <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
     <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
@@ -19,11 +19,15 @@
 
     <script type="text/javascript">
         Ext.onReady(function() {
-            var topBar = new TopBar("c_topbar");
-            topBar.addListener("whoami", function(json) {
-                if (json.isAdmin) {
-                    Ext.get("c_admin").setVisible(true);
-                    new DomainLevelUsersControl("c_domain_level_membership_list");
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "c_topbar",
+                listeners: {
+                    whoami: function(json) {
+                        if (json.isAdmin) {
+                            Ext.get("c_admin").setVisible(true);
+                            new DomainLevelUsersControl("c_domain_level_membership_list");
+                        }
+                    }
                 }
             });
 

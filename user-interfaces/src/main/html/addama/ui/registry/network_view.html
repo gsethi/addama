@@ -1,14 +1,11 @@
 <html>
 <head>
     <title>Addama Registry Network View</title>
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
 
-    <script type="text/javascript" src="/addama/ui/prototype-1.6.0.3.js"></script>
-
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/prototype/ext-prototype-adapter.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
 
     <script type="text/javascript" src="/addama/ui/console_handling.js"></script>
     <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
@@ -88,7 +85,7 @@
             console.log("loadVisualization:" + data.getNumberOfRows());
             data.insertColumn(0, "number");
 
-            var networkvis = new org.systemsbiology.visualization.BioNetwork($("container_visualization"));
+            var networkvis = new org.systemsbiology.visualization.BioNetwork(Ext.getDom("container_visualization"));
             networkvis.draw(data, {
                 "center":"Registry",
                 "radial_labels":true,
@@ -104,7 +101,7 @@
         }
 
         Ext.onReady(function() {
-            new TopBar("container_topbar");
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
         });
 
         Ext.onReady(loadPage);

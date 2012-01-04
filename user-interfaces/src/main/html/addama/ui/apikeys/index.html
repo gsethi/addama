@@ -1,23 +1,22 @@
 <html>
 <head>
     <title>Addama API Key</title>
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
-    <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
-    <script type="text/javascript" src="/addama/ui/topbar.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="/external/query_parameters.js"></script>
+    <script type="text/javascript" src="/external/topbar.js"></script>
 
-    <script type="text/javascript">
-        function loadTopBar() {
-            var topBar = new TopBar("container_topbar");
-            topBar.addListener("whoami", function(json) {
-                if (json.isAdmin) {
-                    Ext.get("container_addama_properties").setVisible(true);
-                }
-            });
+    <style type="text/css">
+        #container_topbar {
+            width: 100%;
+            height: 20px;
+            border: 1px solid #c3daf9;
         }
 
+    </style>
+    <script type="text/javascript">
         function loadExistingApiKeys() {
             Ext.Ajax.request({
                 url: "/addama/apikeys",
@@ -37,7 +36,18 @@
             });
         }
 
-        Ext.onReady(loadTopBar);
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar",
+                listeners: {
+                    whoami: function(json) {
+                        if (json.isAdmin) {
+                            Ext.get("container_addama_properties").setVisible(true);
+                        }
+                    }
+                }
+            });
+        });
         Ext.onReady(loadExistingApiKeys);
     </script>
 </head>

@@ -9,13 +9,12 @@
         });
     </script>
 
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="/addama/ui/ext-js-3.3.1/examples/shared/examples.css"/>
-    <script type="text/javascript" src="/addama/ui/prototype-1.6.0.3.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
 
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/prototype/ext-prototype-adapter.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="/addama/ui/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/prototype/ext-prototype-adapter.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
 
     <script type="text/javascript">
         var selectedUri = null;
@@ -26,9 +25,9 @@
                 if (queryString.indexOf("=") > 0) {
                     var params = queryString.split("=");
                     selectedUri = params[1];
-                    $("container_selected_datasource").innerHTML = selectedUri;
+                    Ext.getDom("container_selected_datasource").innerHTML = selectedUri;
                 } else {
-                    $("container_selected_datasource").innerHTML = "no data source selected";
+                    Ext.getDom("container_selected_datasource").innerHTML = "no data source selected";
                 }
             }
 
@@ -67,17 +66,17 @@
         });
 
         function ready_to_query() {
-            $("container_preview").innerHTML = "";
-            $("container_errors").innerHTML = "";
-            $("container_numberOfResults").innerHTML = "";
+            Ext.getDom("container_preview").innerHTML = "";
+            Ext.getDom("container_errors").innerHTML = "";
+            Ext.getDom("container_numberOfResults").innerHTML = "";
 
             if (!selectedUri) {
-                $("container_errors").innerHTML = "no data source selected";
+                Ext.getDom("container_errors").innerHTML = "no data source selected";
                 return false;
             }
 
-            if (!$("textarea_sql").value) {
-                $("container_errors").innerHTML = "no SQL entered. Defaulting to SELECT *";
+            if (!Ext.getDom("textarea_sql").value) {
+                Ext.getDom("container_errors").innerHTML = "no SQL entered. Defaulting to SELECT *";
                 return true;
             }
 
@@ -89,21 +88,21 @@
                 return false;
             }
 
-            var querySql = $("textarea_sql").value;
+            var querySql = Ext.getDom("textarea_sql").value;
 
-            $("container_errors").innerHTML = "GET " + selectedUri + "/query<br/>tq=" + querySql;
+            Ext.getDom("container_errors").innerHTML = "GET " + selectedUri + "/query<br/>tq=" + querySql;
 
             var query = new google.visualization.Query(selectedUri + "/query");
             query.setQuery(querySql);
             query.send(function(response) {
                 if (response.isError()) {
-                    $("container_errors").innerHTML = "Error Message:" + response.getMessage() + "<br/>";
+                    Ext.getDom("container_errors").innerHTML = "Error Message:" + response.getMessage() + "<br/>";
                     return false;
                 }
                 var dataTable = response.getDataTable();
-                $("container_numberOfResults").innerHTML = dataTable.getNumberOfRows();
+                Ext.getDom("container_numberOfResults").innerHTML = dataTable.getNumberOfRows();
 
-                var table = new google.visualization.Table($("container_preview"));
+                var table = new google.visualization.Table(Ext.getDom("container_preview"));
                 table.draw(dataTable, {
                     showRowNumber: true,
                     page: "enable",
