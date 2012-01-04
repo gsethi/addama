@@ -50,6 +50,6 @@ public class WhiteListFilter extends GenericFilterBean {
 
         //how does this redirect work in the case of apikeys?
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.sendRedirect("/addama/ui/whitelist/requestaccess.html");
+        response.sendRedirect("/html/requestaccess.html");
     }
 }

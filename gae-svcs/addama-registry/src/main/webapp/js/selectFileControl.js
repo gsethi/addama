@@ -32,17 +32,17 @@ SelectFileControl = Ext.extend(Ext.util.Observable, {
 
         var choosePanel = new Ext.Panel({
             border: true, frame: true, autoHeight: true, autoWidth: true,
-            html: "<img src='/addama/ui/workspaces/images/Folder-Open-icon.png' width='48' height='48' />"
+            html: "<img src='/images/Folder-Open-icon.png' width='48' height='48' />"
         });
 
         var downloadPanel = new Ext.Panel({
             border: true, frame: true, autoHeight: true, autoWidth: true,
-            html: "<img src='/addama/ui/workspaces/images/download-icon.png' width='48' height='48' />"
+            html: "<img src='/images/download-icon.png' width='48' height='48' />"
         });
 
         var trashPanel = new Ext.Panel({
             border: true, frame: true, autoHeight: true, autoWidth: true,
-            html: "<img src='/addama/ui/workspaces/images/trashcan-full-icon.png' width='48' height='48' />"
+            html: "<img src='/images/trashcan-full-icon.png' width='48' height='48' />"
         });
 
         new DropControl(choosePanel).on("drop", this.chooseFile, this);

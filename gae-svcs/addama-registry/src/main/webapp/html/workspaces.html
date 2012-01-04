@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/ux/statusbar/css/statusbar.css"/>
-    <link rel="stylesheet" type="text/css" href="./css/browser.css">
+    <link rel="stylesheet" type="text/css" href="/css/workspaces.css">
 
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
@@ -17,11 +17,11 @@
     <script type="text/javascript" src="/addama/ui/query_parameters.js"></script>
     <script type="text/javascript" src="/addama/ui/topbar.js"></script>
 
-    <script type="text/javascript" src="./js/mainPanel.js"></script>
-    <script type="text/javascript" src="./js/statusMessages.js"></script>
-    <script type="text/javascript" src="./js/fileUploadWindow.js"></script>
-    <script type="text/javascript" src="./js/tree.js"></script>
-    <script type="text/javascript" src="./js/viewport.js"></script>
+    <script type="text/javascript" src="/js/workspaces/mainPanel.js"></script>
+    <script type="text/javascript" src="/js/workspaces/statusMessages.js"></script>
+    <script type="text/javascript" src="/js/workspaces/fileUploadWindow.js"></script>
+    <script type="text/javascript" src="/js/workspaces/tree.js"></script>
+    <script type="text/javascript" src="/js/workspaces/viewport.js"></script>
 
     <script type="text/javascript">
         Ext.onReady(function() {
@@ -53,8 +53,8 @@
     <div id="main-content-folder">
         <div style="margin-left:50px;">
             <h2><span id="main-content-folder-item"></span></h2>
-            <br/><a href="#" onclick="doCreateFolder(); return false;">Create Folder</a>
-            <br/><a href="#" onclick="doFileUpload(); return false;">Upload File</a>
+            <br/><a href="workspaces.html#" onclick="doCreateFolder(); return false;">Create Folder</a>
+            <br/><a href="workspaces.html#" onclick="doFileUpload(); return false;">Upload File</a>
         </div>
     </div>
 

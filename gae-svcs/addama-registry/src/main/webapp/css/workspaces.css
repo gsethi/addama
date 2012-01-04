@@ -16,7 +16,7 @@ a:hover {
 }
 
 #header {
-    background: #7F99BE url(../images/browser_header_bg.gif) repeat-x center;
+    background: #7F99BE url(/images/browser_header_bg.gif) repeat-x center;
 }
 
 #header h1 {

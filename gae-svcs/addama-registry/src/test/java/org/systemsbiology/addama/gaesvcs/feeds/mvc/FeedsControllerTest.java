@@ -204,7 +204,7 @@ public class FeedsControllerTest {
         // <atom:link rel="next" href="https://test.appspot.com/addama/feeds/happyCaseTest?page=2" />
         // <description>Feeds for test.appspot.com</description><language>en</language>
         // <lastBuildDate>Thu, 18 Nov 2010 10:37:45 PST</lastBuildDate><generator>test.appspot.com</generator>
-        // <ttl>60</ttl><image><url>/rss.png</url><title>Addama Feeds</title><link>/addama/feeds</link></image>
+        // <ttl>60</ttl><image><url>/images/rss.png</url><title>Addama Feeds</title><link>/addama/feeds</link></image>
         // <item><title>an RSS feed item</title><link>/addama/feeds/happyCaseTest/rss</link><pubDate>Mon Nov 15 22:51:10 UTC 2010</pubDate>
         //    <description><![CDATA[an RSS feed item]]></description><content></content><author>Unit Test</author></item>
         // <item><title>another RSS feed item</title><link>/addama/feeds/happyCaseTest/rss</link><pubDate>Mon Nov 15 22:55:00 UTC 2010</pubDate>
@@ -296,7 +296,7 @@ public class FeedsControllerTest {
         // <?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" 
         // xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Addama Feeds</title><link>/addama/feeds</link>
         // <description>Feeds for test.appspot.com</description><language>en</language><lastBuildDate>Thu, 18 Nov 2010 13:36:13 PST</lastBuildDate>
-        // <generator>test.appspot.com</generator><ttl>60</ttl><image><url>/rss.png</url><title>Addama Feeds</title>
+        // <generator>test.appspot.com</generator><ttl>60</ttl><image><url>/images/rss.png</url><title>Addama Feeds</title>
         // <link>/addama/feeds</link></image>
         // <item><title>this is a title</title><link>http://thedailykitten.com/</link><pubDate>Mon Nov 15 22:51:10 UTC 2010</pubDate>
         // <description><![CDATA[a third RSS feed item]]></description><content></content><author>Unit Test</author></item>
