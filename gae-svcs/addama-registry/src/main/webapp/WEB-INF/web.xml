@@ -35,7 +35,7 @@
 
     <servlet-mapping>
         <servlet-name>memcache-external-content</servlet-name>
-        <url-pattern>/addama/ui/*</url-pattern>
+        <url-pattern>/external/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
