@@ -30,8 +30,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -39,7 +40,7 @@ import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcac
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
 
 /**
@@ -57,22 +58,25 @@ import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTe
  * </ul>
  * <p/>
  * <p/>Example Configuration:
- * <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.a"
- * value="http://addama.googlecode.com/svn/.../html"/>
- * <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.b"
- * value="https://contentroot.example.org"/>
+ * <property name="org.systemsbiology.addama.externalcontent.AAA" value="http://example.com/contentroot"/>
+ * <property name="org.systemsbiology.addama.externalcontent.BBB" value="http://example.com/othercontent/html"/>
+ * <p/>
+ * <ul>Resolves Content:
+ * <li>https://example.appspot.com/servlet-context/AAA/content.html to http://example.com/contentroot/content.html</li>
+ * <li>https://example.appspot.com/servlet-context/BBB/content.html to http://example.com/othercontent/html/content.html</li>
+ * </ul>
  */
 public class ExternalContentMemcacheHttpServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(ExternalContentMemcacheHttpServlet.class.getName());
 
-    public static final String CONFIG_EXTERNAL_KEY = "org.systemsbiology.addama.appengine.servlet.externalcontent.";
+    public static final String CONFIG_EXTERNAL_KEY = "org.systemsbiology.addama.externalcontent";
 
     private final MemcacheService externalContent = getMemcacheService("external-content");
     private final UserService userService = getUserService();
-    private final HashSet<String> baseUrls = new HashSet<String>();
+    private final HashMap<String, URL> contentEntries = new HashMap<String, URL>();
 
     /**
-     * Configures this servlet from System Properties starting with 'org.systemsbiology.addama.appengine.servlet.externalcontent.'
+     * Configures this servlet from System Properties starting with 'org.systemsbiology.addama.externalcontent.'
      * Expects URL for external servers.
      *
      * @throws ServletException
@@ -85,7 +89,8 @@ public class ExternalContentMemcacheHttpServlet extends HttpServlet {
             for (Map.Entry entry : System.getProperties().entrySet()) {
                 String pname = (String) entry.getKey();
                 if (pname.startsWith(CONFIG_EXTERNAL_KEY)) {
-                    baseUrls.add((String) entry.getValue());
+                    String baseContentUri = substringAfterLast(pname, CONFIG_EXTERNAL_KEY + ".");
+                    contentEntries.put(baseContentUri, new URL((String) entry.getValue()));
                 }
             }
         } catch (Exception e) {
@@ -103,10 +108,7 @@ public class ExternalContentMemcacheHttpServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String requestUri = request.getRequestURI();
-
-        // lookup external content
-        HTTPResponseContent content = getExternalContent(requestUri);
+        HTTPResponseContent content = lookupExternalContent(request);
         if (content == null) {
             response.setStatus(SC_NOT_FOUND);
             return;
@@ -114,23 +116,22 @@ public class ExternalContentMemcacheHttpServlet extends HttpServlet {
 
         // enforce login if required on HTML pages... not JS, CSS or Images
         if (content.isHtml() && !userService.isUserLoggedIn()) {
-            response.sendRedirect(userService.createLoginURL(requestUri));
+            response.sendRedirect(userService.createLoginURL(request.getRequestURI()));
             return;
         }
 
-        String mimeType = getServletContext().getMimeType(requestUri);
-        if (!isEmpty(mimeType)) {
-            response.setContentType(mimeType);
-        } else {
-            // output external content
-            String contentType = content.getContentType();
-            if (!isEmpty(contentType)) {
-                response.setContentType(content.getContentType());
-            }
-        }
+        setContentType(request, response, content);
         response.getOutputStream().write(content.getBytes());
     }
 
+    /**
+     * Allows administrators to reset the memcache for external content
+     *
+     * @param request  - http
+     * @param response - http
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (userService.isUserLoggedIn() && userService.isUserAdmin()) {
@@ -144,36 +145,66 @@ public class ExternalContentMemcacheHttpServlet extends HttpServlet {
         response.setStatus(SC_FORBIDDEN);
     }
 
-    /**
-     * Retrieves the requested URI from the first mapped external URL it can find
-     *
-     * @param requestUri - targeted content uri
-     * @return HTTPResponseContent - POJO containing response and HTML content-type detecting logic
+    /*
+     * Private Methods
      */
-    private HTTPResponseContent getExternalContent(String requestUri) {
-        for (final String baseUrl : baseUrls) {
-            try {
-                MemcacheLoaderCallback callback = new MemcacheLoaderCallback() {
-                    public Serializable getCacheableObject(String uri) throws Exception {
-                        String externalUrl = baseUrl + uri;
+    private HTTPResponseContent lookupExternalContent(HttpServletRequest request) {
+        try {
+            String externalContentKey = substringBetween(request.getRequestURI(), request.getContextPath(), "/");
+            if (this.contentEntries.containsKey(externalContentKey)) {
+                URL contentUrl = this.contentEntries.get(externalContentKey);
+                MemcacheLoaderCallback callback = new ExternalContentMemcacheLoaderCallback(contentUrl);
 
-                        HTTPResponse resp = getURLFetchService().fetch(new URL(externalUrl));
-                        if (resp.getResponseCode() == SC_OK) {
-                            log.info("loaded:" + externalUrl);
-                            return new HTTPResponseContent(resp);
-                        }
-                        return null;
-                    }
-                };
-
-                HTTPResponseContent rc = (HTTPResponseContent) loadIfNotExisting(externalContent, requestUri, callback);
-                if (rc != null) {
-                    return rc;
-                }
-            } catch (Exception e) {
-                log.warning(e.getMessage());
+                String targetUri = substringAfterLast(request.getRequestURI(), externalContentKey + "/");
+                return (HTTPResponseContent) loadIfNotExisting(externalContent, targetUri, callback);
             }
+        } catch (Exception e) {
+            log.warning(e.getMessage());
         }
         return null;
+    }
+
+    private void setContentType(HttpServletRequest request, HttpServletResponse response, HTTPResponseContent content) {
+        String mimeType = super.getServletContext().getMimeType(request.getRequestURI());
+        if (!isEmpty(mimeType)) {
+            response.setContentType(mimeType);
+            return;
+        }
+
+        // output external content
+        String contentType = content.getContentType();
+        if (!isEmpty(contentType)) {
+            response.setContentType(contentType);
+        }
+
+    }
+
+    private class ExternalContentMemcacheLoaderCallback implements MemcacheLoaderCallback {
+        private final URL contentUrl;
+
+        private ExternalContentMemcacheLoaderCallback(URL contentUrl) {
+            this.contentUrl = contentUrl;
+        }
+
+        public Serializable getCacheableObject(String uri) throws Exception {
+            URL targetUrl = getTargetUrl(uri);
+            log.info("loading:" + targetUrl);
+
+            HTTPResponse resp = getURLFetchService().fetch(targetUrl);
+            if (resp.getResponseCode() == SC_OK) {
+                log.info("loaded:" + targetUrl);
+                return new HTTPResponseContent(resp);
+            }
+            return null;
+        }
+
+        private URL getTargetUrl(String desired) throws MalformedURLException {
+            String url = chomp(contentUrl.toString(), "/");
+            String uri = desired;
+            if (uri.startsWith("/")) {
+                uri = substringAfter(desired, "/");
+            }
+            return new URL(url + "/" + uri);
+        }
     }
 }
