@@ -13,7 +13,6 @@
     <name>GAE Services</name>
 
     <modules>
-        <module>common-uis</module>
         <module>addama-registry</module>
         <module>reference-genomes</module>
     </modules>
