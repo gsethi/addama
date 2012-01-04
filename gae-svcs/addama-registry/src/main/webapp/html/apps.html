@@ -14,16 +14,15 @@
             new org.systemsbiology.addama.js.TopBar({
                 contentEl: "c_topbar",
                 listeners: {
-                    whoami: ShowNewAppForm
+                    whoami: function(json) {
+                        if (json.isAdmin) {
+                            // TODO: Nice form to submit apps
+                            Ext.get("c_newapp").setVisible(true);
+                        }
+                    }
                 }
             });
         });
-
-        function ShowNewAppForm(json) {
-            if (json.isAdmin) {
-                // TODO: Show form to submit apps
-            }
-        }
 
         function ShowApps() {
             Ext.Ajax.request({
@@ -43,6 +42,21 @@
             });
         }
 
+        function SubmitNewApp() {
+            Ext.Ajax.request({
+                method: "post",
+                url: "/addama/apps",
+                params: {
+                    app: {
+                        id: Ext.getDom("i_app_id").value,
+                        label: Ext.getDom("i_app_label").value,
+                        url: Ext.getDom("i_app_url").value
+                    }
+                },
+                success: ShowApps
+            })
+        }
+
         Ext.onReady(ShowApps);
     </script>
 </head>
@@ -50,7 +64,12 @@
     <div id="c_topbar"></div>
     <div id="c_apps"></div>
     <div id="c_admin" style="display:none;">
-        <div id="c_newapp"></div>
+        <div id="c_newapp">
+            <label for="i_app_id">ID</label><input type="text" id="i_app_id"/><br/>
+            <label for="i_app_label">Label</label><input type="text" id="i_app_label"/><br/>
+            <label for="i_app_url">URL</label><input type="text" id="i_app_url"/><br/>
+            <button onclick="SubmitNewApp();">Register App</button>
+        </div>
     </div>
 </body>
 </html>
