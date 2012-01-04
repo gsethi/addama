@@ -3,8 +3,7 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/app-contexts/filters.xml
-            /WEB-INF/app-contexts/controllers.xml
+            /WEB-INF/app-contexts/*.xml
         </param-value>
     </context-param>
 
@@ -22,9 +21,8 @@
     </listener>
 
     <servlet>
-        <servlet-name>memcache-external-content</servlet-name>
-        <servlet-class>org.systemsbiology.addama.appengine.servlet.ExternalContentMemcacheHttpServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <servlet-name>channel-disconnect</servlet-name>
+        <servlet-class>org.systemsbiology.addama.appengine.servlet.ChannelDisconnectServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -34,8 +32,8 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>memcache-external-content</servlet-name>
-        <url-pattern>/external/*</url-pattern>
+        <servlet-name>channel-disconnect</servlet-name>
+        <url-pattern>/_ah/channel/disconnected</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

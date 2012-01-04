@@ -4,6 +4,10 @@
     <application>dev-addama-registry</application>
     <version>2</version>
 
+    <inbound-services>
+        <service>channel_presence</service>
+    </inbound-services>
+
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
         <property name="org.systemsbiology.addama.externalcontent.addamasvn"
