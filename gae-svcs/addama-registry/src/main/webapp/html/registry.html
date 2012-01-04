@@ -21,9 +21,7 @@
         var items = [];
 
         Ext.onReady(function() {
-            var tb = new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
-            tb.addMenu({ uri: "/addama/tools", label: "Tools" });
-            tb.addMenu({ uri: "/addama/applications", label: "Applications" });
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
 
             new Ext.Panel({
                 id:'main-panel',

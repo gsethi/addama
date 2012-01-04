@@ -58,36 +58,5 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             },
             scope: this
         });
-    },
-
-    addMenu: function(menu) {
-        Ext.Ajax.request({
-            url: menu.uri,
-            method: "GET",
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.numberOfItems) {
-                    var newMenu = new Ext.menu.Menu();
-                    for (var i = 0; i < json.items.length; i++) {
-                        var item = json.items[i];
-                        newMenu.add({
-                            text: item.label,
-                            uri: item.uri
-                        });
-                    }
-
-                    this.toolbar.add({
-                        cls: "x-btn-text-icon",
-                        text: menu.label,
-                        menu: newMenu
-                    });
-                }
-                this.toolbar.doLayout();
-            },
-            failure: function() {
-                this.toolbar.doLayout();
-            },
-            scope: this
-        });
     }
 });
