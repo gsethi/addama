@@ -34,9 +34,9 @@
                 contentEl: "container_topbar"
             });
 
-            channelPublisher = new ChannelPublisher();
+            channelPublisher = new org.systemsbiology.addama.js.ChannelPublisher();
 
-            new ChannelListener({
+            new org.systemsbiology.addama.js.ChannelListener({
                 listeners: {
                     open: function() {
                         Ext.getDom("container_messages").innerHTML += "<br/>Channel Opened Successfully";

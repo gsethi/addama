@@ -1,4 +1,6 @@
-ChannelListener = Ext.extend(Ext.util.Observable, {
+Ext.ns("org.systemsbiology.addama.js");
+
+org.systemsbiology.addama.js.ChannelListener = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         this.numberOfReopens = 0;
         this.maxReopens = 10;
@@ -10,7 +12,7 @@ ChannelListener = Ext.extend(Ext.util.Observable, {
         
         Ext.apply(this, config);
 
-        ChannelListener.superclass.constructor.call(this, config);
+        org.systemsbiology.addama.js.ChannelListener.superclass.constructor.call(this, config);
 
         this.on({
             "open": function() {
@@ -69,7 +71,7 @@ ChannelListener = Ext.extend(Ext.util.Observable, {
     }
 });
 
-ChannelPublisher = Ext.extend(Object, {
+org.systemsbiology.addama.js.ChannelPublisher = Ext.extend(Object, {
     constructor: function() {
         console.log("initializing channel");
         Ext.Ajax.request({
