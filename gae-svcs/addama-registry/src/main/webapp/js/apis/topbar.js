@@ -9,7 +9,6 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             return;
         }
 
-//        Ext.get(this.contentEl).applyStyles({ width: "100%", height: "20px", border: "1px solid #c3daf9" });
         this.toolbar = new Ext.Toolbar({
             buttonAlign: "right",
             renderTo: this.contentEl
