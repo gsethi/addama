@@ -9,8 +9,48 @@
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "c_topbar",
+                listeners: {
+                    whoami: ShowNewAppForm
+                }
+            });
+        });
+
+        function ShowNewAppForm(json) {
+            if (json.isAdmin) {
+                // TODO: Show form to submit apps
+            }
+        }
+
+        function ShowApps() {
+            Ext.Ajax.request({
+                method: "get",
+                url: "/addama/apps",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.items) {
+                        // TODO : Display apps in panel
+                        var html = "";
+                        Ext.each(json.items, function(item) {
+                            html += "<li><a href='" + item.uri + "' target='_blank'>" + item.label + ":" + item.url + "</a></li>";
+                        });
+                        Ext.getDom("c_apps").innerHTML = html;
+                    }
+                }
+            });
+        }
+
+        Ext.onReady(ShowApps);
+    </script>
 </head>
 <body>
-
+    <div id="c_topbar"></div>
+    <div id="c_apps"></div>
+    <div id="c_admin" style="display:none;">
+        <div id="c_newapp"></div>
+    </div>
 </body>
 </html>
