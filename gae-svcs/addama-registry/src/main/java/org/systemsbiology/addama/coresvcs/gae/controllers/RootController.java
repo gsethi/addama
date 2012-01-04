@@ -56,10 +56,10 @@ public class RootController {
         JSONObject json = new JSONObject();
         json.put("uri", request.getRequestURI());
         addFamilyItem(json, "Datasources", "/addama/datasources");
+        addFamilyItem(json, "Apps", "/addama/apps");
         addFamilyItem(json, "Repositories", "/addama/repositories");
         addFamilyItem(json, "Workspaces", "/addama/workspaces");
         addFamilyItem(json, "Tools", "/addama/tools");
-        addFamilyItem(json, "Applications", "/addama/applications");
         addFamilyItem(json, "Services", "/addama/services");
         addFamilyItem(json, "Indexes", "/addama/indexes");
         addFamilyItem(json, "Searchable Services", "/addama/searchables");

@@ -13,6 +13,8 @@
                 <entry key="/addama/registry">
                     <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.RegistryController"/>
                 </entry>
+                <entry key="/addama/apps" value-ref="appsContentController"/>
+                <entry key="/addama/apps/**" value-ref="appsContentController"/>
 
                 <!-- Membership Controllers -->
                 <entry key="/addama/memberships/domain">
@@ -128,5 +130,7 @@
             </list>
         </property>
     </bean>
+
+    <bean id="appsContentController" class="org.systemsbiology.addama.appengine.rest.AppsController"/>
 
 </beans>
