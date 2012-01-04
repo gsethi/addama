@@ -22,7 +22,6 @@
         <module>commons</module>
         <module>local-svcs</module>
         <module>gae-svcs</module>
-        <module>user-interfaces</module>
     </modules>
 
     <developers>
