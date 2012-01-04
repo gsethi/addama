@@ -5,10 +5,6 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        if (get_parameter("no_topbar")) {
-            return;
-        }
-
         this.toolbar = new Ext.Toolbar({
             buttonAlign: "right",
             renderTo: this.contentEl
@@ -34,17 +30,23 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     this.toolbar.add({ text: json.email, xtype: 'tbtext' });
                     this.toolbar.add({ text: 'Sign out', xtype: 'tbbutton',
                         handler:function() {
-                            document.location = json.logoutUrl
-                        }});
+                            document.location = json.logoutUrl;
+                        }
+                    });
+                    if (json.isAdmin) {
+                        this.toolbar.add({ text: "Refresh UI Version", xtype: 'tbbutton',
+                            handler: function() {
+                                Ext.Ajax.request({
+                                    url: "/addama/apps/refresh", method: "POST",
+                                    success: function() {
+                                        document.location = document.location.href;
+                                    }
+                                });
+                            }
+                        });
+                    }
                     this.toolbar.doLayout();
                     this.fireEvent("whoami", json);
-
-                } else if (json && json.loginUrl) {
-                    this.toolbar.add({ text: 'Sign in', xtype: 'tbbutton',
-                        handler:function() {
-                            document.location = json.loginUrl
-                        }});
-                    this.toolbar.doLayout();
                 } else {
                     this.toolbar.add({ text: "Not logged in" });
                     this.toolbar.doLayout();
