@@ -25,7 +25,7 @@ import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
  * @author hrovira
  */
 public class MembershipFilter extends GenericFilterBean {
-    private static final String PAGE = "/addama/ui/memberships/apply.html";
+    private static final String PAGE = "/html/memberships/apply.html";
 
     private static final Logger log = Logger.getLogger(MembershipFilter.class.getName());
 

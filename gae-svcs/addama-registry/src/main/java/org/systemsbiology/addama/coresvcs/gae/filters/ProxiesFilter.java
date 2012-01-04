@@ -120,9 +120,6 @@ public class ProxiesFilter extends GenericFilterBean {
         if (requestUri.startsWith("/addama/apps")) {
             return true;
         }
-        if (requestUri.startsWith("/addama/ui")) {
-            return true;
-        }
         if (requestUri.startsWith("/addama/registry")) {
             return true;
         }
