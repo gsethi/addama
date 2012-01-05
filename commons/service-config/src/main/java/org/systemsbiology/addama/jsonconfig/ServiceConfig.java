@@ -21,7 +21,6 @@ package org.systemsbiology.addama.jsonconfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.servlet.ServletContext;
@@ -48,16 +47,13 @@ public class ServiceConfig implements ServletContextAware {
     private String LABEL;
 
     public void setServletContext(ServletContext servletContext) {
-        Resource resource = getConfig(servletContext);
         try {
-            if (resource != null) {
-                InputStream inputStream = resource.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
+            BufferedReader reader = readConfig(servletContext);
+            if (reader != null) {
                 StringBuilder builder = new StringBuilder();
                 String line = "";
                 while (line != null) {
-                    line = bufferedReader.readLine();
+                    line = reader.readLine();
                     if (line != null) {
                         builder.append(line);
                     }
@@ -109,14 +105,16 @@ public class ServiceConfig implements ServletContextAware {
         }
     }
 
-    private Resource getConfig(ServletContext servletContext) {
+    private BufferedReader readConfig(ServletContext servletContext) {
         try {
             String contextPath = servletContext.getContextPath();
             if (contextPath.startsWith("/")) {
                 contextPath = substringAfter(contextPath, "/");
             }
 
-            return new ClassPathResource("services/" + contextPath + ".config");
+            ClassPathResource resource = new ClassPathResource("services/" + contextPath + ".config");
+            InputStream inputStream = resource.getInputStream();
+            return new BufferedReader(new InputStreamReader(inputStream));
         } catch (Exception e) {
             log.warning(e.getMessage());
         }
