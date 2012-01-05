@@ -17,33 +17,28 @@
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 package org.systemsbiology.addama.aclsvc.web;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.systemsbiology.addama.aclsvc.dao.AddamaAcl;
-import org.systemsbiology.addama.aclsvc.dao.AddamaAcl.*;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.systemsbiology.addama.aclsvc.dao.AddamaAcl;
+import org.systemsbiology.addama.aclsvc.dao.AddamaAcl.AddamaAclPermission;
+import org.systemsbiology.addama.aclsvc.dao.AddamaAcl.AddamaAclScope;
 import org.systemsbiology.addama.aclsvc.service.AddamaAclDto;
 import org.systemsbiology.addama.aclsvc.service.AddamaAclDtoMapper;
 import org.systemsbiology.addama.aclsvc.service.AddamaAclSetDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by IntelliJ IDEA.
- * User: trobinso
- * Date: Jul 21, 2010
- * Time: 11:38:12 AM
+ * @author trobinso
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/gaeacl-test.xml"})
 public class AddamaAclSetDtoTest {
     private static final String OWNER = "John Smith";
@@ -53,9 +48,8 @@ public class AddamaAclSetDtoTest {
     public void testDtoConversionLayer() throws Exception {
         // Validate simple conversion to and from a dto object
         // Note this only validates the invariant conditions of a symmetric conversion, not each method individually
-        for (AddamaAclPermission perm: AddamaAclPermission.values())
-        {
-            for (AddamaAclScope scope: AddamaAclScope.values()) {
+        for (AddamaAclPermission perm : AddamaAclPermission.values()) {
+            for (AddamaAclScope scope : AddamaAclScope.values()) {
                 AddamaAcl acl = new AddamaAcl();
                 acl.setPermission(perm);
                 acl.setScope(scope);
@@ -67,16 +61,15 @@ public class AddamaAclSetDtoTest {
             }
         }
     }
-    
+
     @Test
     public void testJsonConversionLayer() throws Exception {
 
         // Generate a simple, representative list of ACLs
         AddamaAclSetDto dto = new AddamaAclSetDto();
         List<AddamaAclDto> dtoList = new ArrayList<AddamaAclDto>();
-        for (AddamaAclPermission perm: AddamaAclPermission.values())
-        {
-            for (AddamaAclScope scope: AddamaAclScope.values()) {
+        for (AddamaAclPermission perm : AddamaAclPermission.values()) {
+            for (AddamaAclScope scope : AddamaAclScope.values()) {
                 AddamaAcl acl = new AddamaAcl();
                 acl.setPermission(perm);
                 acl.setScope(scope);
@@ -91,7 +84,7 @@ public class AddamaAclSetDtoTest {
         AddamaAclSetDto test = AddamaAclSetDto.fromJSONString(json.toString());
 
         // Test the results
-        
+
         // Implied tests:
         //  assertNotNull(initial);
         //  assertNotNull(json);
