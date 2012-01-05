@@ -21,6 +21,7 @@ package org.systemsbiology.addama.jsonconfig;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.servlet.ServletContext;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.chomp;
+import static org.apache.commons.lang.StringUtils.substringAfter;
 
 
 /**
@@ -46,29 +48,31 @@ public class ServiceConfig implements ServletContextAware {
     private String LABEL;
 
     public void setServletContext(ServletContext servletContext) {
+        Resource resource = getConfig(servletContext);
         try {
-            ClassPathResource resource = new ClassPathResource("services/" + servletContext.getContextPath() + ".config");
-            InputStream inputStream = resource.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            if (resource != null) {
+                InputStream inputStream = resource.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 
-            StringBuilder builder = new StringBuilder();
-            String line = "";
-            while (line != null) {
-                line = bufferedReader.readLine();
-                if (line != null) {
-                    builder.append(line);
+                StringBuilder builder = new StringBuilder();
+                String line = "";
+                while (line != null) {
+                    line = bufferedReader.readLine();
+                    if (line != null) {
+                        builder.append(line);
+                    }
                 }
-            }
 
-            this.JSON = new JSONObject(builder.toString());
-            this.LABEL = this.JSON.getString("label");
+                this.JSON = new JSONObject(builder.toString());
+                this.LABEL = this.JSON.getString("label");
 
-            if (JSON.has("mappings")) {
-                String family = chomp(JSON.getString("family"), "/");
-                JSONArray mappings = JSON.getJSONArray("mappings");
-                for (int i = 0; i < mappings.length(); i++) {
-                    Mapping m = new Mapping(family, mappings.getJSONObject(i));
-                    mappingsById.put(m.ID(), m);
+                if (JSON.has("mappings")) {
+                    String family = chomp(JSON.getString("family"), "/");
+                    JSONArray mappings = JSON.getJSONArray("mappings");
+                    for (int i = 0; i < mappings.length(); i++) {
+                        Mapping m = new Mapping(family, mappings.getJSONObject(i));
+                        mappingsById.put(m.ID(), m);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -105,4 +109,17 @@ public class ServiceConfig implements ServletContextAware {
         }
     }
 
+    private Resource getConfig(ServletContext servletContext) {
+        try {
+            String contextPath = servletContext.getContextPath();
+            if (contextPath.startsWith("/")) {
+                contextPath = substringAfter(contextPath, "/");
+            }
+
+            return new ClassPathResource("services/" + contextPath + ".config");
+        } catch (Exception e) {
+            log.warning(e.getMessage());
+        }
+        return null;
+    }
 }
