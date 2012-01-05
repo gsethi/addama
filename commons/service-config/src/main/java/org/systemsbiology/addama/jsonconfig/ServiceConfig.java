@@ -112,7 +112,10 @@ public class ServiceConfig implements ServletContextAware {
                 contextPath = substringAfter(contextPath, "/");
             }
 
-            ClassPathResource resource = new ClassPathResource("services/" + contextPath + ".config");
+            String configPath = "services/" + contextPath + ".config";
+            log.info("loading:" + configPath);
+
+            ClassPathResource resource = new ClassPathResource(configPath);
             InputStream inputStream = resource.getInputStream();
             return new BufferedReader(new InputStreamReader(inputStream));
         } catch (Exception e) {
