@@ -20,8 +20,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  */
 public class HTTPResponseContent implements Serializable {
     private final byte[] bytes;
-    private boolean html;
-    private String contentType;
+    private String contentType = "text/html";
 
     /*
      * Constructors
@@ -46,11 +45,11 @@ public class HTTPResponseContent implements Serializable {
     }
 
     public boolean isHtml() {
-        return this.html;
+        return this.contentType.startsWith("text/html");
     }
 
     public String getContentType() {
-        return contentType;
+        return this.contentType;
     }
 
     /*
@@ -97,7 +96,6 @@ public class HTTPResponseContent implements Serializable {
                 for (HTTPHeader header : headers) {
                     if (equalsIgnoreCase(header.getName(), "content-type")) {
                         this.contentType = header.getValue();
-                        this.html = this.contentType.startsWith("text/html");
                         return;
                     }
                 }
