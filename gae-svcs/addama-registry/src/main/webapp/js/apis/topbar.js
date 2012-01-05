@@ -26,9 +26,14 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             method: "GET",
             scope: this,
             listeners: {
-                requestexception: function(c, o) {
+                requestcomplete: function(c, o) {
                     // TODO: check if 302, then redirect document
                     this.toolbar.add({ text: "Not logged in" });
+                    this.toolbar.doLayout();
+                },
+                requestexception: function(c, o) {
+                    // TODO: check if 302, then redirect document
+                    this.toolbar.add({ text: "Errors, try again" });
                     this.toolbar.doLayout();
                 }
             },
