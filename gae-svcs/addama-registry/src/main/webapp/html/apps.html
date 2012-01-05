@@ -44,15 +44,17 @@
         }
 
         function SubmitNewApp() {
+            var app = {
+                id: Ext.getDom("i_app_id").value,
+                label: Ext.getDom("i_app_label").value,
+                url: Ext.getDom("i_app_url").value
+            };
+
             Ext.Ajax.request({
                 method: "post",
                 url: "/addama/apps",
                 params: {
-                    app: {
-                        id: Ext.getDom("i_app_id").value,
-                        label: Ext.getDom("i_app_label").value,
-                        url: Ext.getDom("i_app_url").value
-                    }
+                    app: Ext.util.JSON.encode(app)
                 },
                 success: ShowApps
             })
