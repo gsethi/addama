@@ -25,18 +25,6 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             url: "/addama/users/whoami",
             method: "GET",
             scope: this,
-            listeners: {
-                requestcomplete: function(c, o) {
-                    // TODO: check if 302, then redirect document
-                    this.toolbar.add({ text: "Not logged in" });
-                    this.toolbar.doLayout();
-                },
-                requestexception: function(c, o) {
-                    // TODO: check if 302, then redirect document
-                    this.toolbar.add({ text: "Errors, try again" });
-                    this.toolbar.doLayout();
-                }
-            },
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.email) {
@@ -64,6 +52,10 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     this.toolbar.add({ text: "Not logged in" });
                     this.toolbar.doLayout();
                 }
+            },
+            failure: function(o) {
+                this.toolbar.add({ text: "Error: " + o.statusText });
+                this.toolbar.doLayout();
             }
         });
     }
