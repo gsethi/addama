@@ -25,21 +25,18 @@ import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.logging.Logger;
 
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.substringBetween;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 
 /**
  * @author hrovira
  */
 public class MemcacheController extends AbstractController {
-    private static final Logger log = Logger.getLogger(MemcacheController.class.getName());
-
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String requestUri = request.getRequestURI();
-        log.info(requestUri);
+        checkAdmin(request);
 
         String targetCache = substringBetween("/memcache/", "/clear");
         if (isEmpty(targetCache)) {

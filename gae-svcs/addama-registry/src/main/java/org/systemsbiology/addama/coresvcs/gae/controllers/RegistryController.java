@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.systemsbiology.addama.appengine.util.Registry.*;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.asPackage;
 
@@ -28,16 +28,16 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.asPackage;
  */
 @Controller
 public class RegistryController {
-    private static final Logger log = Logger.getLogger(RegistryController.class.getName());
-
     private final DatastoreService datastore = getDatastoreService();
 
     @RequestMapping(value = "/registry", method = RequestMethod.POST)
     public void register(HttpServletRequest request, HttpServletResponse response,
                          @RequestParam("registration") String registration) throws Exception {
-        log.info(request.getRequestURI());
+        checkAdmin(request);
         try {
             JSONObject json = new JSONObject(registration);
+
+            // TODO : Check ownership of services before proceeding
 
             String serviceId = asPackage(new URL(json.getString("url")));
             clearExistingService(serviceId);

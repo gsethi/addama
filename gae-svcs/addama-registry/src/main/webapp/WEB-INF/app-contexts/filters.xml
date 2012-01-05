@@ -12,9 +12,6 @@
     <bean id="filter-directlink" class="org.systemsbiology.addama.coresvcs.gae.filters.DirectLinkFilter"
           autowire="byType"/>
 
-    <bean id="filter-authorization-admin" class="org.systemsbiology.addama.coresvcs.gae.filters.AdminOnlyFilter"
-          autowire="byType"/>
-
     <bean id="filter-proxies" class="org.systemsbiology.addama.coresvcs.gae.filters.ProxiesFilter" autowire="byType"/>
 
 </beans>
