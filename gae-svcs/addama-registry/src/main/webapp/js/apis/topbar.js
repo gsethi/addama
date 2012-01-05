@@ -24,15 +24,18 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
         Ext.Ajax.request({
             url: "/addama/users/whoami",
             method: "GET",
+            scope: this,
+            listeners: {
+                requestexception: function(c, o) {
+                    // TODO: check if 302, then redirect document
+                    this.toolbar.add({ text: "Not logged in" });
+                    this.toolbar.doLayout();
+                }
+            },
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.email) {
                     this.toolbar.add({ text: json.email, xtype: 'tbtext' });
-                    this.toolbar.add({ text: 'Sign out', xtype: 'tbbutton',
-                        handler:function() {
-                            document.location = json.logoutUrl;
-                        }
-                    });
                     if (json.isAdmin) {
                         this.toolbar.add({ text: "Refresh UI Version", xtype: 'tbbutton',
                             handler: function() {
@@ -45,18 +48,18 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                             }
                         });
                     }
+                    this.toolbar.add({ text: 'Sign out', xtype: 'tbbutton',
+                        handler:function() {
+                            document.location = json.logoutUrl;
+                        }
+                    });
                     this.toolbar.doLayout();
                     this.fireEvent("whoami", json);
                 } else {
                     this.toolbar.add({ text: "Not logged in" });
                     this.toolbar.doLayout();
                 }
-            },
-            failure: function() {
-                this.toolbar.add({ text: "Not logged in" });
-                this.toolbar.doLayout();
-            },
-            scope: this
+            }
         });
     }
 });
