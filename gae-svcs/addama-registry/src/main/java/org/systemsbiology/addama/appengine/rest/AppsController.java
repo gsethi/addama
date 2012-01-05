@@ -37,7 +37,7 @@ import static org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent.s
 @Controller
 public class AppsController {
     private static final Logger log = Logger.getLogger(AppsController.class.getName());
-    private final MemcacheService appsContent = getMemcacheService("apps-content");
+    //    private final MemcacheService appsContent = getMemcacheService("apps-content");
     private DatastoreService datastore = getDatastoreService();
 
     @InitBinder
@@ -68,7 +68,9 @@ public class AppsController {
     @RequestMapping(value = "/apps/{appsId}", method = RequestMethod.GET)
     protected ModelAndView fetchApp(HttpServletRequest request, HttpServletResponse response,
                                     @PathVariable("appsId") String appsId) throws Exception {
+        log.info(appsId);
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
+        MemcacheService appsContent = getMemcacheService("apps-content." + appsId);
         HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
         if (content == null) {
             content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/index.html", callback);
@@ -82,6 +84,7 @@ public class AppsController {
                                            @PathVariable("appsId") String appsId) throws Exception {
         String contentUri = substringAfterLast(request.getRequestURI(), appsId);
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
+        MemcacheService appsContent = getMemcacheService("apps-content." + appsId);
         HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, contentUri, callback);
         serveContent(content, request, response);
         return new ModelAndView(new OkResponseView());
@@ -106,8 +109,7 @@ public class AppsController {
         checkAdmin(request);
 
         log.info("clearing apps content cache");
-        appsContent.clearAll();
+        getMemcacheService().clearAll();
         return new ModelAndView(new OkResponseView());
     }
-
 }
