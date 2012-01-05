@@ -5,7 +5,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.memcache.MemcacheService;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
@@ -43,7 +42,7 @@ public class AppsController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(JSONArray.class, new JSONObjectPropertyEditor());
+        binder.registerCustomEditor(JSONObject.class, new JSONObjectPropertyEditor());
     }
 
     /*
@@ -68,7 +67,7 @@ public class AppsController {
 
     @RequestMapping(value = "/apps/{appsId}", method = RequestMethod.GET)
     protected ModelAndView fetchApp(HttpServletRequest request, HttpServletResponse response,
-                            @PathVariable("appsId") String appsId) throws Exception {
+                                    @PathVariable("appsId") String appsId) throws Exception {
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
         HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
         if (content == null) {
@@ -80,7 +79,7 @@ public class AppsController {
 
     @RequestMapping(value = "/apps/{appsId}/**", method = RequestMethod.GET)
     protected ModelAndView fetchAppContent(HttpServletRequest request, HttpServletResponse response,
-                                   @PathVariable("appsId") String appsId) throws Exception {
+                                           @PathVariable("appsId") String appsId) throws Exception {
         String contentUri = substringAfterLast(request.getRequestURI(), appsId);
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
         HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, contentUri, callback);
