@@ -15,6 +15,7 @@ import org.systemsbiology.addama.appengine.callbacks.AppsContentMemcacheLoaderCa
 import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
+import org.systemsbiology.addama.commons.web.views.OkResponseView;
 import org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,7 +67,7 @@ public class AppsController {
     }
 
     @RequestMapping(value = "/apps/{appsId}", method = RequestMethod.GET)
-    protected void fetchApp(HttpServletRequest request, HttpServletResponse response,
+    protected ModelAndView fetchApp(HttpServletRequest request, HttpServletResponse response,
                             @PathVariable("appsId") String appsId) throws Exception {
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
         HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
@@ -74,19 +75,21 @@ public class AppsController {
             content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/index.html", callback);
         }
         serveContent(content, request, response);
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/apps/{appsId}/**", method = RequestMethod.GET)
-    protected void fetchAppContent(HttpServletRequest request, HttpServletResponse response,
+    protected ModelAndView fetchAppContent(HttpServletRequest request, HttpServletResponse response,
                                    @PathVariable("appsId") String appsId) throws Exception {
         String contentUri = substringAfterLast(request.getRequestURI(), appsId);
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
         HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, contentUri, callback);
         serveContent(content, request, response);
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/apps", method = RequestMethod.POST)
-    protected void setApp(HttpServletRequest request, @RequestParam("app") JSONObject app) throws Exception {
+    protected ModelAndView setApp(HttpServletRequest request, @RequestParam("app") JSONObject app) throws Exception {
         checkAdmin(request);
 
         URL url = new URL(app.getString("url"));
@@ -96,14 +99,16 @@ public class AppsController {
         e.setProperty("url", url.toString());
 
         inTransaction(datastore, new PutEntityTransactionCallback(e));
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/apps/refresh", method = RequestMethod.POST)
-    protected void refreshContent(HttpServletRequest request) throws Exception {
+    protected ModelAndView refreshContent(HttpServletRequest request) throws Exception {
         checkAdmin(request);
 
         log.info("clearing apps content cache");
         appsContent.clearAll();
+        return new ModelAndView(new OkResponseView());
     }
 
 }

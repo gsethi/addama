@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
+import org.systemsbiology.addama.commons.web.views.OkResponseView;
 import org.systemsbiology.addama.coresvcs.gae.pojos.ApiKey;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,8 +49,6 @@ import static org.systemsbiology.addama.commons.gae.Appspot.*;
 @Controller
 public class ApiKeyController {
     private static final Logger log = Logger.getLogger(ApiKeyController.class.getName());
-
-    private final UserService userService = getUserService();
 
     @RequestMapping(value = "/apikeys", method = RequestMethod.GET)
     @ModelAttribute
@@ -80,7 +79,7 @@ public class ApiKeyController {
 
         outputFile(response, "addama.properties", builder.toString());
 
-        return null;
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/apikeys/file", method = RequestMethod.GET)
@@ -98,7 +97,8 @@ public class ApiKeyController {
         builder.append("\n");
 
         outputFile(response, APP_ID + ".apikey", builder.toString());
-        return null;
+
+        return new ModelAndView(new OkResponseView());
     }
 
     /*
