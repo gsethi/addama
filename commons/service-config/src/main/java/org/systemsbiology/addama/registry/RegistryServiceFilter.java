@@ -99,8 +99,13 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
         }
 
         try {
+            String contextPath = super.getServletContext().getContextPath();
+            if (contextPath.startsWith("/")) {
+                contextPath = substringAfter(contextPath, "/");
+            }
+
             this.secureHostUrl = new URL(hostUrl);
-            URL serviceHostUrl = new URL(chomp(serviceUrl) + "/" + super.getServletContext().getContextPath());
+            URL serviceHostUrl = new URL(chomp(serviceUrl, "/") + "/" + contextPath);
 
             JSONObject registration = new JSONObject();
             registration.put("url", serviceHostUrl.toString());
