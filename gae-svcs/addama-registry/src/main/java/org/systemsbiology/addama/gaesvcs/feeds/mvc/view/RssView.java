@@ -10,9 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
-
 /**
  * RSS 2.0 pagination API per http://tools.ietf.org/html/rfc5005#section-3
  *
@@ -21,6 +18,8 @@ import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
 public class RssView implements View {
     public static final String FEED_ID = "FEED_ID";
     public static final String PAGE_NUMBER = "PAGE_NUMBER";
+    public static final String APPLICATION_ID = "APPLICATION_ID";
+    public static final String APPLICATION_URL = "APPLICATION_URL";
 
     private static final String LAST_BUILD_DATE = getLastBuildDate();
 
@@ -32,9 +31,11 @@ public class RssView implements View {
         JSONObject json = (JSONObject) map.get("json");
         Integer pageNum = (Integer) map.get(PAGE_NUMBER);
         String feedId = (String) map.get(FEED_ID);
+        String applicationId = (String) map.get(APPLICATION_ID);
+        String applicationUrl = (String) map.get(APPLICATION_URL);
 
         String feedUri = "/addama/feeds/" + feedId;
-        String feedUrl = APPSPOT_URL() + feedUri;
+        String feedUrl = applicationUrl + feedUri;
 
         StringBuilder builder = new StringBuilder();
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -45,10 +46,10 @@ public class RssView implements View {
         builder.append("<link>").append(feedUrl).append("?page=").append(pageNum).append("</link>");
         builder.append("<atom:link rel=\"next\" href=\"").append(feedUrl);
         builder.append("?page=").append(pageNum + 1).append("\" />");
-        builder.append("<description>Feeds for ").append(APPSPOT_ID()).append("</description>");
+        builder.append("<description>Feeds for ").append(applicationId).append("</description>");
         builder.append("<language>en</language>");
         builder.append("<lastBuildDate>").append(LAST_BUILD_DATE).append("</lastBuildDate>");
-        builder.append("<generator>").append(APPSPOT_ID()).append("</generator>");
+        builder.append("<generator>").append(applicationId).append("</generator>");
         builder.append("<ttl>60</ttl>");
         builder.append("<image>");
         builder.append("<url>").append("/images/rss.png</url>");

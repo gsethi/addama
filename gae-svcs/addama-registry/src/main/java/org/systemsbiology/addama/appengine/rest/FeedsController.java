@@ -47,12 +47,13 @@ import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcac
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate.loadIfNotExist;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate.namespacedCache;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
-import static org.systemsbiology.addama.gaesvcs.feeds.mvc.view.RssView.FEED_ID;
-import static org.systemsbiology.addama.gaesvcs.feeds.mvc.view.RssView.PAGE_NUMBER;
+import static org.systemsbiology.addama.gaesvcs.feeds.mvc.view.RssView.*;
 
 /**
  * An RSS 2.0 and generic Json items feed service.
@@ -106,6 +107,8 @@ public class FeedsController {
         mav.addObject("json", getItems(feedId, offset));
         mav.addObject(FEED_ID, feedId);
         mav.addObject(PAGE_NUMBER, page);
+        mav.addObject(APPLICATION_ID, APPSPOT_ID());
+        mav.addObject(APPLICATION_URL, APPSPOT_URL());
         return mav;
     }
 
