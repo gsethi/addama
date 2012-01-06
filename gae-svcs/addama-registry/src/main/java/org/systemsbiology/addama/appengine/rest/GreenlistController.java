@@ -16,7 +16,7 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.coresvcs.gae.controllers;
+package org.systemsbiology.addama.appengine.rest;
 
 import com.google.appengine.api.users.User;
 import org.json.JSONObject;
@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.appengine.pojos.GreenlistEntry;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
-import org.systemsbiology.addama.coresvcs.gae.pojos.GreenlistEntry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;

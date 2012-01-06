@@ -81,7 +81,7 @@
 
                 <!-- Greenlist Controllers -->
                 <entry key="/addama/greenlist/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.GreenlistController"
+                    <bean class="org.systemsbiology.addama.appengine.rest.GreenlistController"
                           autowire="byType"/>
                 </entry>
 

@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.filters;
+package org.systemsbiology.addama.appengine.filters;
 
 import org.springframework.web.filter.GenericFilterBean;
 

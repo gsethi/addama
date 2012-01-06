@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.pojos;
+package org.systemsbiology.addama.appengine.pojos;
 
 import org.json.JSONException;
 import org.json.JSONObject;

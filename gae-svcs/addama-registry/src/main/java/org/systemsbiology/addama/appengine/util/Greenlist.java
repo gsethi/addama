@@ -2,9 +2,9 @@ package org.systemsbiology.addama.appengine.util;
 
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.memcache.MemcacheService;
+import org.systemsbiology.addama.appengine.pojos.GreenlistEntry;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
-import org.systemsbiology.addama.coresvcs.gae.pojos.GreenlistEntry;
 
 import java.util.ArrayList;
 import java.util.Iterator;
