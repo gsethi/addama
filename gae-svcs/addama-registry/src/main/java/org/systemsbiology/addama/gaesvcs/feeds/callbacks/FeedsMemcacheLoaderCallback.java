@@ -18,7 +18,7 @@ public class FeedsMemcacheLoaderCallback implements MemcacheLoaderCallback {
         PreparedQuery pq = datastoreService.prepare(new Query("feeds"));
         for (Entity entity : pq.asIterable()) {
             JSONObject item = new JSONObject();
-            item.put("uri", entity.getKey().getName());
+            item.put("uri", "/addama/feeds/" + entity.getKey().getName());
             item.put("creator", entity.getProperty("creator").toString());
             json.append("items", item);
         }

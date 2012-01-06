@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 <!--
- * Unfortunately I was not able to configure the DispatcherServlet used by the 
+ * Unfortunately I was not able to configure the DispatcherServlet used by the
  * unit tests with the production configuration in files
  * src/main/webapp/WEB-INF/feeds-servlet.xml and
  * src/main/webapp/WEB-INF/app-contexts/controllers.xml because I was not able
@@ -16,15 +16,7 @@
         <property name="urlMap">
             <map>
                 <entry key="/**">
-                    <bean class="org.systemsbiology.addama.gaesvcs.feeds.mvc.FeedsController"
-                          autowire="byType">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                                <value>POST</value>
-                            </list>
-                        </property>
-                    </bean>
+                    <bean class="org.systemsbiology.addama.appengine.rest.FeedsController" autowire="byType"/>
                 </entry>
             </map>
         </property>

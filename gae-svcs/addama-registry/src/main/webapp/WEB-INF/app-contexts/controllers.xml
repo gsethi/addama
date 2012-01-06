@@ -123,14 +123,7 @@
 
     <bean id="channelServiceController" class="org.systemsbiology.addama.appengine.rest.ChannelServiceController"/>
 
-    <bean id="feedsController" class="org.systemsbiology.addama.gaesvcs.feeds.mvc.FeedsController" autowire="byType">
-        <property name="supportedMethods">
-            <list>
-                <value>GET</value>
-                <value>POST</value>
-            </list>
-        </property>
-    </bean>
+    <bean id="feedsController" class="org.systemsbiology.addama.appengine.rest.FeedsController" autowire="byType"/>
 
     <bean id="appsContentController" class="org.systemsbiology.addama.appengine.rest.AppsController"/>
 

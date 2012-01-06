@@ -3,7 +3,6 @@ package org.systemsbiology.addama.gaesvcs.feeds.mvc.view;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.servlet.View;
-import org.systemsbiology.addama.gaesvcs.feeds.mvc.FeedsController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,22 +19,22 @@ import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
  * @author hrovira
  */
 public class RssView implements View {
-    private static final String LAST_BUILD_DATE = getLastBuildDate();
-    private final String feed;
-    private final int pageNum;
+    public static final String FEED_ID = "FEED_ID";
+    public static final String PAGE_NUMBER = "PAGE_NUMBER";
 
-    public RssView(String feed, int pageNum) {
-        this.feed = feed;
-        this.pageNum = pageNum;
-    }
+    private static final String LAST_BUILD_DATE = getLastBuildDate();
 
     public String getContentType() {
         return "text/xml";
     }
 
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String feedUri = request.getRequestURI();
         JSONObject json = (JSONObject) map.get("json");
+        Integer pageNum = (Integer) map.get(PAGE_NUMBER);
+        String feedId = (String) map.get(FEED_ID);
+
+        String feedUri = "/addama/feeds/" + feedId;
+        String feedUrl = APPSPOT_URL() + feedUri;
 
         StringBuilder builder = new StringBuilder();
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -43,12 +42,13 @@ public class RssView implements View {
         builder.append("xmlns:atom=\"http://www.w3.org/2005/Atom\">");
         builder.append("<channel>");
         builder.append("<title>Addama Feeds</title>");
-        builder.append("<link>").append(APPSPOT_URL).append(feed).append("?").append(FeedsController.PAGE_PARAM).append("=").append(pageNum).append("</link>");
-        builder.append("<atom:link rel=\"next\" href=\"").append(APPSPOT_URL).append(feed).append("?").append(FeedsController.PAGE_PARAM).append("=").append(pageNum + 1).append("\" />");
-        builder.append("<description>Feeds for ").append(APPSPOT_ID).append("</description>");
+        builder.append("<link>").append(feedUrl).append("?page=").append(pageNum).append("</link>");
+        builder.append("<atom:link rel=\"next\" href=\"").append(feedUrl);
+        builder.append("?page=").append(pageNum + 1).append("\" />");
+        builder.append("<description>Feeds for ").append(APPSPOT_ID()).append("</description>");
         builder.append("<language>en</language>");
         builder.append("<lastBuildDate>").append(LAST_BUILD_DATE).append("</lastBuildDate>");
-        builder.append("<generator>").append(APPSPOT_ID).append("</generator>");
+        builder.append("<generator>").append(APPSPOT_ID()).append("</generator>");
         builder.append("<ttl>60</ttl>");
         builder.append("<image>");
         builder.append("<url>").append("/images/rss.png</url>");
