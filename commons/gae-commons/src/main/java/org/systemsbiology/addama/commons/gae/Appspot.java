@@ -17,4 +17,15 @@ public class Appspot {
         APPSPOT_URL = "https://" + APPSPOT_ID;
     }
 
+    public static String APP_ID() {
+        return substringBeforeLast(APPSPOT_ID(), ".appspot.com");
+    }
+
+    public static String APPSPOT_ID() {
+        return (String) getCurrentEnvironment().getAttributes().get("com.google.appengine.runtime.default_version_hostname");
+    }
+
+    public static String APPSPOT_URL() {
+        return "https://" + APPSPOT_ID();
+    }
 }
