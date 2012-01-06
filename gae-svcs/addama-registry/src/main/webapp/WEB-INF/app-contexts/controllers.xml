@@ -38,28 +38,6 @@
                 <entry key="/addama/searchables" value-ref="searchCtlr"/>
                 <entry key="/addama/search" value-ref="searchCtlr"/>
 
-                <!-- Asynch Fetch Controllers -->
-                <entry key="/addama/asynch/responses/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.asynch.ResponseController"
-                          autowire="byType">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                            </list>
-                        </property>
-                    </bean>
-                </entry>
-                <entry key="/addama/asynch/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.asynch.TaskingController"
-                          autowire="byType">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                            </list>
-                        </property>
-                    </bean>
-                </entry>
-
                 <!-- Users Controllers -->
                 <entry key="/addama/users/**">
                     <bean class="org.systemsbiology.addama.appengine.rest.UserController" autowire="byType"/>

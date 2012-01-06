@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.asynch;
+package org.systemsbiology.addama.experimental.asynch;
 
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
-import static org.systemsbiology.addama.coresvcs.gae.asynch.Status.retrieved;
-import static org.systemsbiology.addama.coresvcs.gae.asynch.TaskingController.responses;
+import static org.systemsbiology.addama.experimental.asynch.Status.retrieved;
+import static org.systemsbiology.addama.experimental.asynch.TaskingController.responses;
 
 /**
  * @author hrovira

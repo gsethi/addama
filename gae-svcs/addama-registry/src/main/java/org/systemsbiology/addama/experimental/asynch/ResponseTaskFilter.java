@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.asynch;
+package org.systemsbiology.addama.experimental.asynch;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.TaskOptions;
@@ -20,9 +20,9 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserUriFromApiKey;
-import static org.systemsbiology.addama.coresvcs.gae.asynch.Status.retrieved;
-import static org.systemsbiology.addama.coresvcs.gae.asynch.Status.running;
-import static org.systemsbiology.addama.coresvcs.gae.asynch.TaskingController.responses;
+import static org.systemsbiology.addama.experimental.asynch.Status.retrieved;
+import static org.systemsbiology.addama.experimental.asynch.Status.running;
+import static org.systemsbiology.addama.experimental.asynch.TaskingController.responses;
 
 /**
  * @author hrovira

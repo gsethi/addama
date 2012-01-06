@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.asynch;
+package org.systemsbiology.addama.experimental.asynch;
 
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.taskqueue.Queue;
@@ -22,7 +22,7 @@ import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
-import static org.systemsbiology.addama.coresvcs.gae.asynch.Status.pending;
+import static org.systemsbiology.addama.experimental.asynch.Status.pending;
 
 /**
  * @author hrovira

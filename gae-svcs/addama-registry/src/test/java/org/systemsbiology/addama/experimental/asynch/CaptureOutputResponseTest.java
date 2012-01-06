@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.asynch;
+package org.systemsbiology.addama.experimental.asynch;
 
 import org.junit.Before;
 import org.junit.Test;
