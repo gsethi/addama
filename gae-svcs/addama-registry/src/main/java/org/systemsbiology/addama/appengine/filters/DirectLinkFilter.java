@@ -42,7 +42,7 @@ import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.Registry.getMatchingRegistryMappings;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Sharing.checkAccess;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira

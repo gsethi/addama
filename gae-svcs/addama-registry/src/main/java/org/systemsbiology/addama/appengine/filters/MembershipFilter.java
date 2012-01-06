@@ -19,7 +19,7 @@ import static org.systemsbiology.addama.appengine.util.Memberships.Membership.gu
 import static org.systemsbiology.addama.appengine.util.Memberships.Membership.member;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
 import static org.systemsbiology.addama.appengine.util.Users.isAdministrator;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_URL;
 
 /**
  * @author hrovira

@@ -39,7 +39,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
-import static org.systemsbiology.addama.commons.gae.Appspot.*;
+import static org.systemsbiology.addama.appengine.Appspot.*;
 
 /**
  * @author hrovira

@@ -16,7 +16,7 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.commons.gae.web;
+package org.systemsbiology.addama.appengine.servlet;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.urlfetch.HTTPHeader;
@@ -53,7 +53,7 @@ import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APP_ID;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**

@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.commons.gae;
+package org.systemsbiology.addama.appengine;
 
 import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static org.apache.commons.lang.StringUtils.substringBeforeLast;

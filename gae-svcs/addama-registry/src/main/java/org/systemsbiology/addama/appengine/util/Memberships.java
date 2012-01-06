@@ -18,7 +18,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.util.Memberships.Membership.*;
-import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APP_ID;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 
 /**

@@ -47,8 +47,8 @@ import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcac
 import static java.util.Arrays.asList;
 import static java.util.UUID.randomUUID;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_URL;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_URL;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate.loadIfNotExist;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate.namespacedCache;

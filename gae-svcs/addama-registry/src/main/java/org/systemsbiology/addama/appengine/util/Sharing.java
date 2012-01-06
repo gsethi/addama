@@ -31,7 +31,7 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira

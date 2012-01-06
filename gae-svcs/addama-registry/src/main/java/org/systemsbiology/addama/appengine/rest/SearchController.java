@@ -46,7 +46,7 @@ import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryMappings;
 import static org.systemsbiology.addama.appengine.util.Registry.getSearchableServices;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
