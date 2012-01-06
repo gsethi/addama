@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.gaesvcs.feeds.callbacks;
+package org.systemsbiology.addama.appengine.callbacks;
 
 import com.google.appengine.api.datastore.*;
 import org.json.JSONObject;

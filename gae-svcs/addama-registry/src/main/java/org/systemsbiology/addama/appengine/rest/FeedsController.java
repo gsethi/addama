@@ -29,12 +29,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.appengine.callbacks.FeedItemsMemcacheLoaderCallback;
+import org.systemsbiology.addama.appengine.callbacks.FeedsMemcacheLoaderCallback;
 import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.gaesvcs.feeds.callbacks.FeedItemsMemcacheLoaderCallback;
-import org.systemsbiology.addama.gaesvcs.feeds.callbacks.FeedsMemcacheLoaderCallback;
 import org.systemsbiology.addama.gaesvcs.feeds.mvc.view.RssView;
 
 import javax.servlet.http.HttpServletRequest;

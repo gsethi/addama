@@ -88,7 +88,7 @@
                 <!-- Services Controllers -->
                 <entry key="/addama/services" value-ref="registryBrowseCtlr"/>
                 <entry key="/addama/services/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.ServiceAccessController"
+                    <bean class="org.systemsbiology.addama.appengine.rest.ServiceAccessController"
                           autowire="byType">
                         <property name="supportedMethods">
                             <list>
@@ -113,7 +113,7 @@
     <bean id="searchCtlr" class="org.systemsbiology.addama.appengine.rest.SearchController"
           autowire="byType"/>
 
-    <bean id="memcacheController" class="org.systemsbiology.addama.coresvcs.gae.controllers.MemcacheController">
+    <bean id="memcacheController" class="org.systemsbiology.addama.appengine.rest.MemcacheController">
         <property name="supportedMethods">
             <list>
                 <value>POST</value>

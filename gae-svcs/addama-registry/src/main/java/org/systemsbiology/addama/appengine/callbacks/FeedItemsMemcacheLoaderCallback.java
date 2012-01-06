@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.gaesvcs.feeds.callbacks;
+package org.systemsbiology.addama.appengine.callbacks;
 
 import java.io.Serializable;
 
