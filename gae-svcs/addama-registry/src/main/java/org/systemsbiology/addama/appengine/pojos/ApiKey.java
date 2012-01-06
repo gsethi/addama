@@ -16,29 +16,44 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.coresvcs.gae.pojos;
+package org.systemsbiology.addama.appengine.pojos;
 
-import com.google.appengine.api.urlfetch.HTTPResponse;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.util.concurrent.Future;
+import java.util.UUID;
 
 /**
  * @author hrovira
  */
-public class SearchableResponse {
-    private final Future<HTTPResponse> futureResponse;
-    private final RegistryService searchable;
+public class ApiKey {
+    private final String userUri;
+    private final UUID key;
+    private final boolean admin;
 
-    public SearchableResponse(Future<HTTPResponse> futureResponse, RegistryService registryService) {
-        this.futureResponse = futureResponse;
-        this.searchable = registryService;
+    public ApiKey(String userUri, UUID key, boolean admin) {
+        this.userUri = userUri;
+        this.key = key;
+        this.admin = admin;
     }
 
-    public Future<HTTPResponse> getFutureResponse() {
-        return futureResponse;
+    public String getUserUri() {
+        return userUri;
     }
 
-    public RegistryService getSearchable() {
-        return searchable;
+    public UUID getKey() {
+        return key;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("apikey", key.toString());
+        json.put("user", userUri);
+        json.put("isAdmin", admin);
+        return json;
     }
 }

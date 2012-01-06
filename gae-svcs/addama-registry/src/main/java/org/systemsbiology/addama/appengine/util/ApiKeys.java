@@ -3,9 +3,9 @@ package org.systemsbiology.addama.appengine.util;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
+import org.systemsbiology.addama.appengine.pojos.ApiKey;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
-import org.systemsbiology.addama.coresvcs.gae.pojos.ApiKey;
 
 import java.util.Iterator;
 import java.util.UUID;

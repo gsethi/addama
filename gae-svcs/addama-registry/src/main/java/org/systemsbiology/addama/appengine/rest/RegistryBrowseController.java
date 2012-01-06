@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.appengine.pojos.RegistryMapping;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;

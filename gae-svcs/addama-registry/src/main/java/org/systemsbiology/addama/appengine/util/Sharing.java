@@ -19,8 +19,8 @@
 package org.systemsbiology.addama.appengine.util;
 
 import com.google.appengine.api.urlfetch.*;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

@@ -20,9 +20,9 @@ package org.systemsbiology.addama.appengine.filters;
 
 import com.google.appengine.api.urlfetch.*;
 import org.springframework.web.filter.GenericFilterBean;
+import org.systemsbiology.addama.appengine.pojos.RegistryMapping;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

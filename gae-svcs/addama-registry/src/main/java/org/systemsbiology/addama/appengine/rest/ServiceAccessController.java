@@ -22,9 +22,9 @@ import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
+import org.systemsbiology.addama.appengine.pojos.CachedUrl;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.coresvcs.gae.pojos.CachedUrl;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

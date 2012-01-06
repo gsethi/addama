@@ -16,33 +16,29 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.coresvcs.gae.pojos;
+package org.systemsbiology.addama.appengine.pojos;
 
-import java.io.Serializable;
-import java.net.URL;
-import java.util.UUID;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+
+import java.util.concurrent.Future;
 
 /**
  * @author hrovira
  */
-public class CachedUrl implements Serializable {
-    private final RegistryService registryService;
-    private final URL targetUrl;
+public class SearchableResponse {
+    private final Future<HTTPResponse> futureResponse;
+    private final RegistryService searchable;
 
-    public CachedUrl(RegistryService registryService, URL targetUrl) {
-        this.registryService = registryService;
-        this.targetUrl = targetUrl;
+    public SearchableResponse(Future<HTTPResponse> futureResponse, RegistryService registryService) {
+        this.futureResponse = futureResponse;
+        this.searchable = registryService;
     }
 
-    public RegistryService getRegistryService() {
-        return registryService;
+    public Future<HTTPResponse> getFutureResponse() {
+        return futureResponse;
     }
 
-    public URL getTargetUrl() {
-        return targetUrl;
-    }
-
-    public UUID getAccessKey() {
-        return registryService.getAccessKey();
+    public RegistryService getSearchable() {
+        return searchable;
     }
 }

@@ -3,7 +3,7 @@ package org.systemsbiology.addama.coresvcs.gae.asynch;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import org.springframework.web.filter.GenericFilterBean;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
+import org.systemsbiology.addama.appengine.pojos.RegistryMapping;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.taskqueue.QueueFactory.getDefaultQueue;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
-import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.lang.StringUtils.*;

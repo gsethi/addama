@@ -4,9 +4,9 @@ import com.google.appengine.api.datastore.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.AntPathMatcher;
+import org.systemsbiology.addama.appengine.pojos.RegistryMapping;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
