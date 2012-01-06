@@ -1,5 +1,6 @@
 package org.systemsbiology.addama.appengine.util;
 
+import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import org.systemsbiology.addama.appengine.callbacks.GreenlistMemcacheLoaderCallback;
@@ -24,7 +25,9 @@ import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTempla
  */
 public class Greenlist {
     private static final Logger log = Logger.getLogger(Greenlist.class.getName());
+
     public static final String BOUNCER = "bouncer@addama.org";
+    private static final DatastoreService datastore = getDatastoreService();
 
     public static boolean isGreenlistActive() {
         return isGreenlisted(BOUNCER);
@@ -46,7 +49,7 @@ public class Greenlist {
     public static Iterable<String> getGreenlist() {
         ArrayList<String> userEmails = new ArrayList<String>();
 
-        Iterator<Entity> itr = getDatastoreService().prepare(new Query("greenlist")).asIterator();
+        Iterator<Entity> itr = datastore.prepare(new Query("greenlist")).asIterator();
         while (itr.hasNext()) {
             String userEmail = itr.next().getKey().getName();
             if (!equalsIgnoreCase(userEmail, BOUNCER)) {
@@ -58,7 +61,7 @@ public class Greenlist {
     }
 
     public static void addGreenlistUser(String user) {
-        inTransaction(getDatastoreService(), new PutEntityTransactionCallback(new Entity(createKey("greenlist", BOUNCER))));
-        inTransaction(getDatastoreService(), new PutEntityTransactionCallback(new Entity(createKey("greenlist", user.toLowerCase()))));
+        inTransaction(datastore, new PutEntityTransactionCallback(new Entity(createKey("greenlist", BOUNCER))));
+        inTransaction(datastore, new PutEntityTransactionCallback(new Entity(createKey("greenlist", user.toLowerCase()))));
     }
 }

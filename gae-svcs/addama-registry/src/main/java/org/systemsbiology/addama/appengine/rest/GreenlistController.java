@@ -50,11 +50,11 @@ public class GreenlistController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/greenlist/{userId}", method = RequestMethod.POST)
-    public ModelAndView addUser(HttpServletRequest request, @PathVariable("user") String user) throws Exception {
+    @RequestMapping(value = "/greenlist/{email}", method = RequestMethod.POST)
+    public ModelAndView addUser(HttpServletRequest request, @PathVariable("email") String email) throws Exception {
         checkAdmin(request);
 
-        addGreenlistUser(user);
+        addGreenlistUser(email);
 
         return new ModelAndView(new OkResponseView());
     }
