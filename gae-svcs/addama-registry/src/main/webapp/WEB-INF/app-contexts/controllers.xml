@@ -79,9 +79,9 @@
                           autowire="byType"/>
                 </entry>
 
-                <!-- Whitelist Controllers -->
-                <entry key="/addama/whitelist/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.WhiteListController"
+                <!-- Greenlist Controllers -->
+                <entry key="/addama/greenlist/**">
+                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.GreenlistController"
                           autowire="byType"/>
                 </entry>
 

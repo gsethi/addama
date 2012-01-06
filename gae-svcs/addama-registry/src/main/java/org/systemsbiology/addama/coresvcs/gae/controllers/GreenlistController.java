@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
-import org.systemsbiology.addama.coresvcs.gae.pojos.WhiteListEntry;
+import org.systemsbiology.addama.coresvcs.gae.pojos.GreenlistEntry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
@@ -36,24 +36,24 @@ import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
-import static org.systemsbiology.addama.appengine.util.WhiteLists.*;
+import static org.systemsbiology.addama.appengine.util.Greenlist.*;
 
 /**
  * @author aeakin
  */
 @Controller
-public class WhiteListController {
-    private static final Logger log = Logger.getLogger(WhiteListController.class.getName());
+public class GreenlistController {
+    private static final Logger log = Logger.getLogger(GreenlistController.class.getName());
 
-    @RequestMapping(value = "/whitelist", method = RequestMethod.GET)
+    @RequestMapping(value = "/greenlist", method = RequestMethod.GET)
     @ModelAttribute
-    public ModelAndView getWhiteList(HttpServletRequest request) throws Exception {
+    public ModelAndView list(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
         JSONObject json = new JSONObject();
         json.put("uri", request.getRequestURI());
 
-        for (WhiteListEntry userItem : getWhiteListUsers()) {
+        for (GreenlistEntry userItem : getGreenlistUsers()) {
             json.append("items", userItem.toJSON());
         }
 
@@ -61,50 +61,50 @@ public class WhiteListController {
 
     }
 
-    @RequestMapping(value = "/whitelist/**", method = RequestMethod.POST)
+    @RequestMapping(value = "/greenlist/**", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView addNewUser(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
         String accessPath = getStringParameter(request, "uri");
         String userEmail = substringAfterLast(request.getRequestURI(), "/");
-        addWhiteListUser(userEmail, accessPath);
+        addGreenlistUser(userEmail, accessPath);
 
         return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "/whitelist", method = RequestMethod.POST)
+    @RequestMapping(value = "/greenlist", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView addLoggedInUser(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
         User user = getCurrentUser();
         String accessPath = getStringParameter(request, "uri");
-        addWhiteListUser(user.getEmail(), accessPath);
+        addGreenlistUser(user.getEmail(), accessPath);
 
         return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "/whitelist/**/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/greenlist/**/delete", method = RequestMethod.POST)
     @ModelAttribute
-    public ModelAndView deleteWhiteListEntryByPost(HttpServletRequest request) throws Exception {
+    public ModelAndView deleteByPost(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
         String accessPath = getStringParameter(request, "uri");
         String userEmail = substringAfterLast(substringBefore(request.getRequestURI(), "/delete"), "/");
-        deleteWhiteListUser(userEmail, accessPath);
+        deleteGreenlistUser(userEmail, accessPath);
 
         return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "whitelist/**/grantaccess", method = RequestMethod.POST)
+    @RequestMapping(value = "/greenlist/**/grantaccess", method = RequestMethod.POST)
     @ModelAttribute
     public ModelAndView grantAccessByPost(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
         String accessPath = getStringParameter(request, "uri");
         String userEmail = substringAfterLast(substringBefore(request.getRequestURI(), "/grantaccess"), "/");
-        grantWhiteListAccess(userEmail, accessPath);
+        grantGreenlistAccess(userEmail, accessPath);
 
         return new ModelAndView(new OkResponseView());
     }

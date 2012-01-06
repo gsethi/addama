@@ -13,13 +13,13 @@ import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
-import static org.systemsbiology.addama.appengine.util.WhiteLists.isUserInWhiteList;
+import static org.systemsbiology.addama.appengine.util.Greenlist.isUserInGreenlist;
 
 /**
  * @author aeakin
  */
-public class WhiteListFilter extends GenericFilterBean {
-    private static final Logger log = Logger.getLogger(WhiteListFilter.class.getName());
+public class GreenlistFilter extends GenericFilterBean {
+    private static final Logger log = Logger.getLogger(GreenlistFilter.class.getName());
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -42,8 +42,8 @@ public class WhiteListFilter extends GenericFilterBean {
         }
 
         // CODE_REVIEW: What happens if there is no white list for the URI?
-        if (isUserInWhiteList(userUri, request.getRequestURI())) {
-            log.fine("doFilterWhiteList: user in whitelist");
+        if (isUserInGreenlist(userUri, request.getRequestURI())) {
+            log.fine("user in greenlist");
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }

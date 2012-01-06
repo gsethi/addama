@@ -4,7 +4,7 @@ import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.memcache.MemcacheService;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
-import org.systemsbiology.addama.coresvcs.gae.pojos.WhiteListEntry;
+import org.systemsbiology.addama.coresvcs.gae.pojos.GreenlistEntry;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -20,13 +20,13 @@ import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceT
 /**
  * @author aeakin
  */
-public class WhiteLists {
-    private static final Logger log = Logger.getLogger(WhiteLists.class.getName());
+public class Greenlist {
+    private static final Logger log = Logger.getLogger(Greenlist.class.getName());
 
     private final static DatastoreService datastore = getDatastoreService();
     private final static MemcacheService memcache = getMemcacheService();
 
-    public static boolean isUserInWhiteList(String userUri, String accessPath) {
+    public static boolean isUserInGreenlist(String userUri, String accessPath) {
         log.fine(userUri + "," + accessPath);
 
         try {
@@ -77,10 +77,10 @@ public class WhiteLists {
         }
     }
 
-    public static WhiteListEntry[] getWhiteListUsers() {
+    public static GreenlistEntry[] getGreenlistUsers() {
         Query q = new Query("white-list");
 
-        ArrayList<WhiteListEntry> userEmails = new ArrayList<WhiteListEntry>();
+        ArrayList<GreenlistEntry> userEmails = new ArrayList<GreenlistEntry>();
         PreparedQuery pq = datastore.prepare(q);
         Iterator<Entity> itr = pq.asIterator();
         while (itr.hasNext()) {
@@ -97,14 +97,14 @@ public class WhiteLists {
             }
 
             if (!isEmpty(userEmail)) {
-                userEmails.add(new WhiteListEntry(userEmail.toLowerCase(), accessPath, hasAccess(e)));
+                userEmails.add(new GreenlistEntry(userEmail.toLowerCase(), accessPath, hasAccess(e)));
             }
         }
 
-        return userEmails.toArray(new WhiteListEntry[userEmails.size()]);
+        return userEmails.toArray(new GreenlistEntry[userEmails.size()]);
     }
 
-    public static void addWhiteListUser(String userEmail, String accessPath) {
+    public static void addGreenlistUser(String userEmail, String accessPath) {
         log.fine(userEmail + "," + accessPath);
 
         String userUri = "/addama/users/" + userEmail.toLowerCase();
@@ -116,7 +116,7 @@ public class WhiteLists {
 
     }
 
-    public static void deleteWhiteListUser(String userEmail, String accessPath) {
+    public static void deleteGreenlistUser(String userEmail, String accessPath) {
         log.fine(userEmail + "," + accessPath);
 
         if (!isEmpty(userEmail) && !isEmpty(accessPath)) {
@@ -125,7 +125,7 @@ public class WhiteLists {
         }
     }
 
-    public static void grantWhiteListAccess(String userEmail, String accessPath) {
+    public static void grantGreenlistAccess(String userEmail, String accessPath) {
         log.fine(userEmail + "," + accessPath);
 
         Entity e = new Entity(createKey("white-list", "/addama/users/" + userEmail.toLowerCase() + accessPath));

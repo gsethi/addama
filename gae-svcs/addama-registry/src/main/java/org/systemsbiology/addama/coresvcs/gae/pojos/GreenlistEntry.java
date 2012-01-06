@@ -6,12 +6,12 @@ import org.json.JSONObject;
 /**
  * @author hrovira
  */
-public class WhiteListEntry {
+public class GreenlistEntry {
     private final String userEmail;
     private final String accessPath;
     private final boolean hasAccess;
 
-    public WhiteListEntry(String userEmail, String accessPath, boolean hasAccess) {
+    public GreenlistEntry(String userEmail, String accessPath, boolean hasAccess) {
         this.userEmail = userEmail;
         this.hasAccess = hasAccess;
         this.accessPath = accessPath;
