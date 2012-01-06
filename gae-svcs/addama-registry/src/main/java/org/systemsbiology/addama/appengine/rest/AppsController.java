@@ -11,8 +11,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.appengine.callbacks.AppsContentMemcacheLoaderCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
@@ -27,8 +27,8 @@ import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
-import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serveContent;
 
 /**

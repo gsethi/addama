@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static org.systemsbiology.addama.appengine.util.Registry.*;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.asPackage;
 
 /**

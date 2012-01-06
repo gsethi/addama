@@ -4,9 +4,9 @@ import com.google.appengine.api.datastore.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.AntPathMatcher;
+import org.systemsbiology.addama.appengine.datastore.DeleteEntityTransactionCallback;
 import org.systemsbiology.addama.appengine.pojos.RegistryMapping;
 import org.systemsbiology.addama.appengine.pojos.RegistryService;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,7 +22,7 @@ import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static java.lang.Boolean.parseBoolean;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.substringBetween;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira

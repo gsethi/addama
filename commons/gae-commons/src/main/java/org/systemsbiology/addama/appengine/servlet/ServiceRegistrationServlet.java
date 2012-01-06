@@ -28,7 +28,7 @@ import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.json.JSONObject;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
@@ -54,7 +54,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.Appspot.APP_ID;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira

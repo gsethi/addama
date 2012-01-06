@@ -16,23 +16,29 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.commons.gae.dataaccess;
+package org.systemsbiology.addama.appengine.datastore;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Transaction;
+
+import static java.util.Arrays.asList;
 
 /**
  * @author hrovira
  */
-public class DatastoreServiceTemplate {
+public class PutEntityTransactionCallback implements TransactionCallback {
+    private final Iterable<Entity> entityIterable;
 
-    public static void inTransaction(DatastoreService dssvc, TransactionCallback callback) {
-        Transaction x = dssvc.beginTransaction();
-        try {
-            callback.execute(dssvc, x);
-        } finally {
-            x.commit();
-        }
+    public PutEntityTransactionCallback(Entity... e) {
+        this.entityIterable = asList(e);
     }
 
+    public PutEntityTransactionCallback(Iterable<Entity> entityIterable) {
+        this.entityIterable = entityIterable;
+    }
+
+    public void execute(DatastoreService dss, Transaction tx) {
+        dss.put(tx, this.entityIterable);
+    }
 }

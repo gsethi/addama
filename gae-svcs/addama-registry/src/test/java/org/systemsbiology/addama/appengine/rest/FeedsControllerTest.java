@@ -14,7 +14,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.DispatcherServlet;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 
 import java.util.logging.Logger;
 
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.systemsbiology.addama.appengine.rest.FeedsController.PAGE_SIZE;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
  * The unit test suite for Google app engine service feeds-api-svcs uses local

@@ -21,7 +21,7 @@ package org.systemsbiology.addama.appengine.servlet;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.users.UserService;
-import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
+import org.systemsbiology.addama.appengine.memcache.MemcacheLoaderCallback;
 import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 
 import javax.servlet.ServletException;
@@ -42,7 +42,7 @@ import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
+import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serveContent;
 
 /**

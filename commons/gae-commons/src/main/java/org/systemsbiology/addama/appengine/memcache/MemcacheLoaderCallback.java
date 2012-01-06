@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.commons.gae.dataaccess;
+package org.systemsbiology.addama.appengine.memcache;
 
 import java.io.Serializable;
 

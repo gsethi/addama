@@ -5,7 +5,7 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
-import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
+import org.systemsbiology.addama.appengine.memcache.MemcacheLoaderCallback;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import static com.google.appengine.api.taskqueue.QueueFactory.getDefaultQueue;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
-import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
+import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 import static org.systemsbiology.addama.experimental.asynch.Status.pending;
 
 /**

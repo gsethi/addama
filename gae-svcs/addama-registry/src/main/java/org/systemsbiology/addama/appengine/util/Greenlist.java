@@ -2,9 +2,9 @@ package org.systemsbiology.addama.appengine.util;
 
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.memcache.MemcacheService;
+import org.systemsbiology.addama.appengine.datastore.DeleteEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 import org.systemsbiology.addama.appengine.pojos.GreenlistEntry;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static java.lang.Boolean.parseBoolean;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author aeakin

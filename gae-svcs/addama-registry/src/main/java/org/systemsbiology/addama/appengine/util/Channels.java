@@ -7,9 +7,9 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
-import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.DeleteEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.memcache.MemcacheLoaderCallback;
 
 import java.io.Serializable;
 import java.util.logging.Logger;
@@ -20,8 +20,8 @@ import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.memcache.Expiration.byDeltaSeconds;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
-import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 
 /**
  * @author hrovira

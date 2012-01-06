@@ -16,30 +16,29 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.commons.gae.dataaccess.callbacks;
+package org.systemsbiology.addama.appengine.datastore;
 
 import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
-import org.systemsbiology.addama.commons.gae.dataaccess.TransactionCallback;
 
 import static java.util.Arrays.asList;
 
 /**
  * @author hrovira
  */
-public class PutEntityTransactionCallback implements TransactionCallback {
-    private final Iterable<Entity> entityIterable;
+public class DeleteEntityTransactionCallback implements TransactionCallback {
+    private final Iterable<Key> keyIterable;
 
-    public PutEntityTransactionCallback(Entity... e) {
-        this.entityIterable = asList(e);
+    public DeleteEntityTransactionCallback(Key... k) {
+        this.keyIterable = asList(k);
     }
 
-    public PutEntityTransactionCallback(Iterable<Entity> entityIterable) {
-        this.entityIterable = entityIterable;
+    public DeleteEntityTransactionCallback(Iterable<Key> keys) {
+        this.keyIterable = keys;
     }
 
     public void execute(DatastoreService dss, Transaction tx) {
-        dss.put(tx, this.entityIterable);
+        dss.delete(tx, keyIterable);
     }
 }

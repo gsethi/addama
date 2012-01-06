@@ -3,7 +3,7 @@ package org.systemsbiology.addama.appengine.callbacks;
 import java.io.Serializable;
 
 import org.json.JSONObject;
-import org.systemsbiology.addama.commons.gae.dataaccess.MemcachePaginatedLoaderCallback;
+import org.systemsbiology.addama.appengine.memcache.MemcachePaginatedLoaderCallback;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;

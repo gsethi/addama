@@ -16,14 +16,23 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.commons.gae.dataaccess;
+package org.systemsbiology.addama.appengine.datastore;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Transaction;
 
 /**
  * @author hrovira
-*/
-public interface TransactionCallback {
-    public void execute(DatastoreService dss, Transaction tx);
+ */
+public class DatastoreServiceTemplate {
+
+    public static void inTransaction(DatastoreService dssvc, TransactionCallback callback) {
+        Transaction x = dssvc.beginTransaction();
+        try {
+            callback.execute(dssvc, x);
+        } finally {
+            x.commit();
+        }
+    }
+
 }
