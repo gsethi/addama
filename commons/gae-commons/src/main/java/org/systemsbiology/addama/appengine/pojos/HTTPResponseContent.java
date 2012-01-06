@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.gae.pojos;
+package org.systemsbiology.addama.appengine.pojos;
 
 import com.google.appengine.api.urlfetch.HTTPHeader;
 import com.google.appengine.api.urlfetch.HTTPResponse;

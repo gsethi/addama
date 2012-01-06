@@ -22,7 +22,7 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.users.UserService;
 import org.systemsbiology.addama.commons.gae.dataaccess.MemcacheLoaderCallback;
-import org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent;
+import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,7 +43,7 @@ import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
-import static org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent.serveContent;
+import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serveContent;
 
 /**
  * @author hrovira

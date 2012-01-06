@@ -3,7 +3,7 @@ package org.systemsbiology.addama.appengine.util;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import org.systemsbiology.addama.commons.gae.http.MapReduceTooLargeHTTPResponse;
-import org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent;
+import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;

@@ -15,7 +15,7 @@ import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
-import org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent;
+import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
-import static org.systemsbiology.addama.coresvcs.gae.pojos.HTTPResponseContent.serveContent;
+import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serveContent;
 
 /**
  * @author hrovira
