@@ -8,6 +8,8 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
 
     <script type="text/javascript">
+        var userWindow;
+        var fpAddUser;
         var greenlistStore = new Ext.data.ArrayStore({
             fields: [ {name: "id"}, {name: "uri"} ]
         });
@@ -74,9 +76,7 @@
         }
 
         function addNewUser() {
-            var userWindow = null;
-
-            var fpAddUser = new Ext.FormPanel({
+            fpAddUser = new Ext.FormPanel({
                 width: 400,
                 frame: true,
                 autoHeight: true,
@@ -109,7 +109,6 @@
             userWindow = new Ext.Window({
                 width:400, autoHeight:true, title: 'Add New User', items: fpAddUser, frame: true
             }).show();
-
         }
 
         function handleFailure(o, e) {
