@@ -6,7 +6,7 @@
     <bean id="filter-authentication" class="org.systemsbiology.addama.appengine.filters.UserServiceFilter"
           autowire="byType"/>
 
-    <bean id="filter-whiteList" class="org.systemsbiology.addama.coresvcs.gae.filters.WhiteListFilter"
+    <bean id="filter-greenlist" class="org.systemsbiology.addama.coresvcs.gae.filters.WhiteListFilter"
           autowire="byType"/>
 
     <bean id="filter-directlink" class="org.systemsbiology.addama.appengine.filters.DirectLinkFilter"

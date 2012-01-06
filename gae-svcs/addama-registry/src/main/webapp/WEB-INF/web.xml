@@ -52,11 +52,11 @@
     </filter>
 
     <filter>
-        <filter-name>filter-whiteList</filter-name>
+        <filter-name>filter-greenlist</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
         <init-param>
             <param-name>targetBeanName</param-name>
-            <param-value>filter-whiteList</param-value>
+            <param-value>filter-greenlist</param-value>
         </init-param>
     </filter>
 
@@ -84,7 +84,7 @@
     </filter-mapping>
 
     <filter-mapping>
-        <filter-name>filter-whiteList</filter-name>
+        <filter-name>filter-greenlist</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 

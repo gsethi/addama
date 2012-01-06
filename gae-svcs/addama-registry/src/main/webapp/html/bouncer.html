@@ -8,17 +8,11 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
 
     <script type="text/javascript">
-        var whitelistStore = new Ext.data.ArrayStore({
-            fields: [
-                {name: "user"},
-                {name: "uri"}
-            ]
+        var greenlistStore = new Ext.data.ArrayStore({
+            fields: [ {name: "user"}, {name: "uri"} ]
         });
         var requestAccessStore = new Ext.data.ArrayStore({
-            fields: [
-                {name: "user"},
-                {name: "uri"}
-            ]
+            fields: [ {name: "user"}, {name: "uri"} ]
         });
 
         var fpAddUser = null;
@@ -26,8 +20,8 @@
 
         Ext.onReady(function() {
             var grid = new Ext.grid.GridPanel({
-                store: whitelistStore,
-                title: "White List",
+                store: greenlistStore,
+                title: "Members",
                 tbar: [],
                 columns: [
                     { header: "Uri", width: 300, sortable: true, dataIndex: "uri"
@@ -45,7 +39,7 @@
                 width: 600,
                 style: "padding:10px;"
             });
-            grid.render("container_existing_whitelist");
+            grid.render("container_existing_greenlist");
 
             var grid2 = new Ext.grid.GridPanel({
                 store: requestAccessStore,
@@ -67,7 +61,7 @@
                 width: 600
 
             });
-            grid2.render("container_requestaccess_whitelist");
+            grid2.render("container_requestaccess_greenlist");
 
             var panel = new Ext.Panel({
                 width: 620,
@@ -111,7 +105,7 @@
             })));
             tb2.doLayout();
 
-            loadWhiteList();
+            loadGreenlist();
         });
 
         function deleteUserEntry(gridPanel) {
@@ -119,7 +113,7 @@
             var email = selectedRecord.get("user");
             var requestedUri = selectedRecord.get("uri");
             Ext.Ajax.request({
-                url: "/addama/whitelist/" + email + "/delete",
+                url: "/addama/greenlist/" + email + "/delete",
                 method: "POST",
                 params: {
                     uri: requestedUri
@@ -130,7 +124,7 @@
                         msg: "User deleted successfully",
                         buttons: Ext.MessageBox.OK
                     });
-                    loadWhiteList();
+                    loadGreenlist();
                 },
                 failure: handleFailure
             });
@@ -141,7 +135,7 @@
             var email = selectedRecord.get("user");
             var requestedUri = selectedRecord.get("uri");
             Ext.Ajax.request({
-                url: "/addama/whitelist/" + email + "/grantaccess",
+                url: "/addama/greenlist/" + email + "/grantaccess",
                 method: "POST",
                 params: {
                     uri: requestedUri
@@ -152,13 +146,13 @@
                         msg: "User updated successfully",
                         buttons: Ext.MessageBox.OK
                     });
-                    loadWhiteList();
+                    loadGreenlist();
                 },
                 failure: handleFailure
             });
         }
 
-        function loadWhiteList() {
+        function loadGreenlist() {
             Ext.MessageBox.show({
                 msg: "Loading White List, please wait...",
                 progressText: "Loading...",
@@ -168,22 +162,22 @@
             });
 
             Ext.Ajax.request({
-                url: "/addama/whitelist",
+                url: "/addama/greenlist",
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json && json.items) {
-                        var whitelistData = [];
+                        var greenlistData = [];
                         var requestAccessData = [];
                         for (var i = 0; i < json.items.length; i++) {
                             var item = json.items[i];
                             if (item.hasAccess) {
-                                whitelistData[whitelistData.length] = [item.user,item.uri];
+                                greenlistData.push([item.user,item.uri]);
                             } else {
                                 requestAccessData[requestAccessData.length] = [item.user,item.uri];
                             }
                         }
-                        whitelistStore.loadData(whitelistData);
+                        greenlistStore.loadData(greenlistData);
                         requestAccessStore.loadData(requestAccessData);
 
                         Ext.MessageBox.hide();
@@ -223,14 +217,14 @@
                         handler: function() {
                             if (fpAddUser.getForm().isValid()) {
                                 Ext.Ajax.request({
-                                    url: "/addama/whitelist/" + Ext.getDom("emailLabel").value,
+                                    url: "/addama/greenlist/" + Ext.getDom("emailLabel").value,
                                     method: "POST",
                                     params: {
                                         uri: Ext.getDom("uriLabel").value
                                     },
                                     success: function(o) {
                                         userWindow.close();
-                                        loadWhiteList();
+                                        loadGreenList();
                                     },
                                     failure: handleFailure
                                 });
@@ -263,8 +257,8 @@
 <body>
 <div id="container_toolbar"></div>
 
-<div id="container_existing_whitelist"></div>
-<div id="container_requestaccess_whitelist"></div>
+<div id="container_existing_greenlist"></div>
+<div id="container_requestaccess_greenlist"></div>
 
 </body>
 </html>
