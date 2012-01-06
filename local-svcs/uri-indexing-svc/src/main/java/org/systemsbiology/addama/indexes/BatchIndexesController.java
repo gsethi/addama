@@ -16,7 +16,7 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.coresvcs.indexes;
+package org.systemsbiology.addama.indexes;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -33,11 +33,11 @@ import org.springmodules.lucene.index.core.LuceneIndexTemplate;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.coresvcs.indexes.batches.BatchCallback;
-import org.systemsbiology.addama.coresvcs.indexes.batches.BatchItem;
-import org.systemsbiology.addama.coresvcs.indexes.batches.BatchSplitter;
-import org.systemsbiology.addama.coresvcs.indexes.batches.ReferenceJsonBatchCallback;
-import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneIndexTemplateMappingsHandler;
+import org.systemsbiology.addama.indexes.batches.BatchCallback;
+import org.systemsbiology.addama.indexes.batches.BatchItem;
+import org.systemsbiology.addama.indexes.batches.BatchSplitter;
+import org.systemsbiology.addama.indexes.batches.ReferenceJsonBatchCallback;
+import org.systemsbiology.addama.indexes.handlers.LuceneIndexTemplateMappingsHandler;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import javax.servlet.http.HttpServletRequest;

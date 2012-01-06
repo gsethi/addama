@@ -16,7 +16,7 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.coresvcs.indexes;
+package org.systemsbiology.addama.indexes;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
@@ -35,8 +35,8 @@ import org.springmodules.lucene.search.core.LuceneSearchTemplate;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonResultsView;
-import org.systemsbiology.addama.coresvcs.indexes.extractors.JSONObjectExtractor;
-import org.systemsbiology.addama.coresvcs.indexes.handlers.LuceneSearchTemplateMappingsHandler;
+import org.systemsbiology.addama.indexes.extractors.JSONObjectExtractor;
+import org.systemsbiology.addama.indexes.handlers.LuceneSearchTemplateMappingsHandler;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
 import javax.servlet.http.HttpServletRequest;

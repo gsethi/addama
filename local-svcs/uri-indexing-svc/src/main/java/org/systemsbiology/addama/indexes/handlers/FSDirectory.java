@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.indexes.handlers;
+package org.systemsbiology.addama.indexes.handlers;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springmodules.lucene.index.support.FSDirectoryFactoryBean;

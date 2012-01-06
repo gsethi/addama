@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.coresvcs.indexes.handlers;
+package org.systemsbiology.addama.indexes.handlers;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
@@ -14,7 +14,7 @@ import org.systemsbiology.addama.jsonconfig.impls.MappingPropertyByIdContainer;
 
 import java.util.Map;
 
-import static org.systemsbiology.addama.coresvcs.indexes.handlers.FSDirectory.getFSDirectory;
+import static org.systemsbiology.addama.indexes.handlers.FSDirectory.getFSDirectory;
 
 /**
  * @author hrovira
