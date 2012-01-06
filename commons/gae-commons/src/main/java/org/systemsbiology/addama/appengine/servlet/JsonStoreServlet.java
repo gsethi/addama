@@ -2,8 +2,6 @@ package org.systemsbiology.addama.appengine.servlet;
 
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
-import org.systemsbiology.addama.annotations.AdminOrOwner;
-import org.systemsbiology.addama.annotations.LoggedInUser;
 import org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 
@@ -22,7 +20,6 @@ import static org.systemsbiology.addama.appengine.entities.JsonEntityStore.*;
 /**
  * @author hrovira
  */
-@LoggedInUser
 public class JsonStoreServlet extends HttpServlet {
 
     @Override
@@ -74,7 +71,6 @@ public class JsonStoreServlet extends HttpServlet {
     }
 
     @Override
-    @AdminOrOwner
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         rest_delete(req.getRequestURI(), req, resp);
     }
@@ -88,13 +84,11 @@ public class JsonStoreServlet extends HttpServlet {
         resp.getWriter().write(json.toString());
     }
 
-    @AdminOrOwner
     private void rest_update(String objectUri, HttpServletRequest req, HttpServletResponse resp)
             throws JSONException, ResourceNotFoundException, InvalidSyntaxException {
         update(objectUri, new JSONObject(req.getParameter("json")));
     }
 
-    @AdminOrOwner
     private void rest_delete(String objectUri, HttpServletRequest req, HttpServletResponse resp) {
         try {
             delete(objectUri);
