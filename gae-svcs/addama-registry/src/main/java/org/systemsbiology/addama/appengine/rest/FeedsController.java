@@ -35,7 +35,7 @@ import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.gaesvcs.feeds.mvc.view.RssView;
+import org.systemsbiology.addama.commons.web.views.RssView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -53,7 +53,7 @@ import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceT
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate.loadIfNotExist;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServicePaginatedTemplate.namespacedCache;
 import static org.systemsbiology.addama.commons.gae.dataaccess.MemcacheServiceTemplate.loadIfNotExisting;
-import static org.systemsbiology.addama.gaesvcs.feeds.mvc.view.RssView.*;
+import static org.systemsbiology.addama.commons.web.views.RssView.*;
 
 /**
  * An RSS 2.0 and generic Json items feed service.

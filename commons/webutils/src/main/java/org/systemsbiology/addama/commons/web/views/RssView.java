@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.gaesvcs.feeds.mvc.view;
+package org.systemsbiology.addama.commons.web.views;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
