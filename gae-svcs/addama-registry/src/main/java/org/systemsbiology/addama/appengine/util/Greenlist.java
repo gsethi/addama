@@ -77,7 +77,7 @@ public class Greenlist {
         }
     }
 
-    public static GreenlistEntry[] getGreenlistUsers() {
+    public static Iterable<GreenlistEntry> getGreenlistUsers() {
         Query q = new Query("white-list");
 
         ArrayList<GreenlistEntry> userEmails = new ArrayList<GreenlistEntry>();
@@ -101,7 +101,7 @@ public class Greenlist {
             }
         }
 
-        return userEmails.toArray(new GreenlistEntry[userEmails.size()]);
+        return userEmails;
     }
 
     public static void addGreenlistUser(String userEmail, String accessPath) {

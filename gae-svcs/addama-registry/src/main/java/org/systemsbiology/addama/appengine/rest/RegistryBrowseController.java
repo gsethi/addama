@@ -64,17 +64,14 @@ public class RegistryBrowseController {
         JSONObject json = new JSONObject();
         json.put("uri", "/addama/services");
 
-        RegistryService[] registryServices = getRegistryServices();
-        if (registryServices != null) {
-            for (RegistryService rs : registryServices) {
-                json.append("items", toJSON(rs));
-            }
+        for (RegistryService rs : getRegistryServices()) {
+            json.append("items", toJSON(rs));
         }
 
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    private void appendItems(JSONObject json, RegistryMapping[] uriMappings, Set<String> uritracker) throws JSONException {
+    private void appendItems(JSONObject json, Iterable<RegistryMapping> uriMappings, Set<String> uritracker) throws JSONException {
         if (json != null && uriMappings != null) {
             for (RegistryMapping rm : uriMappings) {
                 String itemUri = rm.getUri();

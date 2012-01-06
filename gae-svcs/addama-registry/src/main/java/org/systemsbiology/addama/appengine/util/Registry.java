@@ -37,7 +37,7 @@ public class Registry {
      * Services
      */
 
-    public static RegistryService[] getRegistryServices() {
+    public static Iterable<RegistryService> getRegistryServices() {
         ArrayList<RegistryService> registryServices = new ArrayList<RegistryService>();
         try {
             PreparedQuery pq = datastore.prepare(new Query("registry-services"));
@@ -48,10 +48,10 @@ public class Registry {
         } catch (Exception e) {
             log.warning(e.getMessage());
         }
-        return registryServices.toArray(new RegistryService[registryServices.size()]);
+        return registryServices;
     }
 
-    public static RegistryService[] getSearchableServices() {
+    public static Iterable<RegistryService> getSearchableServices() {
         ArrayList<RegistryService> searchableServices = new ArrayList<RegistryService>();
 
         Query q = new Query("registry-services").addFilter("searchable", Query.FilterOperator.EQUAL, true);
@@ -66,7 +66,7 @@ public class Registry {
             }
         }
 
-        return searchableServices.toArray(new RegistryService[searchableServices.size()]);
+        return searchableServices;
     }
 
     public static RegistryService getRegistryService(String serviceUri) {
@@ -100,7 +100,7 @@ public class Registry {
      * Mappings
      */
 
-    public static RegistryMapping[] getMatchingRegistryMappings(String requestUri) {
+    public static Iterable<RegistryMapping> getMatchingRegistryMappings(String requestUri) {
         HashMap<String, RegistryMapping> mappings = new HashMap<String, RegistryMapping>();
 
         PreparedQuery pq = datastore.prepare(new Query("registry-mappings"));
@@ -111,10 +111,10 @@ public class Registry {
             }
         }
 
-        return mappings.values().toArray(new RegistryMapping[mappings.size()]);
+        return mappings.values();
     }
 
-    public static RegistryMapping[] getRegistryMappingsByItsUri(String requesturi) {
+    public static Iterable<RegistryMapping> getRegistryMappingsByItsUri(String requesturi) {
         ArrayList<RegistryMapping> mappings = new ArrayList<RegistryMapping>();
         try {
             Query q = new Query("registry-mappings");
@@ -132,10 +132,10 @@ public class Registry {
         } catch (Exception e) {
             log.warning(requesturi + ":" + e);
         }
-        return mappings.toArray(new RegistryMapping[mappings.size()]);
+        return mappings;
     }
 
-    public static RegistryMapping[] getRegistryMappingFamily(String familyUri) {
+    public static Iterable<RegistryMapping> getRegistryMappingFamily(String familyUri) {
         ArrayList<RegistryMapping> mappings = new ArrayList<RegistryMapping>();
         try {
             Query q = new Query("registry-mappings");
@@ -147,17 +147,17 @@ public class Registry {
         } catch (Exception e) {
             log.warning(familyUri + ":" + e);
         }
-        return mappings.toArray(new RegistryMapping[mappings.size()]);
+        return mappings;
     }
 
-    public static RegistryMapping[] getRegistryMappings(RegistryService registryService) {
+    public static Iterable<RegistryMapping> getRegistryMappings(RegistryService registryService) {
         ArrayList<RegistryMapping> mappings = new ArrayList<RegistryMapping>();
         Query q = new Query("registry-mappings").addFilter("service", Query.FilterOperator.EQUAL, registryService.getUri());
         PreparedQuery pq = datastore.prepare(q);
         for (Entity e : pq.asIterable()) {
             mappings.add(getMappingFromEntity(e));
         }
-        return mappings.toArray(new RegistryMapping[mappings.size()]);
+        return mappings;
     }
 
     public static RegistryMapping getStaticContentRegistryMapping(String requestUri) {

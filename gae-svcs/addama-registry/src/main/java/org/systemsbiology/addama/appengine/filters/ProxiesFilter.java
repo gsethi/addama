@@ -76,7 +76,7 @@ public class ProxiesFilter extends GenericFilterBean {
             return;
         }
 
-        CachedUrl[] cachedUrls = getCachedUrls(requestUri, request);
+        CachedUrl[] cachedUrls = getCachedUrls(requestUri);
         if (cachedUrls == null || cachedUrls.length == 0) {
             log.warning("doFilter(" + requestUri + "): no mappings found in the registry");
             filterChain.doFilter(servletRequest, servletResponse);
@@ -144,15 +144,15 @@ public class ProxiesFilter extends GenericFilterBean {
         return false;
     }
 
-    private CachedUrl[] getCachedUrls(String requestUri, HttpServletRequest request) throws MalformedURLException {
+    private CachedUrl[] getCachedUrls(String requestUri) throws MalformedURLException {
         CachedUrl[] cachedUrls = (CachedUrl[]) memcachedUrls.get(requestUri);
         if (cachedUrls != null && cachedUrls.length > 0) {
             return cachedUrls;
         }
 
-        RegistryMapping[] mappings = getMatchingRegistryMappings(requestUri);
-        if (mappings == null || mappings.length == 0) {
-            log.warning("getCachedUrls(" + requestUri + "): no mappings found in the registry");
+        Iterable<RegistryMapping> mappings = getMatchingRegistryMappings(requestUri);
+        if (mappings == null) {
+            log.warning("no mappings found in the registry for: " + requestUri);
             return null;
         }
 

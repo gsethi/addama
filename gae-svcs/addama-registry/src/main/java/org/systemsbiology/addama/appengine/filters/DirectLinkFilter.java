@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -39,10 +40,10 @@ import static com.google.appengine.api.urlfetch.FetchOptions.Builder.doNotFollow
 import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 import static org.systemsbiology.addama.appengine.util.Registry.getMatchingRegistryMappings;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Sharing.checkAccess;
-import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira
@@ -105,18 +106,16 @@ public class DirectLinkFilter extends GenericFilterBean {
     */
 
     private RegistryService getServiceForRequest(String requestUri) {
-        RegistryMapping[] mappings = getMatchingRegistryMappings(requestUri);
-        if (mappings == null || mappings.length == 0) {
-            return null;
+        Iterable<RegistryMapping> mappings = getMatchingRegistryMappings(requestUri);
+        if (mappings != null) {
+            Iterator<RegistryMapping> iterator = mappings.iterator();
+            if (iterator.hasNext()) {
+                RegistryMapping mapping = mappings.iterator().next();
+                String serviceUri = mapping.getServiceUri();
+                return getRegistryService(serviceUri);
+            }
         }
-
-        RegistryMapping mapping = mappings[0];
-        String serviceUri = mapping.getServiceUri();
-        RegistryService registryService = getRegistryService(serviceUri);
-        if (registryService == null) {
-            return null;
-        }
-        return registryService;
+        return null;
     }
 
     private String getLocation(HTTPResponse response) {
