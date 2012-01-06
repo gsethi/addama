@@ -19,24 +19,24 @@
 package org.systemsbiology.addama.datasources.rest;
 
 import org.json.JSONObject;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
-import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.Mapping;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
+import org.systemsbiology.addama.jsonconfig.impls.StringPropertyByIdMappingsHandler;
 import org.systemsbiology.google.visualization.datasource.jdbc.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.executeDataSourceServletFlow;
@@ -45,166 +45,106 @@ import static org.systemsbiology.google.visualization.datasource.DataSourceHelpe
  * @author hrovira
  */
 @Controller
-public class DatasourceServiceController {
-    private static final Logger log = Logger.getLogger(DatasourceServiceController.class.getName());
+public class DatasourceServiceController implements InitializingBean {
+    private final Map<String, String> uriMappingsById = new HashMap<String, String>();
 
-    private final Map<String, JdbcTemplate> jdbcTemplateDsByDatabaseUri = new HashMap<String, JdbcTemplate>();
-    private final Map<String, String> uriMappingsByDatasource = new HashMap<String, String>();
+    private final Map<String, JdbcTemplate> jdbcTemplateDsById = new HashMap<String, JdbcTemplate>();
 
-    public void setJsonConfig(JsonConfig jsonConfig) {
-        jsonConfig.visit(new StringMapJsonConfigHandler(uriMappingsByDatasource, "uriMappings"));
-        jsonConfig.visit(new JdbcTemplateJsonConfigHandler(jdbcTemplateDsByDatabaseUri));
+    private ServiceConfig serviceConfig;
+
+    public void setServiceConfig(ServiceConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        this.serviceConfig.visit(new JdbcTemplateMappingsHandler(jdbcTemplateDsById));
+        this.serviceConfig.visit(new StringPropertyByIdMappingsHandler(uriMappingsById, "uriMappings"));
     }
 
     /*
-     * Controllers
-     */
-
-    @RequestMapping(method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView processRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String requestUri = request.getRequestURI();
-        log.info("processRequest(" + requestUri + ")");
-
-        if (equalsIgnoreCase(requestUri, request.getContextPath())) {
-            return getDatabases();
+    * Controllers
+    */
+    @RequestMapping(value = "/**/datasources", method = RequestMethod.GET)
+    protected ModelAndView listDatabases() throws Exception {
+        JSONObject json = new JSONObject();
+        for (Mapping mapping : this.serviceConfig.getMappings()) {
+            JSONObject item = new JSONObject();
+            item.put("uri", mapping.URI());
+            item.put("label", mapping.LABEL());
+            item.put("id", mapping.ID());
+            json.append("items", item);
         }
-
-        String databaseUri = getDatabaseUri(request);
-        if (isEmpty(databaseUri)) {
-            return getDatabases();
-        }
-
-        JdbcTemplate jdbcTemplate = jdbcTemplateDsByDatabaseUri.get(databaseUri);
-        if (jdbcTemplate == null) {
-            throw new ResourceNotFoundException(databaseUri);
-        }
-
-        if (requestUri.endsWith("/query") || requestUri.endsWith("/google-ds-api")) {
-            String tableUri = getTargetUri(request);
-            String tableName = getTableName(tableUri, databaseUri, jdbcTemplate);
-            log.info("processRequest(" + requestUri + "):" + tableName);
-
-            SimpleSqlDataTableGenerator tableGenerator = new SimpleSqlDataTableGenerator(jdbcTemplate, tableName);
-            executeDataSourceServletFlow(request, response, tableGenerator);
-            return null;
-        }
-
-        String targetUri = getTargetUri(request);
-        if (equalsIgnoreCase(targetUri, databaseUri)) {
-            return getDatabase(databaseUri, jdbcTemplate);
-        }
-
-        if (equalsIgnoreCase(requestUri, databaseUri)) {
-            return getDatabase(databaseUri, jdbcTemplate);
-        }
-
-        return getTable(targetUri, databaseUri, jdbcTemplate);
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    /*
-     * Protected Methods
-     */
-
-    protected ModelAndView getDatabases() throws Exception {
-        log.info("getDatabases()");
+    @RequestMapping(value = "/**/datasources/{databaseId}", method = RequestMethod.GET)
+    protected ModelAndView listDatabase(HttpServletRequest request,
+                                        @PathVariable("databaseId") String databaseId) throws Exception {
+        JdbcTemplate jdbcTemplate = jdbcTemplateDsById.get(databaseId);
+        String baseUri = chomp(substringAfterLast(request.getRequestURI(), request.getContextPath()), "/");
 
         JSONObject json = new JSONObject();
-        for (String databaseUri : jdbcTemplateDsByDatabaseUri.keySet()) {
-            json.append("items", new JSONObject().put("uri", databaseUri));
-        }
-
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
-    }
-
-    protected ModelAndView getDatabase(String databaseUri, JdbcTemplate jdbcTemplate) throws Exception {
-        JSONObject json = new JSONObject();
-        for (String tableUri : getTableUris(databaseUri, jdbcTemplate)) {
-            JSONObject tableJson = new JSONObject();
-            tableJson.put("name", substringAfterLast(tableUri, "/"));
-            tableJson.put("uri", tableUri);
-            json.append("items", tableJson);
+        for (String tableId : getTableIds(databaseId, jdbcTemplate)) {
+            JSONObject item = new JSONObject();
+            item.put("name", tableId);
+            item.put("uri", baseUri + "/" + tableId);
+            json.append("items", item);
         }
 
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    protected ModelAndView getTable(String tableUri, String databaseUri, JdbcTemplate jdbcTemplate) throws Exception {
-        log.info("getTable(" + tableUri + ")");
-
-        String tableName = getTableName(tableUri, databaseUri, jdbcTemplate);
+    @RequestMapping(value = "/**/datasources/{databaseId}/{tableId}", method = RequestMethod.GET)
+    protected ModelAndView listTable(@PathVariable("databaseId") String databaseId,
+                                     @PathVariable("tableId") String tableId) throws Exception {
+        JdbcTemplate jdbcTemplate = jdbcTemplateDsById.get(databaseId);
+        String tableName = getRealTableName(tableId, databaseId, jdbcTemplate);
         JSONObject json = (JSONObject) jdbcTemplate.execute(new DatabaseTableColumnConnectionCallback(tableName));
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+    }
 
-        ModelAndView mav = new ModelAndView(new JsonItemsView());
-        mav.addObject("json", json);
-        return mav;
+    @RequestMapping(value = "/**/datasources/{databaseId}/{tableId}/query", method = RequestMethod.GET)
+    protected void queryTable(HttpServletRequest request, HttpServletResponse response,
+                              @PathVariable("databaseId") String databaseId,
+                              @PathVariable("tableId") String tableId) throws Exception {
+        JdbcTemplate jdbcTemplate = jdbcTemplateDsById.get(databaseId);
+        String tableName = getRealTableName(tableId, databaseId, jdbcTemplate);
+
+        SimpleSqlDataTableGenerator tableGenerator = new SimpleSqlDataTableGenerator(jdbcTemplate, tableName);
+        executeDataSourceServletFlow(request, response, tableGenerator);
     }
 
     /*
      * Private Methods
      */
 
-    private String getDatabaseUri(HttpServletRequest request) {
-        String requestUri = request.getRequestURI();
-        String targetUri = getTargetUri(request);
-        for (String databaseUri : jdbcTemplateDsByDatabaseUri.keySet()) {
-            if (targetUri.startsWith(databaseUri)) {
-                return databaseUri;
-            }
-            if (requestUri.startsWith(databaseUri)) {
-                return databaseUri;
-            }
-        }
-
-        return null;
-    }
-
-    private String getTargetUri(HttpServletRequest request) {
-        String targetUri = substringAfterLast(request.getRequestURI(), request.getContextPath());
-        if (targetUri.endsWith("/")) {
-            targetUri = substringBeforeLast(targetUri, "/");
-        }
-        targetUri = substringBeforeLast(targetUri, "/google-ds-api");
-        targetUri = substringBeforeLast(targetUri, "/query");
-        return targetUri;
-    }
-
-    private String[] getTableUris(String databaseUri, JdbcTemplate jdbcTemplate) {
-        if (uriMappingsByDatasource.containsKey(databaseUri)) {
-            String prepSql = "SELECT URI FROM " + uriMappingsByDatasource.get(databaseUri);
+    private String[] getTableIds(String databaseId, JdbcTemplate jdbcTemplate) {
+        if (uriMappingsById.containsKey(databaseId)) {
+            String prepSql = "SELECT URI FROM " + uriMappingsById.get(databaseId);
             return (String[]) jdbcTemplate.query(prepSql, new SingleStringResultSetExtractor());
         }
 
-        ArrayList<String> tables = new ArrayList<String>();
-        String[] values = (String[]) jdbcTemplate.execute(new DatabaseTablesConnectionCallback());
-        if (values != null) {
-            for (String value : values) {
-                tables.add(databaseUri + "/" + value);
-            }
-        }
-        return tables.toArray(new String[tables.size()]);
+        return (String[]) jdbcTemplate.execute(new DatabaseTablesConnectionCallback());
     }
 
-    private String getTableName(String targetUri, String databaseUri, JdbcTemplate jdbcTemplate) throws ResourceNotFoundException {
-        if (uriMappingsByDatasource.containsKey(databaseUri)) {
-            String mappingsTable = uriMappingsByDatasource.get(databaseUri);
+    private String getRealTableName(String tableId, String databaseId, JdbcTemplate jdbcTemplate) throws ResourceNotFoundException {
+        if (uriMappingsById.containsKey(databaseId)) {
+            String mappingsTable = uriMappingsById.get(databaseId);
 
             String prepSql = "SELECT TABLE_NAME FROM " + mappingsTable + " WHERE URI = ? ";
-            String[] tableNames = (String[]) jdbcTemplate.query(prepSql, new Object[]{targetUri}, new SingleStringResultSetExtractor());
+            String[] tableNames = (String[]) jdbcTemplate.query(prepSql, new Object[]{tableId}, new SingleStringResultSetExtractor());
             if (tableNames == null || tableNames.length == 0) {
-                throw new ResourceNotFoundException(databaseUri);
+                throw new ResourceNotFoundException(tableId);
             }
 
             // TODO : what if this returns more than one table?
             String tableName = tableNames[0];
             if (isEmpty(tableName)) {
-                throw new ResourceNotFoundException(databaseUri);
+                throw new ResourceNotFoundException(tableId);
             }
             return tableName;
         }
 
-        return substringAfterLast(targetUri, "/");
+        return tableId;
     }
 }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>commons</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.commons</groupId>
@@ -17,20 +17,13 @@
         <!-- Addama Dependencies -->
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>json-config</artifactId>
+            <artifactId>service-config</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>io-utils</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.systemsbiology.addama.apis</groupId>
             <artifactId>visualization-datasource</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
@@ -40,7 +33,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>2.5.4</version>
+            <version>3.1.0.RELEASE</version>
             <scope>provided</scope>
         </dependency>
 

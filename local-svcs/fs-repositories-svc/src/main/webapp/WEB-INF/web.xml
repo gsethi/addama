@@ -8,7 +8,8 @@
         <param-value>
             /WEB-INF/app-contexts/*.xml
             classpath*:/addama-properties.xml
-            classpath*:/filter-registration-filebroker.xml
+            classpath*:/service-config.xml
+            classpath*:/filter-registration.xml
             classpath*:/apiKeyHttpClientTemplate.xml
         </param-value>
     </context-param>

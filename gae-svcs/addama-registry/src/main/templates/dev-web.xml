@@ -4,8 +4,7 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/app-contexts/filters.xml
-            /WEB-INF/app-contexts/controllers.xml
+            /WEB-INF/app-contexts/*.xml
         </param-value>
     </context-param>
 
@@ -23,21 +22,10 @@
     </listener>
 
     <servlet>
-        <servlet-name>memcache-external-content</servlet-name>
-        <servlet-class>org.systemsbiology.addama.appengine.servlet.ExternalContentMemcacheHttpServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet>
         <servlet-name>gaeregistry</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>memcache-external-content</servlet-name>
-        <url-pattern>/addama/ui/*</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>gaeregistry</servlet-name>

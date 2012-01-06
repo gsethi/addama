@@ -23,18 +23,25 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.systemsbiology.addama.commons.httpclient.support.ssl.EasySSLProtocolSocketFactory;
+import org.systemsbiology.addama.commons.spring.PropertiesFileLoader;
 
 import java.net.URL;
+import java.util.logging.Logger;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * @author hrovira
  */
 public class GaeHostConfiguration extends HostConfiguration implements InitializingBean {
-    private URL secureHostUrl;
+    private static final Logger log = Logger.getLogger(GaeHostConfiguration.class.getName());
+    private static final String KEY = "httpclient.secureHostUrl";
+
+    private PropertiesFileLoader propertiesFileLoader;
     private ProtocolSocketFactory protocolSocketFactory;
 
-    public void setSecureHostUrl(URL secureHostUrl) {
-        this.secureHostUrl = secureHostUrl;
+    public void setPropertiesFileLoader(PropertiesFileLoader propertiesFileLoader) {
+        this.propertiesFileLoader = propertiesFileLoader;
     }
 
     public void setProtocolSocketFactory(ProtocolSocketFactory protocolSocketFactory) {
@@ -46,9 +53,17 @@ public class GaeHostConfiguration extends HostConfiguration implements Initializ
             protocolSocketFactory = new EasySSLProtocolSocketFactory();
         }
 
-        Protocol.registerProtocol("https", new Protocol("https", protocolSocketFactory, 443));
+        if (propertiesFileLoader.loaded() && propertiesFileLoader.has(KEY)) {
+            String hostUrl = propertiesFileLoader.getProperty(KEY);
+            if (!isEmpty(hostUrl)) {
+                URL secureHostUrl = new URL(hostUrl);
+                Protocol.registerProtocol("https", new Protocol("https", protocolSocketFactory, 443));
+                super.setHost(secureHostUrl.getHost(), secureHostUrl.getPort(), secureHostUrl.getProtocol());
+                return;
+            }
+        }
 
-        super.setHost(secureHostUrl.getHost(), secureHostUrl.getPort(), secureHostUrl.getProtocol());
+        log.warning("addama registry host URL not configured in 'addama.properties' [" + KEY + "]");
     }
 
 }

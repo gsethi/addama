@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>addama</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0</version>
     </parent>
 
     <artifactId>commons</artifactId>
@@ -16,17 +16,14 @@
     </description>
 
     <modules>
-        <module>json-config</module>
-        <module>io-utils</module>
-        <module>web-registry</module>
-        <module>webutils</module>
         <module>springutils</module>
-        <module>jcrutils</module>
-        <module>jcrstart</module>
+        <module>webutils</module>
         <module>httpclient-support</module>
-        <module>gae-commons</module>
-        <module>filedb-creation</module>
+        <module>visualization-datasource</module>
         <module>fs-utils</module>
+        <module>service-config</module>
+        <module>gae-commons</module>
+        <module>emailuri-sharing-api</module>
     </modules>
 
     <dependencies>
@@ -53,8 +50,8 @@
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>2.5.4</version>
+            <artifactId>spring-context</artifactId>
+            <version>3.1.0.RELEASE</version>
             <scope>provided</scope>
         </dependency>
 

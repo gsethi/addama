@@ -1,0 +1,39 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <title>Addama Feeds</title>
+
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/feed-viewer/feed-viewer.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
+
+    <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
+    <script type="text/javascript" src="/js/widgets/feedgrid.js"></script>
+    <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+
+            new Ext.Viewport({
+                layout:'border',
+                items:[
+                    new Ext.BoxComponent({ region:'north', el: 'header', height:32 }),
+                    new FeedGrid('/addama/feeds/announcements/rss')
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="header">
+    <div style="float:right;margin:5px;" class="x-small-editor"></div>
+</div>
+</body>
+
+</html>

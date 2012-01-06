@@ -27,6 +27,7 @@ import org.systemsbiology.addama.services.execution.jobs.JobStatus;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.systemsbiology.addama.services.execution.jobs.JobStatus.pending;
 
 /**
@@ -56,7 +57,7 @@ public class InMemoryJobsDao implements JobsDao {
     public Job[] retrieveAllForScript(String scriptUri) {
         ArrayList<Job> matching = new ArrayList<Job>();
         for (Job job : jobsByUri.values()) {
-            if (StringUtils.equalsIgnoreCase(job.getScriptUri(), scriptUri)) {
+            if (equalsIgnoreCase(job.getScriptUri(), scriptUri)) {
                 matching.add(job);
             }
 
@@ -67,7 +68,7 @@ public class InMemoryJobsDao implements JobsDao {
     public Job[] retrieveAllForScript(String scriptUri, String userUri) {
         ArrayList<Job> matching = new ArrayList<Job>();
         for (Job job : retrieveAllForScript(scriptUri)) {
-            if (StringUtils.equalsIgnoreCase(job.getUserUri(), userUri)) {
+            if (equalsIgnoreCase(job.getUserUri(), userUri)) {
                 matching.add(job);
             }
 
@@ -78,7 +79,7 @@ public class InMemoryJobsDao implements JobsDao {
     public Job[] retrieveAllForUser(String userUri) {
         ArrayList<Job> matching = new ArrayList<Job>();
         for (Job job : jobsByUri.values()) {
-            if (StringUtils.equalsIgnoreCase(job.getUserUri(), userUri)) {
+            if (equalsIgnoreCase(job.getUserUri(), userUri)) {
                 matching.add(job);
             }
 

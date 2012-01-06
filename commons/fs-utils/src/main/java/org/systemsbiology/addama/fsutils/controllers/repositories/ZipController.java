@@ -20,11 +20,11 @@ package org.systemsbiology.addama.fsutils.controllers.repositories;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,50 +32,48 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.collectFiles;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.getCleanUri;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.zip;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getRepositoryUri;
-import static org.systemsbiology.addama.fsutils.rest.HttpRepositories.getResourcePath;
-import static org.systemsbiology.addama.fsutils.rest.UriScheme.path;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 
 /**
  * @author hrovira
  */
 @Controller
-public class ZipController extends FileSystemController {
+public class ZipController extends AbstractRepositoriesController {
+    private static final Logger log = Logger.getLogger(ZipController.class.getName());
 
-    @RequestMapping(value = "/**/zip", method = RequestMethod.GET)
-    public void zipDir(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String repositoryUri = getRepositoryUri(request, path);
-        assertServesFiles(repositoryUri);
+    @RequestMapping(value = "/**/repositories/{repositoryId}/path/**/zip", method = RequestMethod.GET)
+    public void zipDir(HttpServletRequest request, HttpServletResponse response,
+                       @PathVariable("repositoryId") String repositoryId) throws Exception {
+        assertServesFiles(repositoryId);
 
-        String resourcePath = getResourcePath(request, path, "/zip");
-        Resource r = getTargetResource(repositoryUri, resourcePath);
-        if (!r.exists()) {
-            String uri = substringBeforeLast(getCleanUri(request), "/zip");
-            throw new ResourceNotFoundException(uri);
-        }
+        String uri = getSpacedURI(request);
+        String resourcePath = substringBetween(uri, "/path", "/zip");
+        Resource r = getTargetResource(repositoryId, resourcePath);
         zip(response, r);
     }
 
-    @RequestMapping(value = "/**/zip", method = RequestMethod.POST)
-    public void zipFiles(HttpServletRequest request, HttpServletResponse response,
+    @RequestMapping(value = "/**/repositories/{repositoryId}/path/**/zip", method = RequestMethod.POST)
+    public void zipFiles(HttpServletResponse response,
+                         @PathVariable("repositoryId") String repositoryId,
                          @RequestParam("name") String name, @RequestParam("uris") String[] fileUris) throws Exception {
-        String repositoryUri = chomp(getRepositoryUri(request, null), "/zip");
-        assertServesFiles(repositoryUri);
+        assertServesFiles(repositoryId);
 
         Map<String, InputStream> inputStreamsByName = new HashMap<String, InputStream>();
         for (String fileUri : fileUris) {
-            String localPath = chomp(substringAfter(fileUri, "/path"), "/");
-            Resource resource = getTargetResource(repositoryUri, localPath);
-            File f = resource.getFile();
-            if (f.isDirectory()) {
-                collectFiles(inputStreamsByName, f);
-            } else {
-                inputStreamsByName.put(resource.getFilename(), resource.getInputStream());
+            try {
+                String localPath = chomp(substringAfter(fileUri, "/path"), "/");
+                Resource resource = getTargetResource(repositoryId, localPath);
+                File f = resource.getFile();
+                if (f.isDirectory()) {
+                    collectFiles(inputStreamsByName, f);
+                } else {
+                    inputStreamsByName.put(resource.getFilename(), resource.getInputStream());
+                }
+            } catch (ResourceNotFoundException e) {
+                log.warning("skipping:" + e.getMessage());
             }
         }
 

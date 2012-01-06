@@ -15,10 +15,10 @@
         </property>
     </bean>
 
-    <bean id="indexesController" class="org.systemsbiology.addama.coresvcs.indexes.IndexesController"
+    <bean id="indexesController" class="org.systemsbiology.addama.indexes.IndexesController"
           autowire="byType"/>
 
-    <bean id="batchIndexesController" class="org.systemsbiology.addama.coresvcs.indexes.BatchIndexesController"
+    <bean id="batchIndexesController" class="org.systemsbiology.addama.indexes.BatchIndexesController"
           autowire="byType"/>
 
 </beans>

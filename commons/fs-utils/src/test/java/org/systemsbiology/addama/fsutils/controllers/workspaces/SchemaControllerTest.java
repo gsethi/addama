@@ -5,11 +5,10 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
@@ -23,28 +22,20 @@ public class SchemaControllerTest {
 
     @Before
     public void setup() throws Exception {
-        String uri = "/a/w/schemacontroller";
-        String rootPath = "target/test-classes/test-SchemaControllerTest";
-        String filename = "dataset.tsv";
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("schemaControllerTest");
 
-        File dir = new File(rootPath + uri);
-        dir.mkdirs();
-
-        FileOutputStream fos = new FileOutputStream(new File(dir, filename));
-        fos.write(testOutput().getBytes());
-        fos.close();
-
-        JSONObject local = new JSONObject().put("uri", uri).put("rootPath", rootPath);
+        ServiceConfig config = new ServiceConfig();
+        config.setServletContext(msc);
 
         controller = new SchemaController();
-        controller.setJsonConfig(new JsonConfig(new JSONObject().append("locals", local)));
-
-        request = new MockHttpServletRequest("get", uri + "/" + filename + "/schema");
+        controller.setServiceConfig(config);
+        request = new MockHttpServletRequest("get", "/addama/repositories/repo1/dataset.tsv/schema");
     }
 
     @Test
     public void simple() throws Exception {
-        ModelAndView mav = controller.schema(request);
+        ModelAndView mav = controller.schema(request, "repo1");
         assertNotNull(mav);
         assertNotNull(mav.getModel());
 
@@ -78,32 +69,4 @@ public class SchemaControllerTest {
             assertEquals(actualName, expectedType, item.getString("datatype"));
         }
     }
-
-    /*
-     * Private Methods
-     */
-
-    private String testOutput() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("column a").append("\t");
-        builder.append("column b").append("\t");
-        builder.append("column c").append("\t");
-        builder.append("column d").append("\t");
-        builder.append("column e").append("\n");
-
-        builder.append("test a start").append("\t");
-        builder.append("12.34").append("\t");
-        builder.append("1234").append("\t");
-        builder.append("true").append("\t");
-        builder.append("test a end").append("\n");
-
-        builder.append("test b start").append("\t");
-        builder.append("12.34").append("\t");
-        builder.append("1234").append("\t");
-        builder.append("false").append("\t");
-        builder.append("test b end").append("\n");
-
-        return builder.toString();
-    }
-
 }

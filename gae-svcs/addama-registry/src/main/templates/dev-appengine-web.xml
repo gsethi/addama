@@ -4,11 +4,15 @@
     <application>dev-addama-registry</application>
     <version>2</version>
 
+    <inbound-services>
+        <service>channel_presence</service>
+    </inbound-services>
+
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-        <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.svn"
+        <property name="org.systemsbiology.addama.externalcontent.addamasvn"
                   value="http://addama.googlecode.com/svn/branches/2.1/user-interfaces/src/main/html"/>
-        <property name="org.systemsbiology.addama.appengine.servlet.externalcontent.other"
+        <property name="org.systemsbiology.addama.externalcontent.example"
                   value="https://contentroot.example.org"/>
     </system-properties>
 

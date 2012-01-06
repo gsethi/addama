@@ -1,0 +1,117 @@
+<html>
+<head>
+    <title>Addama Registry Network View</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
+
+    <script type="text/javascript" src="/js/utils/console_handling.js"></script>
+    <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
+    <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/bionetwork/bionetwork.js"></script>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {});
+    </script>
+    <script type="text/javascript">
+        function loadPage() {
+            shapes = [
+                { uri: "/addama/datasources", "color":"0x00000000", "shape":"SQUARE", "size":0.5, "label":"Databases" },
+                { uri: "/addama/repositories", "color":"0x00000000", "shape":"TRIANGLE_RIGHT", "size":0.5, "label":"Repositories" },
+                { uri: "/addama/workspaces", "color":"0x00000000", "shape":"DIAMOND", "size":0.5, "label":"Workspaces" },
+                { uri: "/addama/tools", "color":"0x00000000", "shape":"TRIANGLEDOWN", "size":0.5, "label":"Tools" },
+                { uri: "/addama/applications", "color":"0x00000000", "shape":"TRIANGLEUP", "size":0.5, "label":"Applications" },
+                { uri: "/addama/services", "color":"0x00000000", "shape":"CROSS", "size":0.5, "label":"Services" },
+                { uri: "/addama/indexes", "color":"0x00000000", "shape":"TRIANGLELEFT", "size":0.5, "label":"Indexes" },
+                { uri: "/addama/searchables", "color":"0x00000000", "shape":"X", "size":0.5, "label":"Searchables" }
+            ];
+
+            data = new google.visualization.DataTable();
+            data.addColumn('string', 'parent');
+            data.addColumn('string', 'item');
+            data.addColumn('string', 'relation');
+
+            //                layout_data = new google.visualization.DataTable();
+            //                layout_data.addColumn("string", "node_id");
+            //                layout_data.addColumn("string", "shape");
+            //                layout_data.addColumn("string", "color");
+
+            var registry = {
+                uri:"/addama",
+                label:"Registry"
+            };
+
+
+            loadItems(registry, function(json) {
+                counter = { count: json.numberOfItems };
+
+                for (var i = 0; i < json.items.length; i++) {
+                    loadItems(json.items[i], function() {
+                        counter.count -= 1;
+                        if (counter.count <= 1) {
+                            loadVisualization();
+                        }
+                    });
+                }
+            });
+        }
+
+        function loadItems(parent, callback) {
+            Ext.Ajax.request({
+                url: parent.uri,
+                method: "get",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json) {
+                        for (var i = 0; i < json.items.length; i++) {
+                            var item = json.items[i];
+                            var rowIndex = data.addRow();
+                            data.setValue(rowIndex, 0, parent.uri);
+                            data.setValue(rowIndex, 1, item.uri);
+                            data.setValue(rowIndex, 2, 'contains');
+                            data.setFormattedValue(rowIndex, 0, parent.label);
+                            data.setFormattedValue(rowIndex, 1, item.label);
+                        }
+                        callback(json);
+                    }
+                }
+            });
+        }
+
+        function loadVisualization() {
+            console.log("loadVisualization:" + data.getNumberOfRows());
+            data.insertColumn(0, "number");
+
+            var networkvis = new org.systemsbiology.visualization.BioNetwork(Ext.getDom("container_visualization"));
+            networkvis.draw(data, {
+                "center":"Registry",
+                "radial_labels":true,
+                "layout_radialTree_startRadiusFraction":".05",
+                "layout":"radialTree",
+                "height": 800,
+                "width": 1000,
+                "padding": 150,
+                //                    "layout_data": layout_data,
+                "legend":true,
+                "legend_values": shapes
+            });
+        }
+
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+        });
+
+        Ext.onReady(loadPage);
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_visualization"></div>
+<div id="container_details"></div>
+</body>
+</html>

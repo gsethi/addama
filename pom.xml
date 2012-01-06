@@ -5,7 +5,7 @@
     <groupId>org.systemsbiology.addama</groupId>
     <artifactId>addama</artifactId>
     <packaging>pom</packaging>
-    <version>2.2-SNAPSHOT</version>
+    <version>3.0</version>
     <url>http://addama.org</url>
     <scm>
         <url>https://addama.googlecode.com/hg</url>
@@ -20,10 +20,8 @@
 
     <modules>
         <module>commons</module>
-        <module>apis</module>
         <module>local-svcs</module>
         <module>gae-svcs</module>
-        <module>user-interfaces</module>
     </modules>
 
     <developers>
@@ -110,7 +108,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>2.5.4</version>
+            <version>3.1.0.RELEASE</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

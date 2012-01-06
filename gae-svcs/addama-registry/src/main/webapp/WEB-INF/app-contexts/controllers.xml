@@ -10,22 +10,25 @@
                 <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
                 <entry key="/addama" value-ref="rootCtrlr"/>
                 <entry key="/addama/" value-ref="rootCtrlr"/>
-                <entry key="/addama/registry/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.RegistryController"/>
+                <entry key="/addama/registry">
+                    <bean class="org.systemsbiology.addama.appengine.rest.RegistryController"/>
                 </entry>
+                <entry key="/addama/apps" value-ref="appsContentController"/>
+                <entry key="/addama/apps/*" value-ref="appsContentController"/>
+                <entry key="/addama/apps/**" value-ref="appsContentController"/>
 
                 <!-- Membership Controllers -->
                 <entry key="/addama/memberships/domain">
-                    <bean class="org.systemsbiology.addama.appengine.rest.DomainMembershipController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.DomainMembershipController"/>
                 </entry>
                 <entry key="/addama/memberships/domain/users">
-                    <bean class="org.systemsbiology.addama.appengine.rest.DomainMembershipController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.DomainMembershipController"/>
                 </entry>
                 <entry key="/addama/memberships/**/applicants">
-                    <bean class="org.systemsbiology.addama.appengine.rest.MembershipApplicantsController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.MembershipApplicantsController"/>
                 </entry>
                 <entry key="/addama/memberships/uris/**">
-                    <bean class="org.systemsbiology.addama.appengine.rest.UriMembershipController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.UriMembershipController"/>
                 </entry>
 
                 <!-- Memcache Clearing -->
@@ -35,53 +38,35 @@
                 <entry key="/addama/searchables" value-ref="searchCtlr"/>
                 <entry key="/addama/search" value-ref="searchCtlr"/>
 
-                <!-- Asynch Fetch Controllers -->
-                <entry key="/addama/asynch/responses/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.asynch.ResponseController"
-                          autowire="byType">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                            </list>
-                        </property>
-                    </bean>
-                </entry>
-                <entry key="/addama/asynch/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.asynch.TaskingController"
-                          autowire="byType">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                            </list>
-                        </property>
-                    </bean>
-                </entry>
-
                 <!-- Users Controllers -->
                 <entry key="/addama/users/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.UserController" autowire="byType"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.UserController" autowire="byType"/>
                 </entry>
 
                 <!-- Channels Controllers -->
                 <entry key="/addama/channels" value-ref="channelServiceController"/>
                 <entry key="/addama/channels/*" value-ref="channelServiceController"/>
 
+                <!-- Feed Controller -->
+                <entry key="/addama/feeds" value-ref="feedsController"/>
+                <entry key="/addama/feeds/*" value-ref="feedsController"/>
+
                 <!-- API Keys Controllers -->
                 <entry key="/addama/apikeys/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.ApiKeyController"
+                    <bean class="org.systemsbiology.addama.appengine.rest.ApiKeyController"
                           autowire="byType"/>
                 </entry>
 
-                <!-- Whitelist Controllers -->
-                <entry key="/addama/whitelist/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.WhiteListController"
+                <!-- Greenlist Controllers -->
+                <entry key="/addama/greenlist/**">
+                    <bean class="org.systemsbiology.addama.appengine.rest.GreenlistController"
                           autowire="byType"/>
                 </entry>
 
                 <!-- Services Controllers -->
                 <entry key="/addama/services" value-ref="registryBrowseCtlr"/>
                 <entry key="/addama/services/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.ServiceAccessController"
+                    <bean class="org.systemsbiology.addama.appengine.rest.ServiceAccessController"
                           autowire="byType">
                         <property name="supportedMethods">
                             <list>
@@ -98,15 +83,15 @@
     </bean>
 
     <!-- Controllers -->
-    <bean id="rootCtrlr" class="org.systemsbiology.addama.coresvcs.gae.controllers.RootController" autowire="byType"/>
+    <bean id="rootCtrlr" class="org.systemsbiology.addama.appengine.rest.RootController" autowire="byType"/>
 
-    <bean id="registryBrowseCtlr" class="org.systemsbiology.addama.coresvcs.gae.controllers.RegistryBrowseController"
+    <bean id="registryBrowseCtlr" class="org.systemsbiology.addama.appengine.rest.RegistryBrowseController"
           autowire="byType"/>
 
-    <bean id="searchCtlr" class="org.systemsbiology.addama.coresvcs.gae.controllers.SearchController"
+    <bean id="searchCtlr" class="org.systemsbiology.addama.appengine.rest.SearchController"
           autowire="byType"/>
 
-    <bean id="memcacheController" class="org.systemsbiology.addama.coresvcs.gae.controllers.MemcacheController">
+    <bean id="memcacheController" class="org.systemsbiology.addama.appengine.rest.MemcacheController">
         <property name="supportedMethods">
             <list>
                 <value>POST</value>
@@ -115,5 +100,9 @@
     </bean>
 
     <bean id="channelServiceController" class="org.systemsbiology.addama.appengine.rest.ChannelServiceController"/>
+
+    <bean id="feedsController" class="org.systemsbiology.addama.appengine.rest.FeedsController" autowire="byType"/>
+
+    <bean id="appsContentController" class="org.systemsbiology.addama.appengine.rest.AppsController"/>
 
 </beans>

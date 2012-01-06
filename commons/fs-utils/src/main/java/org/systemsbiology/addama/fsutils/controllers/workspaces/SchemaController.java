@@ -3,12 +3,11 @@ package org.systemsbiology.addama.fsutils.controllers.workspaces;
 import org.json.JSONObject;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.fsutils.controllers.FileSystemController;
 
@@ -22,7 +21,7 @@ import java.util.logging.Logger;
 
 import static java.lang.Double.parseDouble;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.getCleanUri;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getSpacedURI;
 
 /**
  * @author hrovira
@@ -31,15 +30,12 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.getCleanUri;
 public class SchemaController extends FileSystemController {
     private static final Logger log = Logger.getLogger(SchemaController.class.getName());
 
-    @RequestMapping(value = "/**/schema", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView schema(HttpServletRequest request) throws Exception {
-        String uri = getCleanUri(request, "/schema");
-
-        Resource resource = getWorkspaceResource(uri);
-        if (!resource.exists()) {
-            throw new ResourceNotFoundException(uri);
-        }
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/schema", method = RequestMethod.GET)
+    public ModelAndView schema(HttpServletRequest request,
+                               @PathVariable("workspaceId") String workspaceId) throws Exception {
+        String uri = getSpacedURI(request);
+        String path = substringBetween(uri, workspaceId, "/schema");
+        Resource resource = getTargetResource(workspaceId, path);
 
         Map<String, String> schema = getSchema(resource);
 

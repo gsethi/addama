@@ -4,8 +4,9 @@ import com.google.appengine.api.datastore.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.AntPathMatcher;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryMapping;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
+import org.systemsbiology.addama.appengine.datastore.DeleteEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.pojos.RegistryMapping;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,8 +18,11 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
+import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static java.lang.Boolean.parseBoolean;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringBetween;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira
@@ -33,7 +37,7 @@ public class Registry {
      * Services
      */
 
-    public static RegistryService[] getRegistryServices() {
+    public static Iterable<RegistryService> getRegistryServices() {
         ArrayList<RegistryService> registryServices = new ArrayList<RegistryService>();
         try {
             PreparedQuery pq = datastore.prepare(new Query("registry-services"));
@@ -44,10 +48,10 @@ public class Registry {
         } catch (Exception e) {
             log.warning(e.getMessage());
         }
-        return registryServices.toArray(new RegistryService[registryServices.size()]);
+        return registryServices;
     }
 
-    public static RegistryService[] getSearchableServices() {
+    public static Iterable<RegistryService> getSearchableServices() {
         ArrayList<RegistryService> searchableServices = new ArrayList<RegistryService>();
 
         Query q = new Query("registry-services").addFilter("searchable", Query.FilterOperator.EQUAL, true);
@@ -62,7 +66,7 @@ public class Registry {
             }
         }
 
-        return searchableServices.toArray(new RegistryService[searchableServices.size()]);
+        return searchableServices;
     }
 
     public static RegistryService getRegistryService(String serviceUri) {
@@ -96,7 +100,7 @@ public class Registry {
      * Mappings
      */
 
-    public static RegistryMapping[] getMatchingRegistryMappings(String requestUri) {
+    public static Iterable<RegistryMapping> getMatchingRegistryMappings(String requestUri) {
         HashMap<String, RegistryMapping> mappings = new HashMap<String, RegistryMapping>();
 
         PreparedQuery pq = datastore.prepare(new Query("registry-mappings"));
@@ -107,10 +111,10 @@ public class Registry {
             }
         }
 
-        return mappings.values().toArray(new RegistryMapping[mappings.size()]);
+        return mappings.values();
     }
 
-    public static RegistryMapping[] getRegistryMappingsByItsUri(String requesturi) {
+    public static Iterable<RegistryMapping> getRegistryMappingsByItsUri(String requesturi) {
         ArrayList<RegistryMapping> mappings = new ArrayList<RegistryMapping>();
         try {
             Query q = new Query("registry-mappings");
@@ -128,10 +132,10 @@ public class Registry {
         } catch (Exception e) {
             log.warning(requesturi + ":" + e);
         }
-        return mappings.toArray(new RegistryMapping[mappings.size()]);
+        return mappings;
     }
 
-    public static RegistryMapping[] getRegistryMappingFamily(String familyUri) {
+    public static Iterable<RegistryMapping> getRegistryMappingFamily(String familyUri) {
         ArrayList<RegistryMapping> mappings = new ArrayList<RegistryMapping>();
         try {
             Query q = new Query("registry-mappings");
@@ -143,17 +147,17 @@ public class Registry {
         } catch (Exception e) {
             log.warning(familyUri + ":" + e);
         }
-        return mappings.toArray(new RegistryMapping[mappings.size()]);
+        return mappings;
     }
 
-    public static RegistryMapping[] getRegistryMappings(RegistryService registryService) {
+    public static Iterable<RegistryMapping> getRegistryMappings(RegistryService registryService) {
         ArrayList<RegistryMapping> mappings = new ArrayList<RegistryMapping>();
         Query q = new Query("registry-mappings").addFilter("service", Query.FilterOperator.EQUAL, registryService.getUri());
         PreparedQuery pq = datastore.prepare(q);
         for (Entity e : pq.asIterable()) {
             mappings.add(getMappingFromEntity(e));
         }
-        return mappings.toArray(new RegistryMapping[mappings.size()]);
+        return mappings;
     }
 
     public static RegistryMapping getStaticContentRegistryMapping(String requestUri) {
@@ -179,6 +183,59 @@ public class Registry {
         json.put("uri", registryService.getUri());
         return json;
     }
+
+    /*
+    * Persistence
+    */
+    public static void clearExistingService(String serviceId) {
+        Query q = new Query("registry-mappings").addFilter("service", EQUAL, serviceId);
+        PreparedQuery pq = datastore.prepare(q);
+        ArrayList<Key> keys = new ArrayList<Key>();
+        keys.add(createKey("registry-services", serviceId));
+        for (Entity e : pq.asIterable()) {
+            keys.add(e.getKey());
+        }
+        inTransaction(datastore, new DeleteEntityTransactionCallback(keys));
+    }
+
+    public static Entity newServiceEntity(String serviceId, String registryKey, JSONObject json) throws Exception {
+        String serviceHost = json.getString("url");
+
+        Entity e = new Entity(createKey("registry-services", serviceId));
+        e.setProperty("url", new URL(serviceHost).toString());
+        e.setProperty("label", json.getString("label"));
+        if (json.has("searchable")) {
+            e.setProperty("searchable", json.getBoolean("searchable"));
+        }
+        if (json.has("sharing")) {
+            e.setProperty("sharing", json.getString("sharing"));
+        }
+
+        e.setUnindexedProperty("REGISTRY_SERVICE_KEY", registryKey);
+        return e;
+    }
+
+    public static Entity newMappingEntity(String serviceId, JSONObject json) throws JSONException {
+        String uri = json.getString("uri");
+
+        Entity e = new Entity(createKey("registry-mappings", uri));
+        e.setProperty("service", serviceId);
+        e.setProperty("uri", uri);
+        e.setProperty("label", json.getString("label"));
+        if (json.has("pattern")) {
+            e.setProperty("pattern", json.getString("pattern"));
+        } else {
+            e.setProperty("pattern", uri + "/**");
+        }
+        if (json.has("family")) {
+            e.setProperty("family", json.getString("family"));
+        } else {
+            e.setProperty("family", "/addama/" + substringBetween(uri, "/addama/", "/"));
+        }
+        return e;
+    }
+
+
     /*
     * Private Methods
     */

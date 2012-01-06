@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>local-svcs</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0</version>
     </parent>
 
     <groupId>org.systemsbiology.addama.coresvcs</groupId>
@@ -29,7 +29,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.systemsbiology.addama.apis</groupId>
+            <groupId>org.systemsbiology.addama.commons</groupId>
             <artifactId>visualization-datasource</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

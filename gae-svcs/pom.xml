@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.systemsbiology.addama</groupId>
         <artifactId>addama</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>3.0</version>
     </parent>
 
     <artifactId>gae-svcs</artifactId>
@@ -13,13 +13,8 @@
     <name>GAE Services</name>
 
     <modules>
-        <module>common-uis</module>
         <module>addama-registry</module>
-        <module>emailuri-sharing-svc</module>
-        <module>sharing-svc</module>
         <module>reference-genomes</module>
-        <module>channels-api-svc</module>
-        <module>feeds-api-svc</module>
     </modules>
 
     <dependencies>
@@ -34,7 +29,7 @@
         <!-- Addama -->
         <dependency>
             <groupId>org.systemsbiology.addama.commons</groupId>
-            <artifactId>commons-webutils</artifactId>
+            <artifactId>webutils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
@@ -47,13 +42,13 @@
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>2.5.4</version>
+            <artifactId>spring-context</artifactId>
+            <version>3.1.0.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>2.5.4</version>
+            <version>3.1.0.RELEASE</version>
         </dependency>
 
         <!-- JSON -->
@@ -80,12 +75,12 @@
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.4.2</version>
+            <version>1.6.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-labs</artifactId>
-            <version>1.4.2</version>
+            <version>1.6.0</version>
         </dependency>
 
         <dependency>

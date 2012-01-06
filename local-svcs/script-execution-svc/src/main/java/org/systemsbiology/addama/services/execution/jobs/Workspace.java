@@ -24,7 +24,6 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.systemsbiology.addama.commons.httpclient.support.*;
@@ -34,6 +33,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
 
 /**
  * @author hrovira
@@ -63,7 +64,7 @@ public class Workspace implements Closeable {
         try {
             JSONObject json = new JSONObject().put("uri", jobUri);
 
-            PostMethod post = new PostMethod(workspaceUri + "/jobs/" + StringUtils.substringAfterLast(jobUri, "/"));
+            PostMethod post = new PostMethod(workspaceUri + "/jobs/" + substringAfterLast(jobUri, "/"));
             post.setQueryString(new NameValuePair[]{new NameValuePair("annotations", json.toString())});
             int statusCode = (Integer) httpClientTemplate.executeMethod(post, new StatusCodeCaptureResponseCallback());
             log.info("registerJob(" + workspaceUri + "," + jobUri + "):" + statusCode);

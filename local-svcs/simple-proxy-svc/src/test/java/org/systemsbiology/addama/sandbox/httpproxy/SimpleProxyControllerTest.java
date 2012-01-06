@@ -3,16 +3,16 @@ package org.systemsbiology.addama.sandbox.httpproxy;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientResponseException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
 import org.systemsbiology.addama.commons.httpclient.support.ResponseCallback;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.services.proxy.controllers.SimpleProxyController;
 
 import java.util.ArrayList;
@@ -33,18 +33,14 @@ public class SimpleProxyControllerTest {
     public void setUp() throws Exception {
         httpClientTemplate = new MockHttpClientTemplate();
 
-        JSONObject local = new JSONObject();
-        local.put("uri", "/addama/applications/edgelimma");
-        local.put("proxy", "http://jefferson:9081/cgi-bin");
-        local.put("excludeBaseUri", true);
-
-        JSONObject json = new JSONObject();
-        json.append("locals", local);
-        json.append("mappings", new JSONObject().put("uri", "/addama/applications/edgelimma"));
+        MockServletContext msc = new MockServletContext();
+        msc.setContextPath("simpleProxyControllerTest");
+        ServiceConfig serviceConfig = new ServiceConfig();
+        serviceConfig.setServletContext(msc);
 
         controller = new SimpleProxyController();
         controller.setHttpClientTemplate(httpClientTemplate);
-        controller.setJsonConfig(new JsonConfig(json));
+        controller.setServiceConfig(serviceConfig);
     }
 
     @Test
@@ -67,7 +63,7 @@ public class SimpleProxyControllerTest {
 
         PostMethod outgoing = (PostMethod) method;
 
-        assertEquals("http://jefferson:9081/cgi-bin/EdgeLimma_selectFiles.pl", outgoing.getURI().toString());
+        assertEquals("http://example.com:8354/cgi-bin/EdgeLimma_selectFiles.pl", outgoing.getURI().toString());
 
         Map<String, List<String>> outParams = getParamsFromNvp(outgoing.getParameters());
 

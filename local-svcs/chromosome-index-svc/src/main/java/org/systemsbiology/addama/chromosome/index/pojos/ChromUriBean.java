@@ -18,9 +18,10 @@
 */
 package org.systemsbiology.addama.chromosome.index.pojos;
 
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
+import static java.lang.Long.parseLong;
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.systemsbiology.addama.chromosome.index.pojos.ChromUriBean.Strand.*;
 
 /**
  * @author hrovira
@@ -40,37 +41,21 @@ public class ChromUriBean {
         }
     }
 
-    private final String uri;
     private final String build;
     private final String chromosome;
     private final Long start;
     private final Long end;
     private final Strand strand;
 
-    public ChromUriBean(HttpServletRequest request, String root) {
-        this.uri = request.getRequestURI();
-
-        String chromosomeUri = StringUtils.substringAfterLast(this.uri, request.getContextPath() + root);
-
-        String[] splits = chromosomeUri.split("/");
-        this.build = getSplit(splits, 1);
-        this.chromosome = getSplit(splits, 2);
-        this.start = getLongSplit(splits, 3);
-        this.end = getLongSplit(splits, 4);
-
-        String sign = getSplit(splits, 5);
-        if (StringUtils.equals(sign, "+")) {
-            this.strand = Strand.positive;
-        } else if (StringUtils.equals(sign, "-")) {
-            this.strand = Strand.negative;
-        } else {
-            this.strand = Strand.unspecified;
-        }
+    public ChromUriBean(String build, String chromosome, Long start, Long end, String sign) {
+        this.build = build;
+        this.chromosome = chromosome;
+        this.start = start;
+        this.end = end;
+        this.strand = transformStrand(sign);
     }
 
     public ChromUriBean(String chromosomeUri) {
-        this.uri = chromosomeUri;
-
         String[] splits = chromosomeUri.split("/");
 
         this.build = getSplit(splits, 3);
@@ -79,17 +64,7 @@ public class ChromUriBean {
         this.end = getLongSplit(splits, 6);
 
         String sign = getSplit(splits, 7);
-        if (StringUtils.equals(sign, "+")) {
-            this.strand = Strand.positive;
-        } else if (StringUtils.equals(sign, "-")) {
-            this.strand = Strand.negative;
-        } else {
-            this.strand = Strand.unspecified;
-        }
-    }
-
-    public String getUri() {
-        return uri;
+        this.strand = transformStrand(sign);
     }
 
     public String getBuild() {
@@ -118,10 +93,10 @@ public class ChromUriBean {
 
     private Long getLongSplit(String[] splits, int position) {
         String split = getSplit(splits, position);
-        if (StringUtils.isEmpty(split)) {
+        if (isEmpty(split)) {
             return null;
         }
-        return Long.parseLong(split);
+        return parseLong(split);
     }
 
     private String getSplit(String[] splits, int position) {
@@ -131,6 +106,16 @@ public class ChromUriBean {
         return null;
     }
 
+    private Strand transformStrand(String sign) {
+        if (equalsIgnoreCase(sign, "+")) {
+            return positive;
+        }
+        if (equalsIgnoreCase(sign, "-")) {
+            return negative;
+        }
+        return unspecified;
+    }
+
     /*
      * String
      */
@@ -138,7 +123,6 @@ public class ChromUriBean {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("[");
-        builder.append("u=").append(this.uri).append(",");
         builder.append("b=").append(this.build).append(",");
         builder.append("c=").append(this.chromosome).append(",");
         builder.append("sta=").append(this.start).append(",");

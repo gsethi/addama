@@ -19,8 +19,8 @@
 package org.systemsbiology.addama.appengine.util;
 
 import com.google.appengine.api.urlfetch.*;
+import org.systemsbiology.addama.appengine.pojos.RegistryService;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
-import org.systemsbiology.addama.coresvcs.gae.pojos.RegistryService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
-import static org.systemsbiology.addama.commons.gae.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 
 /**
  * @author hrovira

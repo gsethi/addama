@@ -3,8 +3,8 @@ package org.systemsbiology.addama.appengine.util;
 import com.google.appengine.api.datastore.*;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.DeleteEntityTransactionCallback;
-import org.systemsbiology.addama.commons.gae.dataaccess.callbacks.PutEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.DeleteEntityTransactionCallback;
+import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 import org.systemsbiology.addama.commons.web.views.Jsonable;
 
 import java.util.ArrayList;
@@ -18,8 +18,8 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.util.Memberships.Membership.*;
-import static org.systemsbiology.addama.commons.gae.Appspot.APP_ID;
-import static org.systemsbiology.addama.commons.gae.dataaccess.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.Appspot.APP_ID;
+import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
  * @author hrovira
@@ -51,7 +51,7 @@ public class Memberships {
 
     public static boolean isDomainMembershipActivated() {
         try {
-            Key k = createKey(MEMBERSHIPS_DOMAIN_ACTIVE, APP_ID);
+            Key k = createKey(MEMBERSHIPS_DOMAIN_ACTIVE, APP_ID());
             return datastore.get(k) != null;
         } catch (EntityNotFoundException e) {
             return false;

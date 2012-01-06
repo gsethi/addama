@@ -42,14 +42,14 @@ public class WorkspaceSanityCheck {
 
     public static void main(String[] args) throws Exception {
         GaeHostConfiguration hc = new GaeHostConfiguration();
-        hc.setSecureHostUrl(new URL("https://addama-systemsbiology.appspot.com"));
+//        hc.setSecureHostUrl(new URL("https://addama-systemsbiology.appspot.com"));
         hc.afterPropertiesSet();
 
         HttpClient client = new HttpClient();
         client.setHostConfiguration(hc);
 
         template = new ApiKeyHttpClientTemplate(client);
-        template.setApikey("7511d0de-5d8e-4050-b6a2-eab7ebe6f33a");
+//        template.setApikey("7511d0de-5d8e-4050-b6a2-eab7ebe6f33a");
         template.afterPropertiesSet();
 
         doPost(URI, new File("/local/temp/rest/testakeller.tsv"));

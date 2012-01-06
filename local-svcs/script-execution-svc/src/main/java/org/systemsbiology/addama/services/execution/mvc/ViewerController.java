@@ -19,21 +19,19 @@
 package org.systemsbiology.addama.services.execution.mvc;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.jsonconfig.JsonConfig;
-import org.systemsbiology.addama.jsonconfig.impls.StringMapJsonConfigHandler;
+import org.systemsbiology.addama.jsonconfig.ServiceConfig;
+import org.systemsbiology.addama.jsonconfig.impls.StringPropertyByIdMappingsHandler;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.clientRedirect;
-import static org.systemsbiology.addama.services.execution.util.HttpJob.getScriptUri;
-import static org.systemsbiology.addama.services.execution.util.HttpJob.scriptExists;
 
 /**
  * @author hrovira
@@ -42,23 +40,20 @@ import static org.systemsbiology.addama.services.execution.util.HttpJob.scriptEx
 public class ViewerController {
     private static final Logger log = Logger.getLogger(ViewerController.class.getName());
 
-    private final Map<String, String> viewersByUri = new HashMap<String, String>();
+    private final Map<String, String> viewersByToolId = new HashMap<String, String>();
 
-    public void setJsonConfig(JsonConfig jsonConfig) {
-        jsonConfig.visit(new StringMapJsonConfigHandler(viewersByUri, "viewer"));
+    public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
+        serviceConfig.visit(new StringPropertyByIdMappingsHandler(viewersByToolId, "viewer"));
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public void getViewer(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info(request.getRequestURI());
+    @RequestMapping(value = "/**/tools/{toolId}/ui", method = RequestMethod.GET)
+    public void getViewer(HttpServletResponse response, @PathVariable("toolId") String toolId) throws Exception {
+        log.info(toolId);
 
-        String uri = getScriptUri(request, "/ui");
-        scriptExists(uri);
-
-        if (!viewersByUri.containsKey(uri)) {
-            throw new ResourceNotFoundException(uri);
+        if (!viewersByToolId.containsKey(toolId)) {
+            throw new ResourceNotFoundException(toolId);
         }
 
-        clientRedirect(response, viewersByUri.get(uri));
+        clientRedirect(response, viewersByToolId.get(toolId));
     }
 }

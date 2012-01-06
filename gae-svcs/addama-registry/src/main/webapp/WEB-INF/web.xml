@@ -3,8 +3,7 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/app-contexts/filters.xml
-            /WEB-INF/app-contexts/controllers.xml
+            /WEB-INF/app-contexts/*.xml
         </param-value>
     </context-param>
 
@@ -22,9 +21,8 @@
     </listener>
 
     <servlet>
-        <servlet-name>memcache-external-content</servlet-name>
-        <servlet-class>org.systemsbiology.addama.appengine.servlet.ExternalContentMemcacheHttpServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <servlet-name>channel-disconnect</servlet-name>
+        <servlet-class>org.systemsbiology.addama.appengine.servlet.ChannelDisconnectServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -34,8 +32,8 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>memcache-external-content</servlet-name>
-        <url-pattern>/addama/ui/*</url-pattern>
+        <servlet-name>channel-disconnect</servlet-name>
+        <url-pattern>/_ah/channel/disconnected</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -54,11 +52,11 @@
     </filter>
 
     <filter>
-        <filter-name>filter-whiteList</filter-name>
+        <filter-name>filter-greenlist</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
         <init-param>
             <param-name>targetBeanName</param-name>
-            <param-value>filter-whiteList</param-value>
+            <param-value>filter-greenlist</param-value>
         </init-param>
     </filter>
 
@@ -68,15 +66,6 @@
         <init-param>
             <param-name>targetBeanName</param-name>
             <param-value>filter-directlink</param-value>
-        </init-param>
-    </filter>
-
-    <filter>
-        <filter-name>filter-authorization-admin</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-        <init-param>
-            <param-name>targetBeanName</param-name>
-            <param-value>filter-authorization-admin</param-value>
         </init-param>
     </filter>
 
@@ -95,7 +84,7 @@
     </filter-mapping>
 
     <filter-mapping>
-        <filter-name>filter-whiteList</filter-name>
+        <filter-name>filter-greenlist</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
@@ -105,19 +94,18 @@
     </filter-mapping>
 
     <filter-mapping>
-        <filter-name>filter-authorization-admin</filter-name>
-        <url-pattern>/addama/registry/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>filter-authorization-admin</filter-name>
-        <url-pattern>/addama/memcache/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
         <filter-name>filter-proxies</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+     <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/html/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>*</role-name>
+        </auth-constraint>
+    </security-constraint>
 
     <security-constraint>
         <web-resource-collection>
