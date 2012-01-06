@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.appengine.rest;
+package org.systemsbiology.addama.appengine.rest.memberships;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

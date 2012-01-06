@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.appengine.rest;
+package org.systemsbiology.addama.appengine.rest.memberships;
 
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -31,7 +31,6 @@ public class DomainMembershipControllerTest {
     @Before
     public void setUp() {
         helper = new LocalServiceTestHelper(new LocalUserServiceTestConfig(), new LocalDatastoreServiceTestConfig());
-
         helper.setEnvIsAdmin(true);
         helper.setEnvIsLoggedIn(true);
         helper.setUp();
@@ -41,15 +40,12 @@ public class DomainMembershipControllerTest {
 
     @After
     public void tearDown() {
-        helper.tearDown();
+        if (helper != null) {
+            helper.tearDown();
+        }
     }
 
     @Test
-    public void notest() {
-        assertTrue(true);
-    }
-
-//    @Test
     public void set_domain_users() throws Exception {
         MockHttpServletRequest POST = new MockHttpServletRequest();
         POST.setMethod("POST");
@@ -66,7 +62,7 @@ public class DomainMembershipControllerTest {
         GET.setRequestURI("/memberships/domain/users");
 
         ModelAndView get_mav = handlerAdapter.handle(GET, new MockHttpServletResponse(), controller);
-        JSONObject json = (JSONObject) assertAndReturnModelAttributeOfType(get_mav, "json", JSONObject.class);
+        JSONObject json = assertAndReturnModelAttributeOfType(get_mav, "json", JSONObject.class);
         assertNotNull(json);
 
         assertTrue(json.has("items"));

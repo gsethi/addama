@@ -19,16 +19,16 @@
 
                 <!-- Membership Controllers -->
                 <entry key="/addama/memberships/domain">
-                    <bean class="org.systemsbiology.addama.appengine.rest.DomainMembershipController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.DomainMembershipController"/>
                 </entry>
                 <entry key="/addama/memberships/domain/users">
-                    <bean class="org.systemsbiology.addama.appengine.rest.DomainMembershipController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.DomainMembershipController"/>
                 </entry>
                 <entry key="/addama/memberships/**/applicants">
-                    <bean class="org.systemsbiology.addama.appengine.rest.MembershipApplicantsController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.MembershipApplicantsController"/>
                 </entry>
                 <entry key="/addama/memberships/uris/**">
-                    <bean class="org.systemsbiology.addama.appengine.rest.UriMembershipController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.memberships.UriMembershipController"/>
                 </entry>
 
                 <!-- Memcache Clearing -->

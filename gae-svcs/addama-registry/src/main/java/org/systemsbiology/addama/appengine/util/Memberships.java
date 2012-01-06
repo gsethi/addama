@@ -51,7 +51,7 @@ public class Memberships {
 
     public static boolean isDomainMembershipActivated() {
         try {
-            Key k = createKey(MEMBERSHIPS_DOMAIN_ACTIVE, APP_ID);
+            Key k = createKey(MEMBERSHIPS_DOMAIN_ACTIVE, APP_ID());
             return datastore.get(k) != null;
         } catch (EntityNotFoundException e) {
             return false;

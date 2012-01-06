@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.appengine.rest;
+package org.systemsbiology.addama.appengine.rest.memberships;
 
 import com.google.appengine.api.users.User;
 import org.json.JSONArray;
