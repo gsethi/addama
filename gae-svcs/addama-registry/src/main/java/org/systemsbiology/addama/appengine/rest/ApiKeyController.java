@@ -16,9 +16,8 @@
 **    License along with this library; if not, write to the Free Software
 **    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
-package org.systemsbiology.addama.coresvcs.gae.controllers;
+package org.systemsbiology.addama.appengine.rest;
 
-import com.google.appengine.api.users.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +35,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.logging.Logger;
 
-import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;

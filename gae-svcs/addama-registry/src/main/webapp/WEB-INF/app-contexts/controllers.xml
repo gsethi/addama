@@ -11,7 +11,7 @@
                 <entry key="/addama" value-ref="rootCtrlr"/>
                 <entry key="/addama/" value-ref="rootCtrlr"/>
                 <entry key="/addama/registry">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.RegistryController"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.RegistryController"/>
                 </entry>
                 <entry key="/addama/apps" value-ref="appsContentController"/>
                 <entry key="/addama/apps/*" value-ref="appsContentController"/>
@@ -62,7 +62,7 @@
 
                 <!-- Users Controllers -->
                 <entry key="/addama/users/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.UserController" autowire="byType"/>
+                    <bean class="org.systemsbiology.addama.appengine.rest.UserController" autowire="byType"/>
                 </entry>
 
                 <!-- Channels Controllers -->
@@ -75,7 +75,7 @@
 
                 <!-- API Keys Controllers -->
                 <entry key="/addama/apikeys/**">
-                    <bean class="org.systemsbiology.addama.coresvcs.gae.controllers.ApiKeyController"
+                    <bean class="org.systemsbiology.addama.appengine.rest.ApiKeyController"
                           autowire="byType"/>
                 </entry>
 
@@ -105,12 +105,12 @@
     </bean>
 
     <!-- Controllers -->
-    <bean id="rootCtrlr" class="org.systemsbiology.addama.coresvcs.gae.controllers.RootController" autowire="byType"/>
+    <bean id="rootCtrlr" class="org.systemsbiology.addama.appengine.rest.RootController" autowire="byType"/>
 
-    <bean id="registryBrowseCtlr" class="org.systemsbiology.addama.coresvcs.gae.controllers.RegistryBrowseController"
+    <bean id="registryBrowseCtlr" class="org.systemsbiology.addama.appengine.rest.RegistryBrowseController"
           autowire="byType"/>
 
-    <bean id="searchCtlr" class="org.systemsbiology.addama.coresvcs.gae.controllers.SearchController"
+    <bean id="searchCtlr" class="org.systemsbiology.addama.appengine.rest.SearchController"
           autowire="byType"/>
 
     <bean id="memcacheController" class="org.systemsbiology.addama.coresvcs.gae.controllers.MemcacheController">
