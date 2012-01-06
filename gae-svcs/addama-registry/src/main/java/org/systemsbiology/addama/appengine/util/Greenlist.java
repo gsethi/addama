@@ -49,7 +49,7 @@ public class Greenlist {
         Iterator<Entity> itr = getDatastoreService().prepare(new Query("greenlist")).asIterator();
         while (itr.hasNext()) {
             String userEmail = itr.next().getKey().getName();
-            if (equalsIgnoreCase(userEmail, BOUNCER)) {
+            if (!equalsIgnoreCase(userEmail, BOUNCER)) {
                 userEmails.add(userEmail);
             }
         }
@@ -57,12 +57,8 @@ public class Greenlist {
         return userEmails;
     }
 
-    public static void addGreenlistUsers(Iterable<String> users) {
-        ArrayList<Entity> entities = new ArrayList<Entity>();
-        entities.add(new Entity(createKey("greenlist", BOUNCER)));
-        for (String user : users) {
-            entities.add(new Entity(createKey("greenlist", user.toLowerCase())));
-        }
-        inTransaction(getDatastoreService(), new PutEntityTransactionCallback(entities));
+    public static void addGreenlistUser(String user) {
+        inTransaction(getDatastoreService(), new PutEntityTransactionCallback(new Entity(createKey("greenlist", BOUNCER))));
+        inTransaction(getDatastoreService(), new PutEntityTransactionCallback(new Entity(createKey("greenlist", user.toLowerCase()))));
     }
 }
