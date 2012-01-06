@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
-import static org.systemsbiology.addama.appengine.util.Greenlist.isUserInGreenlist;
+import static org.systemsbiology.addama.appengine.util.Greenlist.isGreenlistActive;
+import static org.systemsbiology.addama.appengine.util.Greenlist.isGreenlisted;
+import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
+import static org.systemsbiology.addama.appengine.util.Users.isAdministrator;
 
 /**
  * @author aeakin
@@ -31,25 +34,27 @@ public class GreenlistFilter extends GenericFilterBean {
             return;
         }
 
-        String userUri = getLoggedInUserUri(request);
-        Boolean isAdmin = (Boolean) servletRequest.getAttribute("isAdmin");
-
-        // CODE_REVIEW: Is it possible that isAdmin flag could be null?  Will auto-boxing take care of this?
-        if (isAdmin) {
+        if (isAdministrator(request)) {
             log.info("user is admin");
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        // CODE_REVIEW: What happens if there is no white list for the URI?
-        if (isUserInGreenlist(userUri, request.getRequestURI())) {
-            log.fine("user in greenlist");
+        if (!isGreenlistActive()) {
+            log.info("no greenlist active");
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
+        String userEmail = getLoggedInUserEmail(request);
+        if (isGreenlisted(userEmail)) {
+            log.info("user in greenlist");
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         //how does this redirect work in the case of apikeys?
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(SC_UNAUTHORIZED);
         response.sendRedirect("/html/bounced.html");
     }
 }

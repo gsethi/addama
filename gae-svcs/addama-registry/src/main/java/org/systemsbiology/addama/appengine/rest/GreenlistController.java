@@ -18,94 +18,60 @@
 */
 package org.systemsbiology.addama.appengine.rest;
 
-import com.google.appengine.api.users.User;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.appengine.pojos.GreenlistEntry;
+import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.logging.Logger;
+import java.util.HashSet;
 
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.apache.commons.lang.StringUtils.substringBefore;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
-import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
-import static org.systemsbiology.addama.appengine.util.Greenlist.*;
+import static org.systemsbiology.addama.appengine.util.Greenlist.addGreenlistUsers;
+import static org.systemsbiology.addama.appengine.util.Greenlist.getGreenlist;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 
 /**
  * @author aeakin
  */
 @Controller
 public class GreenlistController {
-    private static final Logger log = Logger.getLogger(GreenlistController.class.getName());
-
-    @RequestMapping(value = "/greenlist", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView list(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
-
-        JSONObject json = new JSONObject();
-        json.put("uri", request.getRequestURI());
-
-        for (GreenlistEntry userItem : getGreenlistUsers()) {
-            json.append("items", userItem.toJSON());
-        }
-
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
-
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(JSONObject.class, new JSONObjectPropertyEditor());
     }
 
-    @RequestMapping(value = "/greenlist/**", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView addNewUser(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
+    @RequestMapping(value = "/greenlist", method = RequestMethod.GET)
+    public ModelAndView list(HttpServletRequest request) throws Exception {
+        checkAdmin(request);
 
-        String accessPath = getStringParameter(request, "uri");
-        String userEmail = substringAfterLast(request.getRequestURI(), "/");
-        addGreenlistUser(userEmail, accessPath);
-
-        return new ModelAndView(new OkResponseView());
+        JSONObject json = new JSONObject();
+        json.put("uri", "/addama/greenlist");
+        for (String user : getGreenlist()) {
+            json.append("items", new JSONObject().put("id", user).put("uri", "/addama/users/" + user));
+        }
+        return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/greenlist", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView addLoggedInUser(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
+    public ModelAndView addUsers(HttpServletRequest request, JSONObject users) throws Exception {
+        checkAdmin(request);
 
-        User user = getCurrentUser();
-        String accessPath = getStringParameter(request, "uri");
-        addGreenlistUser(user.getEmail(), accessPath);
+        HashSet<String> entries = new HashSet<String>();
+        JSONArray array = users.getJSONArray("users");
+        for (int i = 0; i < array.length(); i++) {
+            entries.add(array.getString(i));
+        }
 
-        return new ModelAndView(new OkResponseView());
-    }
-
-    @RequestMapping(value = "/greenlist/**/delete", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView deleteByPost(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
-
-        String accessPath = getStringParameter(request, "uri");
-        String userEmail = substringAfterLast(substringBefore(request.getRequestURI(), "/delete"), "/");
-        deleteGreenlistUser(userEmail, accessPath);
+        addGreenlistUsers(entries);
 
         return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "/greenlist/**/grantaccess", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView grantAccessByPost(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
-
-        String accessPath = getStringParameter(request, "uri");
-        String userEmail = substringAfterLast(substringBefore(request.getRequestURI(), "/grantaccess"), "/");
-        grantGreenlistAccess(userEmail, accessPath);
-
-        return new ModelAndView(new OkResponseView());
-    }
 }
