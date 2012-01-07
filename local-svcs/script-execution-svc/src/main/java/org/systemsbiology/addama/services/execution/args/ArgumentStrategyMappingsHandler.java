@@ -33,6 +33,8 @@ public class ArgumentStrategyMappingsHandler extends MappingPropertyByIdContaine
                 default:
                     addValue(mapping, new DefaultArgumentStrategy());
             }
+        } else {
+            addValue(mapping, new DefaultArgumentStrategy());
         }
 
     }
