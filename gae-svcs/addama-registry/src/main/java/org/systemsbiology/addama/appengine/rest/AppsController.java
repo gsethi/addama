@@ -114,11 +114,12 @@ public class AppsController {
     }
 
     @RequestMapping(value = "/apps", method = RequestMethod.POST)
-    protected ModelAndView save(HttpServletRequest request, @RequestParam("app") JSONObject app,
-                                @RequestParam(value = "homepage", required = false) boolean homepage) throws Exception {
+    protected ModelAndView save(HttpServletRequest request, @RequestParam("app") JSONObject app) throws Exception {
         checkAdmin(request);
 
         URL url = new URL(app.getString("url"));
+
+        boolean homepage = app.optBoolean("homepage", false);
 
         Entity e = new Entity(createKey("apps-content", app.getString("id")));
         e.setProperty("label", app.getString("label"));
