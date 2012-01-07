@@ -160,7 +160,7 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
                 builder.append(" [ ").append(statusCode).append(" ]");
             }
             if (!isEmpty(message)) {
-                builder.append("\n\t").append(message);
+                builder.append(": [").append(message).append("]");
             }
 
             for (Mapping mapping : serviceConfig.getMappings()) {
