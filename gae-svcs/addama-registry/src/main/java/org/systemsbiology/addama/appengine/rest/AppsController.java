@@ -71,9 +71,9 @@ public class AppsController {
         log.info(appsId);
         AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
         MemcacheService appsContent = getMemcacheService("apps-content." + appsId);
-        HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
+        HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/index.html", callback);
         if (content == null) {
-            content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/index.html", callback);
+            content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
         }
         serveContent(content, request, response);
         return new ModelAndView(new OkResponseView());
