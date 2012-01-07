@@ -177,13 +177,11 @@ public class Registry {
     */
     public static void clearExistingService(String serviceId) {
         Query q = new Query("registry-mappings").addFilter("service", EQUAL, serviceId);
-        PreparedQuery pq = datastore.prepare(q);
-        ArrayList<Key> keys = new ArrayList<Key>();
-        keys.add(createKey("registry-services", serviceId));
-        for (Entity e : pq.asIterable()) {
-            keys.add(e.getKey());
+        for (Entity e : datastore.prepare(q).asIterable()) {
+            inTransaction(datastore, new DeleteEntityTransactionCallback(e.getKey()));
         }
-        inTransaction(datastore, new DeleteEntityTransactionCallback(keys));
+
+        inTransaction(datastore, new DeleteEntityTransactionCallback(createKey("registry-services", serviceId)));
     }
 
     public static Entity newServiceEntity(String serviceId, String registryKey, JSONObject json) throws Exception {
