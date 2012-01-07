@@ -11,7 +11,7 @@ var LoadViewport = function() {
             {
                 id: "topbar-panel",
                 region: "north",
-                height: 30,
+                height: 54,
                 border: false,
                 frame: false,
                 xtype: "box",
