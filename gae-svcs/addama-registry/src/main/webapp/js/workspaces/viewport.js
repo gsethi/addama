@@ -1,14 +1,13 @@
-var topBarPanel = new Ext.Panel({
-    contentEl: "container_topbar"
-});
-
 var headerPanel = {
     id: "panel-title-control",
     xtype: "box",
     region: "north",
     border: true,
     split: true,
-    items:[topBarPanel]
+    items:[
+        new Ext.Panel({ contentEl: "c_banner" }),
+        new Ext.Panel({ contentEl: "container_topbar" })
+    ]
 };
 
 var footerPanel = {
