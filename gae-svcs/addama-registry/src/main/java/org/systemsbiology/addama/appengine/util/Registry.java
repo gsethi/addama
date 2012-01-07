@@ -160,18 +160,6 @@ public class Registry {
         return mappings;
     }
 
-    public static RegistryMapping getStaticContentRegistryMapping(String requestUri) {
-        Query q = new Query("registry-mappings").addFilter("staticContent", Query.FilterOperator.EQUAL, true);
-        PreparedQuery pq = datastore.prepare(q);
-        for (Entity entity : pq.asIterable()) {
-            if (isMatchingService(requestUri, entity)) {
-                return getMappingFromEntity(entity);
-            }
-        }
-
-        return null;
-    }
-
     public static JSONObject toJSON(RegistryService registryService) throws JSONException {
         if (registryService == null) {
             return null;

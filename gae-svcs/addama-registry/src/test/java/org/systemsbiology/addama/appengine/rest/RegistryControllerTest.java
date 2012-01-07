@@ -61,8 +61,9 @@ public class RegistryControllerTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         CONTROLLER.register(new MockHttpServletRequest(), response, json);
 
-        String registryKey = response.getHeader("x-addama-registry-key");
         assertTrue(response.getStatus() == SC_OK);
+
+        String registryKey = response.getHeader("x-addama-registry-key");
         assertNotNull(registryKey);
 
         RegistryService rs = getRegistryService("example.org.service");
