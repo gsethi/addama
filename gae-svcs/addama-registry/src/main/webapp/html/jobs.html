@@ -47,8 +47,13 @@
                         region: "north",
                         height: 30,
                         border: false,
-                        contentEl: "container_topbar",
-                        frame: false
+                        frame: false,
+                        xtype: "box",
+                        split: true,
+                        items:[
+                            new Ext.Panel({ contentEl: "c_banner" }),
+                            new Ext.Panel({ contentEl: "container_topbar" })
+                        ]
                     },
                     jobsGrid.grid
                 ],

@@ -22,7 +22,20 @@
             new Ext.Viewport({
                 layout:'border',
                 items:[
-                    new Ext.BoxComponent({ region:'north', el: 'header', height:32 }),
+                    {
+                        id: "topbar-panel",
+                        region: "north",
+                        height: 30,
+                        border: false,
+                        frame: false,
+                        xtype: "box",
+                        split: true,
+                        items:[
+                            new Ext.Panel({ contentEl: "c_banner" }),
+                            new Ext.Panel({ contentEl: "container_topbar" }),
+                            new Ext.BoxComponent({ contentEl: 'header' })
+                        ]
+                    },
                     new FeedGrid('/addama/feeds/announcements/rss')
                 ]
             });
