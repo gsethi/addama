@@ -52,7 +52,8 @@ import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static com.google.apphosting.api.ApiProxy.getCurrentEnvironment;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
-import static org.apache.commons.lang.StringUtils.*;
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.systemsbiology.addama.appengine.Appspot.APP_ID;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
@@ -98,14 +99,15 @@ public class ServiceRegistrationServlet extends HttpServlet {
         JSONObject registration = new JSONObject();
         registration.put("url", "https://" + getCurrentEnvironment().getAttributes().get("com.google.appengine.runtime.default_version_hostname"));
         registration.put("label", serviceConfig.LABEL());
+        registration.put("family", serviceConfig.FAMILY());
         registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 
         for (Mapping m : serviceConfig.getMappings()) {
             JSONObject mapping = new JSONObject();
-            mapping.put("uri", m.URI());
+            mapping.put("id", m.ID());
             mapping.put("label", m.LABEL());
             if (m.JSON().has("family")) {
-                mapping.put("family", chomp(m.JSON().getString("family"), "/"));
+                mapping.put("family", m.JSON().getString("family"));
             }
             if (m.JSON().has("pattern")) {
                 mapping.put("pattern", m.JSON().getString("pattern"));

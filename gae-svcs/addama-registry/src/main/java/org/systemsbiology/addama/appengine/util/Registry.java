@@ -20,8 +20,8 @@ import static com.google.appengine.api.datastore.DatastoreServiceFactory.getData
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static java.lang.Boolean.parseBoolean;
+import static org.apache.commons.lang.StringUtils.chomp;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.substringBetween;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -215,23 +215,16 @@ public class Registry {
         return e;
     }
 
-    public static Entity newMappingEntity(String serviceId, JSONObject json) throws JSONException {
-        String uri = json.getString("uri");
+    public static Entity newMappingEntity(String serviceId, String family, JSONObject json) throws JSONException {
+        String mappingId = json.getString("id");
+        String uri = chomp(family, "/") + "/" + mappingId;
 
-        Entity e = new Entity(createKey("registry-mappings", uri));
+        Entity e = new Entity(createKey("registry-mappings", mappingId));
         e.setProperty("service", serviceId);
         e.setProperty("uri", uri);
         e.setProperty("label", json.getString("label"));
-        if (json.has("pattern")) {
-            e.setProperty("pattern", json.getString("pattern"));
-        } else {
-            e.setProperty("pattern", uri + "/**");
-        }
-        if (json.has("family")) {
-            e.setProperty("family", json.getString("family"));
-        } else {
-            e.setProperty("family", "/addama/" + substringBetween(uri, "/addama/", "/"));
-        }
+        e.setProperty("pattern", json.optString("pattern", uri + "/**"));
+        e.setProperty("family", json.optString("family", family));
         return e;
     }
 

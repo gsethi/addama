@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.executeDataSourceServletFlow;
 
 /**
@@ -65,11 +66,12 @@ public class DatasourceServiceController implements InitializingBean {
     * Controllers
     */
     @RequestMapping(value = "/**/datasources", method = RequestMethod.GET)
-    protected ModelAndView listDatabases() throws Exception {
+    protected ModelAndView listDatabases(HttpServletRequest request) throws Exception {
+        String baseuri = getURI(request);
         JSONObject json = new JSONObject();
         for (Mapping mapping : this.serviceConfig.getMappings()) {
             JSONObject item = new JSONObject();
-            item.put("uri", mapping.URI());
+            item.put("uri", baseuri + "/" + mapping.ID());
             item.put("label", mapping.LABEL());
             item.put("id", mapping.ID());
             json.append("items", item);

@@ -110,11 +110,12 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
             JSONObject registration = new JSONObject();
             registration.put("url", serviceHostUrl.toString());
             registration.put("label", serviceConfig.LABEL());
+            registration.put("family", serviceConfig.FAMILY());
             registration.put("searchable", serviceConfig.JSON().optBoolean("searchable", false));
 
             for (Mapping m : serviceConfig.getMappings()) {
                 JSONObject mapping = new JSONObject();
-                mapping.put("uri", m.URI());
+                mapping.put("id", m.ID());
                 mapping.put("label", m.LABEL());
                 if (m.JSON().has("family")) {
                     mapping.put("family", chomp(m.JSON().getString("family"), "/"));

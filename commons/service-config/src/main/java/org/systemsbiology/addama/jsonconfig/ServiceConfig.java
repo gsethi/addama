@@ -44,6 +44,7 @@ public class ServiceConfig implements ServletContextAware {
     private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
     private JSONObject JSON;
     private String LABEL;
+    private String FAMILY;
 
     public void setServletContext(ServletContext servletContext) {
         try {
@@ -60,13 +61,13 @@ public class ServiceConfig implements ServletContextAware {
 
                 this.JSON = new JSONObject(builder.toString());
                 this.LABEL = this.JSON.getString("label");
+                this.FAMILY = this.JSON.getString("family");
 
                 if (JSON.has("mappings")) {
-                    String family = chomp(JSON.getString("family"), "/");
                     JSONArray mappings = JSON.getJSONArray("mappings");
-                    log.info("adding mappings [" + family + "," + mappings.length() + "]");
+                    log.info("adding mappings [" + this.FAMILY + "," + mappings.length() + "]");
                     for (int i = 0; i < mappings.length(); i++) {
-                        Mapping m = new Mapping(family, mappings.getJSONObject(i));
+                        Mapping m = new Mapping(mappings.getJSONObject(i));
                         mappingsById.put(m.ID(), m);
                     }
                 }
@@ -86,6 +87,10 @@ public class ServiceConfig implements ServletContextAware {
 
     public String LABEL() {
         return this.LABEL;
+    }
+
+    public String FAMILY() {
+        return this.FAMILY;
     }
 
     public JSONObject JSON() {

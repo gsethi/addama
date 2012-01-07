@@ -21,10 +21,10 @@ import java.util.logging.Logger;
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.appengine.util.Registry.*;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.asPackage;
 
 /**
  * @author hrovira
@@ -48,7 +48,16 @@ public class RegistryController {
             log.info(registration.toString());
 
             // TODO : Check ownership of services before proceeding
-            String serviceId = asPackage(new URL(registration.getString("url")));
+            URL serviceUrl = new URL(registration.getString("url"));
+            String family = registration.getString("family");
+
+            String servicePath = serviceUrl.getPath();
+            if (servicePath.startsWith("/")) {
+                servicePath = substringAfter(servicePath, "/");
+            }
+
+            String serviceId = serviceUrl.getHost() + "." + servicePath;
+
             clearExistingService(serviceId);
 
             // TODO : Parent/child relationships
@@ -59,7 +68,7 @@ public class RegistryController {
 
             JSONArray mappings = registration.getJSONArray("mappings");
             for (int i = 0; i < mappings.length(); i++) {
-                Entity me = newMappingEntity(serviceId, mappings.getJSONObject(i));
+                Entity me = newMappingEntity(serviceId, family, mappings.getJSONObject(i));
                 inTransaction(datastore, new PutEntityTransactionCallback(me));
             }
 
