@@ -1,30 +1,10 @@
 <html>
 <head>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
-    <script type="text/javascript">
-        Ext.onReady(function() {
-            Ext.Ajax.request({
-                method:"get",
-                url: "/addama/apps/homepage",
-                success: function(o) {
-                    var json = Ext.util.JSON.decode(o);
-                    if (json && json.uri) {
-                        document.location = json.uri;
-                    } else {
-                        document.location = "/html/index.html";
-                    }
-                },
-                failure: function() {
-                    document.location = "/html/index.html";
-                }
-            });
-        });
-    </script>
+    <meta http-equiv="REFRESH" content="0;url=/html/index.html">
 </head>
 <body>
 <div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
-Loading... <a href="/html/index.html">go directly to Addama</a>
+<a href="/html/index.html">Loading Addama...</a>
 </body>
 </html>

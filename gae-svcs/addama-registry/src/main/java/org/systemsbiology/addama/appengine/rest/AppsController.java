@@ -13,27 +13,23 @@ import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.appengine.callbacks.AppsContentMemcacheLoaderCallback;
 import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
-import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
+import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
-import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serveContent;
-import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 
 /**
  * @author hrovira
@@ -69,25 +65,6 @@ public class AppsController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/apps/homepage", method = RequestMethod.GET)
-    protected ModelAndView homepage() throws Exception {
-        JSONObject json = new JSONObject();
-
-        PreparedQuery pq = datastore.prepare(new Query("apps-content").addFilter("homepage", EQUAL, true));
-        Iterator itr = pq.asIterator();
-        if (itr.hasNext()) {
-            Entity e = (Entity) itr.next();
-            JSONObject item = new JSONObject();
-            String id = e.getKey().getName();
-            item.put("id", id);
-            item.put("uri", "/addama/apps/" + id);
-            item.put("label", e.getProperty("label").toString());
-            item.put("url", e.getProperty("url").toString());
-            return new ModelAndView(new JsonView()).addObject("json", json);
-        }
-        throw new ResourceNotFoundException("/apps/homepage");
-    }
-
     @RequestMapping(value = "/apps/{appsId}", method = RequestMethod.GET)
     protected ModelAndView fetchApp(HttpServletRequest request, HttpServletResponse response,
                                     @PathVariable("appsId") String appsId) throws Exception {
@@ -119,20 +96,9 @@ public class AppsController {
 
         URL url = new URL(app.getString("url"));
 
-        boolean homepage = app.optBoolean("homepage", false);
-
         Entity e = new Entity(createKey("apps-content", app.getString("id")));
         e.setProperty("label", app.getString("label"));
         e.setProperty("url", url.toString());
-        e.setProperty("homepage", homepage);
-
-        if (homepage) {
-            PreparedQuery pq = datastore.prepare(new Query("apps-content").addFilter("homepage", EQUAL, true));
-            for (Entity existing : pq.asIterable()) {
-                existing.setProperty("homepage", false);
-                inTransaction(datastore, new PutEntityTransactionCallback(existing));
-            }
-        }
 
         inTransaction(datastore, new PutEntityTransactionCallback(e));
         return new ModelAndView(new OkResponseView());

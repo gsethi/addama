@@ -35,7 +35,7 @@
                         // TODO : Display apps in panel
                         var html = "";
                         Ext.each(json.items, function(item) {
-                            html += "<li><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a>:" + item.uri + ":" + item.url + "(" + item.homepage + ")</li>";
+                            html += "<li><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a>:" + item.uri + ":" + item.url + "</li>";
                         });
                         Ext.getDom("c_apps").innerHTML = html;
                     }
@@ -47,8 +47,7 @@
             var app = {
                 id: Ext.getDom("i_app_id").value,
                 label: Ext.getDom("i_app_label").value,
-                url: Ext.getDom("i_app_url").value,
-                homepage: Ext.getDom("i_app_homepage").checked
+                url: Ext.getDom("i_app_url").value
             };
 
             Ext.Ajax.request({
@@ -73,7 +72,6 @@
             <label for="i_app_id">ID</label><input type="text" id="i_app_id"/><br/>
             <label for="i_app_label">Label</label><input type="text" id="i_app_label"/><br/>
             <label for="i_app_url">URL</label><input type="text" id="i_app_url"/><br/>
-            <label for="i_app_homepage">Set As Homepage</label><input type="checkbox" id="i_app_homepage"/><br/>
             <button onclick="SubmitNewApp();">Register App</button>
         </div>
     </div>
