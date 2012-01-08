@@ -31,17 +31,18 @@ public class ChannelNotifier implements JobNotifier {
         try {
             new Thread(new Async(job));
         } catch (Exception e) {
-            log.warning("error sending update for job [" + job.getJobUri() + "]:" + e.getMessage());
+            log.warning("error sending update for job [" + job.getJobId() + "]:" + e.getMessage());
         }
     }
 
     private class Async implements Runnable {
-        private final String jobUri;
+        private final String jobId;
         private final String channelUri;
         private final JSONObject event;
 
         private Async(Job job) throws Exception {
-            this.jobUri = job.getJobUri();
+            // TODO : Remove channel URI, use owner
+            this.jobId = job.getJobId();
             this.channelUri = job.getChannelUri();
             this.event = job.getJsonSummary();
         }
@@ -56,7 +57,7 @@ public class ChannelNotifier implements JobNotifier {
 
                 httpClientTemplate.executeMethod(post, new NoOpResponseCallback());
             } catch (Exception e) {
-                log.warning("error sending update for job [" + jobUri + "]:" + e.getMessage());
+                log.warning("error sending update for job [" + jobId + "]:" + e.getMessage());
             }
         }
     }

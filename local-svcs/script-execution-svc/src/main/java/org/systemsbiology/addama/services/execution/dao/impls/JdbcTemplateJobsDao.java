@@ -31,10 +31,8 @@ public class JdbcTemplateJobsDao implements JobsDao {
      * JobsDao
      */
 
-    public Job retrieve(String jobUri) {
-        log.fine(jobUri);
-
-        Job[] jobs = retrieve("SELECT * FROM JOBS WHERE URI = ?", jobUri);
+    public Job retrieve(String jobId) {
+        Job[] jobs = retrieve("SELECT * FROM JOBS WHERE URI = ?", jobId);
         if (jobs.length > 0) {
             return jobs[0];
         }
@@ -42,8 +40,6 @@ public class JdbcTemplateJobsDao implements JobsDao {
     }
 
     public void create(Job job) {
-        log.fine(job.getJobUri());
-
         String sql = "INSERT INTO JOBS (URI, SCRIPT, USER, JOB_DIR, LABEL, JOB_STATUS, " +
                 "EXEC_DIR, ERROR_MSG, SCRIPT_PATH, SCRIPT_ARGS, CHANNEL_URI, CREATED_AT, MODIFIED_AT)" +
                 " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -51,16 +47,12 @@ public class JdbcTemplateJobsDao implements JobsDao {
     }
 
     public void update(Job job) {
-        log.fine(job.getJobUri());
-
         String sql = "UPDATE JOBS SET JOB_STATUS = ?, ERROR_MSG = ?, MODIFIED_AT = ?, RETURN_CODE = ? WHERE URI = ?;";
         jdbcTemplate.update(sql, new UpdateJobPreparedStatementSetter(job));
     }
 
     public void delete(Job job) {
-        log.fine(job.getJobUri());
-
-        jdbcTemplate.update("DELETE FROM JOBS WHERE URI = ?;", new Object[]{job.getJobUri()});
+        jdbcTemplate.update("DELETE FROM JOBS WHERE URI = ?;", new Object[]{job.getJobId()});
     }
 
     public Job[] retrieveAllForScript(String scriptUri) {
@@ -80,8 +72,6 @@ public class JdbcTemplateJobsDao implements JobsDao {
     }
 
     public void resetJobs(JobStatus current, JobStatus newstatus) {
-        log.fine(current.name() + "->" + newstatus);
-
         String sql = "UPDATE JOBS SET JOB_STATUS = ? WHERE JOB_STATUS = ?;";
         jdbcTemplate.update(sql, new ResetJobPreparedStatementSetter(current, newstatus));
     }

@@ -7,6 +7,6 @@ import org.systemsbiology.addama.services.execution.jobs.JobPackage;
  */
 public class AlreadyScheduledJobException extends Exception {
     public AlreadyScheduledJobException(JobPackage jobPackage) {
-        super("Job has already been scheduled:" + jobPackage.getJobUri());
+        super("Job has already been scheduled:" + jobPackage.getJobId());
     }
 }

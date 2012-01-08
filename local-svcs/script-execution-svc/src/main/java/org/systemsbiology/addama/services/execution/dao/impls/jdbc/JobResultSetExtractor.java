@@ -20,7 +20,7 @@ public class JobResultSetExtractor implements ResultSetExtractor {
 
     public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
         while (rs.next()) {
-            String jobUri = rs.getString("URI");
+            String jobId = rs.getString("URI");
             String scriptUri = rs.getString("SCRIPT");
             String userUri = rs.getString("USER");
             String jobDir = rs.getString("JOB_DIR");
@@ -37,7 +37,7 @@ public class JobResultSetExtractor implements ResultSetExtractor {
             String scriptArgs = rs.getString("SCRIPT_ARGS");
             String channelUri = rs.getString("CHANNEL_URI");
 
-            Job job = new Job(jobUri, scriptUri, userUri, jobDir, scriptPath);
+            Job job = new Job(jobId, scriptUri, userUri, jobDir, scriptPath);
             job.setCreatedAt(createdAt);
             job.setModifiedAt(modifiedAt);
             job.setScriptArgs(scriptArgs);

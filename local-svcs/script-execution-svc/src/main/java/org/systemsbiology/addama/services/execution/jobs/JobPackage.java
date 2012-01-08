@@ -16,24 +16,24 @@ import static org.systemsbiology.addama.services.execution.jobs.JobStatus.*;
 public class JobPackage {
     private static final Logger log = Logger.getLogger(JobPackage.class.getName());
 
-    private final String jobUri;
+    private final String jobId;
     private final JobsDao jobsDao;
     private final ReturnCodes returnCodes;
     private final JobNotifier[] jobNotifiers;
 
     public JobPackage(Job job, JobsDao jobsDao, ReturnCodes returnCodes, JobNotifier... jobNotifiers) {
-        this.jobUri = job.getJobUri();
+        this.jobId = job.getJobId();
         this.jobsDao = jobsDao;
         this.returnCodes = returnCodes;
         this.jobNotifiers = jobNotifiers;
     }
 
-    public String getJobUri() {
-        return jobUri;
+    public String getJobId() {
+        return jobId;
     }
 
     public Job retrieve() {
-        return jobsDao.retrieve(jobUri);
+        return jobsDao.retrieve(jobId);
     }
 
     public void completed(int result) {
@@ -73,7 +73,7 @@ public class JobPackage {
     */
 
     private void persistJob(Job job, JobStatus jobStatus) {
-        log.fine(job.getJobUri() + ":" + jobStatus);
+        log.fine(job.getJobId() + ":" + jobStatus);
 
         job.setJobStatus(jobStatus);
         job.setModifiedAt(new Date());

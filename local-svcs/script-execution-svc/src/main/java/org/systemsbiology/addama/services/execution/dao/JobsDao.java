@@ -27,7 +27,7 @@ import org.systemsbiology.addama.services.execution.jobs.JobStatus;
 public interface JobsDao {
     public void create(Job job);
 
-    public Job retrieve(String jobUri);
+    public Job retrieve(String jobId);
 
     public void update(Job job);
 

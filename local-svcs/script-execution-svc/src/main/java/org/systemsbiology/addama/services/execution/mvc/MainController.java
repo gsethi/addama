@@ -197,11 +197,13 @@ public class MainController implements InitializingBean {
     public ModelAndView tools_jobs(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
         log.info(toolId);
 
+        String scriptUri = substringBeforeLast(getURI(request), "/jobs");
+
         Job[] jobs;
         if (isScriptAdmin(request, toolId)) {
-            jobs = jobsDao.retrieveAllForScript(toolId);
+            jobs = jobsDao.retrieveAllForScript(scriptUri);
         } else {
-            jobs = jobsDao.retrieveAllForScript(toolId, getUserUri(request));
+            jobs = jobsDao.retrieveAllForScript(scriptUri, getUserUri(request));
         }
 
         JSONObject json = new JSONObject();
@@ -279,13 +281,12 @@ public class MainController implements InitializingBean {
     public void job_output_query(HttpServletRequest request, HttpServletResponse response,
                                  @PathVariable("toolId") String toolId, @PathVariable("jobId") String jobId) throws Exception {
         log.info(toolId + ":" + jobId);
-
         Job job = jobsDao.retrieve(jobId);
         if (job == null) throw new ResourceNotFoundException(jobId);
 
         File outputDir = new File(job.getOutputDirectoryPath());
         if (!outputDir.exists()) {
-            throw new ResourceNotFoundException(job.getJobUri() + "/outputs");
+            throw new ResourceNotFoundException(getURI(request));
         }
 
         String filepath = substringBetween(request.getRequestURI(), "/outputs", "/query");
@@ -326,7 +327,8 @@ public class MainController implements InitializingBean {
         String jobId = randomUUID().toString();
         String workDir = workDirsByToolId.get(toolId) + "/jobs/" + jobId;
 
-        Job job = new Job(jobId, toolId, getUserUri(request), workDir, scriptPath);
+        String scriptUri = substringBeforeLast(getURI(request), "/jobs");
+        Job job = new Job(jobId, scriptUri, getUserUri(request), workDir, scriptPath);
         job.setExecutionDirectoryFromConfiguration(jobExecutionDirectoryByUri.get(toolId));
 
         // WARNING:  This logic may need to obtain inputstream from request... DO NOT call request.getParameter before this logic, or it will not work!
@@ -363,7 +365,8 @@ public class MainController implements InitializingBean {
                     // stops running job
                     processRegistry.end(pkg);
 
-                    Job freshCopy = jobsDao.retrieve(job.getJobUri());
+                    Job freshCopy = jobsDao.retrieve(jobId);
+                    if (freshCopy == null) throw new ResourceNotFoundException(jobId);
                     return new ModelAndView(new JsonView()).addObject("json", freshCopy.getJsonDetail());
             }
 
@@ -416,7 +419,7 @@ public class MainController implements InitializingBean {
             }
             String label = job.getLabel();
             if (isEmpty(label)) {
-                label = chomp(substringAfterLast(job.getJobUri(), "/"), "/");
+                label = jobId;
             }
             zip(response, label + ".zip", inputStreamsByName);
             return new ModelAndView(new OkResponseView());
@@ -432,7 +435,7 @@ public class MainController implements InitializingBean {
                 if (outputFile.exists()) {
                     String path = job.getLabel();
                     if (isEmpty(path)) {
-                        path = chomp(substringAfterLast(job.getJobUri(), "/"), "/");
+                        path = jobId;
                     }
                     inputStreamsByName.put(path + "/outputs/" + filepath, new FileInputStream(outputFile));
                 }
@@ -463,18 +466,18 @@ public class MainController implements InitializingBean {
         }
 
         for (Job job : jobs) {
-            log.info(job.getJobUri());
-            String scriptUri = job.getScriptUri();
+            log.info(job.getJobId());
+            String toolId = substringAfterLast(chomp(job.getScriptUri(), "/"), "tools/");
 
-            ReturnCodes returnCodes = returnCodesByToolId.get(scriptUri);
-            EmailBean emailBean = emailBeansByToolId.get(scriptUri);
+            ReturnCodes returnCodes = returnCodesByToolId.get(toolId);
+            EmailBean emailBean = emailBeansByToolId.get(toolId);
 
             mkdirs(new File(job.getExecutionDirectory()), new File(job.getOutputDirectoryPath()));
 
             JobPackage pkg = new JobPackage(job, jobsDao, returnCodes, channelNotifier, new EmailNotifier(emailBean));
             pkg.changeStatus(scheduled);
 
-            jobQueuesByToolId.get(scriptUri).add(pkg);
+            jobQueuesByToolId.get(toolId).add(pkg);
         }
     }
 

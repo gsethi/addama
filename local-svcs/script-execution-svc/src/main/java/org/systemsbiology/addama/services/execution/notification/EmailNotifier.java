@@ -51,7 +51,7 @@ public class EmailNotifier implements JobNotifier {
             }
 
             if (isEmpty(job.getEmail())) {
-                log.warning("no email address for job: " + job.getJobUri());
+                log.warning("no email address for job: " + job.getJobId());
                 return;
             }
 

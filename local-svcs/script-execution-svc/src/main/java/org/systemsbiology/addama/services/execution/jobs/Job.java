@@ -37,7 +37,7 @@ import static org.systemsbiology.addama.services.execution.jobs.JobStatus.pendin
 public class Job {
     private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
-    private final String jobUri;
+    private final String jobId;
     private final String userUri;
     private final String scriptUri;
     private final String jobDirectory;
@@ -57,8 +57,8 @@ public class Job {
      * Constructor
      */
 
-    public Job(String jobUri, String scriptUri, String userUri, String jobDirectory, String scriptPath) {
-        this.jobUri = jobUri;
+    public Job(String jobId, String scriptUri, String userUri, String jobDirectory, String scriptPath) {
+        this.jobId = jobId;
         this.scriptUri = scriptUri;
         this.userUri = userUri;
         this.jobDirectory = jobDirectory;
@@ -71,8 +71,8 @@ public class Job {
      * Required
      */
 
-    public String getJobUri() {
-        return jobUri;
+    public String getJobId() {
+        return jobId;
     }
 
     public String getScriptUri() {
@@ -210,9 +210,10 @@ public class Job {
         List<File> outputs = new ArrayList<File>();
         scanOutputs(outputs, new File(getOutputDirectoryPath()));
 
+        String uri = chomp(scriptUri, "/") + "/jobs/" + jobId;
         for (File output : outputs) {
             JSONObject outputJson = new JSONObject();
-            String fileUri = jobUri + substringAfterLast(output.getPath(), jobDirectory);
+            String fileUri = uri + "/" + substringAfterLast(output.getPath(), jobDirectory);
             outputJson.put("uri", replace(fileUri, "outputs/", "outputs/_afdl/"));
             outputJson.put("query", fileUri + "/query");
             outputJson.put("name", output.getName());
@@ -228,9 +229,10 @@ public class Job {
         List<File> outputs = new ArrayList<File>();
         scanOutputs(outputs, new File(getOutputDirectoryPath()));
 
+        String uri = chomp(scriptUri, "/") + "/jobs/" + jobId;
         for (File output : outputs) {
             JSONObject outputJson = new JSONObject();
-            String fileUri = jobUri + substringAfterLast(output.getPath(), jobDirectory);
+            String fileUri = uri + "/" + substringAfterLast(output.getPath(), jobDirectory);
             outputJson.put("uri", replace(fileUri, "outputs/", "outputs/_afdl/"));
             outputJson.put("query", fileUri + "/query");
             outputJson.put("name", output.getName());
@@ -241,10 +243,11 @@ public class Job {
     }
 
     public JSONObject getJsonSummary() throws JSONException {
+        String uri = chomp(scriptUri, "/") + "/jobs/" + jobId;
         JSONObject json = new JSONObject();
-        json.put("uri", jobUri);
+        json.put("uri", uri);
         json.put("label", label);
-        json.put("log", jobUri + "/log");
+        json.put("log", uri + "/log");
         json.put("script", scriptUri);
         json.put("status", jobStatus);
         json.put("owner", userUri);
@@ -264,7 +267,7 @@ public class Job {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("\n");
-        builder.append("\t").append("   job=").append(this.jobUri).append("\n");
+        builder.append("\t").append("   job=").append(this.jobId).append("\n");
         builder.append("\t").append("script=").append(this.scriptUri).append("\n");
         builder.append("\t").append("  user=").append(this.userUri).append("\n");
         builder.append("\t").append("jobdir=").append(this.jobDirectory).append("\n");

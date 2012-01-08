@@ -19,7 +19,6 @@
 
 package org.systemsbiology.addama.services.execution.dao.impls;
 
-import org.apache.commons.lang.StringUtils;
 import org.systemsbiology.addama.services.execution.dao.JobsDao;
 import org.systemsbiology.addama.services.execution.jobs.Job;
 import org.systemsbiology.addama.services.execution.jobs.JobStatus;
@@ -34,29 +33,29 @@ import static org.systemsbiology.addama.services.execution.jobs.JobStatus.pendin
  * @author hrovira
  */
 public class InMemoryJobsDao implements JobsDao {
-    private static final HashMap<String, Job> jobsByUri = new HashMap<String, Job>();
+    private static final HashMap<String, Job> jobsById = new HashMap<String, Job>();
 
-    public Job retrieve(String jobUri) {
-        return jobsByUri.get(jobUri);
+    public Job retrieve(String jobId) {
+        return jobsById.get(jobId);
     }
 
     public void create(Job job) {
-        jobsByUri.put(job.getJobUri(), job);
+        jobsById.put(job.getJobId(), job);
     }
 
     public void update(Job job) {
-        if (!jobsByUri.containsKey(job.getJobUri())) {
+        if (!jobsById.containsKey(job.getJobId())) {
             create(job);
         }
     }
 
     public void delete(Job job) {
-        jobsByUri.remove(job.getJobUri());
+        jobsById.remove(job.getJobId());
     }
 
     public Job[] retrieveAllForScript(String scriptUri) {
         ArrayList<Job> matching = new ArrayList<Job>();
-        for (Job job : jobsByUri.values()) {
+        for (Job job : jobsById.values()) {
             if (equalsIgnoreCase(job.getScriptUri(), scriptUri)) {
                 matching.add(job);
             }
@@ -78,7 +77,7 @@ public class InMemoryJobsDao implements JobsDao {
 
     public Job[] retrieveAllForUser(String userUri) {
         ArrayList<Job> matching = new ArrayList<Job>();
-        for (Job job : jobsByUri.values()) {
+        for (Job job : jobsById.values()) {
             if (equalsIgnoreCase(job.getUserUri(), userUri)) {
                 matching.add(job);
             }
@@ -89,7 +88,7 @@ public class InMemoryJobsDao implements JobsDao {
 
     public Job[] retrievePendingJobs() {
         ArrayList<Job> matching = new ArrayList<Job>();
-        for (Job job : jobsByUri.values()) {
+        for (Job job : jobsById.values()) {
             if (pending.equals(job.getJobStatus())) {
                 matching.add(job);
             }
@@ -99,7 +98,7 @@ public class InMemoryJobsDao implements JobsDao {
     }
 
     public void resetJobs(JobStatus current, JobStatus newstatus) {
-        for (Job job : jobsByUri.values()) {
+        for (Job job : jobsById.values()) {
             if (current.equals(job.getJobStatus())) {
                 job.setJobStatus(newstatus);
             }

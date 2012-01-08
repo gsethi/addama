@@ -73,12 +73,12 @@ public class IOJob {
             throws ResourceNotFoundException, IOException {
         File outputDir = new File(job.getOutputDirectoryPath());
         if (!outputDir.exists()) {
-            throw new ResourceNotFoundException(job.getJobUri() + "/outputs");
+            throw new ResourceNotFoundException(job.getJobId() + "/outputs" + filepath);
         }
 
         File outputFile = new File(job.getOutputDirectoryPath(), filepath);
         if (!outputFile.exists()) {
-            throw new ResourceNotFoundException(job.getJobUri() + "/outputs/_afdl/" + filepath);
+            throw new ResourceNotFoundException(job.getJobId() + "/outputs/_afdl/" + filepath);
         }
 
         response.setContentType(servletContext.getMimeType(outputFile.getName()));

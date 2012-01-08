@@ -22,6 +22,6 @@ public class UpdateJobPreparedStatementSetter implements PreparedStatementSetter
         ps.setString(2, job.getErrorMessage());
         ps.setTimestamp(3, new Timestamp(job.getModifiedAt().getTime()));
         ps.setInt(4, job.getReturnCode());
-        ps.setString(5, job.getJobUri());
+        ps.setString(5, job.getJobId());
     }
 }

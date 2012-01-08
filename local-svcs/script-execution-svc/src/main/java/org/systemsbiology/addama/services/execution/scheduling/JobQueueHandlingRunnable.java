@@ -43,7 +43,7 @@ public class JobQueueHandlingRunnable implements Runnable {
 
                     JobStatus currentStatus = job.getJobStatus();
                     if (currentStatus.equals(stopping)) {
-                        throw new InterruptedException("stopping: " + jobPackage.getJobUri());
+                        throw new InterruptedException("status set to stopping");
                     }
 
                     if (!currentStatus.equals(scheduled)) {
@@ -89,7 +89,7 @@ public class JobQueueHandlingRunnable implements Runnable {
         log.info(job.toString());
 
         if (isEmpty(job.getScriptPath())) {
-            throw new Exception("unable to run job without script path:" + job.getJobUri());
+            throw new Exception("unable to run job without script path:" + job.getJobId());
         }
 
         return getRuntime().exec(getScriptExecution(job), environmentVariables, new File(job.getExecutionDirectory()));
