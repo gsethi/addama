@@ -6,7 +6,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
@@ -50,6 +49,7 @@ import java.util.logging.Logger;
 import static java.util.UUID.randomUUID;
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
 import static org.apache.commons.lang.StringUtils.*;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 import static org.systemsbiology.addama.services.execution.jobs.JobStatus.*;
@@ -147,7 +147,7 @@ public class MainController implements InitializingBean {
     /*
      * GET Controllers
      */
-    @RequestMapping(value = "/**/myjobs", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/myjobs", method = GET)
     public ModelAndView jobs_for_user(HttpServletRequest request) throws Exception {
         log.info(request.getRequestURI());
 
@@ -161,7 +161,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/tools", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools", method = GET)
     public ModelAndView tools(HttpServletRequest request) throws Exception {
         String uri = getURI(request);
         log.info(uri);
@@ -174,7 +174,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}", method = GET)
     public ModelAndView tools_by_id(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
         log.info(toolId);
 
@@ -182,7 +182,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonView()).addObject("json", getToolJson(toolId, uri));
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/ui", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/ui", method = GET)
     public void tool_ui(HttpServletResponse response, @PathVariable("toolId") String toolId) throws Exception {
         log.info(toolId);
 
@@ -193,7 +193,7 @@ public class MainController implements InitializingBean {
         clientRedirect(response, viewersByToolId.get(toolId));
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs", method = GET)
     public ModelAndView tools_jobs(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
         log.info(toolId);
 
@@ -212,7 +212,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}", method = GET)
     public ModelAndView jobs_by_id(@PathVariable("toolId") String toolId, @PathVariable("jobId") String jobId) throws Exception {
         log.info(toolId + ":" + jobId);
 
@@ -221,7 +221,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonView()).addObject("json", job.getJsonDetail());
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/log", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/log", method = GET)
     public void job_log(HttpServletResponse response, @PathVariable("toolId") String toolId,
                         @PathVariable("jobId") String jobId) throws Exception {
         log.info(toolId + ":" + jobId);
@@ -245,7 +245,7 @@ public class MainController implements InitializingBean {
         response.getWriter().write(contents);
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs", method = GET)
     public ModelAndView job_outputs(@PathVariable("toolId") String toolId, @PathVariable("jobId") String jobId) throws Exception {
         log.info(toolId + ":" + jobId);
 
@@ -255,7 +255,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonItemsView()).addObject("json", job.getJsonOutputs());
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs/**", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs/**", method = GET)
     public ModelAndView job_output_by_path(HttpServletRequest request, HttpServletResponse response,
                                            @PathVariable("toolId") String toolId, @PathVariable("jobId") String jobId) throws Exception {
         log.info(toolId + ":" + jobId);
@@ -275,7 +275,7 @@ public class MainController implements InitializingBean {
         return new ModelAndView(new JsonItemsView()).addObject("json", job.getJsonDetail());
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs/**/query", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs/**/query", method = GET)
     public void job_output_query(HttpServletRequest request, HttpServletResponse response,
                                  @PathVariable("toolId") String toolId, @PathVariable("jobId") String jobId) throws Exception {
         log.info(toolId + ":" + jobId);
@@ -314,7 +314,7 @@ public class MainController implements InitializingBean {
     /*
      * POST Controllers
      */
-    @RequestMapping(value = "/**/tools/{toolId}/jobs", method = RequestMethod.POST)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs", method = POST)
     public ModelAndView job_execute(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
         log.info(toolId);
 
@@ -398,7 +398,7 @@ public class MainController implements InitializingBean {
         throw new ForbiddenAccessException(getUserUri(request));
     }
 
-    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/tools/{toolId}/jobs/{jobId}/outputs", method = POST)
     public ModelAndView job_output_zip(HttpServletResponse response, @PathVariable("toolId") String toolId,
                                        @PathVariable("jobId") String jobId,
                                        @RequestParam(value = "name", required = false) String name,
