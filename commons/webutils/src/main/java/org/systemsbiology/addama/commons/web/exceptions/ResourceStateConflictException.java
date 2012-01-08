@@ -22,4 +22,7 @@ package org.systemsbiology.addama.commons.web.exceptions;
  * @author hrovira
  */
 public class ResourceStateConflictException extends Exception {
+    public ResourceStateConflictException(String message) {
+        super(message);
+    }
 }

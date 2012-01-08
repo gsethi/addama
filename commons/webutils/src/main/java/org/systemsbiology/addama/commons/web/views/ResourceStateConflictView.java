@@ -18,17 +18,28 @@
 */
 package org.systemsbiology.addama.commons.web.views;
 
+import org.springframework.web.servlet.View;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
+import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+
 /**
  * @author hrovira
  */
-public class ResourceStateConflictView extends JsonView {
+public class ResourceStateConflictView implements View {
+
+    public String getContentType() {
+        return null;
+    }
 
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setStatus(HttpServletResponse.SC_CONFLICT);
-        super.render(map, request, response);
+        Exception ex = (Exception) map.get("ex");
+        response.setStatus(SC_CONFLICT);
+        if (ex != null) {
+            response.getWriter().write(ex.getMessage());
+        }
     }
 }
