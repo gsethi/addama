@@ -222,6 +222,24 @@ public class Job {
         return json;
     }
 
+    public JSONObject getJsonOutputs() throws JSONException {
+        JSONObject json = new JSONObject();
+
+        List<File> outputs = new ArrayList<File>();
+        scanOutputs(outputs, new File(getOutputDirectoryPath()));
+
+        for (File output : outputs) {
+            JSONObject outputJson = new JSONObject();
+            String fileUri = jobUri + substringAfterLast(output.getPath(), jobDirectory);
+            outputJson.put("uri", replace(fileUri, "outputs/", "outputs/_afdl/"));
+            outputJson.put("query", fileUri + "/query");
+            outputJson.put("name", output.getName());
+            json.append("items", outputJson);
+        }
+
+        return json;
+    }
+
     public JSONObject getJsonSummary() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("uri", jobUri);

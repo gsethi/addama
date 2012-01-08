@@ -7,43 +7,12 @@
         <property name="alwaysUseFullPath" value="true"/>
         <property name="urlMap">
             <map>
-                <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
-                <entry key="/addama/jobs">
-                    <bean class="org.systemsbiology.addama.services.execution.mvc.UserJobsController"
-                          autowire="byType"/>
-                </entry>
-                <entry key="/**/zip">
-                    <bean class="org.systemsbiology.addama.services.execution.mvc.OutputsZipController"
-                          autowire="byType"/>
-                </entry>
-                <entry key="/**/jobs" value-ref="jobsController"/>
-                <entry key="/**/jobs/*" value-ref="jobsController"/>
-                <entry key="/**/jobs/*/stop" value-ref="jobsController"/>
-                <entry key="/**/jobs/*/delete" value-ref="jobsController"/>
-                <entry key="/**/jobs/*/log" value-ref="logsController"/>
-                <entry key="/**/jobs/*/outputs/**/query" value-ref="outputsQueryController"/>
-                <entry key="/**/jobs/*/outputs/**" value-ref="outputsController"/>
-                <entry key="/**/ui">
-                    <bean class="org.systemsbiology.addama.services.execution.mvc.ViewerController" autowire="byType"/>
-                </entry>
                 <entry key="/**">
-                    <bean class="org.systemsbiology.addama.services.execution.mvc.RootController" autowire="byType"/>
+                    <bean class="org.systemsbiology.addama.services.execution.mvc.MainController" autowire="byType"/>
                 </entry>
             </map>
         </property>
     </bean>
-
-    <bean id="jobsController" class="org.systemsbiology.addama.services.execution.mvc.JobsController"
-          autowire="byType"/>
-
-    <bean id="logsController" class="org.systemsbiology.addama.services.execution.mvc.LogsController"
-          autowire="byType"/>
-
-    <bean id="outputsController" class="org.systemsbiology.addama.services.execution.mvc.OutputsController"
-          autowire="byType"/>
-
-    <bean id="outputsQueryController" class="org.systemsbiology.addama.services.execution.mvc.OutputsQueryController"
-          autowire="byType"/>
 
 </beans>
 

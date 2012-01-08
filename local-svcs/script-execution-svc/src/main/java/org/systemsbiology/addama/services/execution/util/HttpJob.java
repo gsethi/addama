@@ -19,8 +19,6 @@
 package org.systemsbiology.addama.services.execution.util;
 
 import org.json.JSONException;
-import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.services.execution.dao.JobsDao;
 import org.systemsbiology.addama.services.execution.jobs.Job;
 
 import javax.servlet.http.Cookie;
@@ -28,27 +26,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
-import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
  * @author hrovira
  */
 public class HttpJob {
     private static final Logger log = Logger.getLogger(HttpJob.class.getName());
-
-    public static String getUserEmail(HttpServletRequest request) {
-        String userUri = getUserUri(request);
-        if (isEmpty(userUri)) {
-            return null;
-        }
-        return substringAfterLast(userUri, "/addama/users/");
-    }
 
     public static File[] getOutputFiles(Job job) throws JSONException {
         List<File> outputs = new ArrayList<File>();
@@ -85,28 +73,6 @@ public class HttpJob {
         return null;
     }
 
-    public static Job getJob(JobsDao jobsDao, HttpServletRequest request, String suffix) throws ResourceNotFoundException {
-        String jobUri = getURI(request);
-        if (!isEmpty(suffix)) {
-            jobUri = substringBeforeLast(jobUri, suffix);
-        }
-        log.fine(jobUri);
-        Job job = jobsDao.retrieve(jobUri);
-        if (job == null) {
-            throw new ResourceNotFoundException(jobUri);
-        }
-        return job;
-    }
-
-    public static Job getJobByUri(JobsDao jobsDao, HttpServletRequest request, String requestedUri, String suffix) {
-        String jobUri = substringAfter(requestedUri, request.getContextPath());
-        if (!isEmpty(suffix)) {
-            jobUri = substringBetween(requestedUri, request.getContextPath(), suffix);
-        }
-        log.fine(jobUri);
-        return jobsDao.retrieve(jobUri);
-    }
-
     public static String getChannelUri(HttpServletRequest request) {
         String channelUri = getStringParameter(request, "x-addama-preferred-channel", null);
         if (!isEmpty(channelUri)) {
@@ -125,18 +91,6 @@ public class HttpJob {
         return equalsIgnoreCase(job.getUserUri(), userUri);
     }
 
-    public static boolean isScriptAdmin(HttpServletRequest request, String scriptUri, Map<String, String> scriptAdminsByUri) {
-        String userUri = getUserUri(request);
-        if (scriptAdminsByUri.containsKey(scriptUri)) {
-            String scriptAdmin = scriptAdminsByUri.get(scriptUri);
-            if (!isEmpty(scriptAdmin)) {
-                String user = substringAfter(userUri, "/addama/users/");
-                return equalsIgnoreCase(scriptAdmin, user);
-            }
-        }
-        return false;
-    }
-
     public static String[] getScriptExecution(Job job) {
         ArrayList<String> exec = new ArrayList<String>();
         String scriptPath = job.getScriptPath();
@@ -148,16 +102,6 @@ public class HttpJob {
         }
         log.fine("args=" + exec);
         return exec.toArray(new String[exec.size()]);
-    }
-
-    public static String getScriptUri(HttpServletRequest request, String suffix) throws ResourceNotFoundException {
-        String scriptUri = getURI(request);
-        if (!isEmpty(suffix)) {
-            scriptUri = substringBeforeLast(scriptUri, suffix);
-        }
-
-        log.fine(scriptUri);
-        return scriptUri;
     }
 
 }
