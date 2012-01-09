@@ -241,7 +241,7 @@ public class Job {
         json.put("uri", uri);
         json.put("label", label);
         json.put("log", uri + "/log");
-        json.put("script", toolUri);
+        json.put("tool", toolUri);
         json.put("status", jobStatus);
         json.put("owner", owner);
         json.put("returnCode", returnCode);
