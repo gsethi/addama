@@ -20,7 +20,7 @@ public class ParseScriptVarsArgumentStrategyTest {
         request.setParameter("arg_2", "value_2");
         request.setParameter("arg_3", "value_3");
 
-        Job j = new Job(null, null, null, null, "/usr/bin/example.sh ${arg_1} ${arg_2} ${arg_3}");
+        Job j = new Job(null, null, null, null, null, "/usr/bin/example.sh ${arg_1} ${arg_2} ${arg_3}");
 
         strategy.handle(j, request);
 
@@ -33,7 +33,7 @@ public class ParseScriptVarsArgumentStrategyTest {
     public void noargs() {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        Job j = new Job(null, null, null, null, "/usr/bin/example.sh ${arg_1} ${arg_2} ${arg_3}");
+        Job j = new Job(null, null, null, null, null, "/usr/bin/example.sh ${arg_1} ${arg_2} ${arg_3}");
 
         strategy.handle(j, request);
 

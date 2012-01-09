@@ -50,7 +50,7 @@ public class EmailNotifier implements JobNotifier {
                 return;
             }
 
-            if (isEmpty(job.getEmail())) {
+            if (isEmpty(job.getOwner())) {
                 log.warning("no email address for job: " + job.getJobId());
                 return;
             }
@@ -60,14 +60,14 @@ public class EmailNotifier implements JobNotifier {
                 MimeMessage message = sender.createMimeMessage();
 
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
-                helper.setTo(job.getEmail());
+                helper.setTo(job.getOwner());
                 helper.setSubject(createSubject(job));
                 helper.setText(this.emailBean.getMessage());
                 helper.setFrom(this.emailBean.getFrom());
                 attachLogs(job, helper);
                 sender.send(message);
 
-                log.fine("sent email to " + job.getEmail());
+                log.fine("sent email to " + job.getOwner());
             }
         }
         catch (Exception ex) {

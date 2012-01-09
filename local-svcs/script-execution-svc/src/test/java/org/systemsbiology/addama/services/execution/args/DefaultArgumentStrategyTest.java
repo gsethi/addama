@@ -19,7 +19,7 @@ public class DefaultArgumentStrategyTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setParameter("test", "blah");
 
-        Job j = new Job(null, null, null, null, null);
+        Job j = new Job(null, null, null, null, null, null);
 
         strategy.handle(j, request);
 
@@ -31,7 +31,7 @@ public class DefaultArgumentStrategyTest {
     public void noargs() {
         MockHttpServletRequest request = new MockHttpServletRequest();
 
-        Job j = new Job(null, null, null, null, null);
+        Job j = new Job(null, null, null, null, null, null);
 
         strategy.handle(j, request);
 

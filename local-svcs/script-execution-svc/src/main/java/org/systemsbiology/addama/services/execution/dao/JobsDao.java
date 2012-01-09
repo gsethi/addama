@@ -33,11 +33,11 @@ public interface JobsDao {
 
     public void delete(Job job);
 
-    public Job[] retrieveAllForScript(String scriptUri);
+    public Job[] retrieveAllForTool(String toolId);
 
-    public Job[] retrieveAllForScript(String scriptUri, String userUri);
+    public Job[] retrieveAllForTool(String toolId, String owner);
 
-    public Job[] retrieveAllForUser(String userUri);
+    public Job[] retrieveAllForUser(String user);
 
     public Job[] retrievePendingJobs();
 

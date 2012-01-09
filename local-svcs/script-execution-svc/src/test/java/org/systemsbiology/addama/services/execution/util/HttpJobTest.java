@@ -20,7 +20,7 @@ public class HttpJobTest {
 
     @Test
     public void getScriptExecution_normal() {
-        Job job = new Job(null, null, null, null, SCRIPT);
+        Job job = new Job(null, null, null, null, null, SCRIPT);
         job.setScriptArgs(ARGS);
 
         String[] args = getScriptExecution(job);
@@ -30,7 +30,7 @@ public class HttpJobTest {
 
     @Test
     public void getScriptExecution_normal_withexec() {
-        Job job = new Job(null, null, null, null, EXEC + " " + SCRIPT);
+        Job job = new Job(null, null, null, null, null, EXEC + " " + SCRIPT);
         job.setScriptArgs(ARGS);
 
         String[] args = getScriptExecution(job);
@@ -40,7 +40,7 @@ public class HttpJobTest {
 
     @Test
     public void getScriptExecution_normal_noargs() {
-        Job job = new Job(null, null, null, null, SCRIPT);
+        Job job = new Job(null, null, null, null, null, SCRIPT);
 
         String[] args = getScriptExecution(job);
 
@@ -49,7 +49,7 @@ public class HttpJobTest {
 
     @Test
     public void getScriptExecution_normal_withexec_noargs() {
-        Job job = new Job(null, null, null, null, EXEC + " " + SCRIPT);
+        Job job = new Job(null, null, null, null, null, EXEC + " " + SCRIPT);
 
         String[] args = getScriptExecution(job);
 
@@ -58,7 +58,7 @@ public class HttpJobTest {
 
     @Test
     public void getScriptExecution_noscript() {
-        Job job = new Job(null, null, null, null, null);
+        Job job = new Job(null, null, null, null, null, null);
 
         String[] args = getScriptExecution(job);
 
@@ -67,10 +67,8 @@ public class HttpJobTest {
 
     @Test
     public void cookie_valid() {
-        Cookie cookie = new Cookie("x-addama-registry-user", "test1");
-
         MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setCookies(new Cookie[]{cookie});
+        request.setCookies(new Cookie("x-addama-registry-user", "test1"));
 
         String userUri = getUserUri(request);
         assertNotNull(userUri);

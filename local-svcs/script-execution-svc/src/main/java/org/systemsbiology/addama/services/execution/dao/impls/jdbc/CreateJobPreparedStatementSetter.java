@@ -20,8 +20,9 @@ public class CreateJobPreparedStatementSetter implements PreparedStatementSetter
     public void setValues(PreparedStatement ps) throws SQLException {
         int position = 0;
         ps.setString(++position, job.getJobId());
-        ps.setString(++position, job.getScriptUri());
-        ps.setString(++position, job.getUserUri());
+        ps.setString(++position, job.getToolId());
+        ps.setString(++position, job.getToolUri());
+        ps.setString(++position, job.getOwner());
         ps.setString(++position, job.getJobDirectory());
         ps.setString(++position, job.getLabel());
         ps.setString(++position, job.getJobStatus().name());
@@ -29,8 +30,6 @@ public class CreateJobPreparedStatementSetter implements PreparedStatementSetter
         ps.setString(++position, job.getErrorMessage());
         ps.setString(++position, job.getScriptPath());
         ps.setString(++position, job.getScriptArgs());
-        ps.setString(++position, job.getChannelUri());
-
         ps.setTimestamp(++position, new Timestamp(job.getCreatedAt().getTime()));
         ps.setTimestamp(++position, new Timestamp(job.getModifiedAt().getTime()));
     }

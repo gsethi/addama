@@ -38,8 +38,9 @@ public class Job {
     private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
     private final String jobId;
-    private final String userUri;
-    private final String scriptUri;
+    private final String toolId;
+    private final String toolUri;
+    private final String owner;
     private final String jobDirectory;
     private String scriptPath;
 
@@ -51,16 +52,16 @@ public class Job {
     private Date createdAt;
     private Date modifiedAt;
     private String scriptArgs;
-    private String channelUri;
 
     /*
      * Constructor
      */
 
-    public Job(String jobId, String scriptUri, String userUri, String jobDirectory, String scriptPath) {
+    public Job(String jobId, String toolId, String toolUri, String owner, String jobDirectory, String scriptPath) {
         this.jobId = jobId;
-        this.scriptUri = scriptUri;
-        this.userUri = userUri;
+        this.toolId = toolId;
+        this.toolUri = toolUri;
+        this.owner = owner;
         this.jobDirectory = jobDirectory;
         this.createdAt = new Date();
         this.modifiedAt = new Date();
@@ -75,12 +76,16 @@ public class Job {
         return jobId;
     }
 
-    public String getScriptUri() {
-        return scriptUri;
+    public String getToolId() {
+        return toolId;
     }
 
-    public String getUserUri() {
-        return userUri;
+    public String getToolUri() {
+        return toolUri;
+    }
+
+    public String getOwner() {
+        return owner;
     }
 
     public String getJobDirectory() {
@@ -147,14 +152,6 @@ public class Job {
         this.scriptArgs = scriptArgs;
     }
 
-    public String getChannelUri() {
-        return channelUri;
-    }
-
-    public void setChannelUri(String channelUri) {
-        this.channelUri = channelUri;
-    }
-
     /*
     * Dates
     */
@@ -199,10 +196,6 @@ public class Job {
     * Public Methods
     */
 
-    public String getEmail() {
-        return substringAfterLast(userUri, "/addama/users/");
-    }
-
     public JSONObject getJsonDetail() throws JSONException {
         JSONObject json = getJsonSummary();
         json.put("inputs", scriptArgs);
@@ -210,7 +203,7 @@ public class Job {
         List<File> outputs = new ArrayList<File>();
         scanOutputs(outputs, new File(getOutputDirectoryPath()));
 
-        String uri = chomp(scriptUri, "/") + "/jobs/" + jobId;
+        String uri = chomp(toolUri, "/") + "/jobs/" + jobId;
         for (File output : outputs) {
             JSONObject outputJson = new JSONObject();
             String fileUri = uri + "/" + substringAfterLast(output.getPath(), jobDirectory);
@@ -229,7 +222,7 @@ public class Job {
         List<File> outputs = new ArrayList<File>();
         scanOutputs(outputs, new File(getOutputDirectoryPath()));
 
-        String uri = chomp(scriptUri, "/") + "/jobs/" + jobId;
+        String uri = chomp(toolUri, "/") + "/jobs/" + jobId;
         for (File output : outputs) {
             JSONObject outputJson = new JSONObject();
             String fileUri = uri + "/" + substringAfterLast(output.getPath(), jobDirectory);
@@ -243,14 +236,14 @@ public class Job {
     }
 
     public JSONObject getJsonSummary() throws JSONException {
-        String uri = chomp(scriptUri, "/") + "/jobs/" + jobId;
+        String uri = chomp(toolUri, "/") + "/jobs/" + jobId;
         JSONObject json = new JSONObject();
         json.put("uri", uri);
         json.put("label", label);
         json.put("log", uri + "/log");
-        json.put("script", scriptUri);
+        json.put("script", toolUri);
         json.put("status", jobStatus);
-        json.put("owner", userUri);
+        json.put("owner", owner);
         json.put("returnCode", returnCode);
         json.put("message", errorMessage);
         json.put("created", getFormattedCreatedAt());
@@ -268,8 +261,8 @@ public class Job {
         StringBuilder builder = new StringBuilder();
         builder.append("\n");
         builder.append("\t").append("   job=").append(this.jobId).append("\n");
-        builder.append("\t").append("script=").append(this.scriptUri).append("\n");
-        builder.append("\t").append("  user=").append(this.userUri).append("\n");
+        builder.append("\t").append("  tool=").append(this.toolId).append("\n");
+        builder.append("\t").append("  user=").append(this.owner).append("\n");
         builder.append("\t").append("jobdir=").append(this.jobDirectory).append("\n");
         builder.append("\t").append("execat=").append(this.executionDirectory).append("\n");
         return builder.toString();

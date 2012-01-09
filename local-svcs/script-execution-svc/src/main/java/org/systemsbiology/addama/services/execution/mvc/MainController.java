@@ -197,13 +197,12 @@ public class MainController implements InitializingBean {
     public ModelAndView tools_jobs(HttpServletRequest request, @PathVariable("toolId") String toolId) throws Exception {
         log.info(toolId);
 
-        String scriptUri = substringBeforeLast(getURI(request), "/jobs");
-
         Job[] jobs;
-        if (isScriptAdmin(request, toolId)) {
-            jobs = jobsDao.retrieveAllForScript(scriptUri);
+        String user = getUser(request);
+        if (isScriptAdmin(user, toolId)) {
+            jobs = jobsDao.retrieveAllForTool(toolId);
         } else {
-            jobs = jobsDao.retrieveAllForScript(scriptUri, getUserUri(request));
+            jobs = jobsDao.retrieveAllForTool(toolId, user);
         }
 
         JSONObject json = new JSONObject();
@@ -304,7 +303,7 @@ public class MainController implements InitializingBean {
 
                 executeDataSourceServletFlow(request, response, dataTableGenerator);
             } catch (Exception e) {
-                log.warning("queryJobOutput(" + request.getRequestURI() + "):" + e);
+                log.warning(e.getMessage());
             } finally {
                 checkStream.close();
                 inputStream.close();
@@ -327,8 +326,8 @@ public class MainController implements InitializingBean {
         String jobId = randomUUID().toString();
         String workDir = workDirsByToolId.get(toolId) + "/jobs/" + jobId;
 
-        String scriptUri = substringBeforeLast(getURI(request), "/jobs");
-        Job job = new Job(jobId, scriptUri, getUserUri(request), workDir, scriptPath);
+        String toolUri = substringBeforeLast(getURI(request), "/jobs");
+        Job job = new Job(jobId, toolId, toolUri, getUser(request), workDir, scriptPath);
         job.setExecutionDirectoryFromConfiguration(jobExecutionDirectoryByUri.get(toolId));
 
         // WARNING:  This logic may need to obtain inputstream from request... DO NOT call request.getParameter before this logic, or it will not work!
@@ -336,7 +335,6 @@ public class MainController implements InitializingBean {
         argumentStrategiesByToolId.get(toolId).handle(job, request);
 
         job.setLabel(request.getParameter("label"));
-        job.setChannelUri(getChannelUri(request));
 
         jobsDao.create(job);
 
@@ -353,7 +351,8 @@ public class MainController implements InitializingBean {
         Job job = jobsDao.retrieve(jobId);
         if (job == null) throw new ResourceNotFoundException(jobId);
 
-        if (isScriptOwner(request, job) || isScriptAdmin(request, toolId)) {
+        String user = getUser(request);
+        if (equalsIgnoreCase(user, job.getOwner()) || isScriptAdmin(user, toolId)) {
             switch (job.getJobStatus()) {
                 case pending:
                 case scheduled:
@@ -384,7 +383,8 @@ public class MainController implements InitializingBean {
         Job job = jobsDao.retrieve(jobId);
         if (job == null) throw new ResourceNotFoundException(jobId);
 
-        if (isScriptOwner(request, job) || isScriptAdmin(request, toolId)) {
+        String user = getUser(request);
+        if (equalsIgnoreCase(user, job.getOwner()) || isScriptAdmin(user, toolId)) {
             switch (job.getJobStatus()) {
                 case completed:
                 case stopped:
@@ -467,7 +467,7 @@ public class MainController implements InitializingBean {
 
         for (Job job : jobs) {
             log.info(job.getJobId());
-            String toolId = substringAfterLast(chomp(job.getScriptUri(), "/"), "tools/");
+            String toolId = job.getToolId();
 
             ReturnCodes returnCodes = returnCodesByToolId.get(toolId);
             EmailBean emailBean = emailBeansByToolId.get(toolId);
@@ -481,13 +481,11 @@ public class MainController implements InitializingBean {
         }
     }
 
-    private boolean isScriptAdmin(HttpServletRequest request, String toolId) {
-        String userUri = getUserUri(request);
+    private boolean isScriptAdmin(String owner, String toolId) {
         if (scriptAdminsByToolId.containsKey(toolId)) {
             String scriptAdmin = scriptAdminsByToolId.get(toolId);
             if (!isEmpty(scriptAdmin)) {
-                String user = substringAfter(userUri, "/addama/users/");
-                return equalsIgnoreCase(scriptAdmin, user);
+                return equalsIgnoreCase(scriptAdmin, owner);
             }
         }
         return false;

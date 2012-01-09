@@ -30,7 +30,6 @@ import java.util.logging.Logger;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 
 /**
  * @author hrovira
@@ -73,22 +72,22 @@ public class HttpJob {
         return null;
     }
 
-    public static String getChannelUri(HttpServletRequest request) {
-        String channelUri = getStringParameter(request, "x-addama-preferred-channel", null);
-        if (!isEmpty(channelUri)) {
-            return channelUri;
-        }
-
-        String userUri = getUserUri(request);
+    public static String getUser(HttpServletRequest request) {
+        String userUri = request.getHeader("x-addama-registry-user");
         if (!isEmpty(userUri)) {
-            return replace(userUri, "/addama/users/", "/addama/channels/");
+            return substringAfterLast(userUri, "/addama/users/");
         }
-        return null;
-    }
 
-    public static boolean isScriptOwner(HttpServletRequest request, Job job) {
-        String userUri = getUserUri(request);
-        return equalsIgnoreCase(job.getUserUri(), userUri);
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (equalsIgnoreCase("x-addama-registry-user", cookie.getName())) {
+                    return substringAfterLast(cookie.getValue(), "/addama/users/");
+                }
+            }
+        }
+
+        return null;
     }
 
     public static String[] getScriptExecution(Job job) {

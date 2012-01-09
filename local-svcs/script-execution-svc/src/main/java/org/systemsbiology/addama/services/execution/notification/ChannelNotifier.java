@@ -23,8 +23,8 @@ public class ChannelNotifier implements JobNotifier {
     }
 
     public void notify(Job job) {
-        if (isEmpty(job.getChannelUri())) {
-            log.warning("no channel configured for publishing");
+        if (isEmpty(job.getOwner())) {
+            log.warning("no owner configured for job: " + job.getJobId());
             return;
         }
 
@@ -37,13 +37,12 @@ public class ChannelNotifier implements JobNotifier {
 
     private class Async implements Runnable {
         private final String jobId;
-        private final String channelUri;
+        private final String owner;
         private final JSONObject event;
 
         private Async(Job job) throws Exception {
-            // TODO : Remove channel URI, use owner
             this.jobId = job.getJobId();
-            this.channelUri = job.getChannelUri();
+            this.owner = job.getOwner();
             this.event = job.getJsonSummary();
         }
 
@@ -52,7 +51,7 @@ public class ChannelNotifier implements JobNotifier {
                 JSONObject json = new JSONObject();
                 json.put("job", event);
 
-                PostMethod post = new PostMethod(channelUri);
+                PostMethod post = new PostMethod("/addama/channels/" + owner);
                 post.addParameter("event", json.toString());
 
                 httpClientTemplate.executeMethod(post, new NoOpResponseCallback());

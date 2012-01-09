@@ -29,7 +29,7 @@ public class FormDataAsFileArgumentStrategyTest {
     public void setup() throws Exception {
         request = new MockHttpServletRequest();
 
-        job = new Job(null, null, null, null, null);
+        job = new Job(null, null, null, null, null, null);
         job.setExecutionDirectory("target/form-data-as-file-argument-strategy-test");
 
         mkdirs(new File(job.getExecutionDirectory()));

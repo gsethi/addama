@@ -53,10 +53,10 @@ public class InMemoryJobsDao implements JobsDao {
         jobsById.remove(job.getJobId());
     }
 
-    public Job[] retrieveAllForScript(String scriptUri) {
+    public Job[] retrieveAllForTool(String toolId) {
         ArrayList<Job> matching = new ArrayList<Job>();
         for (Job job : jobsById.values()) {
-            if (equalsIgnoreCase(job.getScriptUri(), scriptUri)) {
+            if (equalsIgnoreCase(job.getToolId(), toolId)) {
                 matching.add(job);
             }
 
@@ -64,10 +64,10 @@ public class InMemoryJobsDao implements JobsDao {
         return matching.toArray(new Job[matching.size()]);
     }
 
-    public Job[] retrieveAllForScript(String scriptUri, String userUri) {
+    public Job[] retrieveAllForTool(String toolId, String owner) {
         ArrayList<Job> matching = new ArrayList<Job>();
-        for (Job job : retrieveAllForScript(scriptUri)) {
-            if (equalsIgnoreCase(job.getUserUri(), userUri)) {
+        for (Job job : retrieveAllForTool(toolId)) {
+            if (equalsIgnoreCase(job.getOwner(), owner)) {
                 matching.add(job);
             }
 
@@ -75,10 +75,10 @@ public class InMemoryJobsDao implements JobsDao {
         return matching.toArray(new Job[matching.size()]);
     }
 
-    public Job[] retrieveAllForUser(String userUri) {
+    public Job[] retrieveAllForUser(String user) {
         ArrayList<Job> matching = new ArrayList<Job>();
         for (Job job : jobsById.values()) {
-            if (equalsIgnoreCase(job.getUserUri(), userUri)) {
+            if (equalsIgnoreCase(job.getOwner(), user)) {
                 matching.add(job);
             }
 
