@@ -1,4 +1,4 @@
-package org.systemsbiology.addama.fsutils.controllers.repositories;
+package org.systemsbiology.addama.repositories.fs.rest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -9,19 +9,18 @@ import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 /**
  * @author hrovira
  */
-public class AbstractRepositoriesControllerTest {
-    private AbstractRepositoriesController controller;
+public class MainControllerTest {
+    private MainController controller;
 
     @Before
     public void setup() throws Exception {
         MockServletContext msc = new MockServletContext();
-        msc.setContextPath("abstractRepositoriesController");
+        msc.setContextPath("testMainController");
 
         ServiceConfig config = new ServiceConfig();
         config.setServletContext(msc);
 
-        controller = new AbstractRepositoriesController() {
-        };
+        controller = new MainController();
         controller.setServiceConfig(config);
     }
 
