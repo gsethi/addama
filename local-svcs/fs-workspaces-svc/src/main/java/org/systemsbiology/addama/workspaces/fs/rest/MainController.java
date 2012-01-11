@@ -10,7 +10,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException;
@@ -35,6 +34,7 @@ import java.util.logging.Logger;
 import static java.lang.Double.parseDouble;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.apache.commons.lang.StringUtils.*;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
 import static org.systemsbiology.addama.commons.web.views.ResourceFileView.RESOURCE;
 import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.queryResource;
@@ -57,7 +57,7 @@ public class MainController {
     /*
     * Controllers
     */
-    @RequestMapping(value = "/**/workspaces", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces", method = GET)
     public ModelAndView workspaces(HttpServletRequest request) throws Exception {
         String uri = getURI(request);
 
@@ -74,7 +74,7 @@ public class MainController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}", method = GET)
     public ModelAndView workspace(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
 
@@ -87,7 +87,7 @@ public class MainController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = GET)
     public ModelAndView get(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
 
@@ -107,7 +107,7 @@ public class MainController {
         return new ModelAndView(new ResourceFileView()).addObject(RESOURCE, resource);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = RequestMethod.POST)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = POST)
     public ModelAndView post(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringAfterLast(uri, workspaceId);
@@ -141,7 +141,7 @@ public class MainController {
                         filename = substringAfterLast(filename, "\\");
                     }
 
-                    Resource r = getTargetResource(workspaceId, path + "/" + filename);
+                    Resource r = newFileResource(workspaceId, path + "/" + filename);
                     store(r, itemStream.openStream());
 
                     json.append("items", fileAsJson(uri + "/" + filename, r.getFile(), request));
@@ -156,21 +156,25 @@ public class MainController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/delete", method = RequestMethod.POST)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/delete", method = POST)
     public ModelAndView delete_by_post(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringBetween(uri, workspaceId, "/delete");
-        return mavDelete(workspaceId, path);
+        Resource resource = getTargetResource(workspaceId, path);
+        recurseDelete(resource.getFile());
+        return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = DELETE)
     public ModelAndView delete(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringAfterLast(uri, workspaceId);
-        return mavDelete(workspaceId, path);
+        Resource resource = getTargetResource(workspaceId, path);
+        recurseDelete(resource.getFile());
+        return new ModelAndView(new OkResponseView());
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = GET)
     public void zipDir(HttpServletRequest request, HttpServletResponse response,
                        @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
@@ -179,7 +183,7 @@ public class MainController {
         zip(response, resource);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = RequestMethod.POST)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = POST)
     public void zipFiles(HttpServletResponse response, @PathVariable("workspaceId") String workspaceId,
                          @RequestParam("name") String name, @RequestParam("uris") String[] fileUris) throws Exception {
         Map<String, InputStream> inputStreamsByName = new HashMap<String, InputStream>();
@@ -197,7 +201,7 @@ public class MainController {
         zip(response, name + ".zip", inputStreamsByName);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/contents", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/contents", method = GET)
     public void contents(HttpServletRequest request, HttpServletResponse response,
                          @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
@@ -211,7 +215,7 @@ public class MainController {
         pipe(resource.getInputStream(), response.getOutputStream());
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/query", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/query", method = GET)
     public void query_scheme(HttpServletRequest request, HttpServletResponse response,
                              @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
@@ -220,7 +224,7 @@ public class MainController {
         queryResource(request, response, resource);
     }
 
-    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/schema", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/workspaces/{workspaceId}/**/schema", method = GET)
     public ModelAndView schema(HttpServletRequest request,
                                @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
@@ -291,15 +295,35 @@ public class MainController {
         return new FileSystemResource(dir);
     }
 
+    protected Resource newFileResource(String workspaceId, String path)
+            throws ResourceNotFoundException, InvalidSyntaxException, IOException {
+        log.info(workspaceId + ":" + path);
+        if (isEmpty(workspaceId) || !rootPathById.containsKey(workspaceId)) {
+            throw new ResourceNotFoundException(workspaceId);
+        }
+
+        if (isEmpty(path)) {
+            throw new InvalidSyntaxException("path must be specified");
+        }
+
+        if (path.startsWith("/")) {
+            path = substringAfter(path, "/");
+        }
+
+        String basePath = chomp(rootPathById.get(workspaceId), "/");
+        File file = new File(basePath + "/" + path);
+        if (!file.exists()) {
+            if (!file.createNewFile()) {
+                throw new IOException("unable to create file at " + path);
+            }
+        }
+
+        return new FileSystemResource(file);
+    }
+
     /*
     * Private Methods
     */
-
-    private ModelAndView mavDelete(String workspaceId, String path) throws Exception {
-        Resource resource = getTargetResource(workspaceId, path);
-        recurseDelete(resource.getFile());
-        return new ModelAndView(new OkResponseView());
-    }
 
     private void recurseDelete(File... files) {
         for (File sf : files) {
