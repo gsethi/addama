@@ -39,7 +39,7 @@ public class JsonItemsView implements View {
         return "application/json";
     }
 
-    public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void render(Map<String,?> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject json = (JSONObject) map.get("json");
         if (json == null) json = new JSONObject();
 
