@@ -135,6 +135,35 @@ public class MainController {
     }
 
     /*
+     * Protected Methods
+     */
+    protected void assertServesFiles(String repositoryId) throws InvalidSyntaxException {
+        if (!serveFilesById.get(repositoryId)) {
+            throw new InvalidSyntaxException(repositoryId + ": not authorized to serve this file. use local path");
+        }
+    }
+
+    protected Resource getTargetResource(String repositoryId, String path) throws ResourceNotFoundException {
+        if (isEmpty(repositoryId) || !repositoryPathsById.containsKey(repositoryId)) {
+            throw new ResourceNotFoundException(repositoryId);
+        }
+
+        if (path == null) path = "";
+
+        if (path.startsWith("/")) {
+            path = substringAfter(path, "/");
+        }
+
+        String basePath = chomp(repositoryPathsById.get(repositoryId), "/");
+        Resource r = new FileSystemResource(basePath + "/" + path);
+        if (!r.exists()) {
+            log.warning("resource does not exist under [" + basePath + "]");
+            throw new ResourceNotFoundException(path);
+        }
+        return r;
+    }
+
+    /*
      * Private Methods
      */
 
@@ -167,32 +196,6 @@ public class MainController {
             return uri + "/" + f.getName();
         }
         return uri + "/path/" + f.getName();
-    }
-
-    protected void assertServesFiles(String repositoryId) throws InvalidSyntaxException {
-        if (!serveFilesById.get(repositoryId)) {
-            throw new InvalidSyntaxException(repositoryId + ": not authorized to serve this file. use local path");
-        }
-    }
-
-    private Resource getTargetResource(String repositoryId, String path) throws ResourceNotFoundException {
-        if (isEmpty(repositoryId) || !repositoryPathsById.containsKey(repositoryId)) {
-            throw new ResourceNotFoundException(repositoryId);
-        }
-
-        if (path == null) path = "";
-
-        if (path.startsWith("/")) {
-            path = substringAfter(path, "/");
-        }
-
-        String basePath = chomp(repositoryPathsById.get(repositoryId), "/");
-        Resource r = new FileSystemResource(basePath + "/" + path);
-        if (!r.exists()) {
-            log.warning("resource does not exist under [" + basePath + "]");
-            throw new ResourceNotFoundException(path);
-        }
-        return r;
     }
 
 }
