@@ -6,21 +6,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
+import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.junit.Assert.*;
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.pipe;
+import static org.systemsbiology.addama.commons.web.views.JsonItemsFromFilesView.URI;
+import static org.systemsbiology.addama.commons.web.views.ResourceFileView.RESOURCE;
 
 /**
  * @author hrovira
  */
-public class MainControllerTest {
-    private MainController controller;
+public class WorkspaceControllerTest {
+    private WorkspaceController controller;
 
     @Before
     public void setup() throws Exception {
@@ -30,7 +37,7 @@ public class MainControllerTest {
         ServiceConfig config = new ServiceConfig();
         config.setServletContext(msc);
 
-        controller = new MainController();
+        controller = new WorkspaceController();
         controller.setServiceConfig(config);
     }
 
@@ -95,21 +102,62 @@ public class MainControllerTest {
 
     @Test(expected = ResourceNotFoundException.class)
     public void check_dir_notthere() throws Exception {
-        controller.get(new MockHttpServletRequest("get", "/addama/workspaces/repo_1/dir_notthere"), "repo_1");
+        controller.resource(new MockHttpServletRequest("get", "/addama/workspaces/repo_1/dir_notthere"), "repo_1");
     }
 
     @Test
     public void add_dir() throws Exception {
         String newDirUri = "/addama/workspaces/repo_1/dir_one";
 
-        controller.post(new MockHttpServletRequest("post", newDirUri), "repo_1");
+        controller.update(new MockHttpServletRequest("post", newDirUri), "repo_1");
 
-        ModelAndView mav = controller.get(new MockHttpServletRequest("get", newDirUri), "repo_1");
+        ModelAndView mav = controller.resource(new MockHttpServletRequest("get", newDirUri), "repo_1");
+        assertNotNull(mav);
+        String uri = (String) mav.getModel().get(URI);
+        assertNotNull(uri);
+        assertEquals(newDirUri, uri);
+    }
+
+    @Test
+    public void add_file() throws Exception {
+        String newDirUri = "/addama/workspaces/repo_1/dir_one";
+        String newFileName = "file_one.txt";
+        String someContent = "some content";
+
+        MockHttpServletRequest request = new MockHttpServletRequest("post", newDirUri);
+        addMultipartContent(request, new MockMultipartFile(newFileName, someContent.getBytes()));
+        assertTrue(isMultipartContent(request));
+
+        ModelAndView mav = controller.update(request, "repo_1");
+
         assertNotNull(mav);
         JSONObject json = (JSONObject) mav.getModel().get("json");
         assertNotNull(json);
-        assertNotNull(json.getString("uri"));
-        assertEquals(newDirUri, json.getString("uri"));
+
+        String uri = json.getString("uri");
+        assertNotNull(uri);
+        assertEquals(newDirUri, uri);
+
+        JSONArray items = json.getJSONArray("items");
+        assertNotNull(items);
+        assertEquals(1, items.length());
+
+        JSONObject item = items.getJSONObject(0);
+        assertNotNull(item);
+        assertNotNull(item.getString("name"));
+        assertEquals(newFileName, item.getString("name"));
+
+        ModelAndView getmav = controller.resource(new MockHttpServletRequest("get", newDirUri + "/" + newFileName), "repo_1");
+        assertNotNull(getmav);
+        Resource resource = (Resource) getmav.getModel().get(RESOURCE);
+        assertNotNull(resource);
+
+        InputStream is = resource.getInputStream();
+        assertNotNull(is);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        pipe(is, baos);
+        assertEquals(someContent, new String(baos.toByteArray()));
     }
 
     /*
@@ -121,6 +169,33 @@ public class MainControllerTest {
         assertNotNull(someFile.getFile());
         assertEquals(expectedFilename, someFile.getFilename());
         assertTrue(someFile.getFile().exists());
+    }
+
+    private void addMultipartContent(MockHttpServletRequest request, MockMultipartFile... multipartFiles) throws IOException {
+        final String boundary = "simple boundary";
+
+        StringBuilder builder = new StringBuilder(128);
+        for (MockMultipartFile multipartFile : multipartFiles) {
+            builder.append("\r\n");
+            builder.append("--");
+            builder.append(boundary);
+            builder.append("\r\n");
+            builder.append("Content-Disposition: form-data; name=\"file\"; filename=\"");
+            builder.append(multipartFile.getName());
+            builder.append("\r\n");
+            builder.append("Content-Type:");
+            builder.append(multipartFile.getContentType());
+            builder.append("\r\n");
+            builder.append("\r\n");
+            builder.append(new String(multipartFile.getBytes()));
+            builder.append("\r\n");
+            builder.append("--");
+            builder.append(boundary);
+            builder.append("--");
+            builder.append("\r\n");
+        }
+        request.setContentType("multipart/form-data; boundary=" + boundary);
+        request.setContent(builder.toString().getBytes());
     }
 
 }

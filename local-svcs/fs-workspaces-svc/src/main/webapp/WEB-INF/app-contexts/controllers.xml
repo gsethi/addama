@@ -9,7 +9,7 @@
             <map>
                 <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
                 <entry key="/**">
-                    <bean class="org.systemsbiology.addama.workspaces.fs.rest.MainController" autowire="byType"/>
+                    <bean class="org.systemsbiology.addama.workspaces.fs.rest.WorkspaceController" autowire="byType"/>
                 </entry>
             </map>
         </property>

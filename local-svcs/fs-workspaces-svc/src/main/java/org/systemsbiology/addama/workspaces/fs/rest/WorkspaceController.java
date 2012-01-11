@@ -3,7 +3,6 @@ package org.systemsbiology.addama.workspaces.fs.rest;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -14,11 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
-import org.systemsbiology.addama.commons.web.views.JsonItemsView;
-import org.systemsbiology.addama.commons.web.views.JsonView;
-import org.systemsbiology.addama.commons.web.views.OkResponseView;
-import org.systemsbiology.addama.commons.web.views.ResourceFileView;
-import org.systemsbiology.addama.fsutils.util.EndlineFixingInputStream;
+import org.systemsbiology.addama.commons.web.views.*;
 import org.systemsbiology.addama.fsutils.util.NotStartsWithFilenameFilter;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
@@ -26,25 +21,31 @@ import org.systemsbiology.addama.jsonconfig.impls.StringPropertyByIdMappingsHand
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static java.lang.Double.parseDouble;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
+import static org.systemsbiology.addama.commons.web.views.JsonItemsFromFilesView.FILES;
+import static org.systemsbiology.addama.commons.web.views.JsonItemsFromFilesView.URI;
 import static org.systemsbiology.addama.commons.web.views.ResourceFileView.RESOURCE;
+import static org.systemsbiology.addama.fsutils.util.FileUtil.recurseDelete;
+import static org.systemsbiology.addama.fsutils.util.FileUtil.storeInto;
+import static org.systemsbiology.addama.fsutils.util.TabularData.asSchema;
 import static org.systemsbiology.google.visualization.datasource.DataSourceHelper.queryResource;
 
 /**
  * @author hrovira
  */
 @Controller
-public class MainController {
-    private static final Logger log = Logger.getLogger(MainController.class.getName());
+public class WorkspaceController {
+    private static final Logger log = Logger.getLogger(WorkspaceController.class.getName());
 
     private Iterable<Mapping> mappings;
     private final HashMap<String, String> rootPathById = new HashMap<String, String>();
@@ -75,20 +76,18 @@ public class MainController {
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}", method = GET)
-    public ModelAndView workspace(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public ModelAndView workspace(HttpServletRequest request,
+                                  @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
 
         Resource resource = getTargetResource(workspaceId, "");
-        File resourceFile = resource.getFile();
-        JSONObject json = new JSONObject();
-        for (File f : resourceFile.listFiles(new NotStartsWithFilenameFilter("."))) {
-            json.append("items", fileAsJson(uri + "/" + f.getName(), f, request));
-        }
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        File[] files = resource.getFile().listFiles(new NotStartsWithFilenameFilter("."));
+        return new ModelAndView(new JsonItemsFromFilesView()).addObject(FILES, files).addObject(URI, uri);
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = GET)
-    public ModelAndView get(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public ModelAndView resource(HttpServletRequest request,
+                                 @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
 
         String path = substringAfterLast(uri, workspaceId);
@@ -96,19 +95,16 @@ public class MainController {
 
         File resourceFile = resource.getFile();
         if (resourceFile.isDirectory()) {
-            JSONObject json = new JSONObject();
-            json.put("uri", uri);
-            for (File f : resourceFile.listFiles(new NotStartsWithFilenameFilter("."))) {
-                json.append("items", fileAsJson(uri + "/" + f.getName(), f, request));
-            }
-            return new ModelAndView(new JsonItemsView()).addObject("json", json);
+            File[] files = resourceFile.listFiles(new NotStartsWithFilenameFilter("."));
+            return new ModelAndView(new JsonItemsFromFilesView()).addObject(FILES, files).addObject(URI, uri);
         }
 
         return new ModelAndView(new ResourceFileView()).addObject(RESOURCE, resource);
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = POST)
-    public ModelAndView post(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public ModelAndView update(HttpServletRequest request,
+                               @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringAfterLast(uri, workspaceId);
 
@@ -137,14 +133,17 @@ public class MainController {
                 FileItemStream itemStream = itr.next();
                 if (!itemStream.isFormField()) {
                     String filename = itemStream.getName();
+                    if (contains(filename, "\"")) {
+                        filename = replace(filename, "\"", "");
+                    }
                     if (contains(filename, "\\")) {
-                        filename = substringAfterLast(filename, "\\");
+                        filename = replace(filename, "\\", "");
                     }
 
                     Resource r = newFileResource(workspaceId, path + "/" + filename);
-                    store(r, itemStream.openStream());
+                    storeInto(itemStream.openStream(), r.getFile());
 
-                    json.append("items", fileAsJson(uri + "/" + filename, r.getFile(), request));
+                    json.append("items", new JSONObject().put("name", r.getFilename()));
                 }
             }
 
@@ -157,7 +156,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**/delete", method = POST)
-    public ModelAndView delete_by_post(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public ModelAndView delete_by_post(HttpServletRequest request,
+                                       @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringBetween(uri, workspaceId, "/delete");
         Resource resource = getTargetResource(workspaceId, path);
@@ -166,7 +166,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = DELETE)
-    public ModelAndView delete(HttpServletRequest request, @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public ModelAndView delete(HttpServletRequest request,
+                               @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringAfterLast(uri, workspaceId);
         Resource resource = getTargetResource(workspaceId, path);
@@ -175,8 +176,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = GET)
-    public void zipDir(HttpServletRequest request, HttpServletResponse response,
-                       @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public void zip_dir(HttpServletRequest request, HttpServletResponse response,
+                        @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringBetween(uri, workspaceId, "/zip");
         Resource resource = getTargetResource(workspaceId, path);
@@ -184,8 +185,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**/zip", method = POST)
-    public void zipFiles(HttpServletResponse response, @PathVariable("workspaceId") String workspaceId,
-                         @RequestParam("name") String name, @RequestParam("uris") String[] fileUris) throws Exception {
+    public void zip_files(HttpServletResponse response, @PathVariable("workspaceId") String workspaceId,
+                          @RequestParam("name") String name, @RequestParam("uris") String[] fileUris) throws Exception {
         Map<String, InputStream> inputStreamsByName = new HashMap<String, InputStream>();
         for (String fileUri : fileUris) {
             String path = substringAfter(fileUri, workspaceId);
@@ -216,8 +217,8 @@ public class MainController {
     }
 
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**/query", method = GET)
-    public void query_scheme(HttpServletRequest request, HttpServletResponse response,
-                             @PathVariable("workspaceId") String workspaceId) throws Exception {
+    public void query(HttpServletRequest request, HttpServletResponse response,
+                      @PathVariable("workspaceId") String workspaceId) throws Exception {
         String uri = getSpacedURI(request);
         String path = substringBetween(uri, workspaceId, "/query");
         Resource resource = getTargetResource(workspaceId, path);
@@ -231,7 +232,7 @@ public class MainController {
         String path = substringBetween(uri, workspaceId, "/schema");
         Resource resource = getTargetResource(workspaceId, path);
 
-        Map<String, String> schema = getSchema(resource);
+        Map<String, String> schema = asSchema(resource);
 
         JSONObject json = new JSONObject();
         for (Map.Entry<String, String> entry : schema.entrySet()) {
@@ -286,10 +287,8 @@ public class MainController {
 
         String basePath = chomp(rootPathById.get(workspaceId), "/");
         File dir = new File(basePath + "/" + path);
-        if (dir.exists()) {
-            if (!dir.mkdirs()) {
-                throw new IOException("unable to create directory at " + path);
-            }
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("unable to create directory at " + path);
         }
 
         return new FileSystemResource(dir);
@@ -321,108 +320,5 @@ public class MainController {
         return new FileSystemResource(file);
     }
 
-    /*
-    * Private Methods
-    */
-
-    private void recurseDelete(File... files) {
-        for (File sf : files) {
-            if (sf.isDirectory()) {
-                recurseDelete(sf.listFiles());
-            }
-            if (!sf.delete()) {
-                log.warning("there may have been a problem deleting [" + sf.getPath() + "]");
-            }
-        }
-    }
-
-    private void store(Resource resource, InputStream inputStream) throws Exception {
-        File f = resource.getFile();
-        if (!f.exists()) {
-            if (!f.getParentFile().mkdirs()) {
-                log.warning("there may have been a problem creating directories [" + f.getParentFile() + "]");
-            }
-        }
-
-        pipe_close(new EndlineFixingInputStream(inputStream), new FileOutputStream(f.getPath(), false));
-    }
-
-    private JSONObject fileAsJson(String uri, File f, HttpServletRequest request) throws JSONException, IOException {
-        String filename = f.getName();
-
-        JSONObject json = new JSONObject();
-        json.put("name", filename);
-        json.put("label", filename);
-        json.put("uri", uri);
-
-        boolean isFile = f.isFile();
-        json.put("isFile", isFile);
-        if (isFile) {
-            json.put("size", f.length());
-            json.put("mimeType", getMimeType(request, f));
-        }
-        return json;
-    }
-
-    private Map<String, String> getSchema(Resource resource) throws Exception {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-            String columnHeader = reader.readLine();
-            String splitter = getSplitter(columnHeader);
-
-            String[] headers = columnHeader.split(splitter);
-
-            String firstLine = reader.readLine();
-            String[] values = firstLine.split(splitter);
-
-            if (headers.length != values.length) {
-                throw new InvalidSyntaxException("number of column headers do not match number of value columns");
-            }
-
-            Map<String, String> schema = new HashMap<String, String>();
-            for (int i = 0; i < headers.length; i++) {
-                String header = headers[i];
-                String value = values[i];
-                schema.put(header, guessedDataType(value));
-            }
-            return schema;
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                log.warning(e.getMessage());
-            }
-        }
-    }
-
-    private String guessedDataType(String value) {
-        if (!isEmpty(value)) {
-            if (equalsIgnoreCase(value, "true") || equalsIgnoreCase(value, "false")) {
-                return "boolean";
-            }
-            try {
-                parseDouble(value);
-                return "number";
-            } catch (NumberFormatException e) {
-                log.warning(value + ":" + e);
-            }
-        }
-        return "string";
-    }
-
-    private String getSplitter(String columnHeader) throws InvalidSyntaxException {
-        if (!isEmpty(columnHeader)) {
-            if (contains(columnHeader, "\t")) {
-                return "\t";
-            }
-            if (contains(columnHeader, ",")) {
-                return ",";
-            }
-        }
-        throw new InvalidSyntaxException("file does not seem to be tabular");
-    }
 
 }

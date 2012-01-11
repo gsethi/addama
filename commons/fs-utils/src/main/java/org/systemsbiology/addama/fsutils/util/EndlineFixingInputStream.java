@@ -1,9 +1,9 @@
 package org.systemsbiology.addama.fsutils.util;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
+import java.util.logging.Logger;
+
+import static org.systemsbiology.addama.commons.web.utils.HttpIO.pipe_close;
 
 /**
  * Class to fix Mac endlines, which Linux-based Perl scripts will not process properly.
@@ -12,6 +12,7 @@ import java.io.PushbackInputStream;
  * @author anorberg
  */
 public class EndlineFixingInputStream extends InputStream {
+    private static final Logger log = Logger.getLogger(EndlineFixingInputStream.class.getName());
 
     private BufferedInputStream bufIn;
     private PushbackInputStream pushIn;
