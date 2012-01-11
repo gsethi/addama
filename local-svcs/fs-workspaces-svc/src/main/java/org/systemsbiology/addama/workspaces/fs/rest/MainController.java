@@ -97,6 +97,7 @@ public class MainController {
         File resourceFile = resource.getFile();
         if (resourceFile.isDirectory()) {
             JSONObject json = new JSONObject();
+            json.put("uri", uri);
             for (File f : resourceFile.listFiles(new NotStartsWithFilenameFilter("."))) {
                 json.append("items", fileAsJson(uri + "/" + f.getName(), f, request));
             }
@@ -112,7 +113,7 @@ public class MainController {
         String path = substringAfterLast(uri, workspaceId);
 
         if (!isMultipartContent(request)) {
-            Resource r = getTargetResource(workspaceId, path);
+            Resource r = newDirectoryResource(workspaceId, path);
 
             File dir = r.getFile();
             if (!dir.mkdirs()) {
@@ -243,9 +244,10 @@ public class MainController {
     /*
     * Protected Methods
     */
-    protected Resource getTargetResource(String repositoryId, String path) throws ResourceNotFoundException {
-        if (isEmpty(repositoryId) || !rootPathById.containsKey(repositoryId)) {
-            throw new ResourceNotFoundException(repositoryId);
+    protected Resource getTargetResource(String workspaceId, String path) throws ResourceNotFoundException {
+        log.info(workspaceId + ":" + path);
+        if (isEmpty(workspaceId) || !rootPathById.containsKey(workspaceId)) {
+            throw new ResourceNotFoundException(workspaceId);
         }
 
         if (path == null) path = "";
@@ -254,13 +256,39 @@ public class MainController {
             path = substringAfter(path, "/");
         }
 
-        String basePath = chomp(rootPathById.get(repositoryId), "/");
+        String basePath = chomp(rootPathById.get(workspaceId), "/");
         Resource r = new FileSystemResource(basePath + "/" + path);
         if (!r.exists()) {
             log.warning("resource does not exist under [" + basePath + "]");
             throw new ResourceNotFoundException(path);
         }
         return r;
+    }
+
+    protected Resource newDirectoryResource(String workspaceId, String path)
+            throws ResourceNotFoundException, InvalidSyntaxException, IOException {
+        log.info(workspaceId + ":" + path);
+        if (isEmpty(workspaceId) || !rootPathById.containsKey(workspaceId)) {
+            throw new ResourceNotFoundException(workspaceId);
+        }
+
+        if (isEmpty(path)) {
+            throw new InvalidSyntaxException("path must be specified");
+        }
+
+        if (path.startsWith("/")) {
+            path = substringAfter(path, "/");
+        }
+
+        String basePath = chomp(rootPathById.get(workspaceId), "/");
+        File dir = new File(basePath + "/" + path);
+        if (dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new IOException("unable to create directory at " + path);
+            }
+        }
+
+        return new FileSystemResource(dir);
     }
 
     /*

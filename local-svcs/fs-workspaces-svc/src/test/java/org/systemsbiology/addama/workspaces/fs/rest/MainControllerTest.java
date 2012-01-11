@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
  * @author hrovira
  */
 public class MainControllerTest {
-    private MockHttpServletRequest request;
     private MainController controller;
 
     @Before
@@ -33,7 +32,6 @@ public class MainControllerTest {
 
         controller = new MainController();
         controller.setServiceConfig(config);
-        request = new MockHttpServletRequest("get", "/addama/workspaces/repo_0/dataset.tsv/schema");
     }
 
     @Test
@@ -59,6 +57,7 @@ public class MainControllerTest {
 
     @Test
     public void schema() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("get", "/addama/workspaces/repo_0/dataset.tsv/schema");
         ModelAndView mav = controller.schema(request, "repo_0");
         assertNotNull(mav);
         assertNotNull(mav.getModel());
@@ -92,6 +91,25 @@ public class MainControllerTest {
 
             assertEquals(actualName, expectedType, item.getString("datatype"));
         }
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void check_dir_notthere() throws Exception {
+        controller.get(new MockHttpServletRequest("get", "/addama/workspaces/repo_1/dir_notthere"), "repo_1");
+    }
+
+    @Test
+    public void add_dir() throws Exception {
+        String newDirUri = "/addama/workspaces/repo_1/dir_one";
+
+        controller.post(new MockHttpServletRequest("post", newDirUri), "repo_1");
+
+        ModelAndView mav = controller.get(new MockHttpServletRequest("get", newDirUri), "repo_1");
+        assertNotNull(mav);
+        JSONObject json = (JSONObject) mav.getModel().get("json");
+        assertNotNull(json);
+        assertNotNull(json.getString("uri"));
+        assertEquals(newDirUri, json.getString("uri"));
     }
 
     /*
