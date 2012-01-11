@@ -1,14 +1,17 @@
-package org.systemsbiology.addama.fsutils.controllers.workspaces;
+package org.systemsbiology.addama.workspaces.fs.rest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
@@ -16,26 +19,47 @@ import static org.junit.Assert.*;
 /**
  * @author hrovira
  */
-public class SchemaControllerTest {
+public class MainControllerTest {
     private MockHttpServletRequest request;
-    private SchemaController controller;
+    private MainController controller;
 
     @Before
     public void setup() throws Exception {
         MockServletContext msc = new MockServletContext();
-        msc.setContextPath("schemaControllerTest");
+        msc.setContextPath("mainControllerTest");
 
         ServiceConfig config = new ServiceConfig();
         config.setServletContext(msc);
 
-        controller = new SchemaController();
+        controller = new MainController();
         controller.setServiceConfig(config);
-        request = new MockHttpServletRequest("get", "/addama/repositories/repo1/dataset.tsv/schema");
+        request = new MockHttpServletRequest("get", "/addama/workspaces/repo_0/dataset.tsv/schema");
     }
 
     @Test
-    public void simple() throws Exception {
-        ModelAndView mav = controller.schema(request, "repo1");
+    public void valid_cases() throws Exception {
+        assertResource("repo_1", controller.getTargetResource("repo_1", ""));
+        assertResource("some_file.txt", controller.getTargetResource("repo_1", "/some_dir/some_file.txt"));
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void null_repository() throws Exception {
+        controller.getTargetResource(null, null);
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void unknown_repository() throws Exception {
+        controller.getTargetResource("unknown", null);
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void invalid_rootpath() throws Exception {
+        controller.getTargetResource("unknown", "some_dir");
+    }
+
+    @Test
+    public void schema() throws Exception {
+        ModelAndView mav = controller.schema(request, "repo_0");
         assertNotNull(mav);
         assertNotNull(mav.getModel());
 
@@ -69,4 +93,16 @@ public class SchemaControllerTest {
             assertEquals(actualName, expectedType, item.getString("datatype"));
         }
     }
+
+    /*
+    * Private Methods
+    */
+
+    private void assertResource(String expectedFilename, Resource someFile) throws ResourceNotFoundException, IOException {
+        assertNotNull(someFile);
+        assertNotNull(someFile.getFile());
+        assertEquals(expectedFilename, someFile.getFilename());
+        assertTrue(someFile.getFile().exists());
+    }
+
 }
