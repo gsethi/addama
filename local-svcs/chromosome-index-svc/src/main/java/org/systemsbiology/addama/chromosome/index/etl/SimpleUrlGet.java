@@ -18,27 +18,42 @@
 */
 package org.systemsbiology.addama.chromosome.index.etl;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Properties;
+
+import static org.apache.commons.lang.StringUtils.chomp;
 
 /**
  * @author hrovira
  */
 public class SimpleUrlGet {
     public static void main(String[] args) throws Exception {
-        doGet("/addama/refgenome");
-        doGet("/addama/refgenome/mm9");
-        doGet("/addama/refgenome/mm9/chr5");
-        doGet("/addama/refgenome/mm9/chr5/151003000/151003100/sequence");
+        Properties keys = apiKeys(args);
+
+        doGet(keys, "/addama/indexes");
+        doGet(keys, "/addama/indexes/mm9");
+        doGet(keys, "/addama/indexes/mm9/chr5");
+        doGet(keys, "/addama/indexes/mm9/chr5/151003000/151003100/sequence");
     }
 
-    private static void doGet(String uri) throws Exception {
-        URL url = new URL("https://addama-systemsbiology-public.appspot.com" + uri);
+    private static Properties apiKeys(String[] args) throws IOException {
+        if (args == null || args.length == 0) {
+            throw new IllegalArgumentException("must pass apikey file for addama registry");
+        }
+
+        Properties p = new Properties();
+        p.load(new FileInputStream(args[0]));
+        assert (p.containsKey("apikey"));
+        assert (p.containsKey("host"));
+        return p;
+    }
+
+    private static void doGet(Properties properties, String uri) throws Exception {
+        URL url = new URL("https://" + chomp(properties.getProperty("host"), "/") + uri);
         URLConnection uc = url.openConnection();
-        uc.setRequestProperty("x-addama-apikey", "60667408-363a-45a5-b771-42a8e4ecc0a7");
+        uc.setRequestProperty("x-addama-apikey", properties.getProperty("apikey"));
         uc.connect();
 
         System.out.println(uri + ":" + getContent(uc.getInputStream()));
