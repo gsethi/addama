@@ -49,16 +49,14 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 @Controller
 public class ChromIndexServiceController {
     private final Map<String, JdbcTemplate> jdbcTemplateById = new HashMap<String, JdbcTemplate>();
-    private final Map<String, JSONObject> genesSchemasById = new HashMap<String, JSONObject>();
-    private final Map<String, JSONObject> locusSchemasById = new HashMap<String, JSONObject>();
+    private final Map<String, JSONObject> schemasById = new HashMap<String, JSONObject>();
     private Iterable<Mapping> mappings;
 
     public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
         mappings = serviceConfig.getMappings();
 
         serviceConfig.visit(new JdbcTemplateMappingsHandler(jdbcTemplateById));
-        serviceConfig.visit(new JsonPropertyByIdMappingsHandler(genesSchemasById, "genesSchema"));
-        serviceConfig.visit(new JsonPropertyByIdMappingsHandler(locusSchemasById, "locusSchema"));
+        serviceConfig.visit(new JsonPropertyByIdMappingsHandler(schemasById, "schema"));
     }
 
     @RequestMapping(value = "/**/indexes", method = RequestMethod.GET)
@@ -83,7 +81,7 @@ public class ChromIndexServiceController {
         String uri = getURI(request);
 
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
-        JSONObject schema = genesSchemasById.get(build);
+        JSONObject schema = schemasById.get(build);
         if (jdbcTemplate == null || schema == null) {
             throw new ResourceNotFoundException(uri);
         }
@@ -112,7 +110,7 @@ public class ChromIndexServiceController {
         String uri = getURI(request);
 
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
-        JSONObject schema = genesSchemasById.get(build);
+        JSONObject schema = schemasById.get(build);
         if (jdbcTemplate == null || schema == null) {
             throw new ResourceNotFoundException(uri);
         }
@@ -133,7 +131,7 @@ public class ChromIndexServiceController {
                                        @PathVariable("end") Long end) throws Exception {
         String uri = getURI(request);
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
-        JSONObject schema = genesSchemasById.get(build);
+        JSONObject schema = schemasById.get(build);
         if (jdbcTemplate == null || schema == null) {
             throw new ResourceNotFoundException("");
         }
@@ -157,7 +155,7 @@ public class ChromIndexServiceController {
                                         @PathVariable("strand") String strand) throws Exception {
         String uri = getURI(request);
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
-        JSONObject schema = genesSchemasById.get(build);
+        JSONObject schema = schemasById.get(build);
         if (jdbcTemplate == null || schema == null) {
             throw new ResourceNotFoundException("");
         }
