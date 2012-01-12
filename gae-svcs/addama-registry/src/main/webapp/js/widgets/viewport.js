@@ -17,7 +17,10 @@ var DrawViewport = function(tabs) {
         id: 'tab-panel',
         renderTo: "container_tabs",
         region: "center",
-        items: tabs
+        items: tabs,
+        activeTab: 0,
+        frame:true,
+        defaults:{autoHeight: true}
     });
 
     var footerPanel = new Ext.Panel({

@@ -11,14 +11,28 @@
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/viewport.css"/>
 
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+
             DrawViewport([
-                { title:'Main', contentEl: 'container_main' },
-                { title:'REST+JSON', contentEl: 'container_restjson' },
-                { title:'Code', contentEl: 'container_code' }
+                new Ext.Panel({
+                    title:'Main',
+                    contentEl: 'container_main',
+                    html: "This is the main tab"
+                }),
+                new Ext.Panel({
+                    title:'REST+JSON',
+                    contentEl: 'container_restjson',
+                    html: "This is the rest+json tab"
+                }),
+                new Ext.Panel({
+                    title:'Code',
+                    contentEl: 'container_code',
+                    html: "This is the code tab"
+                })
             ]);
         });
     </script>
