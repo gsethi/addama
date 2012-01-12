@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="addama.properties" class="org.systemsbiology.addama.commons.spring.PropertiesFileLoader">
-        <property name="propertiesFile" value="addama.properties"/>
+        <property name="propertiesFile" value="services/addama.properties"/>
     </bean>
 
 </beans>
