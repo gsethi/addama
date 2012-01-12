@@ -82,28 +82,28 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
 
+        String contextPath = super.getServletContext().getContextPath();
+        if (contextPath.startsWith("/")) {
+            contextPath = substringAfter(contextPath, "/");
+        }
+
         if (!propertiesFileLoader.loaded()) {
-            log.warning("service will run in STAND-ALONE mode :: no addama.properties found in classpath");
+            log.warning("SERVICE [" + contextPath + "] will run in STAND-ALONE mode :: no addama.properties found in classpath");
             this.runUnregistered = true;
             return;
         }
 
         String hostUrl = propertiesFileLoader.getProperty("httpclient.secureHostUrl");
         if (isEmpty(hostUrl)) {
-            throw new ServletException("registry URL not configured in 'addama.properties' [httpclient.secureHostUrl]");
+            throw new ServletException("SERVICE [" + contextPath + "] registry URL not configured in 'addama.properties' [httpclient.secureHostUrl]");
         }
 
         String serviceUrl = propertiesFileLoader.getProperty("service.hostUrl");
         if (isEmpty(serviceUrl)) {
-            throw new ServletException("service host not configured  in 'addama.properties' [service.hostUrl]");
+            throw new ServletException("SERVICE [" + contextPath + "] service host not configured  in 'addama.properties' [service.hostUrl]");
         }
 
         try {
-            String contextPath = super.getServletContext().getContextPath();
-            if (contextPath.startsWith("/")) {
-                contextPath = substringAfter(contextPath, "/");
-            }
-
             this.secureHostUrl = new URL(hostUrl);
             URL serviceHostUrl = new URL(chomp(serviceUrl, "/") + "/" + contextPath);
 
@@ -130,7 +130,7 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
             post.setQueryString(new NameValuePair[]{new NameValuePair("registration", registration.toString())});
             httpClientTemplate.executeMethod(post, this);
         } catch (Exception e) {
-            throw new ServletException(e);
+            throw new ServletException("SERVICE [" + contextPath + "]", e);
         }
     }
 
