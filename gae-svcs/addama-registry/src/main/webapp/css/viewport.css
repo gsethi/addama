@@ -1,6 +1,7 @@
-.x-panel-footer {
+#footer {
     background: #DFE8F6;
     border-color: #99BBE8;
-    border-style: none solid solid;
-    border-width: 0pt 1px 1px;
+    border-style: solid;
+    border-width: 1pt 1px 1px;
+    height: 50px;
 }
