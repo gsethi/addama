@@ -91,7 +91,7 @@ public class ChromIndexServiceController {
         JSONObject json = jdbcTemplate.execute(new DatabaseTableColumnConnectionCallback(tableName, "dataSchema"));
         json.put("uri", uri);
 
-        String sql = "SELECT DISTICT " + schema.optString("chromosome", "chrom") + " FROM " + tableName;
+        String sql = "SELECT DISTINCT " + schema.optString("chromosome", "chrom") + " FROM " + tableName;
         for (String chromosome : jdbcTemplate.queryForList(sql, String.class)) {
             JSONObject item = new JSONObject();
             item.put("id", chromosome);
