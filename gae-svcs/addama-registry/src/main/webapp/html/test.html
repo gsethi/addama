@@ -1,0 +1,45 @@
+<html>
+<head>
+    <title>Test Page</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
+    <script type="text/javascript" src="/js/utils/console_handling.js"></script>
+    <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
+    <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            DrawViewport([
+                { title:'Main', contentEl: 'container_main' },
+                { title:'REST+JSON', contentEl: 'container_restjson' },
+                { title:'Code', contentEl: 'container_code' }
+            ]);
+        });
+    </script>
+</head>
+<body>
+<div id="container_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_tabs">
+    <div id="container_main"></div>
+    <div id="container_restjson"></div>
+    <div id="container_code"></div>
+</div>
+<div id="container_footer" class="x-panel-footer">
+    <h2 align="center">
+        <img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine"/> |
+        <a href="/addama/apikeys/file">Download API Keys</a> |
+        <a href="http://codefor.systemsbiology.net/">Code for Systems Biology</a> |
+        <a href="http://shmulevich.systemsbiology.net/">Shmulevich Lab</a> |
+        <a href="http://www.systemsbiology.org">Institute for Systems Biology</a> |
+        <a href="http://addama.org">Supported by Addama</a> | <a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554">Cite PMID 19265554</a>
+    </h2>
+</div>
+</body>
+</html>
