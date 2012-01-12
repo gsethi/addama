@@ -87,7 +87,7 @@ public class RangeQueryResultSetExtractor implements ResultSetExtractor<Iterable
         HashMap<String, Integer> notpreset = new HashMap<String, Integer>();
 
         ResultSetMetaData rsmd = rs.getMetaData();
-        for (int i = 0; i < rsmd.getColumnCount(); i++) {
+        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
             String columnName = rsmd.getColumnName(i);
             if (!preset.contains(columnName)) {
                 notpreset.put(columnName, rsmd.getColumnType(i));

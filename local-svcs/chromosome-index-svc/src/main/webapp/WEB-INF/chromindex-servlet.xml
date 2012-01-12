@@ -6,6 +6,7 @@
     <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
 
     <bean id="handlerExceptionResolver" class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+        <property name="verbose" value="true"/>
         <property name="warnLogCategory" value="chromindex-servlet"/>
         <property name="exceptionMappings">
             <props>
