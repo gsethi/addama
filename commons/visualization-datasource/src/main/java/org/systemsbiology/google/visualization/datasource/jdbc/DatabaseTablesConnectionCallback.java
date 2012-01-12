@@ -29,9 +29,9 @@ import java.util.ArrayList;
 /**
  * @author hrovira
  */
-public class DatabaseTablesConnectionCallback implements ConnectionCallback {
+public class DatabaseTablesConnectionCallback implements ConnectionCallback<Iterable<String>> {
 
-    public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+    public Iterable<String> doInConnection(Connection connection) throws SQLException, DataAccessException {
         ArrayList<String> tableNames = new ArrayList<String>();
 
         String[] types = new String[]{"TABLE", "VIEW"};
@@ -40,7 +40,7 @@ public class DatabaseTablesConnectionCallback implements ConnectionCallback {
             tableNames.add(rs.getString(3));
         }
 
-        return tableNames.toArray(new String[tableNames.size()]);
+        return tableNames;
     }
 
 }

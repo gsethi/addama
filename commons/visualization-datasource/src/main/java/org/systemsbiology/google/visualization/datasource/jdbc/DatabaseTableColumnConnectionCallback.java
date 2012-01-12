@@ -31,14 +31,20 @@ import java.sql.SQLException;
 /**
  * @author hrovira
  */
-public class DatabaseTableColumnConnectionCallback implements ConnectionCallback {
+public class DatabaseTableColumnConnectionCallback implements ConnectionCallback<JSONObject> {
     private final String tableName;
+    private String appendKey = "items";
 
     public DatabaseTableColumnConnectionCallback(String tableName) {
         this.tableName = tableName;
     }
 
-    public Object doInConnection(Connection connection) throws SQLException, DataAccessException {
+    public DatabaseTableColumnConnectionCallback(String tableName, String appendKey) {
+        this.tableName = tableName;
+        this.appendKey = appendKey;
+    }
+
+    public JSONObject doInConnection(Connection connection) throws SQLException, DataAccessException {
         try {
             JSONObject json = new JSONObject();
 
@@ -47,7 +53,7 @@ public class DatabaseTableColumnConnectionCallback implements ConnectionCallback
                 JSONObject column = new JSONObject();
                 column.put("name", rs.getString(4));
                 column.put("datatype", rs.getString(6));
-                json.append("items", column);
+                json.append(appendKey, column);
             }
 
             return json;

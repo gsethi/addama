@@ -28,12 +28,12 @@ import java.util.ArrayList;
 /**
  * @author hrovira
  */
-public class SingleStringResultSetExtractor implements ResultSetExtractor {
-    public Object extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+public class SingleStringResultSetExtractor implements ResultSetExtractor<Iterable<String>> {
+    public Iterable<String> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
         ArrayList<String> singles = new ArrayList<String>();
         while (resultSet.next()) {
             singles.add(resultSet.getString(1));
         }
-        return singles.toArray(new String[singles.size()]);
+        return singles;
     }
 }
