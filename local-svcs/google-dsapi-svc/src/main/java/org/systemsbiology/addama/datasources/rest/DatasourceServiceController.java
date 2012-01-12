@@ -101,7 +101,7 @@ public class DatasourceServiceController implements InitializingBean {
                                      @PathVariable("tableId") String tableId) throws Exception {
         JdbcTemplate jdbcTemplate = jdbcTemplateDsById.get(databaseId);
         String tableName = getRealTableName(tableId, databaseId, jdbcTemplate);
-        JSONObject json = (JSONObject) jdbcTemplate.execute(new DatabaseTableColumnConnectionCallback(tableName));
+        JSONObject json = jdbcTemplate.execute(new DatabaseTableColumnConnectionCallback(tableName));
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
@@ -120,13 +120,13 @@ public class DatasourceServiceController implements InitializingBean {
      * Private Methods
      */
 
-    private String[] getTableIds(String databaseId, JdbcTemplate jdbcTemplate) {
+    private Iterable<String> getTableIds(String databaseId, JdbcTemplate jdbcTemplate) {
         if (uriMappingsById.containsKey(databaseId)) {
             String prepSql = "SELECT URI FROM " + uriMappingsById.get(databaseId);
-            return (String[]) jdbcTemplate.query(prepSql, new SingleStringResultSetExtractor());
+            return jdbcTemplate.query(prepSql, new SingleStringResultSetExtractor());
         }
 
-        return (String[]) jdbcTemplate.execute(new DatabaseTablesConnectionCallback());
+        return jdbcTemplate.execute(new DatabaseTablesConnectionCallback());
     }
 
     private String getRealTableName(String tableId, String databaseId, JdbcTemplate jdbcTemplate) throws ResourceNotFoundException {
@@ -134,13 +134,13 @@ public class DatasourceServiceController implements InitializingBean {
             String mappingsTable = uriMappingsById.get(databaseId);
 
             String prepSql = "SELECT TABLE_NAME FROM " + mappingsTable + " WHERE URI = ? ";
-            String[] tableNames = (String[]) jdbcTemplate.query(prepSql, new Object[]{tableId}, new SingleStringResultSetExtractor());
-            if (tableNames == null || tableNames.length == 0) {
+            Iterable<String> tableNames = jdbcTemplate.query(prepSql, new Object[]{tableId}, new SingleStringResultSetExtractor());
+            if (tableNames == null || !tableNames.iterator().hasNext()) {
                 throw new ResourceNotFoundException(tableId);
             }
 
             // TODO : what if this returns more than one table?
-            String tableName = tableNames[0];
+            String tableName = tableNames.iterator().next();
             if (isEmpty(tableName)) {
                 throw new ResourceNotFoundException(tableId);
             }
