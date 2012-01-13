@@ -11,8 +11,6 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
     },
 
     createGrid: function() {
-        this.gridData = [];
-
         var gridColumns = [
             { header: "Sequence", width: 25, dataIndex: 'sequence', type: "int", sortable: true },
             { header: "URI", width: 25, dataIndex: 'uri', sortable: true },
@@ -32,11 +30,12 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
         this.store = new Ext.data.ArrayStore({
             storeId: "store-ajax-monitor",
             reader: new Ext.data.ArrayReader({}, storeColumns),
-            data: this.gridData,
+            data: [],
             sortInfo: {field: 'sequence', direction: "DESC"}
         });
 
-        this.grid = new Ext.grid.GridPanel({
+        var grid = new Ext.grid.GridPanel({
+            region: "center",
             store: this.store,
             columns: gridColumns,
             stripeRows: true,
@@ -45,19 +44,32 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
             title: "Requests",
             collapsible: false,
             animCollapse: false,
-            iconCls: 'icon-grid',
-            contentEl: this.contentEl,
-            listeners: {
-                rowclick: function(g, rowIndex, e) {
-                    console.log("rowclick=" + rowIndex);
-                }
-            }
+            iconCls: 'icon-grid'
         });
+        grid.on("rowclick", this.showResponseContent, this);
 
+        this.responseContent = new Ext.Panel({ title: "Response Content", region: "south" });
+
+        new Ext.Panel({
+            layout: "border",
+            items: [ grid, this.responseContent ]
+        });
     },
 
     addResponseToGrid: function(connection, response) {
-         this.gridData.push([ this.incrementedId(), connection.url, new Date(), response.status, response.statusText, response.responseText ]);
+        this.store.add(new Ext.data.Record({
+            "id": this.incrementedId(),
+            "uri": connection.url,
+            "sentAt": new Date(),
+            "statusCode": response.status,
+            "statusText": response.statusText,
+            "responseText": response.responseText
+        }));
+    },
+
+    showResponseContent: function(g, rowIndex, e) {
+        this.responseContent.removeAll();
+        this.responseContent.add({html:"rowIndex=" + rowIndex});
     },
 
     incrementedId: function() {
