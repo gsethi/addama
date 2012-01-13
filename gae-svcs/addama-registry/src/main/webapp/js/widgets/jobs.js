@@ -1,4 +1,6 @@
-JobBean = Ext.extend(Object, {
+Ext.ns("org.systemsbiology.addama.js");
+
+org.systemsbiology.addama.js.JobBean = Ext.extend(Object, {
     constructor: function(item) {
         this.item = item;
     },
@@ -27,13 +29,13 @@ JobBean = Ext.extend(Object, {
 
 });
 
-JobsFetch = Ext.extend(Ext.util.Observable, {
+org.systemsbiology.addama.js.JobsFetch = Ext.extend(Ext.util.Observable, {
     constructor: function() {
         Ext.apply(this, { queue: [] });
 
         this.addEvents({ queued: true, fetched: true });
 
-        JobsFetch.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.JobsFetch.superclass.constructor.call(this);
 
         this.on("queued", function() {
             while (this.queue.length > 0) {
@@ -76,7 +78,7 @@ JobsFetch = Ext.extend(Ext.util.Observable, {
     }
 });
 
-BaseJobsGrid = Ext.extend(JobsFetch, {
+org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama.js.JobsFetch, {
     constructor: function(config) {
         Ext.apply(this, config);
 
@@ -86,7 +88,7 @@ BaseJobsGrid = Ext.extend(JobsFetch, {
             this.gridPanelConfig = {};
         }
 
-        BaseJobsGrid.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.BaseJobsGrid.superclass.constructor.call(this);
 
         this.on("fetched", this.refreshGrid, this);
 
@@ -312,12 +314,12 @@ BaseJobsGrid = Ext.extend(JobsFetch, {
     }
 });
 
-JobsGrid = Ext.extend(BaseJobsGrid, {
+org.systemsbiology.addama.js.JobsGrid = Ext.extend(org.systemsbiology.addama.js.BaseJobsGrid, {
 
     constructor: function(config) {
         Ext.apply(this, Ext.applyIf(config, { tools: [] }));
 
-        JobsGrid.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.JobsGrid.superclass.constructor.call(this);
     },
 
     getStoreColumns: function() {
@@ -384,7 +386,7 @@ JobsGrid = Ext.extend(BaseJobsGrid, {
     addJob: function(job) {
         var tool = this.tools[job.script];
         if (tool) {
-            var jobBean = new JobBean(job);
+            jobBean = new org.systemsbiology.addama.js.JobBean(job);
             var jobPointer = this.getJobPointer(job);
             this.gridData[jobPointer] = [
                 jobPointer,
@@ -404,12 +406,12 @@ JobsGrid = Ext.extend(BaseJobsGrid, {
 
 });
 
-JobsGridForTool = Ext.extend(BaseJobsGrid, {
+org.systemsbiology.addama.js.JobsGridForTool = Ext.extend(org.systemsbiology.addama.js.BaseJobsGrid, {
 
     constructor: function(config) {
         Ext.apply(this, config);
 
-        JobsGridForTool.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.JobsGridForTool.superclass.constructor.call(this);
     },
 
     getStoreColumns: function() {
@@ -453,7 +455,7 @@ JobsGridForTool = Ext.extend(BaseJobsGrid, {
 
     addJob: function(job) {
         var jobPointer = this.getJobPointer(job);
-        var jobBean = new JobBean(job);
+        var jobBean = new org.systemsbiology.addama.js.JobBean(job);
         this.gridData[jobPointer] = [
             jobPointer,
             job.uri,

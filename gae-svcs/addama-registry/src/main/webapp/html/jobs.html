@@ -15,6 +15,7 @@
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
     <script type="text/javascript" src="/js/apis/channels.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
@@ -23,10 +24,17 @@
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
 
-            var jobsGrid = new JobsGrid({
+            new org.systemsbiology.addama.js.JobsGrid({
                 channelListener: new org.systemsbiology.addama.js.ChannelListener(),
                 gridPanelConfig: {
+                    contentEl: "container_main",
                     title: "Jobs",
                     width: 1000,
                     height: 1000,
@@ -38,32 +46,11 @@
                     padding: "0 0 0 0"
                 }
             });
-
-            new Ext.Viewport({
-                layout: "border",
-                items: [
-                    {
-                        id: "topbar-panel",
-                        region: "north",
-                        height: 54,
-                        border: false,
-                        frame: false,
-                        xtype: "box",
-                        split: true,
-                        items:[
-                            new Ext.Panel({ contentEl: "c_banner" }),
-                            new Ext.Panel({ contentEl: "container_topbar" })
-                        ]
-                    },
-                    jobsGrid.grid
-                ],
-                renderTo: Ext.getBody()
-            });
         });
     </script>
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
 <div id="container_topbar" class="topbar"></div>
+<div id="container_main"></div>
 </body>
 </html>

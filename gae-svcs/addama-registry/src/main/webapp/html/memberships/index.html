@@ -14,6 +14,7 @@
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
     <script type="text/javascript" src="/html/memberships/js/viewport.js"></script>
     <script type="text/javascript" src="/html/memberships/js/controls.js"></script>
@@ -21,78 +22,80 @@
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({
-                contentEl: "c_topbar",
+                contentEl: "container_topbar",
                 listeners: {
                     whoami: function(json) {
                         if (json.isAdmin) {
-                            Ext.get("c_admin").setVisible(true);
-                            new DomainLevelUsersControl("c_domain_level_membership_list");
+                            Ext.get("container_admin").setVisible(true);
+                            new DomainLevelUsersControl("container_domain_level_membership_list");
                         }
                     }
                 }
             });
 
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
+
             initViewport(true, true);
 
-            startUp_moderators();
-            startUp_members();
-        });
-
-        function startUp_moderators() {
             Ext.Ajax.request({
                 url: "/addama/memberships/uris",
                 method: "get",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json && json.numberOfItems) {
-                        Ext.get("c_moderator").setVisible(true);
-                        Ext.getDom("c_membership_uris").innerHTML = o.responseText;
+                        Ext.get("container_moderator").setVisible(true);
+                        Ext.getDom("container_membership_uris").innerHTML = o.responseText;
                     }
                 }
             });
-        }
 
-        function startUp_members() {
             Ext.Ajax.request({
                 url: "/addama/memberships/mine",
                 method: "get",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json && json.numberOfItems) {
-                        Ext.getDom("c_member_uris").innerHTML = o.responseText;
+                        Ext.getDom("container_member_uris").innerHTML = o.responseText;
                     }
                 }
             });
-        }
+        });
     </script>
 </head>
 <body>
-<div id="c_topbar" class="topbar"></div>
-<div id="c_admin" style="display:none;">
-    <div id="c_domain_level_membership_list"></div>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_main">
+    <div id="container_admin" style="display:none;">
+        <div id="container_domain_level_membership_list"></div>
 
-    <div id="c_membership_domain_moderators"></div>
-</div>
-<div id="c_moderator" style="display:none;">
-    <h3>Moderator Controls</h3>
+        <div id="container_membership_domain_moderators"></div>
+    </div>
+    <div id="container_moderator" style="display:none;">
+        <h3>Moderator Controls</h3>
 
-    <br/>
-    <span>Moderated Memberships by URI</span>
+        <br/>
+        <span>Moderated Memberships by URI</span>
 
-    <div id="c_membership_uris"></div>
+        <div id="container_membership_uris"></div>
 
-    <br/>
-    <span>Membership Applicants by URI</span>
+        <br/>
+        <span>Membership Applicants by URI</span>
 
-    <div id="c_membership_uris_applicants"></div>
-</div>
-<div id="c_member">
-    <h3>Member Controls</h3>
+        <div id="container_membership_uris_applicants"></div>
+    </div>
+    <div id="container_member">
+        <h3>Member Controls</h3>
 
-    <br/>
-    <span>Memberships</span>
+        <br/>
+        <span>Memberships</span>
 
-    <div id="c_member_uris"></div>
+        <div id="container_member_uris"></div>
+    </div>
 </div>
 </body>
 </html>

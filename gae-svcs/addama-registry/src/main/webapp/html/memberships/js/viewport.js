@@ -8,21 +8,21 @@ function initViewport(isAdmin, isModerator) {
                 iconCls: 'x-icon-tickets',
                 tabTip: 'Memberships',
                 style: 'padding: 10px;',
-                contentEl: "c_admin"
+                contentEl: "container_admin"
             },
             {
                 title: 'Domain Level Access',
                 iconCls: 'x-icon-users',
                 tabTip: 'Domain Access',
                 style: 'padding: 10px;',
-                contentEl: "c_domain_level_membership_list"
+                contentEl: "container_domain_level_membership_list"
             },
             {
                 title: 'Moderators',
                 iconCls: 'x-icon-users',
                 tabTip: 'Moderators',
                 style: 'padding: 10px;',
-                contentEl: "c_membership_domain_moderators"
+                contentEl: "container_membership_domain_moderators"
             }
         ];
     }
@@ -35,7 +35,7 @@ function initViewport(isAdmin, isModerator) {
                 iconCls: 'x-icon-configuration',
                 tabTip: 'Moderated Items',
                 style: 'padding: 10px;',
-                contentEl: "c_moderator"
+                contentEl: "container_moderator"
             }
         ];
     }
@@ -64,28 +64,15 @@ function initViewport(isAdmin, isModerator) {
                 iconCls: 'x-icon-configuration',
                 tabTip: 'My Membership Status',
                 style: 'padding: 10px;',
-                contentEl: "c_member"
+                contentEl: "container_member"
             }
         ]
     };
 
-    new Ext.Viewport({
-        layout:'border',
-        items:[
-            {
-                id: "topbar-panel",
-                region: "north",
-                height: 30,
-                contentEl: "c_topbar",
-                frame: false
-            },
-            {
-                region: "center",
-                xtype: 'grouptabpanel',
-                tabWidth: 200,
-                activeGroup: 0,
-                items: groupPanelItems
-            }
-        ]
+    new Ext.Panel({
+        xtype: 'grouptabpanel',
+        tabWidth: 200,
+        activeGroup: 0,
+        items: groupPanelItems
     });
 }

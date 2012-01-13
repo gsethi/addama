@@ -2,11 +2,6 @@
 <head>
     <title>Addama Registry</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-    <style type="text/css">
-        #main-panel td {
-            padding: 5px;
-        }
-    </style>
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
@@ -15,6 +10,7 @@
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
     <script type="text/javascript">
@@ -23,10 +19,17 @@
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
 
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
+
             new Ext.Panel({
                 id:'main-panel',
                 baseCls:'x-plain',
-                renderTo: "container",
+                renderTo: "container_main",
                 layout:'table',
                 layoutConfig: {columns:3},
                 defaults: {frame:true, width:400, height: 150, autoScroll: true},
@@ -107,9 +110,8 @@
     </script>
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
 <div id="container_topbar" class="topbar"></div>
-<div id="container">
+<div id="container_main">
     <div id="container_welcome">
         <span>These are all of the services, tools and applications that are registered within this Addama domain.</span>
     </div>
@@ -131,6 +133,5 @@
     <div id="container_datasources">/addama/datasources</div>
     <div id="container_indexes">/addama/indexes</div>
 </div>
-<img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine"/>
 </body>
 </html>

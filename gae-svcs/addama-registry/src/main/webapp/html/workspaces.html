@@ -24,18 +24,24 @@
     <script type="text/javascript" src="/js/workspaces/fileUploadWindow.js"></script>
     <script type="text/javascript" src="/js/workspaces/tree.js"></script>
     <script type="text/javascript" src="/js/workspaces/viewport.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
 
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
         });
     </script>
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
 <div id="container_topbar" class="topbar"></div>
 
-<div style="display:none;">
+<div id="container_main" style="display:none;">
     <div id="panel-repositories">
         <div id="content-repositories">
         </div>
@@ -64,16 +70,6 @@
             <div id="main-content-file-download"></div>
             <div id="main-content-file-preview"></div>
         </div>
-    </div>
-
-    <div id="container_footer" class="x-panel-footer">
-        <h2 align="center">
-            <a href="/addama/apikeys/file">Download API Keys</a> | <a
-                href="http://codefor.systemsbiology.net/">Code for Systems Biology</a> | <a
-                href="http://shmulevich.systemsbiology.net/">Shmulevich Lab</a> | <a
-                href="http://www.systemsbiology.org">Institute for Systems Biology</a> | <a href="http://addama.org">Supported
-            by Addama</a> | <a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554">Cite PMID 19265554</a>
-        </h2>
     </div>
 </div>
 

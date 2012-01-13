@@ -8,31 +8,39 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
 
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
     <script type="text/javascript">
         Ext.onReady(function() {
-            new org.systemsbiology.addama.js.TopBar({ contentEl: "c_topbar" });
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
         });
     </script>
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
-<div id="c_topbar"></div>
-<div id="c_services"></div>
-<div id="c_apps"></div>
-<div id="c_links">
-    <ul>
-        <li><a href="/html/apps.html" target="_blank">Registered Applications</a></li>
-        <li><a href="/html/registry.html" target="_blank">Registry View</a></li>
-        <li><a href="/html/datasources.html" target="_blank">Datasources Page</a></li>
-        <li><a href="/html/workspaces.html" target="_blank">Workspaces Page</a></li>
-        <li><a href="/html/jobs.html" target="_blank">Tools Results</a></li>
-        <li><a href="/html/channels.html" target="_blank">Channel Test Page</a></li>
-        <li><a href="/html/feeds.html" target="_blank">Feeds Test Page</a></li>
-        <li><a href="/html/greenlist.html" target="_blank">Manage User Access</a></li>
-        <li><a href="/html/apikeys.html" target="_blank">Generate API Keys</a></li>
-    </ul>
+<div id="container_topbar"></div>
+<div id="container_main">
+    <div id="container_services"></div>
+    <div id="container_apps"></div>
+    <div id="container_links">
+        <ul>
+            <li><a href="/html/apps.html" target="_blank">Registered Applications</a></li>
+            <li><a href="/html/registry.html" target="_blank">Registry View</a></li>
+            <li><a href="/html/datasources.html" target="_blank">Datasources Page</a></li>
+            <li><a href="/html/workspaces.html" target="_blank">Workspaces Page</a></li>
+            <li><a href="/html/jobs.html" target="_blank">Tools Results</a></li>
+            <li><a href="/html/channels.html" target="_blank">Channel Test Page</a></li>
+            <li><a href="/html/feeds.html" target="_blank">Feeds Test Page</a></li>
+            <li><a href="/html/greenlist.html" target="_blank">Manage User Access</a></li>
+            <li><a href="/html/apikeys.html" target="_blank">Generate API Keys</a></li>
+        </ul>
+    </div>
 </div>
 </body>
 </html>

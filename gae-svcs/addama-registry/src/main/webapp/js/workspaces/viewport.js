@@ -1,24 +1,3 @@
-var headerPanel = {
-    id: "panel-title-control",
-    xtype: "box",
-    region: "north",
-    height: 54,
-    border: true,
-    split: true,
-    items:[
-        new Ext.Panel({ contentEl: "c_banner" }),
-        new Ext.Panel({ contentEl: "container_topbar" })
-    ]
-};
-
-var footerPanel = {
-    region: 'south',
-    collapsible: false,
-    split: true,
-    autoHeight: true,
-    contentEl: "container_footer"
-};
-
 var startPanel = {
     id: "main-content-start-panel",
     layout: "fit",
@@ -97,10 +76,10 @@ var mainPanel = new Ext.TabPanel({
 });
 
 Ext.onReady(function() {
-    new Ext.Viewport({
+    new Ext.Panel({
         layout: "border",
-        items: [headerPanel, browsePanel, footerPanel, mainPanel],
-        renderTo: Ext.getBody()
+        items: [browsePanel, mainPanel],
+        renderTo: "container_main"
     });
 });
 Ext.onReady(loadTree);

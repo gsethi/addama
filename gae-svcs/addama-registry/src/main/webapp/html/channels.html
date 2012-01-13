@@ -9,6 +9,7 @@
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <script type="text/javascript" src="/js/apis/channels.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
@@ -35,6 +36,13 @@
                 contentEl: "container_topbar"
             });
 
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
+
             channelPublisher = new org.systemsbiology.addama.js.ChannelPublisher();
 
             new org.systemsbiology.addama.js.ChannelListener({
@@ -58,30 +66,25 @@
 
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
 <div id="container_topbar" class="topbar"></div>
+<div id="container_main">
+    <h3>Publish JSON</h3>
+    <div>
+        <textarea id="container_event_entry" rows="10" cols="50"></textarea>
+        <button onclick="publishEvent();">Publish Event</button>
+    </div>
 
-<h3>Publish JSON</h3>
+    <h3>Publish Text</h3>
+    <div>
+        <textarea id="container_message_entry" rows="10" cols="50"></textarea>
+        <button onclick="publishMessage();">Publish Text</button>
+    </div>
 
-<div>
-    <textarea id="container_event_entry" rows="10" cols="50"></textarea>
-    <button onclick="publishEvent();">Publish Event</button>
+    <h3>Listen</h3>
+    <div id="container_events"></div>
+
+    <h3>Messages</h3>
+    <div id="container_messages"></div>
 </div>
-
-<h3>Publish Text</h3>
-
-<div>
-    <textarea id="container_message_entry" rows="10" cols="50"></textarea>
-    <button onclick="publishMessage();">Publish Text</button>
-</div>
-
-<h3>Listen</h3>
-
-<div id="container_events"></div>
-
-<h3>Messages</h3>
-
-<div id="container_messages"></div>
-
 </body>
 </html>

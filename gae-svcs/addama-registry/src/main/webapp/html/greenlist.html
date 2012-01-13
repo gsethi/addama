@@ -8,18 +8,29 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets/greenlist.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
     <script type="text/javascript">
         Ext.onReady(function() {
-            new org.systemsbiology.addama.js.TopBar({ contentEl: "c_topbar" });
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar",
+                listeners: {
+                    whoami: function() {
+                        LoadGreenlist("container_main");
+                    }
+                }
+            });
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
         });
-        Ext.onReady(LoadViewport);
-        Ext.onReady(LoadGreenlist);
     </script>
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
-<div id="c_topbar"></div>
-<div id="c_greenlist"></div>
+<div id="container_topbar"></div>
+<div id="container_main"></div>
 </body>
 </html>

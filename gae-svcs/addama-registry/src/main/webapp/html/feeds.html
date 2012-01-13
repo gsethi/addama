@@ -14,40 +14,33 @@
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/widgets/feedgrid.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
     <script type="text/javascript">
         Ext.onReady(function() {
-            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
-
-            new Ext.Viewport({
-                layout:'border',
-                items:[
-                    {
-                        id: "topbar-panel",
-                        region: "north",
-                        height: 54,
-                        border: false,
-                        frame: false,
-                        xtype: "box",
-                        split: true,
-                        items:[
-                            new Ext.Panel({ contentEl: "c_banner" }),
-                            new Ext.Panel({ contentEl: "container_topbar" }),
-                            new Ext.BoxComponent({ contentEl: 'header' })
-                        ]
-                    },
-                    new FeedGrid('/addama/feeds/announcements/rss')
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar"
+                listeners: {
+                    whoami: function() {
+                        new FeedGrid('/addama/feeds/announcements/rss', {
+                            contentEl: "container_main"
+                        });
+                    }
+                }
+            });
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    new Ext.BoxComponent({ contentEl: 'container_main' })
                 ]
             });
         });
     </script>
 </head>
 <body>
-<div id="c_banner"><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>
 <div id="container_topbar" class="topbar"></div>
-<div id="header">
+<div id="container_main">
     <div style="float:right;margin:5px;" class="x-small-editor"></div>
 </div>
 </body>
-
 </html>

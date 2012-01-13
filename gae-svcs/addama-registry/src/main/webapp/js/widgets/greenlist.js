@@ -4,48 +4,7 @@ var greenlistStore = new Ext.data.ArrayStore({
     fields: [ {name: "id"}, {name: "uri"} ]
 });
 
-var LoadViewport = function() {
-    new Ext.Viewport({
-        layout:'border',
-        items:[
-            {
-                id: "topbar-panel",
-                region: "north",
-                height: 54,
-                border: false,
-                frame: false,
-                xtype: "box",
-                split: true,
-                items:[
-                    new Ext.Panel({ contentEl: "c_banner" }),
-                    new Ext.Panel({ contentEl: "c_topbar" })
-                ]
-            },
-            new Ext.grid.GridPanel({
-                store: greenlistStore,
-                title: "Members",
-                tbar: [
-                    new Ext.Button(new Ext.Action({ text: "Add User", handler: AddNewUser }))
-                ],
-                columns: [
-                    { header: "User", width: 300, sortable: true, dataIndex: "id" },
-                    { header: "Uri", width: 300, sortable: true, dataIndex: "uri", hidden: true }
-                ],
-                stripeRows: true,
-                autoHeight: true,
-                autoScroll: true,
-                frame: true,
-                width: 600,
-                region:"center",
-                bodyStyle: "padding:10px;",
-                style: "padding:10px;",
-                contentEl: "c_greenlist"
-            })
-        ]
-    });
-};
-
-var LoadGreenlist = function() {
+var LoadGreenlist = function(contentEl) {
     Ext.MessageBox.show({
         msg: "Loading, please wait...",
         progressText: "Loading...",
@@ -70,6 +29,27 @@ var LoadGreenlist = function() {
         },
         failure: HandleFailure
     });
+
+    new Ext.grid.GridPanel({
+        store: greenlistStore,
+        title: "Members",
+        tbar: [
+            new Ext.Button(new Ext.Action({ text: "Add User", handler: AddNewUser }))
+        ],
+        columns: [
+            { header: "User", width: 300, sortable: true, dataIndex: "id" },
+            { header: "Uri", width: 300, sortable: true, dataIndex: "uri", hidden: true }
+        ],
+        stripeRows: true,
+        autoHeight: true,
+        autoScroll: true,
+        frame: true,
+        width: 600,
+        region:"center",
+        bodyStyle: "padding:10px;",
+        style: "padding:10px;",
+        contentEl: contentEl
+    })
 };
 
 var AddNewUser = function() {
