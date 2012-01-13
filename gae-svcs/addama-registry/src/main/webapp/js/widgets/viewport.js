@@ -32,6 +32,18 @@ org.systemsbiology.addama.js.Viewport = Ext.extend(Object, {
             ]
         });
 
+        if (tabs && tabs.length) {
+            var firstTab = tabs[0];
+            if (!firstTab.title) {
+                firstTab.title = "Main";
+            }
+            Ext.each(tabs, function(tab) {
+                if (!tab.title) {
+                    tab.title = "...";
+                }
+            });
+        }
+
         var tabPanel = new Ext.TabPanel({
             region: "center",
             items: this.tabs,
