@@ -40,6 +40,7 @@ import org.systemsbiology.google.visualization.datasource.jdbc.JdbcTemplateMappi
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
@@ -48,6 +49,8 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
  */
 @Controller
 public class ChromIndexServiceController {
+    private static final Logger log = Logger.getLogger(ChromIndexServiceController.class.getName());
+
     private final Map<String, JdbcTemplate> jdbcTemplateById = new HashMap<String, JdbcTemplate>();
     private final Map<String, JSONObject> schemasById = new HashMap<String, JSONObject>();
     private Iterable<Mapping> mappings;
@@ -62,6 +65,7 @@ public class ChromIndexServiceController {
     @RequestMapping(value = "/**/indexes", method = RequestMethod.GET)
     protected ModelAndView builds(HttpServletRequest request) throws Exception {
         String uri = getURI(request);
+        log.info(uri);
 
         JSONObject json = new JSONObject();
         json.put("uri", uri);
@@ -79,6 +83,7 @@ public class ChromIndexServiceController {
     @RequestMapping(value = "/**/indexes/{build}", method = RequestMethod.GET)
     protected ModelAndView build(HttpServletRequest request, @PathVariable("build") String build) throws Exception {
         String uri = getURI(request);
+        log.info(uri);
 
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
         JSONObject schema = schemasById.get(build);
@@ -108,6 +113,7 @@ public class ChromIndexServiceController {
                                       @PathVariable("build") String build,
                                       @PathVariable("chromosome") String chromosome) throws Exception {
         String uri = getURI(request);
+        log.info(uri);
 
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
         JSONObject schema = schemasById.get(build);
@@ -130,6 +136,8 @@ public class ChromIndexServiceController {
                                        @PathVariable("start") Long start,
                                        @PathVariable("end") Long end) throws Exception {
         String uri = getURI(request);
+        log.info(uri);
+
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
         JSONObject schema = schemasById.get(build);
         if (jdbcTemplate == null || schema == null) {
@@ -154,6 +162,8 @@ public class ChromIndexServiceController {
                                         @PathVariable("end") Long end,
                                         @PathVariable("strand") String strand) throws Exception {
         String uri = getURI(request);
+        log.info(uri);
+
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
         JSONObject schema = schemasById.get(build);
         if (jdbcTemplate == null || schema == null) {
