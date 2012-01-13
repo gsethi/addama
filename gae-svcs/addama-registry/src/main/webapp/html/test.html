@@ -2,61 +2,46 @@
 <head>
     <title>Test Page</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/examples/shared/examples.css"/>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.3.1/ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
-
-    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
-    <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/viewport.css"/>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
-
-            DrawViewport([
-                new Ext.Panel({
-                    title:'Main',
-                    contentEl: 'container_main',
-                    html: "This is the main tab"
-                }),
-                new Ext.Panel({
-                    title:'REST+JSON',
-                    contentEl: 'container_restjson',
-                    html: "This is the rest+json tab"
-                }),
-                new Ext.Panel({
-                    title:'Code',
-                    contentEl: 'container_code',
-                    html: "This is the code tab"
-                })
-            ]);
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [
+                    new Ext.Panel({
+                        title:'Main',
+                        contentEl: 'container_main',
+                        html: "This is the main tab"
+                    }),
+                    new Ext.Panel({
+                        title:'REST+JSON',
+                        contentEl: 'container_restjson',
+                        html: "This is the rest+json tab"
+                    }),
+                    new Ext.Panel({
+                        title:'Code',
+                        contentEl: 'container_code',
+                        html: "This is the code tab"
+                    })
+                ]
+            });
         });
     </script>
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
-<div id="container_banner">
-    <a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a>
-    <img src="http://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine" align="middle"/>
-</div>
-<div id="container_tabs">
-    <div id="container_main"></div>
-    <div id="container_restjson"></div>
-    <div id="container_code"></div>
-</div>
-<div id="container_footer" class="footer">
-    <h2 align="center" style="vertical-align: middle;">
-        <a href="/addama/apikeys/file">Download API Keys</a> |
-        <a href="http://www.systemsbiology.org" target="_blank">Institute for Systems Biology</a> |
-        <a href="http://shmulevich.systemsbiology.net/" target="_blank">Shmulevich Lab</a> |
-        <a href="http://codefor.systemsbiology.net/" target="_blank">Code for Systems Biology</a> |
-        <a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554" target="_blank">PMID 19265554</a>
-    </h2>
-</div>
+<div id="container_main"></div>
+<div id="container_restjson"></div>
+<div id="container_code"></div>
 </body>
 </html>
