@@ -1,6 +1,6 @@
 Ext.ns("org.systemsbiology.addama.js");
 
-org.systemsbiology.addama.js.Viewport = Ext.extend({
+org.systemsbiology.addama.js.Viewport = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
