@@ -19,10 +19,8 @@
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
-    <script type="text/javascript" src="/js/workspaces/mainPanel.js"></script>
     <script type="text/javascript" src="/js/workspaces/statusMessages.js"></script>
     <script type="text/javascript" src="/js/workspaces/fileUploadWindow.js"></script>
-    <script type="text/javascript" src="/js/workspaces/tree.js"></script>
     <script type="text/javascript" src="/js/workspaces/tabPanels.js"></script>
     <script type="text/javascript" src="/js/widgets/viewport.js"></script>
 
@@ -36,7 +34,7 @@
                 tabs: [ wtp.browsePanel, wtp.mainPanel ]
             });
 
-            loadTree();
+            wtp.loadTree();
         });
     </script>
 </head>
@@ -62,7 +60,7 @@
     <div id="main-content-folder">
         <div style="margin-left:50px;">
             <h2><span id="main-content-folder-item"></span></h2>
-            <br/><a href="workspaces.html#" onclick="doCreateFolder(); return false;">Create Folder</a>
+            <br/><a href="workspaces.html#" onclick="CreateFolder(); return false;">Create Folder</a>
             <br/><a href="workspaces.html#" onclick="doFileUpload(); return false;">Upload File</a>
         </div>
     </div>

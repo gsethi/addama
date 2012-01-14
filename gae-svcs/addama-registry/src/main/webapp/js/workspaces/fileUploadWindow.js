@@ -77,7 +77,7 @@ function doFileUpload() {
 function uploadFile() {
     uploadProgressWindow.show();
 
-    var selectedNode = tree.getSelectionModel().getSelectedNode();
+    var selectedNode = this.treePanel.getSelectionModel().getSelectedNode();
     if (selectedNode) {
         Ext.Ajax.request({
             url: selectedNode.attributes.uri + "/directlink",
@@ -92,7 +92,7 @@ function uploadFile() {
                             uploadProgressWindow.hide();
                             fileUploadWindow.hide();
                             statusBar.displayMessage("File uploaded successfully");
-                            refreshNodeTree(selectedNode);
+                            RefreshNodeTree(selectedNode);
                         },
                         failure: function() {
                             statusBar.displayError("Failed to upload file [form]");
