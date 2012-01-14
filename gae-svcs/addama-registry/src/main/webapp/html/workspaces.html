@@ -23,26 +23,27 @@
     <script type="text/javascript" src="/js/workspaces/statusMessages.js"></script>
     <script type="text/javascript" src="/js/workspaces/fileUploadWindow.js"></script>
     <script type="text/javascript" src="/js/workspaces/tree.js"></script>
-    <script type="text/javascript" src="/js/workspaces/viewport.js"></script>
+    <script type="text/javascript" src="/js/workspaces/tabPanels.js"></script>
     <script type="text/javascript" src="/js/widgets/viewport.js"></script>
 
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            var wtp = new org.systemsbiology.addama.js.WorkspacesTabPanel();
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
-                tabs: [
-                    { contentEl: "container_main" }
-                ]
+                tabs: [ wtp.browsePanel, wtp.mainPanel ]
             });
+
+            loadTree();
         });
     </script>
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
 
-<div id="container_main" style="display:none;">
+<div id="container_main">
     <div id="panel-repositories">
         <div id="content-repositories">
         </div>
