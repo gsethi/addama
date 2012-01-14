@@ -20,13 +20,12 @@
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
 
-            new org.systemsbiology.addama.js.AjaxMonitor({ contentEl: "container_restjson" });
+            var ajaxMonitor = new org.systemsbiology.addama.js.AjaxMonitor();
 
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 tabs: [
-                    { contentEl: "container_main" },
-                    { contentEl: "container_restjson", title: "AJAX" }
+                    { contentEl: "container_main" }, ajaxMonitor.gridPanel
                 ]
             });
 
@@ -137,6 +136,5 @@
     <div id="container_datasources">/addama/datasources</div>
     <div id="container_indexes">/addama/indexes</div>
 </div>
-<div id="container_restjson"></div>
 </body>
 </html>
