@@ -42,6 +42,10 @@ org.systemsbiology.addama.js.Viewport = Ext.extend(Object, {
                     tab.title = "...";
                 }
             });
+            if (this.activateAjaxMonitor) {
+                var ajaxMonitor = new org.systemsbiology.addama.js.AjaxMonitor();
+                this.tabs.push(ajaxMonitor.gridPanel);
+            }
         }
 
         var tabPanel = new Ext.TabPanel({

@@ -20,12 +20,11 @@
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
 
-            var ajaxMonitor = new org.systemsbiology.addama.js.AjaxMonitor();
-
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
                 tabs: [
-                    { contentEl: "container_main" }, ajaxMonitor.gridPanel
+                    { contentEl: "container_main" }
                 ]
             });
 
