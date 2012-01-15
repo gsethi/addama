@@ -70,16 +70,13 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             loader: new Ext.tree.TreeLoader(),
             root: new Ext.tree.AsyncTreeNode()
         });
-        this.treePanel.on("expandnode", this.expandNode, this, {single: true});
-        this.treePanel.on("expandnode", this.displayNodeInContentPanel, this, {single: true});
-        this.treePanel.on("expandnode", this.displayNodeProperties, this, {single: true});
-        this.treePanel.on("click", RefreshNodeTree, this, {single: true});
-        this.treePanel.on("click", this.displayNodeInContentPanel, this, {single: true});
-        this.treePanel.on("click", this.displayNodeProperties, this, {single: true});
+        this.treePanel.on("expandnode", this.lookupNodeItems, this);
+        this.treePanel.on("expandnode", this.displayNodeInContentPanel, this);
+        this.treePanel.on("expandnode", this.displayNodeProperties, this);
 
         this.fileUploadControl = new org.systemsbiology.addama.js.FileUploadControl({ treePanel: this.treePanel });
 
-        this.propertyGrid = new Ext.grid.PropertyGrid({
+        this.propertyGrid = new Ext.grid.GridPanel({
             title: "Properties",
             border:true,
             width: 320,
@@ -89,6 +86,7 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             autoScroll: true,
             collapsed: true,
             collapsible: true,
+            titleCollapse: true,
             autoHeight: true,
             autoWidth: true,
             store: new Ext.data.JsonStore()
@@ -167,7 +165,7 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         return data;
     },
 
-    expandNode: function (node) {
+    lookupNodeItems: function (node) {
         if (node.id == "addamatreetopid") {
             return;
         }
