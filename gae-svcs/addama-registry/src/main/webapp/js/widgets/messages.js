@@ -11,20 +11,19 @@ org.systemsbiology.addama.js.MessageBox = Ext.extend(Object, {
         this.messageContainer = Ext.DomHelper.insertFirst(document.body, {id:'container_js_message'}, true);
     },
 
-    show: function(title, format) {
-        var s = Ext.String.format.apply(String, Array.prototype.slice.call(arguments, 1));
-        var msgBox = '<div class="msg"><h3>' + title + '</h3><p>' + s + '</p></div>';
-        var m = Ext.DomHelper.append(this.messageContainer, msgBox, true);
-        m.hide();
-        m.slideIn('t').ghost("t", { delay: 1000, remove: true});
+    show: function(title, message) {
+        this.display(title, "msg", message);
     },
 
-    error: function(title, format) {
-        var s = Ext.String.format.apply(String, Array.prototype.slice.call(arguments, 1));
-        var msgBox = '<div class="x-status-error"><h3>' + title + '</h3><p>' + s + '</p></div>';
-        var m = Ext.DomHelper.append(this.messageContainer, msgBox, true);
-        m.hide();
-        m.slideIn('t').ghost("t", { delay: 1000, remove: true});
+    error: function(title, message) {
+        this.display(title, "x-status-error", message);
+    },
+
+    display: function(title, divClass, message) {
+        var msgBox = '<div class="' + divClass + '"><h3>' + title + '</h3><p>' + message + '</p></div>';
+        var messageEl = Ext.DomHelper.append(this.messageContainer, msgBox, true);
+        messageEl.hide();
+        messageEl.slideIn('t').ghost("t", { delay: 1000, remove: true});
     }
 });
 
