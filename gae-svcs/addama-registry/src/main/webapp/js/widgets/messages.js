@@ -31,7 +31,7 @@ org.systemsbiology.addama.js.ChannelAsMessages = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.ChannelNotifier.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.ChannelAsMessages.superclass.constructor.call(this);
 
         new org.systemsbiology.addama.js.ChannelListener({
             listeners: {
