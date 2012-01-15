@@ -70,7 +70,6 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             loader: new Ext.tree.TreeLoader(),
             root: new Ext.tree.AsyncTreeNode()
         });
-        this.treePanel.render();
         this.treePanel.on("expandnode", this.expandNode, this, {single: true});
         this.treePanel.on("expandnode", this.displayNodeInContentPanel, this, {single: true});
         this.treePanel.on("expandnode", this.displayNodeInPropertiesPanel, this, {single: true});
