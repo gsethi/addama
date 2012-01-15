@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="/css/workspaces.css">
 
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/statusbar/StatusBar.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/fileuploadfield/FileUploadField.js"></script>
 
@@ -19,10 +19,10 @@
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
-    <script type="text/javascript" src="/js/workspaces/statusMessages.js"></script>
-    <script type="text/javascript" src="/js/workspaces/fileUploadWindow.js"></script>
-    <script type="text/javascript" src="/js/workspaces/tabPanels.js"></script>
-    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+    <script type="text/javascript" src="../js/workspaces/statusMessages.js"></script>
+    <script type="text/javascript" src="../js/workspaces/fileUploadWindow.js"></script>
+    <script type="text/javascript" src="../js/workspaces/tabPanels.js"></script>
+    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
 
     <script type="text/javascript">
         Ext.onReady(function() {
@@ -31,10 +31,8 @@
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
-                tabs: [ wtp.browsePanel, wtp.mainPanel ]
+                tabs: [ wtp.mainPanel, wtp.propertiesPanel ]
             });
-
-            wtp.loadTree();
         });
     </script>
 </head>
