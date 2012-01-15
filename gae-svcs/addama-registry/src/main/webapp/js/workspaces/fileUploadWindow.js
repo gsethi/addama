@@ -11,12 +11,7 @@ Ext.onReady(function() {
         modal: true,
         closeAction: 'hide',
         bodyStyle: 'padding:10px;',
-        html: "File uploading...",
-        bbar: new Ext.ux.StatusBar({ id: 'upload-file-statusbar', defaultText: 'Ready' })
-    });
-    uploadProgressWindow.on("show", function () {
-        var sb = Ext.getCmp("upload-file-statusbar");
-        sb.showBusy();
+        html: "File uploading..."
     });
 
     fileUploadWindow = new Ext.Window({
@@ -91,25 +86,25 @@ function uploadFile() {
                         success: function() {
                             uploadProgressWindow.hide();
                             fileUploadWindow.hide();
-                            statusBar.displayMessage("File uploaded successfully");
+                            org.systemsbiology.addama.js.Message.show("Workspaces", "File uploaded successfully");
                             RefreshNodeTree(selectedNode);
                         },
-                        failure: function() {
-                            statusBar.displayError("Failed to upload file [form]");
+                        failure: function(o) {
+                            org.systemsbiology.addama.js.Message.error("Workspaces", "Failed to upload file [" + o.statusText + "]");
                             uploadProgressWindow.hide();
                         }
                     });
                 } else {
-                    statusBar.displayError("Failed to upload file [location]");
+                    org.systemsbiology.addama.js.Message.error("Workspaces", "Failed to upload file [location not specified]");
                     uploadProgressWindow.hide();
                 }
             },
-            failure: function() {
-                statusBar.displayError("Failed to upload file [broker]");
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Workspaces", "Failed to upload file [" + o.statusText + "]");
                 uploadProgressWindow.hide();
             }
         });
     } else {
-        statusBar.displayError("Please select a folder");
+        org.systemsbiology.addama.js.Message.error("Workspaces", "Please select a folder");
     }
 }

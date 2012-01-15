@@ -105,8 +105,7 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             layout: "border",
             border: true,
             split: true,
-            items:[ this.treePanel, this.contentPanel ],
-            bbar: statusBar
+            items:[ this.treePanel, this.contentPanel ]
         });
     },
 
@@ -148,12 +147,10 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
                     id:'addamatreetopid',
                     children: repos.items
                 }));
-
-                statusBar.displayMessage("Workspaces loaded");
             },
             scope: this,
             failure: function(response) {
-                statusBar.displayError("Failed to load workspaces");
+                org.systemsbiology.addama.js.Message.show("Workspaces", "Failed to load workspaces: " + response.statusText);
             }
         });
     },
@@ -247,15 +244,15 @@ function CreateFolder() {
                 url: selectedNode.attributes.uri + "/" + text,
                 method: "POST",
                 success: function() {
-                    statusBar.displayMessage("Folder '" + text + "' added successfully");
+                    org.systemsbiology.addama.js.Message.show("Workspaces", "Folder '" + text + "' added successfully");
                     RefreshNodeTree(selectedNode);
                 },
-                failure: function() {
-                    statusBar.displayError("Failed to add new folder");
+                failure: function(o) {
+                    org.systemsbiology.addama.js.Message.error("Workspaces", "Failed to add new folder [" + o.statusText + "]");
                 }
             });
         } else {
-            statusBar.displayError("Please select a folder");
+            org.systemsbiology.addama.js.Message.error("Workspaces", "Please select a folder");
         }
     };
 
