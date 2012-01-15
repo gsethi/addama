@@ -97,8 +97,8 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
             sortInfo: {field: "id", direction: "DESC"},
             fields: [
                 { name: "id", type: "int"},
+                { name: "method" },
                 { name: "uri" },
-                { name: "sentAt", type: "date" },
                 { name: "statusCode" },
                 { name: "statusText" },
                 { name: "responseText" },
@@ -111,8 +111,8 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
             store: this.store,
             columns: [
                 { header: "ID", width: 50, dataIndex: 'id', type: "int", sortable: true, hidden: true },
+                { header: "Method", width: 200, dataIndex: 'method' },
                 { header: "URI", width: 200, dataIndex: 'uri', sortable: true },
-                { header: "Date", width: 100, dataIndex: 'sentAt', type: "date", sortable: true, renderer: Ext.util.Format.dateRenderer() },
                 { header: "Status Code", width: 75, dataIndex: 'statusCode', sortable: true },
                 { header: "Status Text", width: 100, dataIndex: 'statusText' },
                 { header: "Response Text", width: 300, dataIndex: 'responseText', hidden: true }
@@ -134,8 +134,8 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
 
         var newData = {
             id:this.incrementedId(),
+            method: options.method,
             uri: options.url,
-            sentAt: new Date(),
             statusCode: response.status,
             statusText: response.statusText,
             responseText: response.responseText,
