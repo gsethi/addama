@@ -26,28 +26,28 @@ a:hover {
     padding: 5px 10px;
 }
 
-#main-content-start h2 {
+#container_start h2 {
     font-size: 12px;
     color: #555;
     padding-bottom: 5px;
     border-bottom: 1px solid #C3D0DF;
 }
 
-#main-content-start p {
+#container_start p {
     margin: 10px 0;
 }
 
-#panel-properties h2 {
+#container_properties h2 {
     padding: 10px 10px 0;
     font-size: 12px;
     color: #15428B;
 }
 
-#panel-properties p {
+#container_properties p {
     padding: 10px 10px 0;
 }
 
-#panel-properties pre {
+#container_properties pre {
     border-top: 1px dotted #ddd;
     border-bottom: 1px dotted #ddd;
     margin-top: 10px;
@@ -55,12 +55,12 @@ a:hover {
     background: #f5f5f5;
 }
 
-#panel-properties {
+#container_properties {
     padding-bottom: 15px;
     background: #eee;
 }
 
-#panel-properties .info-properties {
+#container_properties .info-properties {
     margin: 15px;
     padding: 15px;
     border: 1px dotted #999;
@@ -106,12 +106,6 @@ a:hover {
 
 .inner-tab-custom .x-border-layout-ct {
     background: #fff;
-}
-
-#content-repositories {
-    padding-top: 10px;
-    padding-left: 10px;
-    text-align: left;
 }
 
 .upload-icon {

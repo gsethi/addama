@@ -16,24 +16,21 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
 
     loadPanels: function() {
         this.startPanel = new Ext.Panel({
-            id: "main-content-start-panel",
             layout: "fit",
             bodyStyle: "padding:25px",
-            contentEl: "main-content-start"
+            contentEl: "container_start"
         });
 
         this.folderViewPanel = new Ext.Panel({
-            id: "main-content-folder-panel",
             layout: "fit",
             bodyStyle: "padding:25px",
-            contentEl: "main-content-folder"
+            contentEl: "container_folder_content"
         });
 
         this.fileViewPanel = new Ext.Panel({
-            id: "main-content-file-panel",
             layout: "fit",
             bodyStyle: "padding:25px",
-            contentEl: "main-content-file"
+            contentEl: "container_file_content"
         });
 
         this.contentPanel = new Ext.Panel({
@@ -73,8 +70,13 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             root: new Ext.tree.AsyncTreeNode()
         });
 
+        this.propertiesGrid = new Ext.grid.PropertyGrid({
+            autoHeight: true,
+            autoWidth: true,
+            selModel: new Ext.grid.RowSelectionModel({singleSelect:true})
+        });
+
         this.propertiesPanel = new Ext.Panel({
-            id: "panel-properties-control",
             title: "Properties",
             layout: "fit",
             border:true,
@@ -86,7 +88,8 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             activeOnTop: false,
             bodyStyle: "padding-bottom:15px; background:#eee;",
             autoScroll: true,
-            contentEl: "panel-properties"
+            contentEl: "container_properties",
+            items: [this.propertiesGrid]
         });
 
         this.mainPanel = new Ext.Panel({
@@ -106,30 +109,23 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         var layout = this.contentPanel.layout;
         if (layout) {
             if (nodeCls == "repository" || nodeCls == "folder") {
-                layout.setActiveItem("main-content-folder-panel");
+                layout.setActiveItem(this.folderViewPanel.id);
 
                 var label = node.attributes.label ? node.attributes.label : node.attributes.name;
-                Ext.getDom("main-content-folder-item").innerHTML = "Selected Folder '" + label + "'";
+                Ext.getDom("container_folder_item").innerHTML = "Selected Folder '" + label + "'";
 
             } else if (nodeCls == "file") {
-                layout.setActiveItem("main-content-file-panel");
+                layout.setActiveItem(this.fileViewPanel.id);
                 this.renderFilePreviewAndLink(layout, node);
             } else {
-                layout.setActiveItem("main-content-start-panel");
+                layout.setActiveItem(this.startPanel.id);
             }
         }
     },
 
     displayNodeInPropertiesPanel: function (node) {
-        Ext.getDom("panel-properties").innerHTML = "";
-        var annotationsGrid = new Ext.grid.PropertyGrid({
-            renderTo: "panel-properties",
-            autoHeight: true,
-            autoWidth: true,
-            selModel: new Ext.grid.RowSelectionModel({singleSelect:true}),
-            source: node.attributes
-        });
-        annotationsGrid.render();
+        this.propertiesGrid.source = node.attributes;
+        this.propertiesGrid.render();
     },
 
     loadTree: function() {
@@ -227,12 +223,12 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         var uri = node.attributes.uri;
         var name = node.attributes.label ? node.attributes.label : node.attributes.name;
 
-        Ext.getDom("main-content-file-download").innerHTML = "<a href='" + uri + "' target='_blank'>Download '" + name + "'</a>";
-        Ext.getDom("main-content-file-preview").innerHTML = "";
+        Ext.getDom("container_file_download").innerHTML = "<a href='" + uri + "' target='_blank'>Download '" + name + "'</a>";
+        Ext.getDom("container_file_preview").innerHTML = "";
 
         var mimeType = node.attributes.mimeType;
         if (mimeType && mimeType.substring(0, 5) == "image") {
-            Ext.getDom("main-content-file-preview").innerHTML = "<img src='" + uri + "' width='50%' height='50%'/>";
+            Ext.getDom("container_file_preview").innerHTML = "<img src='" + uri + "' width='50%' height='50%'/>";
         }
     }
 });

@@ -7,7 +7,6 @@
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/statusbar/css/statusbar.css"/>
-    <link rel="stylesheet" type="text/css" href="/css/workspaces.css">
 
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
@@ -17,7 +16,9 @@
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/workspaces.css">
 
     <script type="text/javascript" src="../js/workspaces/statusMessages.js"></script>
     <script type="text/javascript" src="../js/workspaces/fileUploadWindow.js"></script>
@@ -39,37 +40,29 @@
 <body>
 <div id="container_topbar" class="topbar"></div>
 
-<div id="container_main">
-    <div id="panel-repositories">
-        <div id="content-repositories">
-        </div>
-    </div>
-
-    <div id="panel-properties">
-    </div>
-
-    <!-- Start page content -->
-    <div id="main-content-start">
-        <div style="margin-left:50px;">
-            <h2>Welcome to your Data</h2>
-        </div>
-    </div>
-
-    <div id="main-content-folder">
-        <div style="margin-left:50px;">
-            <h2><span id="main-content-folder-item"></span></h2>
-            <br/><a href="workspaces.html#" onclick="CreateFolder(); return false;">Create Folder</a>
-            <br/><a href="workspaces.html#" onclick="doFileUpload(); return false;">Upload File</a>
-        </div>
-    </div>
-
-    <div id="main-content-file">
-        <div style="margin-left:50px;">
-            <div id="main-content-file-download"></div>
-            <div id="main-content-file-preview"></div>
-        </div>
+<!-- Start page content -->
+<div id="container_start">
+    <div style="margin-left:50px;">
+        <h2>Welcome to your Data</h2>
     </div>
 </div>
+
+<div id="container_folder_content">
+    <div style="margin-left:50px;">
+        <h2><span id="container_folder_item"></span></h2>
+        <br/><a href="workspaces.html#" onclick="CreateFolder(); return false;">Create Folder</a>
+        <br/><a href="workspaces.html#" onclick="doFileUpload(); return false;">Upload File</a>
+    </div>
+</div>
+
+<div id="container_file_content">
+    <div style="margin-left:50px;">
+        <div id="container_file_download"></div>
+        <div id="container_file_preview"></div>
+    </div>
+</div>
+
+<div id="container_properties"></div>
 
 </body>
 </html>
