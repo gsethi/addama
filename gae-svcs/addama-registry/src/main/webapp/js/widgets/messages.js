@@ -36,11 +36,11 @@ org.systemsbiology.addama.js.ChannelAsMessages = Ext.extend(Object, {
         new org.systemsbiology.addama.js.ChannelListener({
             listeners: {
                 open: function() {
-                    org.systemsbiology.addama.js.Message.show("Channel Opened");
+                    org.systemsbiology.addama.js.Message.show("Channels", "Broadcasted events will be shown here");
                 },
                 message: function(a) {
                     if (a && a.data && a.data.message) {
-                        org.systemsbiology.addama.js.Message.show(a.data.message);
+                        org.systemsbiology.addama.js.Message.show("Message", a.data.message);
                     }
                 }
             }

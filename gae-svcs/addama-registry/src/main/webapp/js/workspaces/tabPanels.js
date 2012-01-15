@@ -139,10 +139,12 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
                     id:'addamatreetopid',
                     children: repos.items
                 }));
+
+                org.systemsbiology.addama.js.Message.show("Workspaces", "Ready to browse");
             },
             scope: this,
             failure: function(response) {
-                org.systemsbiology.addama.js.Message.show("Workspaces", "Failed to load workspaces: " + response.statusText);
+                org.systemsbiology.addama.js.Message.error("Workspaces", "Failed to load workspaces: " + response.statusText);
             }
         });
     },
