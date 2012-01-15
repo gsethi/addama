@@ -46,6 +46,7 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         this.treePanel = new Ext.tree.TreePanel({
             id: "tree-panel",
             title: "Workspaces",
+            contentEl: "container_tree",
             region:"west",
             split: true,
             minSize: 150,
@@ -69,6 +70,13 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             loader: new Ext.tree.TreeLoader(),
             root: new Ext.tree.AsyncTreeNode()
         });
+        this.treePanel.render();
+        this.treePanel.on("expandnode", this.expandNode, this, {single: true});
+        this.treePanel.on("expandnode", this.displayNodeInContentPanel, this, {single: true});
+        this.treePanel.on("expandnode", this.displayNodeInPropertiesPanel, this, {single: true});
+        this.treePanel.on("click", RefreshNodeTree, this, {single: true});
+        this.treePanel.on("click", this.displayNodeInContentPanel, this, {single: true});
+        this.treePanel.on("click", this.displayNodeInPropertiesPanel, this, {single: true});
 
         this.propertiesGrid = new Ext.grid.PropertyGrid({
             autoHeight: true,
@@ -129,14 +137,6 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
     },
 
     loadTree: function() {
-        this.treePanel.render();
-        this.treePanel.on("expandnode", this.expandNode, this, {single: true});
-        this.treePanel.on("expandnode", this.displayNodeInContentPanel, this, {single: true});
-        this.treePanel.on("expandnode", this.displayNodeInPropertiesPanel, this, {single: true});
-        this.treePanel.on("click", RefreshNodeTree, this, {single: true});
-        this.treePanel.on("click", this.displayNodeInContentPanel, this, {single: true});
-        this.treePanel.on("click", this.displayNodeInPropertiesPanel, this, {single: true});
-
         Ext.Ajax.request({
             url: "/addama/workspaces",
             method: "GET",
