@@ -8,8 +8,6 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
 
         org.systemsbiology.addama.js.WorkspacesTabPanel.superclass.constructor.call(this);
 
-        org.systemsbiology.addama.js.TreePanel = this;
-
         this.loadPanels();
         this.loadTree();
     },
@@ -67,6 +65,8 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         this.treePanel.on("expandnode", this.displayNodeProperties, this);
         this.treePanel.on("click", this.displayNodeInContentPanel, this);
         this.treePanel.on("click", this.displayNodeProperties, this);
+
+        org.systemsbiology.addama.js.TreePanel = this.treePanel;
 
         this.fileUploadControl = new org.systemsbiology.addama.js.FileUploadControl({ treePanel: this.treePanel });
 
