@@ -23,7 +23,7 @@ org.systemsbiology.addama.js.MessageBox = Ext.extend(Object, {
         var msgBox = '<div class="' + divClass + '"><h3>' + title + '</h3><p>' + message + '</p></div>';
         var messageEl = Ext.DomHelper.append(this.messageContainer, msgBox, true);
         messageEl.hide();
-        messageEl.slideIn('t').ghost("t", { delay: 3000, remove: true});
+        messageEl.slideIn('t', { duration:1 }).pause(2).puff('t', { duration:1 });
     }
 });
 
