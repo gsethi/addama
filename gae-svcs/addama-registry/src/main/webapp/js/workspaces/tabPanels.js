@@ -34,10 +34,9 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         });
 
         this.contentPanel = new Ext.Panel({
-            id: "panel-content-control",
-            title: "Main",
             layout: "card",
             region: "center",
+            margins: "5 0 5 5",
             activeItem: 0,
             border: false,
             items: [ this.startPanel, this.folderViewPanel, this.fileViewPanel ]
@@ -55,13 +54,6 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             margins: "5 0 5 5",
             width: 275,
             maxSize: 500,
-            layout: "fit",
-            layoutConfig: {
-                titleCollapse: true,
-                hideCollapseTool: true,
-                animate: true,
-                activeOnTop: false
-            },
             // tree-specific configs:
             rootVisible: false,
             lines: false,
@@ -73,6 +65,8 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         this.treePanel.on("expandnode", this.lookupNodeItems, this);
         this.treePanel.on("expandnode", this.displayNodeInContentPanel, this);
         this.treePanel.on("expandnode", this.displayNodeProperties, this);
+        this.treePanel.on("click", this.displayNodeInContentPanel, this);
+        this.treePanel.on("click", this.displayNodeProperties, this);
 
         this.fileUploadControl = new org.systemsbiology.addama.js.FileUploadControl({ treePanel: this.treePanel });
 
@@ -103,6 +97,12 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
     },
 
     displayNodeInContentPanel: function(node) {
+        if (this.lastSelectedNodeId && this.lastSelectedNodeId == node.id) {
+            return;
+        }
+
+        this.lastSelectedNodeId = node.id;
+
         var nodeCls = node.attributes.cls;
 
         var layout = this.contentPanel.layout;
