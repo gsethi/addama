@@ -27,6 +27,27 @@ org.systemsbiology.addama.js.MessageBox = Ext.extend(Object, {
     }
 });
 
+org.systemsbiology.addama.js.ChannelAsMessages = Ext.extend(Object, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.ChannelNotifier.superclass.constructor.call(this);
+
+        new org.systemsbiology.addama.js.ChannelListener({
+            listeners: {
+                open: function() {
+                    org.systemsbiology.addama.js.Message.show("Channel Opened");
+                },
+                message: function(a) {
+                    if (a && a.data && a.data.message) {
+                        org.systemsbiology.addama.js.Message.show(a.data.message);
+                    }
+                }
+            }
+        });
+    }
+});
+
 Ext.onReady(function() {
     org.systemsbiology.addama.js.Message = new org.systemsbiology.addama.js.MessageBox();
 });
