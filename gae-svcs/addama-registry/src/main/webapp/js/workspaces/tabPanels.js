@@ -72,42 +72,33 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         });
         this.treePanel.on("expandnode", this.expandNode, this, {single: true});
         this.treePanel.on("expandnode", this.displayNodeInContentPanel, this, {single: true});
-        this.treePanel.on("expandnode", this.displayNodeInPropertiesPanel, this, {single: true});
+        this.treePanel.on("expandnode", this.displayNodeProperties, this, {single: true});
         this.treePanel.on("click", RefreshNodeTree, this, {single: true});
         this.treePanel.on("click", this.displayNodeInContentPanel, this, {single: true});
-        this.treePanel.on("click", this.displayNodeInPropertiesPanel, this, {single: true});
+        this.treePanel.on("click", this.displayNodeProperties, this, {single: true});
 
         this.fileUploadControl = new org.systemsbiology.addama.js.FileUploadControl({ treePanel: this.treePanel });
 
-        this.propertiesGrid = new Ext.grid.PropertyGrid({
-            autoHeight: true,
-            autoWidth: true,
-            selModel: new Ext.grid.RowSelectionModel({singleSelect:true})
-        });
-
-        this.propertiesPanel = new Ext.Panel({
+        this.propertyGrid = new Ext.grid.PropertyGrid({
             title: "Properties",
-            layout: "fit",
             border:true,
-            margins: "5 5 5 0",
             width: 320,
+            region: "south",
             minSize: 100,
             maxSize: 500,
-            animate: true,
-            activeOnTop: false,
-            bodyStyle: "padding-bottom:15px; background:#eee;",
             autoScroll: true,
-            contentEl: "container_properties",
-            items: [this.propertiesGrid]
+            autoHeight: true,
+            autoWidth: true,
+            store: new Ext.data.JsonStore()
         });
 
         this.mainPanel = new Ext.Panel({
-            id: "panel-main-control",
+            title: "Main",
             margins: "5 5 5 0",
             layout: "border",
             border: true,
             split: true,
-            items:[ this.treePanel, this.contentPanel ]
+            items:[ this.treePanel, this.contentPanel, this.propertyGrid ]
         });
     },
 
@@ -131,9 +122,8 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         }
     },
 
-    displayNodeInPropertiesPanel: function (node) {
-        this.propertiesGrid.source = node.attributes;
-        this.propertiesGrid.render();
+    displayNodeProperties: function (node) {
+        this.propertyGrid.setSource(node.attributes);
     },
 
     loadTree: function() {
