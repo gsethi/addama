@@ -34,11 +34,11 @@ org.systemsbiology.addama.js.Viewport = Ext.extend(Object, {
 
         if (this.tabs && this.tabs.length) {
             var firstTab = this.tabs[0];
-            if (!firstTab.title) {
+            if (firstTab && !firstTab.title) {
                 firstTab.title = "Main";
             }
             Ext.each(this.tabs, function(tab) {
-                if (!tab.title) {
+                if (tab && !tab.title) {
                     tab.title = "...";
                 }
             });
