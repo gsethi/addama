@@ -77,6 +77,8 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         this.treePanel.on("click", this.displayNodeInContentPanel, this, {single: true});
         this.treePanel.on("click", this.displayNodeInPropertiesPanel, this, {single: true});
 
+        this.fileUploadControl = new org.systemsbiology.addama.js.FileUploadControl({ treePanel: this.treePanel });
+
         this.propertiesGrid = new Ext.grid.PropertyGrid({
             autoHeight: true,
             autoWidth: true,
