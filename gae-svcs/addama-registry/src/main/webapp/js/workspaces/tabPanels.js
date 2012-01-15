@@ -87,6 +87,8 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
             minSize: 100,
             maxSize: 500,
             autoScroll: true,
+            collapsed: true,
+            collapsible: true,
             autoHeight: true,
             autoWidth: true,
             store: new Ext.data.JsonStore()
