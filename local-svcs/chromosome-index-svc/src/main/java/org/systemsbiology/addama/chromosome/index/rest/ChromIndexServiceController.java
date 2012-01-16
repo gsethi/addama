@@ -133,7 +133,9 @@ public class ChromIndexServiceController {
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        json.put("data", values);
+        for (String value : values) {
+            json.append("data", value);
+        }
         return new ModelAndView(new JsonView()).addObject("json", values);
     }
 
@@ -157,7 +159,9 @@ public class ChromIndexServiceController {
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        json.put("data", values);
+        for (String value : values) {
+            json.append("data", value);
+        }
         return new ModelAndView(new JsonView()).addObject("json", values);
     }
 
@@ -183,7 +187,9 @@ public class ChromIndexServiceController {
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        json.put("data", values);
+        for (String value : values) {
+            json.append("data", value);
+        }
         return new ModelAndView(new JsonView()).addObject("json", values);
     }
 
@@ -209,7 +215,9 @@ public class ChromIndexServiceController {
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        json.put("data", values);
+        for (String value : values) {
+            json.append("data", value);
+        }
         return new ModelAndView(new JsonView()).addObject("json", values);
     }
 
