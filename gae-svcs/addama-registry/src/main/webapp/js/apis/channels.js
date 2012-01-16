@@ -122,7 +122,7 @@ org.systemsbiology.addama.js.ChannelMessages = Ext.extend(Object, {
                 console.log("messages will not be displayed, import messages.js");
             }
         });
-        org.systemsbiology.addama.js.ChannelApi.on("open", function(a) {
+        org.systemsbiology.addama.js.ChannelApi.on("message", function(a) {
             if (a && a.data && a.data.message) {
                 if (org.systemsbiology.addama.js.Message) {
                     org.systemsbiology.addama.js.Message.show("Message", a.data.message);
