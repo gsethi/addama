@@ -33,8 +33,11 @@ public class MinMaxRangeResultSetExtractor implements ResultSetExtractor<JSONObj
         try {
             if (rs.next()) {
                 JSONObject json = new JSONObject();
-                json.put("start", rs.getInt("CST"));
-                json.put("end", rs.getInt("CSE"));
+                int start = rs.getInt("CST");
+                int end = rs.getInt("CSE");
+                json.put("start", start);
+                json.put("end", end);
+                json.put("length", end - start);
                 return json;
             }
         } catch (JSONException e) {

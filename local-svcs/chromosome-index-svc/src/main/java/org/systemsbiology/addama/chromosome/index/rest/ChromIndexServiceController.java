@@ -31,6 +31,7 @@ import org.systemsbiology.addama.chromosome.index.pojos.QueryParams;
 import org.systemsbiology.addama.chromosome.index.pojos.Schema;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
+import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.jsonconfig.impls.JsonPropertyByIdMappingsHandler;
@@ -121,12 +122,12 @@ public class ChromIndexServiceController {
             throw new ResourceNotFoundException(uri);
         }
 
-        final JSONObject json = new JSONObject();
-        json.put("uri", uri);
-
         MinMaxRangeResultSetExtractor extractor = new MinMaxRangeResultSetExtractor(schema);
-        json.put("range", jdbcTemplate.query(extractor.SQL(), new Object[]{chromosome}, extractor));
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
+        JSONObject json = jdbcTemplate.query(extractor.SQL(), new Object[]{chromosome}, extractor);
+        json.put("uri", uri);
+        json.put("chromosome", chromosome);
+
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/indexes/{build}/{chromosome}/{start}/{end}", method = RequestMethod.GET)
