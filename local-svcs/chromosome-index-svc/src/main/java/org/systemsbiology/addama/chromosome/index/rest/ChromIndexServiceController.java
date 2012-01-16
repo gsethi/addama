@@ -129,14 +129,10 @@ public class ChromIndexServiceController {
         Schema s = new Schema(schema);
 
         String sql = "SELECT DISTINCT " + s.getGeneIdentifierColumn() + " FROM " + s.getTableName();
-        Iterable<String> values = jdbcTemplate.query(sql, new SingleStringResultSetExtractor());
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        json.put("data", values);
-//        for (String value : values) {
-//            json.append("data", value);
-//        }
+        json.put("data", jdbcTemplate.query(sql, new SingleStringResultSetExtractor()));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
@@ -156,13 +152,10 @@ public class ChromIndexServiceController {
         Schema s = new Schema(schema);
         QueryParams qp = new QueryParams(build, chromosome);
         RangeQueryDistinctGenesResultSetExtractor extractor = new RangeQueryDistinctGenesResultSetExtractor(s, qp);
-        Iterable<String> values = jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor);
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        for (String value : values) {
-            json.append("data", value);
-        }
+        json.put("data", jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
@@ -184,13 +177,10 @@ public class ChromIndexServiceController {
         Schema s = new Schema(schema);
         QueryParams qp = new QueryParams(build, chromosome, start, end);
         RangeQueryDistinctGenesResultSetExtractor extractor = new RangeQueryDistinctGenesResultSetExtractor(s, qp);
-        Iterable<String> values = jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor);
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        for (String value : values) {
-            json.append("data", value);
-        }
+        json.put("data", jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
@@ -212,13 +202,10 @@ public class ChromIndexServiceController {
         Schema s = new Schema(schema);
         QueryParams qp = new QueryParams(build, chromosome, start, end, strand);
         RangeQueryDistinctGenesResultSetExtractor extractor = new RangeQueryDistinctGenesResultSetExtractor(s, qp);
-        Iterable<String> values = jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor);
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        for (String value : values) {
-            json.append("data", value);
-        }
+        json.put("data", jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
