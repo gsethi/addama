@@ -123,11 +123,14 @@ org.systemsbiology.addama.js.ChannelMessages = Ext.extend(Object, {
             }
         });
         org.systemsbiology.addama.js.ChannelApi.on("message", function(a) {
-            if (a && a.data && a.data.message) {
-                if (org.systemsbiology.addama.js.Message) {
-                    org.systemsbiology.addama.js.Message.show("Message", a.data.message);
-                } else {
-                    console.log("messages will not be displayed, import messages.js: " + a.data.message);
+            if (a && a.data) {
+                var event = Ext.util.JSON.decode(a.data);
+                if (event && event.message) {
+                    if (org.systemsbiology.addama.js.Message) {
+                        org.systemsbiology.addama.js.Message.show("Message", event.message);
+                    } else {
+                        console.log("messages will not be displayed, import messages.js: " + event.message);
+                    }
                 }
             }
         });
