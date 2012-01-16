@@ -43,6 +43,11 @@
 
     <!-- Order of Filters Matters -->
     <filter>
+        <filter-name>filter-allow-through</filter-name>
+        <filter-class>org.systemsbiology.addama.appengine.filters.AllowThroughFilter</filter-class>
+    </filter>
+
+    <filter>
         <filter-name>filter-authentication</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
         <init-param>
@@ -77,6 +82,11 @@
             <param-value>filter-proxies</param-value>
         </init-param>
     </filter>
+
+    <filter-mapping>
+        <filter-name>filter-allow-through</filter-name>
+        <url-pattern>/_ah/channel/disconnected</url-pattern>
+    </filter-mapping>
 
     <filter-mapping>
         <filter-name>filter-authentication</filter-name>
