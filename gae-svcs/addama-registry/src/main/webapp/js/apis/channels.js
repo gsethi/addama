@@ -127,7 +127,11 @@ org.systemsbiology.addama.js.ChannelMessages = Ext.extend(Object, {
                 var event = Ext.util.JSON.decode(a.data);
                 if (event && event.message) {
                     if (org.systemsbiology.addama.js.Message) {
-                        org.systemsbiology.addama.js.Message.show("Message", event.message);
+                        var title = "Message";
+                        if (event.title) {
+                            title = event.title;
+                        }
+                        org.systemsbiology.addama.js.Message.show(title, event.message);
                     } else {
                         console.log("messages will not be displayed, import messages.js: " + event.message);
                     }
