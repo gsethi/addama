@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.chromosome.index.callbacks.MinMaxRangeResultSetExtractor;
+import org.systemsbiology.addama.chromosome.index.callbacks.RangeQueryDistinctGenesResultSetExtractor;
 import org.systemsbiology.addama.chromosome.index.callbacks.RangeQueryResultSetExtractor;
 import org.systemsbiology.addama.chromosome.index.pojos.QueryParams;
 import org.systemsbiology.addama.chromosome.index.pojos.Schema;
@@ -37,6 +38,7 @@ import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 import org.systemsbiology.addama.jsonconfig.impls.JsonPropertyByIdMappingsHandler;
 import org.systemsbiology.google.visualization.datasource.jdbc.DatabaseTableColumnConnectionCallback;
 import org.systemsbiology.google.visualization.datasource.jdbc.JdbcTemplateMappingsHandler;
+import org.systemsbiology.google.visualization.datasource.jdbc.SingleStringResultSetExtractor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -96,6 +98,7 @@ public class ChromIndexServiceController {
 
         JSONObject json = jdbcTemplate.execute(new DatabaseTableColumnConnectionCallback(tableName, "dataSchema"));
         json.put("uri", uri);
+        json.put("genes", uri + "/genes");
 
         String sql = "SELECT DISTINCT " + schema.optString("chromosome", "chrom") + " FROM " + tableName;
         for (String chromosome : jdbcTemplate.queryForList(sql, String.class)) {
@@ -109,6 +112,110 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
+    /*
+     * Gene Lookup Methods
+     */
+    @RequestMapping(value = "/**/indexes/{build}/genes", method = RequestMethod.GET)
+    protected ModelAndView genes_build(HttpServletRequest request, @PathVariable("build") String build) throws Exception {
+        String uri = getURI(request);
+        log.info(uri);
+
+        JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
+        JSONObject schema = schemasById.get(build);
+        if (jdbcTemplate == null || schema == null) {
+            throw new ResourceNotFoundException(uri);
+        }
+
+        Schema s = new Schema(schema);
+
+        String sql = "SELECT DISTINCT " + s.getGeneIdentifierColumn() + " FROM " + s.getTableName();
+        Iterable<String> values = jdbcTemplate.query(sql, new SingleStringResultSetExtractor());
+
+        JSONObject json = new JSONObject();
+        json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
+        json.put("data", values);
+        return new ModelAndView(new JsonView()).addObject("json", values);
+    }
+
+    @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}", method = RequestMethod.GET)
+    protected ModelAndView genes_chromosome(HttpServletRequest request,
+                                            @PathVariable("build") String build,
+                                            @PathVariable("chromosome") String chromosome) throws Exception {
+        String uri = getURI(request);
+        log.info(uri);
+
+        JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
+        JSONObject schema = schemasById.get(build);
+        if (jdbcTemplate == null || schema == null) {
+            throw new ResourceNotFoundException(uri);
+        }
+
+        Schema s = new Schema(schema);
+        QueryParams qp = new QueryParams(build, chromosome);
+        RangeQueryDistinctGenesResultSetExtractor extractor = new RangeQueryDistinctGenesResultSetExtractor(s, qp);
+        Iterable<String> values = jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor);
+
+        JSONObject json = new JSONObject();
+        json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
+        json.put("data", values);
+        return new ModelAndView(new JsonView()).addObject("json", values);
+    }
+
+    @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}/{start}/{end}", method = RequestMethod.GET)
+    protected ModelAndView genes_range_query(HttpServletRequest request,
+                                             @PathVariable("build") String build,
+                                             @PathVariable("chromosome") String chromosome,
+                                             @PathVariable("start") Long start,
+                                             @PathVariable("end") Long end) throws Exception {
+        String uri = getURI(request);
+        log.info(uri);
+
+        JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
+        JSONObject schema = schemasById.get(build);
+        if (jdbcTemplate == null || schema == null) {
+            throw new ResourceNotFoundException("");
+        }
+
+        Schema s = new Schema(schema);
+        QueryParams qp = new QueryParams(build, chromosome, start, end);
+        RangeQueryDistinctGenesResultSetExtractor extractor = new RangeQueryDistinctGenesResultSetExtractor(s, qp);
+        Iterable<String> values = jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor);
+
+        JSONObject json = new JSONObject();
+        json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
+        json.put("data", values);
+        return new ModelAndView(new JsonView()).addObject("json", values);
+    }
+
+    @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}/{start}/{end}/{strand}", method = RequestMethod.GET)
+    protected ModelAndView genes_range_strand(HttpServletRequest request, @PathVariable("build") String build,
+                                              @PathVariable("chromosome") String chromosome,
+                                              @PathVariable("start") Long start,
+                                              @PathVariable("end") Long end,
+                                              @PathVariable("strand") String strand) throws Exception {
+        String uri = getURI(request);
+        log.info(uri);
+
+        JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
+        JSONObject schema = schemasById.get(build);
+        if (jdbcTemplate == null || schema == null) {
+            throw new ResourceNotFoundException("");
+        }
+
+        Schema s = new Schema(schema);
+        QueryParams qp = new QueryParams(build, chromosome, start, end, strand);
+        RangeQueryDistinctGenesResultSetExtractor extractor = new RangeQueryDistinctGenesResultSetExtractor(s, qp);
+        Iterable<String> values = jdbcTemplate.query(extractor.PS(), extractor.ARGS(), extractor);
+
+        JSONObject json = new JSONObject();
+        json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
+        json.put("data", values);
+        return new ModelAndView(new JsonView()).addObject("json", values);
+    }
+
+    /*
+    * Chromosome Query Methods
+    */
     @RequestMapping(value = "/**/indexes/{build}/{chromosome}", method = RequestMethod.GET)
     protected ModelAndView chromosome(HttpServletRequest request,
                                       @PathVariable("build") String build,

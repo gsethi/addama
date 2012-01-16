@@ -12,6 +12,7 @@ public class Schema {
     private final String startColumn;
     private final String endColumn;
     private final String strandColumn;
+    private final String geneIdentifierColumn;
 
     public Schema(JSONObject schema) throws JSONException {
         this.tableName = schema.getString("table");
@@ -19,6 +20,7 @@ public class Schema {
         this.startColumn = schema.optString("start", "start");
         this.endColumn = schema.optString("end", "end");
         this.strandColumn = schema.optString("strand", "strand");
+        this.geneIdentifierColumn = schema.optString("geneIdentifier", "genes");
     }
 
     public String getTableName() {
@@ -37,7 +39,13 @@ public class Schema {
         return endColumn;
     }
 
+    public String getGeneIdentifierColumn() {
+        return geneIdentifierColumn;
+    }
+
     public String getStrandColumn() {
         return strandColumn;
     }
+
+
 }

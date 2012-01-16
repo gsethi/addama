@@ -31,6 +31,14 @@ public class QueryParams {
     private final Long end;
     private final Strand strand;
 
+    public QueryParams(String build, String chromosome) {
+        this.build = build;
+        this.chromosome = chromosome;
+        this.start = null;
+        this.end = null;
+        this.strand = unspecified;
+    }
+
     public QueryParams(String build, String chromosome, Long start, Long end) {
         this.build = build;
         this.chromosome = chromosome;
