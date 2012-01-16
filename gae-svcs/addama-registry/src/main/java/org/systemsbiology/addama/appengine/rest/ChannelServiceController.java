@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
 
 import static com.google.appengine.api.channel.ChannelServiceFactory.getChannelService;
+import static org.systemsbiology.addama.appengine.util.Channels.emailAsChannelId;
 import static org.systemsbiology.addama.appengine.util.Channels.myChannelToken;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 
@@ -67,7 +68,7 @@ public class ChannelServiceController {
         json.put("uri", request.getRequestURI());
         json.put("published", new DateTime());
 
-        getChannelService().sendMessage(new ChannelMessage(emailAddress, json.toString()));
+        getChannelService().sendMessage(new ChannelMessage(emailAsChannelId(emailAddress), json.toString()));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 }

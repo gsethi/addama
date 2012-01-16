@@ -14,6 +14,7 @@ import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.memcache.Expiration.byDeltaSeconds;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
+import static org.apache.commons.lang.StringUtils.replace;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 
@@ -28,7 +29,7 @@ public class Channels {
 
     public static String myChannelToken() throws Exception {
         String userEmail = getUserService().getCurrentUser().getEmail();
-        return (String) loadIfNotExisting(channelKeys, userEmail, new ChannelMemcacheLoaderCallback(), expiration);
+        return (String) loadIfNotExisting(channelKeys, emailAsChannelId(userEmail), new ChannelMemcacheLoaderCallback(), expiration);
     }
 
     public static void dropChannel(ChannelPresence presence) {
@@ -38,4 +39,10 @@ public class Channels {
         inTransaction(datastore, new DeleteEntityTransactionCallback(createKey("channels", clientId)));
     }
 
+    public static String emailAsChannelId(String email) {
+        email = replace(email, "@", "_at_");
+        email = replace(email, ".", "_dot_");
+        log.info(email);
+        return email;
+    }
 }
