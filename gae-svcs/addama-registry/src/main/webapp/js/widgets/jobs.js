@@ -45,6 +45,14 @@ org.systemsbiology.addama.js.JobsFetch = Ext.extend(Ext.util.Observable, {
                 }
             }
         }, this);
+
+        org.systemsbiology.addama.js.ChannelApi.on("message", function(a) {
+            var event = Ext.util.JSON.decode(a.data);
+            if (event.job) {
+                this.addJob(event.job);
+                this.refreshGrid();
+            }
+        }, this);
     },
 
     fetchTools: function(tooluris) {
@@ -97,10 +105,6 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
         this.renderGrid();
         this.fetchData();
         this.initRefreshTask();
-
-        if (this.channelListener) {
-            this.setChannelListener(this.channelListener);
-        }
     },
 
     initRowExpander: function() {
@@ -301,16 +305,6 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
             this.jobPointers[job.uri] = jobPointer;
         }
         return jobPointer;
-    },
-
-    setChannelListener: function(channelListener) {
-        channelListener.on("message", function(a) {
-            var event = Ext.util.JSON.decode(a.data);
-            if (event.job) {
-                this.addJob(event.job);
-                this.refreshGrid();
-            }
-        }, this);
     }
 });
 

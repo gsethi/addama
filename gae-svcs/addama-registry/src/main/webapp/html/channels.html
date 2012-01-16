@@ -10,8 +10,9 @@
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets/viewport.js"></script>
-    <script type="text/javascript" src="/js/apis/channels.js"></script>
+    <script type="text/javascript" src="/js/widgets/messages.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <script type="text/javascript" src="/js/apis/channels.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
     <script type="text/javascript">
@@ -32,6 +33,8 @@
         }
 
         Ext.onReady(function() {
+            new org.systemsbiology.addama.js.ChannelMessages();
+
             new org.systemsbiology.addama.js.TopBar({
                 contentEl: "container_topbar"
             });
@@ -46,21 +49,11 @@
 
             channelPublisher = new org.systemsbiology.addama.js.ChannelPublisher();
 
-            new org.systemsbiology.addama.js.ChannelListener({
-                listeners: {
-                    open: function() {
-                        Ext.getDom("container_messages").innerHTML += "<br/>Channel Opened Successfully";
-                    },
-                    message: function(a) {
-                        Ext.getDom("container_events").innerHTML += "<br/>Received: " + a.data;
-                    },
-                    error: function(a) {
-                        Ext.getDom("container_messages").innerHTML += "<br/>Error: " + a;
-                    },
-                    close: function(a) {
-                        Ext.getDom("container_messages").innerHTML = "<br/>Channel Closed";
-                    }
-                }
+            org.systemsbiology.addama.js.ChannelApi.on("error", function(a) {
+                Ext.getDom("container_messages").innerHTML += "<br/>Error: " + a;
+            });
+            org.systemsbiology.addama.js.ChannelApi.on("close", function(a) {
+                Ext.getDom("container_messages").innerHTML = "<br/>Channel Closed";
             });
         });
     </script>

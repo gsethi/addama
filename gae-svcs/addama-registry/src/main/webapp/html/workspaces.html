@@ -14,20 +14,19 @@
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/workspaces.css">
-
     <script type="text/javascript" src="../js/workspaces/fileUploadWindow.js"></script>
     <script type="text/javascript" src="../js/workspaces/tabPanels.js"></script>
     <script type="text/javascript" src="../js/widgets/viewport.js"></script>
-
+    <script type="text/javascript" src="../js/widgets/messages.js"></script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script type="text/javascript" src="/js/apis/channels.js"></script>
-    <script type="text/javascript" src="../js/widgets/messages.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/workspaces.css">
 
     <script type="text/javascript">
         Ext.onReady(function() {
+            new org.systemsbiology.addama.js.ChannelMessages();
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
             var wtp = new org.systemsbiology.addama.js.WorkspacesTabPanel();
             new org.systemsbiology.addama.js.Viewport({
@@ -35,7 +34,6 @@
                 activateAjaxMonitor: true,
                 tabs: [ wtp.mainPanel ]
             });
-            new org.systemsbiology.addama.js.ChannelAsMessages();
         });
     </script>
 </head>
