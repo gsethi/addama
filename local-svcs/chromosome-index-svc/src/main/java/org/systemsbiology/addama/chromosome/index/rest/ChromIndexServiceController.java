@@ -133,10 +133,11 @@ public class ChromIndexServiceController {
 
         JSONObject json = new JSONObject();
         json.put("dataSchema", new JSONObject().put("name", s.getGeneIdentifierColumn()).put("datatype", "string"));
-        for (String value : values) {
-            json.append("data", value);
-        }
-        return new ModelAndView(new JsonView()).addObject("json", values);
+        json.put("data", values);
+//        for (String value : values) {
+//            json.append("data", value);
+//        }
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}", method = RequestMethod.GET)
@@ -162,7 +163,7 @@ public class ChromIndexServiceController {
         for (String value : values) {
             json.append("data", value);
         }
-        return new ModelAndView(new JsonView()).addObject("json", values);
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}/{start}/{end}", method = RequestMethod.GET)
@@ -190,7 +191,7 @@ public class ChromIndexServiceController {
         for (String value : values) {
             json.append("data", value);
         }
-        return new ModelAndView(new JsonView()).addObject("json", values);
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}/{start}/{end}/{strand}", method = RequestMethod.GET)
@@ -218,7 +219,7 @@ public class ChromIndexServiceController {
         for (String value : values) {
             json.append("data", value);
         }
-        return new ModelAndView(new JsonView()).addObject("json", values);
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     /*
