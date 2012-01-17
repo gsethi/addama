@@ -88,6 +88,8 @@ public class FeedsController {
     @RequestMapping(value = "/**/feeds/{feedId}", method = RequestMethod.GET)
     public ModelAndView feed(@PathVariable("feedId") String feedId,
                              @RequestParam(value = "page", defaultValue = "1") Integer page) throws Exception {
+        log.info(feedId + ":" + page);
+
         if (page <= 0) page = 1;
         int offset = PAGE_SIZE * (page - 1);
 
@@ -100,6 +102,8 @@ public class FeedsController {
     @RequestMapping(value = "/**/feeds/{feedId}/rss", method = RequestMethod.GET)
     public ModelAndView rss(@PathVariable("feedId") String feedId,
                             @RequestParam(value = "page", defaultValue = "1") Integer page) throws Exception {
+        log.info(feedId + ":" + page);
+
         if (page <= 0) page = 1;
         int offset = PAGE_SIZE * (page - 1);
 
@@ -114,6 +118,8 @@ public class FeedsController {
 
     @RequestMapping(value = "/**/feeds/{feedId}", method = RequestMethod.POST)
     public ModelAndView publish(HttpServletRequest request, @PathVariable("feedId") String feedId, @RequestParam("item") JSONObject item) throws Exception {
+        log.info(feedId + ":" + item);
+
         String userEmail = getLoggedInUserEmail(request);
         JSONObject json = persistItem(feedId, userEmail, item);
         return new ModelAndView(new JsonView()).addObject("json", json);
