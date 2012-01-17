@@ -233,7 +233,7 @@ public class RegistryServiceFilter extends GenericFilterBean {
 
     private void broadcastToAdmins(String message) {
         try {
-            JSONObject event = new JSONObject().put("message", message);
+            JSONObject event = new JSONObject().put("title", "Service Registration").put("message", message);
             PostMethod post = new PostMethod("/addama/channels/admins");
             post.setQueryString(new NameValuePair[]{new NameValuePair("event", event.toString())});
             httpClientTemplate.executeMethod(post, new OkJsonResponseCallback());
