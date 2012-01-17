@@ -28,7 +28,7 @@
 
     <servlet-mapping>
         <servlet-name>gaeregistry</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/addama/*</url-pattern>
     </servlet-mapping>
 
     <!-- Order of Filters Matters -->
