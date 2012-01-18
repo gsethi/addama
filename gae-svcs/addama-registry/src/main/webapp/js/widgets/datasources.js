@@ -185,14 +185,10 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                     var fields = [];
                     var columns = [];
                     Ext.each(childNodes, function(childNode) {
-                        fields.push(childNode.name);
+                        var fld = childNode.attributes.name;
+                        fields.push(fld);
                         // TODO : Insert data type
-                        columns.push({
-                            id: childNode.name,
-                            header: childNode.name,
-                            dataIndex: childNode.name,
-                            sortable: true
-                        });
+                        columns.push({ id: fld, header: fld, dataIndex: fld, sortable: true });
                     });
 
                     var store = new Ext.data.JsonStore({
