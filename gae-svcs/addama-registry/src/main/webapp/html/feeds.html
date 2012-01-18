@@ -9,30 +9,26 @@
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/feed-viewer/feed-viewer.css"/>
 
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
 
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
-    <script type="text/javascript" src="/js/widgets/feedgrid.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/messages.js"></script>
     <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+    <script type="text/javascript" src="../js/widgets/feedgrid.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({
                 contentEl: "container_topbar"
-                listeners: {
-                    whoami: function() {
-                        new FeedGrid('/addama/feeds/announcements/rss', {
-                            contentEl: "container_main"
-                        });
-                    }
-                }
             });
+
+            var feedGrid = new org.systemsbiology.addama.js.FeedGrid({ url: "/addama/feeds/announcements/rss" });
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
                 tabs: [
-                    new Ext.BoxComponent({ contentEl: 'container_main' })
+                    feedGrid.gridPanel
                 ]
             });
         });
@@ -40,8 +36,5 @@
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
-<div id="container_main">
-    <div style="float:right;margin:5px;" class="x-small-editor"></div>
-</div>
 </body>
 </html>

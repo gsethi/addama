@@ -21,20 +21,10 @@
     </listener>
 
     <servlet>
-        <servlet-name>channel-disconnect</servlet-name>
-        <servlet-class>org.systemsbiology.addama.appengine.servlet.ChannelDisconnectServlet</servlet-class>
-    </servlet>
-
-    <servlet>
         <servlet-name>gaeregistry</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
-    <servlet-mapping>
-        <servlet-name>channel-disconnect</servlet-name>
-        <url-pattern>/_ah/channel/disconnected</url-pattern>
-    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>gaeregistry</servlet-name>
@@ -42,6 +32,11 @@
     </servlet-mapping>
 
     <!-- Order of Filters Matters -->
+    <filter>
+        <filter-name>filter-channel-presence</filter-name>
+        <filter-class>org.systemsbiology.addama.appengine.filters.ChannelPresenceFilter</filter-class>
+    </filter>
+
     <filter>
         <filter-name>filter-authentication</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -77,6 +72,11 @@
             <param-value>filter-proxies</param-value>
         </init-param>
     </filter>
+
+    <filter-mapping>
+        <filter-name>filter-channel-presence</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
     <filter-mapping>
         <filter-name>filter-authentication</filter-name>

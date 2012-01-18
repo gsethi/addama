@@ -18,15 +18,12 @@
 */
 package org.systemsbiology.addama.registry;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.json.JSONObject;
 import org.springframework.web.filter.GenericFilterBean;
-import org.systemsbiology.addama.commons.httpclient.support.HttpClientResponseException;
 import org.systemsbiology.addama.commons.httpclient.support.HttpClientTemplate;
-import org.systemsbiology.addama.commons.httpclient.support.ResponseCallback;
+import org.systemsbiology.addama.commons.httpclient.support.OkJsonResponseCallback;
 import org.systemsbiology.addama.commons.spring.PropertiesFileLoader;
 import org.systemsbiology.addama.jsonconfig.Mapping;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
@@ -45,14 +42,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.web.servlet.HttpRequestUriInvocationHandler.instrumentRequest;
 
 /**
  * @author hrovira
  */
-public class RegistryServiceFilter extends GenericFilterBean implements ResponseCallback {
+public class RegistryServiceFilter extends GenericFilterBean {
     private static final Logger log = Logger.getLogger(RegistryServiceFilter.class.getName());
     public static final Integer MAX_CONTENT_LENGTH = 10000000;
 
@@ -62,10 +60,9 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
 
     private HttpClientTemplate httpClientTemplate;
     private PropertiesFileLoader propertiesFileLoader;
-    private URL secureHostUrl;
-    private boolean runUnregistered = false;
-
     private ServiceConfig serviceConfig;
+
+    private boolean runUnregistered = false;
 
     public void setHttpClientTemplate(HttpClientTemplate httpClientTemplate) {
         this.httpClientTemplate = httpClientTemplate;
@@ -79,6 +76,9 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
         this.serviceConfig = serviceConfig;
     }
 
+    /*
+    * GenericFilterBean
+    */
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
 
@@ -104,7 +104,7 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
         }
 
         try {
-            this.secureHostUrl = new URL(hostUrl);
+            URL secureHostUrl = new URL(hostUrl);
             URL serviceHostUrl = new URL(chomp(serviceUrl, "/") + "/" + contextPath);
 
             JSONObject registration = new JSONObject();
@@ -128,54 +128,19 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
 
             PostMethod post = new PostMethod("/addama/registry");
             post.setQueryString(new NameValuePair[]{new NameValuePair("registration", registration.toString())});
-            httpClientTemplate.executeMethod(post, this);
+
+            String registryKey = (String) httpClientTemplate.executeMethod(post, new RegistrationCallback(serviceConfig));
+            if (!isEmpty(registryKey)) {
+                registryServiceKeyByHost.put(secureHostUrl.getHost(), registryKey);
+                broadcastToAdmins("Registration Completed for " + serviceConfig.LABEL());
+            } else {
+                broadcastToAdmins("Registration Issues for " + serviceConfig.LABEL() + ": Check Logs");
+            }
         } catch (Exception e) {
+            broadcastToAdmins("Registration Issues for " + serviceConfig.LABEL() + ":" + e.getMessage());
             throw new ServletException("SERVICE [" + contextPath + "]", e);
         }
     }
-
-    /*
-     * ResponseCallback
-     */
-    public Object onResponse(int statusCode, HttpMethod method) throws HttpClientResponseException {
-        String message = null;
-        try {
-            if (statusCode == 200) {
-                Header header = method.getResponseHeader("x-addama-registry-key");
-                if (header != null) {
-                    registryServiceKeyByHost.put(secureHostUrl.getHost(), header.getValue());
-                }
-            }
-            message = method.getResponseBodyAsString();
-        } catch (Exception e) {
-            log.warning(e.getMessage());
-        } finally {
-            StringBuilder builder = new StringBuilder();
-            builder.append("\n===============================================\n");
-            builder.append("Service Registration");
-            builder.append("\n\t").append(serviceConfig.LABEL());
-            if (statusCode == SC_OK) {
-                builder.append(" [ OK ]");
-            } else {
-                builder.append(" [ ").append(statusCode).append(" ]");
-            }
-            if (!isEmpty(message)) {
-                builder.append(": [").append(message).append("]");
-            }
-
-            for (Mapping mapping : serviceConfig.getMappings()) {
-                builder.append("\n\t").append(mapping.LABEL());
-            }
-            builder.append("\n===============================================\n");
-            log.info(builder.toString());
-        }
-
-        return null;
-    }
-
-    /*
-    * GenericFilterBean
-    */
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
@@ -266,4 +231,14 @@ public class RegistryServiceFilter extends GenericFilterBean implements Response
         return chomp(substringBefore(request.getRequestURL().toString(), actualUri), "/") + temporaryUri;
     }
 
+    private void broadcastToAdmins(String message) {
+        try {
+            JSONObject event = new JSONObject().put("title", "Service Registration").put("message", message);
+            PostMethod post = new PostMethod("/addama/channels/admins");
+            post.setQueryString(new NameValuePair[]{new NameValuePair("event", event.toString())});
+            httpClientTemplate.executeMethod(post, new OkJsonResponseCallback());
+        } catch (Exception e) {
+            log.warning(e.getMessage());
+        }
+    }
 }

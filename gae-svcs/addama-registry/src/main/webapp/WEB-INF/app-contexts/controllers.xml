@@ -50,6 +50,7 @@
                 <!-- Feed Controller -->
                 <entry key="/addama/feeds" value-ref="feedsController"/>
                 <entry key="/addama/feeds/*" value-ref="feedsController"/>
+                <entry key="/addama/feeds/**" value-ref="feedsController"/>
 
                 <!-- API Keys Controllers -->
                 <entry key="/addama/apikeys/**">

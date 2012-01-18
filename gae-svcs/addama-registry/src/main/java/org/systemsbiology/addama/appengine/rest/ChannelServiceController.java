@@ -18,20 +18,21 @@
 */
 package org.systemsbiology.addama.appengine.rest;
 
-import com.google.appengine.api.channel.ChannelMessage;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.views.JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.logging.Logger;
 
-import static com.google.appengine.api.channel.ChannelServiceFactory.getChannelService;
-import static org.systemsbiology.addama.appengine.util.Channels.myChannelToken;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.systemsbiology.addama.appengine.util.Channels.*;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 
 /**
@@ -39,35 +40,36 @@ import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
  */
 @Controller
 public class ChannelServiceController {
-    private static final Logger log = Logger.getLogger(ChannelServiceController.class.getName());
-
     @RequestMapping(value = "/channels/mine")
-    public void getmine(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        log.info(request.getRequestURI());
-
+    public void getmine(HttpServletResponse response) throws Exception {
         response.sendRedirect("/addama/channels/" + getCurrentUser().getEmail());
     }
 
     @RequestMapping(value = "/channels/*", method = RequestMethod.GET)
-    @ModelAttribute
     public ModelAndView subscribe(HttpServletRequest request) throws Exception {
-        String token = myChannelToken();
-
         JSONObject json = new JSONObject();
         json.put("uri", request.getRequestURI());
-        json.put("token", token);
+        json.put("token", myChannelToken());
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/channels/{emailAddress}", method = RequestMethod.POST)
-    @ModelAttribute
-    public ModelAndView publish(HttpServletRequest request, @PathVariable("emailAddress") String emailAddress,
-                                @RequestParam("event") String event) throws Exception {
+    @RequestMapping(value = "/channels/*", method = RequestMethod.POST)
+    public ModelAndView publish(HttpServletRequest request, @RequestParam("event") String event) throws Exception {
         JSONObject json = new JSONObject(event);
         json.put("uri", request.getRequestURI());
         json.put("published", new DateTime());
+        publishMessage(substringAfterLast(request.getRequestURI(), "channels/"), json);
+        return new ModelAndView(new JsonView()).addObject("json", json);
+    }
 
-        getChannelService().sendMessage(new ChannelMessage(emailAddress, json.toString()));
+    @RequestMapping(value = "/channels/admins", method = RequestMethod.POST)
+    public ModelAndView toAdmins(HttpServletRequest request, @RequestParam("event") String event) throws Exception {
+        checkAdmin(request);
+
+        JSONObject json = new JSONObject(event);
+        json.put("uri", request.getRequestURI());
+        json.put("published", new DateTime());
+        publishToAdmins(json);
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 }

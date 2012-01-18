@@ -1,5 +1,7 @@
 Ext.ns("org.systemsbiology.addama.js");
 
+org.systemsbiology.addama.js.ChannelApi = null;
+
 org.systemsbiology.addama.js.ChannelListener = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         this.numberOfReopens = 0;
@@ -105,5 +107,41 @@ org.systemsbiology.addama.js.ChannelPublisher = Ext.extend(Object, {
             }
         });
     }
+});
+
+org.systemsbiology.addama.js.ChannelMessages = Ext.extend(Object, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.ChannelMessages.superclass.constructor.call(this);
+
+        org.systemsbiology.addama.js.ChannelApi.on("open", function() {
+            if (org.systemsbiology.addama.js.Message) {
+                org.systemsbiology.addama.js.Message.show("Channels", "Broadcasted events will be shown here");
+            } else {
+                console.log("messages will not be displayed, import messages.js");
+            }
+        });
+        org.systemsbiology.addama.js.ChannelApi.on("message", function(a) {
+            if (a && a.data) {
+                var event = Ext.util.JSON.decode(a.data);
+                if (event && event.message) {
+                    if (org.systemsbiology.addama.js.Message) {
+                        var title = "Message";
+                        if (event.title) {
+                            title = event.title;
+                        }
+                        org.systemsbiology.addama.js.Message.show(title, event.message);
+                    } else {
+                        console.log("messages will not be displayed, import messages.js: " + event.message);
+                    }
+                }
+            }
+        });
+    }
+});
+
+Ext.onReady(function() {
+    org.systemsbiology.addama.js.ChannelApi = new org.systemsbiology.addama.js.ChannelListener();
 });
 
