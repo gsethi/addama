@@ -8,6 +8,10 @@
     font-size:14px;
 }
 
+.msg-error {
+    font-size:14px;
+}
+
 #container_js_message {
     position:absolute;
     left:35%;
@@ -23,11 +27,21 @@
     padding: 10px 15px;
     color: #555;
 }
-#container_js_message .msg h3 {
+
+#container_js_message .msg-error {
+    border-radius: 8px;
+    background: #FFB2B2;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 10px 15px;
+    color: #555;
+}
+
+#container_js_message .msg .msg-error h3 {
     margin: 0 0 8px;
     font-weight: bold;
     font-size: 15px;
 }
-#container_js_message .msg p {
+#container_js_message .msg .msg-error p {
     margin: 0;
 }

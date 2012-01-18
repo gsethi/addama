@@ -16,7 +16,7 @@ org.systemsbiology.addama.js.MessageBox = Ext.extend(Object, {
     },
 
     error: function(title, message) {
-        this.display(title, "x-status-error", message);
+        this.display(title, "msg-error", message);
     },
 
     display: function(title, divClass, message) {
