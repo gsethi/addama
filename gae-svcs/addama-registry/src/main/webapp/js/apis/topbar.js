@@ -132,7 +132,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             html: "<h3>Generated API Keys are managed by domain administrators through the App Engine Administration Console<h3>"
         });
         if (this.isAdmin) {
-            var fld = Ext.form.TextField({
+            var fld = new Ext.form.TextField({
                 anchor: "100%",
                 fieldLabel: "Service Host URL",
                 name: "serviceHostUrl"
