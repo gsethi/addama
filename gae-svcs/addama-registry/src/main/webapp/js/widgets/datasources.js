@@ -147,6 +147,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
         if (node.attributes.isTable) {
             this.selectedTable = node;
             org.systemsbiology.addama.js.Message.show("Datasources", "Table Selected: " + node.attributes.text);
+            this.expandNode(this.selectedTable);
         }
     },
 
