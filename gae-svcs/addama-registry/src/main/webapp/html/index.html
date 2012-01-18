@@ -7,13 +7,12 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
 
-    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <!--<script type="text/javascript" src="/_ah/channel/jsapi"></script>-->
     
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
     <script type="text/javascript" src="../js/widgets/viewport.js"></script>
     <script type="text/javascript" src="../js/widgets/messages.js"></script>
-    <script type="text/javascript" src="../js/widgets/apps.js"></script>
-    <script type="text/javascript" src="../js/apis/channels.js"></script>
+    <!--<script type="text/javascript" src="../js/apis/channels.js"></script>-->
 
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
 
@@ -22,11 +21,19 @@
             new org.systemsbiology.addama.js.ChannelMessages();
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
             new org.systemsbiology.addama.js.AppsPanel({ contentEl: "container_apps" });
+            new org.systemsbiology.addama.js.ServicesPanel({ contentEl: "container_services" });
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
                 tabs: [
-                    { contentEl: "container_main" }
+                    new Ext.Panel({
+                        layout: "border",
+                        items: [
+                            { contentEl: "container_apps", region: "west" },
+                            { contentEl: "container_services", region: "center" },
+                            { contentEl: "container_links", region: "east" }
+                        ]
+                    })
                 ]
             });
         });
@@ -34,20 +41,18 @@
 </head>
 <body>
 <div id="container_topbar"></div>
-<div id="container_main">
-    <div id="container_apps"></div>
-    <div id="container_services"></div>
-    <div id="container_links">
-        <ul>
-            <li><a href="/html/apikeys.html">Generate API Keys</a></li>
-            <li><a href="/html/registry.html">Registry View</a></li>
-            <li><a href="/html/datasources.html">Datasources</a></li>
-            <li><a href="/html/workspaces.html">Workspaces</a></li>
-            <li><a href="/html/jobs.html">Job Results</a></li>
-            <li><a href="/html/channels.html">Channel Test Page</a></li>
-            <li><a href="/html/feeds.html">Feeds Test Page</a></li>
-        </ul>
-    </div>
+<div id="container_apps"></div>
+<div id="container_services"></div>
+<div id="container_links">
+    <h3>Useful Links</h3>
+    <ul>
+        <li><a href="/html/apikeys.html">Generate API Keys</a></li>
+        <li><a href="/html/datasources.html">Query Datasources</a></li>
+        <li><a href="/html/workspaces.html">Browse Workspaces</a></li>
+        <li><a href="/html/jobs.html">View Job Results</a></li>
+        <li><a href="/html/channels.html">Test Channels</a></li>
+        <li><a href="/html/feeds.html">Test Feeds</a></li>
+    </ul>
 </div>
 </body>
 </html>

@@ -170,3 +170,59 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
     }
 
 });
+
+org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.AppsPanel.superclass.constructor.call(this);
+
+        Ext.Ajax.request({
+            url: "/addama/apps",
+            method: "get",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json && json.items) {
+                    var html = "";
+                    Ext.each(json.items, function(item) {
+                        html += "<li><a href='" + item.uri + "'>" + item.label + "</a></li>";
+                    });
+                    new Ext.Panel({
+                        contentEl: this.contentEl,
+                        html: "<ul>" + html + "</ul>"
+                    });
+                }
+            },
+            scope: this
+        });
+
+    }
+});
+
+org.systemsbiology.addama.js.ServicesPanel = Ext.extend(Object, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.ServicesPanel.superclass.constructor.call(this);
+
+        Ext.Ajax.request({
+            url: "/addama/services",
+            method: "get",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json && json.items) {
+                    var html = "";
+                    Ext.each(json.items, function(item) {
+                        html += "<li><a href='" + item.uri + "'>" + item.label + "</a></li>";
+                    });
+                    new Ext.Panel({
+                        contentEl: this.contentEl,
+                        html: "<ul>" + html + "</ul>"
+                    });
+                }
+            },
+            scope: this
+        });
+
+    }
+});
