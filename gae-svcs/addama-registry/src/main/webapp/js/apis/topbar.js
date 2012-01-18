@@ -38,10 +38,17 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     });
                     this.toolbar.add({ xtype: 'tbseparator' });
 
+                    var apikeysAction = new Ext.Action({
+                        text: "API Keys",
+                        handler: function(){
+                            new org.systemsbiology.addama.js.ApiKeysWindow({isAdmin:json.isAdmin});
+                        }
+                    });
+
                     this.toolbar.add({ text: "Links",
                         menu: [
                             this.newLinkMenuItem("Home", "/"),
-                            this.newLinkMenuItem("API Keys", "/html/apikeys.html"),
+                            apikeysAction,
                             this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
                             this.newLinkMenuItem("Browse Workspaces", "/html/workspaces.html"),
                             this.newLinkMenuItem("View Job Results", "/html/jobs.html"),
@@ -108,6 +115,68 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             handler: function() {
                 document.location = link;
             }
+        });
+    }
+});
+
+org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
+
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.ApiKeysWindow.superclass.constructor.call(this);
+
+        var items = [];
+        items.push({
+            text: "Generated API Keys are managed by domain administrators through the App Engine Administration Console"
+        });
+        items.push({
+            text: "Download API Key File",
+            handler: function() { document.location = "/addama/apikeys/file"; }
+        });
+        if (this.isAdmin) {
+            var fp = new Ext.form.FormPanel({
+                frame:true,
+                title: "Generate addama.properties",
+                bodyStyle:"padding:5px 5px 0",
+                width: 350,
+                items: [
+                    {
+                        id:"serviceHostUrl",
+                        anchor: '100%',
+                        type: "textfield",
+                        fieldLabel: 'Service Host URL',
+                        name: "serviceHostUrl"
+                    }
+                ],
+                buttons: [
+                    {
+                        text: "Generate",
+                        handler: function() {
+                            var form = fp.getForm();
+                            var fld = form.findField("serviceHostUrl");
+                            if (fld && fld.getRawValue()) {
+                                document.location = "/addama/apikeys/addama.properties?serviceUrl=" + fld.getRawValue();
+                            } else {
+                                document.location = "/addama/apikeys/addama.properties";
+                            }
+                        }
+                    }
+                ]
+            });
+            items.push(fp);
+        }
+
+        new Ext.Window({
+            title: "API Keys",
+            closable: true,
+            closeAction: "hide",
+            width: 600,
+            minWidth: 400,
+            height: 400,
+            layout: "fit",
+            bodyStyle: "padding: 5px;",
+            items: items
         });
     }
 });
