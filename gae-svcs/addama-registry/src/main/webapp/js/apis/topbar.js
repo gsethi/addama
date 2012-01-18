@@ -55,17 +55,15 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                             }
                         });
 
-                        var appengineLink = new Ext.Action({
-                            text: "AppEngine Console",
-                            handler: function() {
-                                var app_id = document.location.hostname.replace(".appspot.com", "");
-                                document.location = "https://appengine.google.com/dashboard?&app_id=" + app_id;
-                            }
-                        })
+                        var app_id = document.location.hostname.replace(".appspot.com", "");
+                        var href = "https://appengine.google.com/dashboard?&app_id=" + app_id;
+                        var appengineLink = {
+                            html: "<a href='" + href + "'>App Engine Console</a>"
+                        };
 
                         var adminMenu  = {
                             text: "Administration",
-                            menu: [refreshUI,registerApplications,manageGreenlist]
+                            menu: [refreshUI,registerApplications,manageGreenlist,appengineLink]
                         };
                         
                         this.toolbar.add(adminMenu);
