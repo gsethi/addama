@@ -213,8 +213,11 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                             forceFit: true
                         },
                         stripeRows: true,
-                        frame: false,
+                        frame: true,
                         border: false,
+                        width: 600,
+                        height: 600,
+                        autoScroll: true,
                         iconCls: 'icon-grid'
                     });
 
