@@ -19,7 +19,8 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                     });
                     Ext.getDom(this.contentEl).innerHTML = "<ul>" + html + "</ul>";
                 }
-            }
+            },
+            scope: this
         });
 
     }
