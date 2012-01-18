@@ -113,7 +113,7 @@ org.systemsbiology.addama.js.AjaxMonitor = Ext.extend(Object, {
             columns: [
                 { header: "ID", width: 50, dataIndex: 'id', type: "int", sortable: true, hidden: true },
                 { header: "Method", width: 75, dataIndex: 'method' },
-                { header: "URI", width: 200, dataIndex: 'uri', sortable: true },
+                { header: "URI", width: 400, dataIndex: 'uri', sortable: true },
                 { header: "Status Code", width: 75, dataIndex: 'statusCode', sortable: true },
                 { header: "Status Text", width: 100, dataIndex: 'statusText' },
                 { header: "Response Text", width: 300, dataIndex: 'responseText', hidden: true }
