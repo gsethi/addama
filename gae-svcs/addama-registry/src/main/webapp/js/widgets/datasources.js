@@ -118,9 +118,9 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
         }
 
         Ext.each(items, function(item) {
-            if (!this.treePanel.getNodeById(item.name)) {
+            if (!this.treePanel.getNodeById(item.id)) {
                 item.text = item.label ? item.label : item.name;
-                item.id = parentPath + "/" + item.name;
+                item.id = item.uri;
                 item.path = parentPath + "/" + item.name;
                 item.leaf = node.attributes.isTable;
                 item.isTable = node.attributes.isDb;
@@ -132,6 +132,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                 }
                 if (item.datatype) {
                     item.text = item.name + " [" + item.datatype + "]";
+                    item.id = item.path;
                 }
                 node.appendChild(item);
             }
