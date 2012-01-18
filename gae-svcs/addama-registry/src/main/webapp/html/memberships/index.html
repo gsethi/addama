@@ -45,7 +45,7 @@
 
             Ext.Ajax.request({
                 url: "/addama/memberships/uris",
-                method: "get",
+                method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json && json.numberOfItems) {
@@ -57,7 +57,7 @@
 
             Ext.Ajax.request({
                 url: "/addama/memberships/mine",
-                method: "get",
+                method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json && json.numberOfItems) {

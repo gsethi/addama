@@ -37,7 +37,7 @@
 
         function ShowApps() {
             Ext.Ajax.request({
-                method: "get",
+                method: "GET",
                 url: "/addama/apps",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);

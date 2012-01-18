@@ -7,7 +7,7 @@ DomainLevelUsersControl = Ext.extend(Object, {
     currentState: function() {
         Ext.Ajax.request({
             url: "/addama/memberships/domain/users",
-            method: "get",
+            method: "GET",
             success: this.renderPanel,
             scope: this
         });

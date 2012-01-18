@@ -64,7 +64,7 @@
         function loadItems(parent, callback) {
             Ext.Ajax.request({
                 url: parent.uri,
-                method: "get",
+                method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json) {

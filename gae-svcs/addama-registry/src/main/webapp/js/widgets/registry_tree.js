@@ -26,7 +26,7 @@ TreeLoader = function() {
     this.makeRequest = function(uri, itemArray) {
         Ext.Ajax.request({
             url: uri,
-            method: "get",
+            method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {

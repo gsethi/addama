@@ -30,7 +30,7 @@ MetadataLinksGrid = Ext.extend(Object, {
 
         Ext.Ajax.request({
             url: url,
-            method: "get",
+            method: "GET",
             success: function(o) {
                 loader.load(o.responseText);
 

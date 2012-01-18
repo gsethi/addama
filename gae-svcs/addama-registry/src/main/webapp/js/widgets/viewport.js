@@ -179,7 +179,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
 
         Ext.Ajax.request({
             url: "/addama/apps",
-            method: "get",
+            method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
@@ -204,7 +204,7 @@ org.systemsbiology.addama.js.ServicesPanel = Ext.extend(Object, {
 
         Ext.Ajax.request({
             url: "/addama/services",
-            method: "get",
+            method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
