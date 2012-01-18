@@ -7,10 +7,10 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
-    <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets/messages.js"></script>
+    <script type="text/javascript" src="../js/apis/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets/viewport.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
 
     <script type="text/javascript">
         Ext.onReady(function() {
@@ -18,9 +18,7 @@
                 contentEl: "container_topbar",
                 listeners: {
                     whoami: function(json) {
-                        if (json.isAdmin) {
-                            Ext.get("container_addama_properties").setVisible(true);
-                        }
+                        new org.systemsbiology.addama.js.ApiKeysWindow({isAdmin:json.isAdmin});
                     }
                 }
             });
@@ -33,35 +31,13 @@
                 ]
             });
         });
-
-        function SubmitHostUrl() {
-            var serviceUrl = Ext.getDom("i_service_url").value;
-            if (serviceUrl) {
-                document.location = "/addama/apikeys/addama.properties?serviceUrl=" + serviceUrl;
-            } else {
-                document.location = "/addama/apikeys/addama.properties";
-            }
-        }
     </script>
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
 <div id="container_main">
-    <div id="container_toolbar">
-        <div>
-            <a href="/addama/apikeys/file" target="_blank">Download API Key File</a>
-        </div>
-        <div id="container_addama_properties" style="display:none;">
-            <label for="i_service_url">Enter Service Host URL</label>
-            <input type="text" id="i_service_url"/>
-            <br/>
-            <button onclick="SubmitHostUrl();">Download addama.properties</button>
-        </div>
-    </div>
-
-    <div id="container_footer">
-        Generated API Keys are managed by domain administrators through the App Engine Administration Console
-    </div>
+    <h3>Generated API Keys are managed by domain administrators through the App Engine Console</h3>
+    <a href="/addama/apikeys/file" target="_blank">Download API Key File</a>
 </div>
 </body>
 </html>

@@ -160,9 +160,10 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             }));
         }
 
-        new Ext.Window({
+        var win = new Ext.Window({
             title: "API Keys",
             closable: true,
+            modal: true,
             closeAction: "hide",
             width: 600,
             minWidth: 400,
@@ -172,9 +173,13 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             tbar: [
                 {
                     text: "Download API Key File",
-                    handler: function() { document.location = "/addama/apikeys/file"; }
+                    handler: function() {
+                        document.location = "/addama/apikeys/file";
+                        win.close();
+                    }
                 }
             ]
-        }).show();
+        });
+        win.show();
     }
 });
