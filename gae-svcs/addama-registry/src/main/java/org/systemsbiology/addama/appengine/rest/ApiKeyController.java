@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -71,8 +70,7 @@ public class ApiKeyController {
         builder.append("httpclient.secureHostUrl=").append(APPSPOT_URL).append("\n");
         builder.append("httpclient.apikey=").append(apiKey.getKey().toString()).append("\n");
         if (!isEmpty(serviceUrl)) {
-            URL hostUrl = new URL(serviceUrl);
-            builder.append("service.hostUrl=").append(hostUrl.toString()).append("\n");
+            builder.append("service.hostUrl=").append(serviceUrl).append("\n");
         }
 
         outputFile(response, "addama.properties", builder.toString());
