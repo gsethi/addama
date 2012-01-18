@@ -14,10 +14,10 @@ org.systemsbiology.addama.js.Viewport = Ext.extend(Object, {
         var appengineLogo = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://code.google.com/appengine"><img src="https://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine"/></a></div>', true);
         var link1 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="/addama/apikeys/file">API Keys</a></div>', true);
         var link2 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://addama.org" target="_blank">Addama Open Source Project</a></div>', true);
-        var link2 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://www.systemsbiology.org" target="_blank">Institute for Systems Biology</a></div>', true);
-        var link3 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://shmulevich.systemsbiology.net/" target="_blank">Shmulevich Lab</a></div>', true);
-        var link4 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://codefor.systemsbiology.net/" target="_blank">Code for Systems Biology</a></div>', true);
-        var link5 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554" target="_blank">PMID 19265554</a></div>', true);
+        var link3 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://www.systemsbiology.org" target="_blank">Institute for Systems Biology</a></div>', true);
+        var link4 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://shmulevich.systemsbiology.net/" target="_blank">Shmulevich Lab</a></div>', true);
+        var link5 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://codefor.systemsbiology.net/" target="_blank">Code for Systems Biology</a></div>', true);
+        var link6 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554" target="_blank">PMID 19265554</a></div>', true);
 
         var headerPanel = new Ext.Panel({
             region: "north",
@@ -67,7 +67,7 @@ org.systemsbiology.addama.js.Viewport = Ext.extend(Object, {
             padding: "1 1 1 1",
             margins: "1 1 1 1",
             layoutConfig: { pack: "center", align: "middle", defaultMargins: "0 10 0 0" },
-            items:[ link1.dom, link2.dom, link3.dom, link4.dom, link5.dom ]
+            items:[ link1.dom, link2.dom, link3.dom, link4.dom, link5.dom, link6.dom ]
         });
 
         new Ext.Viewport({
