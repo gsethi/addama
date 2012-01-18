@@ -137,18 +137,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             var fld = new Ext.form.TextField({
                 name: "serviceHostUrl",
                 anchor: "100%",
-                fieldLabel: "Service Host URL",
-                validateOnBlur: true,
-                invalidText: "A valid URL is required",
-                getErrors: function() {
-                    var serviceUrl = this.getRawValue();
-                    if (serviceUrl) {
-                        if (serviceUrl.indexOf("ttp://") > 0|| serviceUrl.indexOf("ttps://") > 0) {
-                            return [];
-                        }
-                    }
-                    return ["Enter a valid URL"];
-                }
+                fieldLabel: "Service Host URL"
             });
             
             items.push(new Ext.form.FormPanel({
@@ -162,7 +151,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
                     {
                         text: "Generate addama.properties",
                         handler: function() {
-                            var serviceUrl = fld.getValue();
+                            var serviceUrl = fld.getRawValue();
                             if (serviceUrl) {
                                 document.location = "/addama/apikeys/addama.properties?serviceUrl=" + serviceUrl;
                             } else {
