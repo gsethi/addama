@@ -28,8 +28,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.email) {
-                    this.toolbar.add({
-                        text: json.email,
+                    this.toolbar.add({ text: json.email,
                         menu: [
                             this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
                             this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
@@ -37,11 +36,18 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                             this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine")
                         ]
                     });
-
                     this.toolbar.add({ xtype: 'tbseparator' });
 
-                    this.toolbar.add({ text: 'Home', xtype: 'tbbutton',
-                        handler:function() { document.location = "/"; }
+                    this.toolbar.add({ text: "Links",
+                        menu: [
+                            this.newLinkMenuItem("Home", "/"),
+                            this.newLinkMenuItem("/html/apikeys.html", "API Keys"),
+                            this.newLinkMenuItem("/html/datasources.html", "Query Databases"),
+                            this.newLinkMenuItem("/html/workspaces.html", "Browse Workspaces"),
+                            this.newLinkMenuItem("/html/jobs.html", "View Job Results"),
+                            this.newLinkMenuItem("/html/channels.html", "Test Channels"),
+                            this.newLinkMenuItem("/html/feeds.html", "Test Feeds")
+                        ]
                     });
                     this.toolbar.add({ xtype: 'tbseparator' });
 
