@@ -46,11 +46,13 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                     region: "north",
                     contentEl: "container_sql",
                     width:810,
-                    bbar: [
-                        { text: "Show Results", handler: this.queryHtml },
-                        { text: "Export to CSV", handler: this.queryCsv },
-                        { text: "Export to TSV", handler: this.queryTsv }
-                    ]
+                    bbar: new Ext.Toolbar({
+                        items: [
+                            { text: "Show Results", handler: this.queryHtml, scope: this },
+                            { text: "Export to CSV", handler: this.queryCsv, scope: this },
+                            { text: "Export to TSV", handler: this.queryTsv, scope: this }
+                        ]
+                    })
                 }),
                 { title: "Results", region: "center", contentEl: "container_preview", width:810, height: 400 }
             ]
@@ -110,13 +112,18 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
     },
 
     addNodes: function(node, items) {
+        var parentPath = node.attributes.path;
+        if (parentPath == "/") {
+            parentPath = "";
+        }
+
         Ext.each(items, function(item) {
             if (!this.treePanel.getNodeById(item.uri)) {
                 item.text = item.label ? item.label : item.name;
                 item.id = item.uri;
-                item.path = item.uri;
-                item.leaf = node.isTable;
-                item.isTable = node.isDb;
+                item.path = parentPath + "/" + item.name;
+                item.leaf = node.attributes.isTable;
+                item.isTable = node.attributes.isDb;
                 if (item.leaf) {
                     item.cls = "file";
                 } else {
