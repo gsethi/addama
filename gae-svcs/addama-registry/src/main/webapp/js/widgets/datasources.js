@@ -235,7 +235,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
 
         var tableUri = this.selectedTable.id;
         var querySql = Ext.getDom("textarea_sql").value;
-        document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:tsv-excel;outFileName:results.tsv";
+        document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:csv;outFileName:results.csv";
     },
 
     queryTsv: function() {
@@ -245,7 +245,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
 
         var tableUri = this.selectedTable.id;
         var querySql = Ext.getDom("textarea_sql").value;
-        document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:csv;outFileName:results";
+        document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:tsv-excel;outFileName:results.tsv";
     },
 
     isReadyToQuery: function() {
