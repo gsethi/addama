@@ -112,16 +112,27 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
     },
 
     addNodes: function(node, items) {
-        var parentPath = "/";
+        var parentPath = "/addama/datasources";
         if (!node.isRoot) {
-            parentPath = node.attributes.path;
+            parentPath = node.id;
         }
 
         Ext.each(items, function(item) {
+            if (!item.id) {
+                if (item.uri) {
+                    item.id = item.uri;
+                } else if (item.name) {
+                    item.id = parentPath + "/" + item.name;
+                }
+            }
+
             if (!this.treePanel.getNodeById(item.id)) {
                 item.text = item.label ? item.label : item.name;
-                item.id = item.uri;
-                item.path = parentPath + "/" + item.name;
+                if (item.datatype) {
+                    item.text += " [" + item.datatype + "]";
+                }
+
+                item.path = item.id;
                 item.leaf = node.attributes.isTable;
                 item.isTable = node.attributes.isDb;
                 if (item.leaf) {
@@ -129,10 +140,6 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                 } else {
                     item.cls = "folder";
                     item.children = [];
-                }
-                if (item.datatype) {
-                    item.text = item.name + " [" + item.datatype + "]";
-                    item.id = item.path;
                 }
                 node.appendChild(item);
             }
@@ -157,6 +164,8 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
             return;
         }
 
+        Ext.getDom("container_preview").innerHTML = "";
+            
         var tableUri = this.selectedTable.id;
         var childNodes = this.selectedTable.childNodes;
         var querySql = Ext.getDom("textarea_sql").value;
@@ -214,6 +223,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                         title: 'Results',
                         iconCls: 'icon-grid'
                     });
+
                     grid.render("container_preview");
                 }
             },
