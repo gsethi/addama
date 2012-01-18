@@ -128,15 +128,18 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
 
         var items = [];
         items.push({
+            region:"north",
             text: "Generated API Keys are managed by domain administrators through the App Engine Administration Console"
         });
         items.push({
             text: "Download API Key File",
+            region:"center",
             handler: function() { document.location = "/addama/apikeys/file"; }
         });
         if (this.isAdmin) {
             var fp = new Ext.form.FormPanel({
                 frame:true,
+                region:"south",
                 title: "Generate addama.properties",
                 bodyStyle:"padding:5px 5px 0",
                 width: 350,
@@ -174,9 +177,9 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             width: 600,
             minWidth: 400,
             height: 400,
-            layout: "fit",
+            layout: "border",
             bodyStyle: "padding: 5px;",
             items: items
-        });
+        }).show();
     }
 });
