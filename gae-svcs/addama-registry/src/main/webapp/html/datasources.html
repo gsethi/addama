@@ -9,56 +9,34 @@
 
         <script type="text/javascript" src="/js/utils/console_handling.js"></script>
         <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
-        <script type="text/javascript" src="/js/widgets/datasources.js"></script>
         <script type="text/javascript" src="/js/apis/topbar.js"></script>
         <script type="text/javascript" src="/js/widgets/messages.js"></script>
         <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+        <script type="text/javascript" src="../js/widgets/datasources.js"></script>
         <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
         <script type="text/javascript">
             Ext.onReady(function() {
                 new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
-                var panel = new Ext.Panel({
-                    id:'main-panel',
-                    baseCls:'x-plain',
-                    layout:'table',
-                    layoutConfig: {columns:3},
-                    defaults: {frame:true, width:200, height: 200},
-                    items:[
-                        { title:'Addama Datasources', contentEl: 'container_datasources', autoScroll: true },
-                        { title:'Query', contentEl: 'container_sql', width:600 },
-                        { title:'Columns', contentEl: 'container_columns', autoScroll: true },
-                        { title:'Tables', contentEl: 'container_tables', height: 400, autoScroll: true },
-                        { title:'Results', contentEl: 'container_preview', width:810, height: 400, colspan:2, autoScroll: true },
-                        { title:'Messages', contentEl: 'container_errors', width:1020, height: 100, colspan:3, autoScroll: true }
-                    ]
-                });
+
+                var view = new org.systemsbiology.addama.js.DatasourcesView({ contentEl: "container_datasources" });
+
                 new org.systemsbiology.addama.js.Viewport({
                     topbarEl: "container_topbar",
                     activateAjaxMonitor: true,
                     tabs: [
-                        panel
+                        view.mainPanel
                     ]
                 });
             });
-            Ext.onReady(load_dbs);
         </script>
     </head>
     <body>
         <div id="container_topbar" class="topbar"></div>
         <div id="container_datasources"></div>
-        <div id="container_tables"></div>
-        <div id="container_columns"></div>
         <div id="container_sql">
-            Selected: <span id="container_selected_datasource"></span>
             <br/><textarea rows="5" cols="70" id="textarea_sql">limit 100</textarea>
-            <br/>Number of Results:<span id="container_numberOfResults"></span>
-            <br/>
-            <button onclick="execute_html();">Show Results</button>
-            <button onclick="export_csv();">Export to CSV</button>
-            <button onclick="export_tsv();">Export to TSV</button>
         </div>
         <div id="container_preview"></div>
-        <div id="container_errors"></div>
     </body>
 </html>
