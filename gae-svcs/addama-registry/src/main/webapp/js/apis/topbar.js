@@ -41,12 +41,12 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     this.toolbar.add({ text: "Links",
                         menu: [
                             this.newLinkMenuItem("Home", "/"),
-                            this.newLinkMenuItem("/html/apikeys.html", "API Keys"),
-                            this.newLinkMenuItem("/html/datasources.html", "Query Databases"),
-                            this.newLinkMenuItem("/html/workspaces.html", "Browse Workspaces"),
-                            this.newLinkMenuItem("/html/jobs.html", "View Job Results"),
-                            this.newLinkMenuItem("/html/channels.html", "Test Channels"),
-                            this.newLinkMenuItem("/html/feeds.html", "Test Feeds")
+                            this.newLinkMenuItem("API Keys", "/html/apikeys.html"),
+                            this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
+                            this.newLinkMenuItem("Browse Workspaces", "/html/workspaces.html"),
+                            this.newLinkMenuItem("View Job Results", "/html/jobs.html"),
+                            this.newLinkMenuItem("Test Channels", "/html/channels.html"),
+                            this.newLinkMenuItem("Test Feeds", "/html/feeds.html")
                         ]
                     });
                     this.toolbar.add({ xtype: 'tbseparator' });
