@@ -129,7 +129,9 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
         var items = [];
         items.push({
             region:"center",
-            html: "<h3>Generated API Keys are managed by domain administrators through the App Engine Console<h3>"
+            html: "<h4>Generated API Keys are managed by domain administrators through the App Engine Console<h4>",
+            margins: "5 5 5 5",
+            padding: "5 5 5 5"
         });
         if (this.isAdmin) {
             var fld = new Ext.form.TextField({
@@ -152,8 +154,9 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             items.push(new Ext.form.FormPanel({
                 frame:true,
                 region:"south",
-                bodyStyle:"padding:5px 5px 0",
-                width: 350,
+                margins: "5 5 5 5",
+                padding: "5 5 5 5",
+                width: 400,
                 items: [fld],
                 buttons: [
                     {
