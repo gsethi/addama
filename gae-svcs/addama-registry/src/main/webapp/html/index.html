@@ -29,9 +29,9 @@
                     new Ext.Panel({
                         layout: "border",
                         items: [
-                            { contentEl: "container_apps", region: "west" },
-                            { contentEl: "container_services", region: "center" },
-                            { contentEl: "container_links", region: "east" }
+                            { contentEl: "container_apps", region: "west", width: 500, title: "Registered Applications", frame: true, border: true  },
+                            { contentEl: "container_services", region: "center", width: 500, title: "Services", frame: true, border: true  },
+                            { contentEl: "container_links", region: "east", title: "Useful Links", frame: true, border: true }
                         ]
                     })
                 ]
@@ -44,7 +44,6 @@
 <div id="container_apps"></div>
 <div id="container_services"></div>
 <div id="container_links">
-    <h3>Useful Links</h3>
     <ul>
         <li><a href="/html/apikeys.html">Generate API Keys</a></li>
         <li><a href="/html/datasources.html">Query Datasources</a></li>
