@@ -36,7 +36,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     });
                     this.toolbar.add({ xtype: 'tbseparator' });
 
-                    if (this.addAdminMenu()) {
+                    if (this.addAdminMenu(json)) {
                         this.toolbar.add({ xtype: 'tbseparator' });
                     }
 
@@ -58,32 +58,26 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
         });
     },
 
-    addAdminMenu: function() {
+    addAdminMenu: function(json) {
         if (json.isAdmin) {
             var refreshUI = new Ext.Action({
                 text: 'Refresh UI Version',
                 handler: function(){
                     Ext.Ajax.request({
                         url: "/addama/apps/refresh", method: "POST",
-                        success: function() {
-                            document.location = document.location.href;
-                        }
+                        success: function() { document.location = document.location.href; }
                     });
                 }
             });
 
             var registerApplications = new Ext.Action({
                 text: 'Register Applications',
-                handler: function(){
-                    document.location = "/html/apps.html";
-                }
+                handler: function(){ document.location = "/html/apps.html"; }
             });
 
             var manageGreenlist = new Ext.Action({
                 text: 'Manage User Access',
-                handler: function(){
-                    document.location = "/html/greenlist.html";
-                }
+                handler: function() { document.location = "/html/greenlist.html"; }
             });
 
             var appengineLink = new Ext.Action({
@@ -96,7 +90,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
 
             this.toolbar.add({
                 text: "Administration",
-                menu: [refreshUI, registerApplications, manageGreenlist, appengineLink]
+                menu: [ refreshUI, registerApplications, manageGreenlist, appengineLink ]
             });
 
             return true;
