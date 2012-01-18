@@ -28,9 +28,16 @@
                 tabs: [
                     new Ext.Panel({
                         layout: "border",
+                        defaults: {
+                            margins: "5 5 5 5",
+                            padding: "5 5 5 5",
+                            border: true,
+                            frame: true,
+                            width: 500
+                        },
                         items: [
-                            { contentEl: "container_apps", region: "west", width: 500, title: "Registered Applications", frame: true, border: true  },
-                            { contentEl: "container_services", region: "center", width: 500, title: "Services", frame: true, border: true  }
+                            { contentEl: "container_apps", region: "west", title: "Registered Applications" },
+                            { contentEl: "container_services", region: "center", title: "Services" }
                         ]
                     })
                 ]
