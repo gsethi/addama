@@ -12,6 +12,7 @@
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
     <script type="text/javascript" src="../js/widgets/viewport.js"></script>
     <script type="text/javascript" src="../js/widgets/messages.js"></script>
+    <script type="text/javascript" src="../js/widgets/apps.js"></script>
     <script type="text/javascript" src="../js/apis/channels.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
@@ -20,6 +21,7 @@
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.ChannelMessages();
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            new org.systemsbiology.addama.js.AppsPanel({ contentEl: "container_apps" });
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
@@ -27,41 +29,23 @@
                     { contentEl: "container_main" }
                 ]
             });
-          Ext.Ajax.request({
-            url: "/addama/apps",
-            method: "get",
-            success: function(o) {
-               var json = Ext.util.JSON.decode(o.responseText);
-              if (json && json.items) {
-                var html = "";
-                Ext.each(json.items, function(item) {
-                  html += "<li><a href='" + item.uri + "'>" + item.label + "</a></li>";
-                });
-                Ext.getDom("container_apps").innerHTML = "<ul>" + html + "</ul>";
-              }
-            }
-          });
         });
     </script>
 </head>
 <body>
 <div id="container_topbar"></div>
 <div id="container_main">
-    <div id="container_services"></div>
     <div id="container_apps"></div>
+    <div id="container_services"></div>
     <div id="container_links">
-        <ul>All Users
+        <ul>
+            <li><a href="/html/apikeys.html">Generate API Keys</a></li>
             <li><a href="/html/registry.html">Registry View</a></li>
-            <li><a href="/html/datasources.html">Datasources Page</a></li>
-            <li><a href="/html/workspaces.html">Workspaces Page</a></li>
-            <li><a href="/html/jobs.html">Tools Results</a></li>
+            <li><a href="/html/datasources.html">Datasources</a></li>
+            <li><a href="/html/workspaces.html">Workspaces</a></li>
+            <li><a href="/html/jobs.html">Job Results</a></li>
             <li><a href="/html/channels.html">Channel Test Page</a></li>
             <li><a href="/html/feeds.html">Feeds Test Page</a></li>
-            <li><a href="/html/apikeys.html">Generate API Keys</a></li>
-        </ul>
-        <ul>Admin Only
-            <li><a href="/html/apps.html">Registered Applications</a></li>
-            <li><a href="/html/greenlist.html">Manage User Access</a></li>
         </ul>
     </div>
 </div>
