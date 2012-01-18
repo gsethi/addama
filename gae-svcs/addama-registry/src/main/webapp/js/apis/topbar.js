@@ -28,7 +28,16 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.email) {
-                    this.toolbar.add({ text: json.email, xtype: 'tbtext', style: { "vertical-align": "middle" } });
+                    this.toolbar.add({
+                        text: json.email,
+                        menu: [
+                            this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
+                            this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
+                            this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount"),
+                            this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine")
+                        ]
+                    });
+
                     this.toolbar.add({ xtype: 'tbseparator' });
 
                     this.toolbar.add({ text: 'Home', xtype: 'tbbutton',
@@ -70,31 +79,29 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             });
 
-            var registerApplications = new Ext.Action({
-                text: 'Register Applications',
-                handler: function(){ document.location = "/html/apps.html"; }
-            });
-
-            var manageGreenlist = new Ext.Action({
-                text: 'Manage User Access',
-                handler: function() { document.location = "/html/greenlist.html"; }
-            });
-
-            var appengineLink = new Ext.Action({
-                text: 'App Engine Console',
-                handler: function(){
-                    var app_id = document.location.hostname.replace(".appspot.com", "");
-                    document.location = "https://appengine.google.com/dashboard?&app_id=" + app_id;
-                }
-            });
+            var app_id = document.location.hostname.replace(".appspot.com", "");
 
             this.toolbar.add({
                 text: "Administration",
-                menu: [ refreshUI, registerApplications, manageGreenlist, appengineLink ]
+                menu: [
+                    refreshUI,
+                    this.newLinkMenuItem("Register Applications", "/html/apps.html"),
+                    this.newLinkMenuItem("Manage User Access", "/html/greenlist.html"),
+                    this.newLinkMenuItem("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
+                ]
             });
 
             return true;
         }
         return false;
+    },
+
+    newLinkMenuItem: function(text, link) {
+        return new Ext.Action({
+            text: text,
+            handler: function() {
+                document.location = link;
+            }
+        });
     }
 });
