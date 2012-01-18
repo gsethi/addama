@@ -112,15 +112,15 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
     },
 
     addNodes: function(node, items) {
-        var parentPath = node.attributes.path;
-        if (parentPath == "/") {
-            parentPath = "";
+        var parentPath = "/";
+        if (!node.isRoot) {
+            parentPath = node.attributes.path;
         }
 
         Ext.each(items, function(item) {
-            if (!this.treePanel.getNodeById(item.uri)) {
+            if (!this.treePanel.getNodeById(item.name)) {
                 item.text = item.label ? item.label : item.name;
-                item.id = item.uri;
+                item.id = parentPath + "/" + item.name;
                 item.path = parentPath + "/" + item.name;
                 item.leaf = node.attributes.isTable;
                 item.isTable = node.attributes.isDb;
@@ -129,6 +129,9 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                 } else {
                     item.cls = "folder";
                     item.children = [];
+                }
+                if (item.datatype) {
+                    item.text = item.name + " [" + item.datatype + "]";
                 }
                 node.appendChild(item);
             }
@@ -153,7 +156,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
         }
 
         var tableUri = this.selectedTable.id;
-        var columns = this.selectedTable.columns;
+        var childNodes = this.selectedTable.childNodes;
         var querySql = Ext.getDom("textarea_sql").value;
 
         Ext.Ajax.request({
@@ -164,17 +167,21 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                 tqx: "out:json_array"
             },
             success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json) {
+                var data = Ext.util.JSON.decode(o.responseText);
+                if (data) {
                     org.systemsbiology.addama.js.Message.show("Datasources", "Retrieved " + data.length + " Records");
 
                     var fields = [];
-                    Ext.each(columns, function(column) {
-                        fields.push(column.name);
-                        column.id = column.name;
-                        column.header = column.name;
-                        column.dataIndex = column.name;
-                        column.sortable = true;
+                    var columns = [];
+                    Ext.each(childNodes, function(childNode) {
+                        fields.push(childNode.name);
+                        // TODO : Insert data type
+                        columns.push({
+                            id: childNode.name,
+                            header: childNode.name,
+                            dataIndex: childNode.name,
+                            sortable: true
+                        });
                     });
 
                     var store = new Ext.data.JsonStore({
