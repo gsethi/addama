@@ -129,31 +129,43 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
         var items = [];
         items.push({
             region:"center",
-            html: "<h3>Generated API Keys are managed by domain administrators through the App Engine Administration Console<h3>"
+            html: "<h3>Generated API Keys are managed by domain administrators through the App Engine Console<h3>"
         });
         if (this.isAdmin) {
             var fld = new Ext.form.TextField({
+                name: "serviceHostUrl",
                 anchor: "100%",
                 fieldLabel: "Service Host URL",
-                name: "serviceHostUrl"
+                validateOnBlur: true,
+                invalidText: "A valid URL is required",
+                getErrors: function() {
+                    var serviceUrl = this.getRawValue();
+                    if (serviceUrl) {
+                        if (serviceUrl.indexOf("ttp://") > 0|| serviceUrl.indexOf("ttps://") > 0) {
+                            return [];
+                        }
+                    }
+                    return ["Enter a valid URL"];
+                }
             });
             
             items.push(new Ext.form.FormPanel({
                 frame:true,
                 region:"south",
-                title: "Generate addama.properties",
                 bodyStyle:"padding:5px 5px 0",
                 width: 350,
                 items: [fld],
                 buttons: [
                     {
-                        text: "Generate",
+                        text: "Generate addama.properties",
                         handler: function() {
-                            if (fld.getRawValue()) {
-                                document.location = "/addama/apikeys/addama.properties?serviceUrl=" + fld.getRawValue();
+                            var serviceUrl = fld.getValue();
+                            if (serviceUrl) {
+                                document.location = "/addama/apikeys/addama.properties?serviceUrl=" + serviceUrl;
                             } else {
                                 document.location = "/addama/apikeys/addama.properties";
                             }
+                            win.close();
                         }
                     }
                 ]
