@@ -1,0 +1,49 @@
+<html>
+<head>
+    <title>Simple Test</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+
+    <script type="text/javascript" src="/js/utils/console_handling.js"></script>
+    <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
+    <script type="text/javascript" src="/js/apis/topbar.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+        });
+
+        function submitForm() {
+            Ext.Ajax.request({
+                method:"POST",
+                url: "/addama/tools/simpletest/jobs",
+                params: {
+                    label: Ext.getDom("label").value,
+                    flag: Ext.getDom("flag").value,
+                    valfield: Ext.getDom("valfield").value
+                },
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    document.location = "/html/jobs.html?job=" + json.uri;
+                }
+            });
+            return false;
+        }
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="container_form">
+    <form method="POST" onSubmit="return submitForm();">
+        <br/>Label: <input type="text" id="label"/>
+        <br/>Flag: <input type="checkbox" id="flag"/>
+        <br/>Value Field: <input type="text" id="valfield"/>
+        <input type="submit" value="Submit Job"/>
+    </form>
+</div>
+</body>
+</html>

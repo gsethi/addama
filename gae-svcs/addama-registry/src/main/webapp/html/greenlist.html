@@ -1,0 +1,37 @@
+<html>
+<head>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <title>Members</title>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/greenlist.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar",
+                listeners: {
+                    whoami: function() {
+                        LoadGreenlist("container_main");
+                    }
+                }
+            });
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="container_main"></div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+
+    <bean id="handlerExceptionResolver"
+          class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+        <property name="warnLogCategory" value="gaeregistry-servlet"/>
+        <property name="exceptionMappings">
+            <props>
+                <prop key="java.lang.UnsupportedOperationException">notImplementedView</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">
+                    resourceNotFoundView
+                </prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException">
+                    forbiddenAccessView
+                </prop>
+                <prop key="com.google.appengine.api.datastore.EntityNotFoundException">resourceNotFoundView</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">invalidSyntaxView
+                </prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">
+                    resourceStateConflictView
+                </prop>
+                <prop key="java.lang.Exception">genericExceptionView</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="notImplementedView" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
+
+    <bean id="resourceNotFoundView" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
+
+    <bean id="invalidSyntaxView" class="org.systemsbiology.addama.commons.web.views.InvalidSyntaxView"/>
+
+    <bean id="resourceStateConflictView" class="org.systemsbiology.addama.commons.web.views.ResourceStateConflictView"/>
+
+    <bean id="forbiddenAccessView" class="org.systemsbiology.addama.commons.web.views.ForbiddenAccessView"/>
+
+    <bean id="genericExceptionView" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
+
+</beans>

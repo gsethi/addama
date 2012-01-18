@@ -1,0 +1,91 @@
+<html>
+<head>
+    <title>Addama Channels Service</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="/js/utils/console_handling.js"></script>
+    <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
+    <script type="text/javascript" src="/js/apis/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+    <script type="text/javascript" src="/js/apis/channels.js"></script>
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+
+    <script type="text/javascript">
+        var channelPublisher;
+
+        function publishEvent() {
+            var ev = { event: Ext.util.JSON.decode(Ext.getDom("container_event_entry").value) };
+            channelPublisher.publishEvent(ev, successCallback);
+        }
+
+        function publishMessage() {
+            var msg = Ext.getDom("container_message_entry").value;
+            channelPublisher.publishMessage(msg, successCallback);
+        }
+
+        function successCallback(json) {
+            Ext.getDom("container_messages").innerHTML += "<br/>publish success: " + Ext.util.JSON.encode(json);
+        }
+
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar"
+            });
+
+            new org.systemsbiology.addama.js.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
+
+            channelPublisher = new org.systemsbiology.addama.js.ChannelPublisher();
+
+            new org.systemsbiology.addama.js.ChannelListener({
+                listeners: {
+                    open: function() {
+                        Ext.getDom("container_messages").innerHTML += "<br/>Channel Opened Successfully";
+                    },
+                    message: function(a) {
+                        Ext.getDom("container_events").innerHTML += "<br/>Received: " + a.data;
+                    },
+                    error: function(a) {
+                        Ext.getDom("container_messages").innerHTML += "<br/>Error: " + a;
+                    },
+                    close: function(a) {
+                        Ext.getDom("container_messages").innerHTML = "<br/>Channel Closed";
+                    }
+                }
+            });
+        });
+    </script>
+
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_main">
+    <h3>Publish JSON</h3>
+    <div>
+        <textarea id="container_event_entry" rows="10" cols="50"></textarea>
+        <button onclick="publishEvent();">Publish Event</button>
+    </div>
+
+    <h3>Publish Text</h3>
+    <div>
+        <textarea id="container_message_entry" rows="10" cols="50"></textarea>
+        <button onclick="publishMessage();">Publish Text</button>
+    </div>
+
+    <h3>Listen</h3>
+    <div id="container_events"></div>
+
+    <h3>Messages</h3>
+    <div id="container_messages"></div>
+</div>
+</body>
+</html>
