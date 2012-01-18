@@ -185,9 +185,9 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                 if (json && json.items) {
                     var html = "";
                     Ext.each(json.items, function(item) {
-                        html += "<li><a href='" + item.uri + "' target='_blank'>" + item.label + "</a></li>";
+                        html += "<li><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a></li>";
                     });
-                    Ext.DomHelper(this.contentEl, "<ul>" + html + "</ul>");
+                    Ext.DomHelper.append(Ext.get(this.contentEl), "<ul>" + html + "</ul>");
                 }
             },
             scope: this
@@ -212,7 +212,7 @@ org.systemsbiology.addama.js.ServicesPanel = Ext.extend(Object, {
                     Ext.each(json.items, function(item) {
                         html += "<li>" + item.label + ":" + item.url + "</li>";
                     });
-                    Ext.DomHelper(this.contentEl, "<ul>" + html + "</ul>");
+                    Ext.DomHelper.append(Ext.get(this.contentEl), "<ul>" + html + "</ul>");
                 }
             },
             scope: this
