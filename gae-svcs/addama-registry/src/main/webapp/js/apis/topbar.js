@@ -128,37 +128,28 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
 
         var items = [];
         items.push({
-            region:"north",
-            text: "Generated API Keys are managed by domain administrators through the App Engine Administration Console"
-        });
-        items.push({
-            text: "Download API Key File",
             region:"center",
-            handler: function() { document.location = "/addama/apikeys/file"; }
+            html: "<h3>Generated API Keys are managed by domain administrators through the App Engine Administration Console<h3>"
         });
         if (this.isAdmin) {
-            var fp = new Ext.form.FormPanel({
+            var fld = Ext.form.TextFieldView({
+                anchor: '100%',
+                fieldLabel: 'Service Host URL',
+                name: "serviceHostUrl"
+            });
+            
+            items.push(new Ext.form.FormPanel({
                 frame:true,
                 region:"south",
                 title: "Generate addama.properties",
                 bodyStyle:"padding:5px 5px 0",
                 width: 350,
-                items: [
-                    {
-                        id:"serviceHostUrl",
-                        anchor: '100%',
-                        type: "textfield",
-                        fieldLabel: 'Service Host URL',
-                        name: "serviceHostUrl"
-                    }
-                ],
+                items: [fld],
                 buttons: [
                     {
                         text: "Generate",
                         handler: function() {
-                            var form = fp.getForm();
-                            var fld = form.findField("serviceHostUrl");
-                            if (fld && fld.getRawValue()) {
+                            if (fld.getRawValue()) {
                                 document.location = "/addama/apikeys/addama.properties?serviceUrl=" + fld.getRawValue();
                             } else {
                                 document.location = "/addama/apikeys/addama.properties";
@@ -166,8 +157,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
                         }
                     }
                 ]
-            });
-            items.push(fp);
+            }));
         }
 
         new Ext.Window({
@@ -177,9 +167,14 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             width: 600,
             minWidth: 400,
             height: 400,
-            layout: "border",
             bodyStyle: "padding: 5px;",
-            items: items
+            items: items,
+            tbar: [
+                {
+                    text: "Download API Key File",
+                    handler: function() { document.location = "/addama/apikeys/file"; }
+                }
+            ]
         }).show();
     }
 });
