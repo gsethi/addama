@@ -11,6 +11,8 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
     },
 
     loadTree: function() {
+        this.rootNode = new Ext.tree.AsyncTreeNode();
+
         this.treePanel = new Ext.tree.TreePanel({
             title: "Datasources",
             region:"west",
@@ -27,7 +29,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
             singleExpand: true,
             useArrows: true,
             loader: new Ext.tree.TreeLoader(),
-            root: new Ext.tree.AsyncTreeNode()
+            root: this.rootNode
         });
         this.treePanel.on("expandnode", this.expandNode, this);
         this.treePanel.on("click", this.selectTable, this);
@@ -39,16 +41,18 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
             border: true,
             split: true,
             items:[
-                {
-                    title: "Query", region: "north", contentEl: "container_sql", width:600,
+                new Ext.Panel({
+                    title: "Query",
+                    region: "north",
+                    contentEl: "container_sql",
+                    width:810,
                     bbar: [
                         { text: "Show Results", handler: this.queryHtml },
                         { text: "Export to CSV", handler: this.queryCsv },
                         { text: "Export to TSV", handler: this.queryTsv }
-
                     ]
-                },
-                { title: "Results", region: "south", contentEl: "container_preview", width:810, height: 400, colspan:2, autoScroll: true }
+                }),
+                { title: "Results", region: "center", contentEl: "container_preview", width:810, height: 400 }
             ]
         };
 
@@ -74,8 +78,9 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
                     Ext.each(json.items, function(database) {
-                        // TODO : Add data to tree
+                        database.isDb = true;
                     });
+                    this.addNodes(this.rootNode, json.items);
                 }
             },
             failure: this.displayFailure,
@@ -83,38 +88,45 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
         });
     },
 
-    loadTables: function(databaseUri) {
+    expandNode: function(node) {
+        if (node.id == "addamatreetopid") {
+            return;
+        }
+
         Ext.Ajax.request({
-            url: databaseUri,
+            url: node.id,
             method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
-                    Ext.each(json.items, function(table) {
-                        // TODO : Add table to tree
-                    });
+                    this.addNodes(node, json.items);
                 }
             },
-            failure: this.displayFailure,
-            scope: this
+            scope: this,
+            failure: function() {
+                node.expandable = false;
+            }
         });
     },
 
-    loadColumns: function(tableUri) {
-        Ext.Ajax.request({
-            url: tableUri,
-            method: "GET",
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.items) {
-                    Ext.each(json.items, function(table) {
-                        // TODO : Add columns to tree:  column.name, column.datatype
-                    });
+    addNodes: function(node, items) {
+        Ext.each(items, function(item) {
+            if (!this.treePanel.getNodeById(item.uri)) {
+                item.text = item.label ? item.label : item.name;
+                item.id = item.uri;
+                item.path = item.uri;
+                item.leaf = node.isTable;
+                item.isTable = node.isDb;
+                if (item.leaf) {
+                    item.cls = "file";
+                } else {
+                    item.cls = "folder";
+                    item.children = [];
                 }
-            },
-            failure: this.displayFailure,
-            scope: this
-        });
+                node.appendChild(item);
+            }
+        }, this);
+        node.renderChildren();
     },
 
     displayFailure: function(o) {
@@ -124,6 +136,7 @@ org.systemsbiology.addama.js.DatasourcesView = Ext.extend(Object, {
     selectTable: function(node) {
         if (node.attributes.isTable) {
             this.selectedTable = node;
+            org.systemsbiology.addama.js.Message.show("Datasources", "Table Selected: " + node.attributes.text);
         }
     },
 
