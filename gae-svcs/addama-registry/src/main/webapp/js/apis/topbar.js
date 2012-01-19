@@ -74,6 +74,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             },
             failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Addama", "Error: " + o.statusText);
                 this.toolbar.add({ text: "Error: " + o.statusText });
                 this.toolbar.doLayout();
             }
