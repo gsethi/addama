@@ -126,14 +126,17 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
 
         org.systemsbiology.addama.js.ApiKeysWindow.superclass.constructor.call(this);
 
-        var msgTxt = "<h4>Generated API Keys are managed by domain administrators through the App Engine Console<h4>";
-        msgTxt += "<br/><br/>";
-        msgTxt += "API Keys are assigned per user to support secure interfaces for programmatic access to Addama";
+        var msgTxt = "<h4>Generated API Keys are managed by domain administrators through the App Engine Console</h4>";
+        msgTxt += "<br/>";
+        msgTxt += "Each user is assigned a private API key to support secure programmatic access to Addama services.";
+        msgTxt += "<b>Do NOT share your API key<b>.  Treat the same as a password.";
         if (this.isAdmin) {
             msgTxt += "<br/><br/><br/>";
-            msgTxt += "The 'addama.properties' file is used by Addama local services to register securely";
-            msgTxt += "<br/><br/>";
-            msgTxt += "Enter the public URL for your web services host to automatically generate this file for your domain";
+            msgTxt += "The 'addama.properties' file is used by Addama local services to register securely.";
+            msgTxt += "<br/>";
+            msgTxt += "Enter the public URL in the text field below for your web services host (e.g. https://webservices.example.com) to automatically generate";
+            msgTxt += "<br/>";
+            msgTxt += "<br/>";
         }
 
         var items = [];
@@ -144,7 +147,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
                 name: "serviceHostUrl",
                 anchor: "100%",
                 labelSeparator: "",
-                fieldLabel: "Web services host URL (e.g. https://webservices.example.com)"
+                fieldLabel: "Web services host URL"
             });
             
             items.push(new Ext.form.FormPanel({
