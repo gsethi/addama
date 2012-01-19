@@ -127,12 +127,13 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
         org.systemsbiology.addama.js.ApiKeysWindow.superclass.constructor.call(this);
 
         var msgTxt = "<h4>Generated API Keys are managed by domain administrators through the App Engine Console<h4>";
-        msgTxt += "<br/>API Keys are assigned per user to support secure interfaces for programmatic access to Addama";
+        msgTxt += "<br/><br/>";
+        msgTxt += "API Keys are assigned per user to support secure interfaces for programmatic access to Addama";
         if (this.isAdmin) {
-            msgTxt += "<div>";
-            msgTxt += "The 'addama.properties' file is used by Addama local services to register securely<br/>";
+            msgTxt += "<br/><br/><br/>";
+            msgTxt += "The 'addama.properties' file is used by Addama local services to register securely";
+            msgTxt += "<br/><br/>";
             msgTxt += "Enter the public URL for your web services host to automatically generate this file for your domain";
-            msgTxt += "</div>";
         }
 
         var items = [];
@@ -151,7 +152,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
                 region:"south",
                 margins: "5 5 5 5",
                 padding: "5 5 5 5",
-                width: 400,
+                width: 500,
                 items: [fld],
                 buttons: [
                     {
