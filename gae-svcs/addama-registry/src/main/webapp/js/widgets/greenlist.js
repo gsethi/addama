@@ -22,9 +22,6 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             columns: [
                 { header: "User", width: 300, sortable: true, dataIndex: "id" },
                 { header: "Uri", width: 300, sortable: true, dataIndex: "uri", hidden: true }
-            ],
-            tbar: [
-                new Ext.Button(new Ext.Action({ text: "Add User", handler: this.addNewUser }))
             ]
         });
 
@@ -33,7 +30,10 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             height:500,
             layout: "fit",
             title: "Authorized Users",
-            items: this.listView
+            items: this.listView,
+            tbar: [
+                new Ext.Button(new Ext.Action({ text: "Add User", handler: this.addNewUser }))
+            ]
         });
 
         this.loadGreenlist();
