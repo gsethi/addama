@@ -1,49 +1,85 @@
 <html>
 <head>
     <title>Test Page</title>
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
-    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
-    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
-    <script type="text/javascript" src="/js/utils/console_handling.js"></script>
-    <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
-    <script type="text/javascript" src="/js/apis/topbar.js"></script>
-    <script type="text/javascript" src="/js/widgets/messages.js"></script>
-    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <script type="text/javascript" src="../js/utils/console_handling.js"></script>
+    <script type="text/javascript" src="../js/utils/query_parameters.js"></script>
+    <script type="text/javascript" src="../js/apis/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets/messages.js"></script>
+    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
 
     <script type="text/javascript">
         Ext.onReady(function() {
-            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
-                activateAjaxMonitor: true,
                 tabs: [
                     new Ext.Panel({
                         title:'Main',
                         contentEl: 'container_main',
                         html: "This is the main tab"
-                    }),
-                    new Ext.Panel({
-                        title:'REST+JSON',
-                        contentEl: 'container_restjson',
-                        html: "This is the rest+json tab"
-                    }),
-                    new Ext.Panel({
-                        title:'Code',
-                        contentEl: 'container_code',
-                        html: "This is the code tab"
                     })
                 ]
             });
         });
     </script>
+
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
-<div id="container_main"></div>
-<div id="container_restjson"></div>
-<div id="container_code"></div>
+<div class="apps_container">
+    <div class="apps_scroller">
+        <div class="apps">
+            <a href="#">
+                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+                <h3>Regulome Explorer</h3>
+            </a>
+            <p>This is the description for regulome explorer.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+        <div class="apps">
+            <a href="#">
+                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+                <h3>Pubcrawl</h3>
+            </a>
+            <p>This is the description for pubcrawl.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+        <div class="apps">
+            <a href="#">
+                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+                <h3>Some App</h3>
+            </a>
+            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+        <div class="apps">
+            <a href="#">
+                <img src="../images/nologo.png" />
+                <h3>Some App</h3>
+            </a>
+            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+        <div class="apps">
+            <a href="#">
+                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+                <h3>Some App</h3>
+            </a>
+            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+        <div class="apps">
+            <a href="#">
+                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+                <h3>Some App</h3>
+            </a>
+            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+        <div class="apps">
+            <a href="#">
+                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+                <h3>Some App</h3>
+            </a>
+            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+        </div>
+    </div>
+</div>
 </body>
 </html>

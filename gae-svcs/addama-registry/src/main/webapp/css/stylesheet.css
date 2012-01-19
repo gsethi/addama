@@ -1,0 +1,58 @@
+body {
+    font-family:helvetica,tahoma,verdana,sans-serif;
+    padding:20px;
+    padding-top:32px;
+    font-size:13px;
+    background-color:#fff !important;
+}
+
+.apps_container {
+    border: 2px solid #0099cc;
+    border-radius: 12px;
+    width: 500px;
+    height: 500px;
+    padding: 10px;
+}
+
+.apps_scroller {
+    width: 500px;
+    height: 500px;
+    overflow: auto;
+}
+
+.apps {
+    font-size:14px;
+    width:400px;
+    border-radius: 12px;
+    background: #F6F6F6;
+    border: 2px solid #0099cc;
+    margin: 10px;
+    padding: 10px;
+    height: 80px;
+    color: #555;
+}
+
+.apps h3 {
+    margin: 0 0 8px;
+    font-weight: bold;
+    font-size: 15px;
+    position:relative;
+    top:-50px;
+    left:60px;
+}
+
+.apps p {
+    margin: 0;
+    width:340px;
+    text-align: justify;
+    position:relative;
+    top:-50px;
+    left:60px;
+}
+
+.apps img {
+    border: 1px solid #ccc;
+    position: relative;
+    height: 50px;
+    width: 50px;
+}

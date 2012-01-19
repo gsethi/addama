@@ -183,16 +183,27 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
-                    var html = "";
+                    var appsContainer = Ext.DomHelper.append(Ext.get(this.contentEl), "<div class='apps_container'></div>", true);
+                    var appsScroller = Ext.DomHelper.append(appsContainer, "<div class='apps_scroller'></div>", true);
                     Ext.each(json.items, function(item) {
-                        html += "<li><img src='" + item.uri + "/logo.png' alt='...'/><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a></li>";
+                        var itemhtml = "";
+                        itemhtml += "<div class='apps'>";
+                        itemhtml += "<a href='" + item.uri + "/' target='_blank'>";
+                        if (item.logo) {
+                            itemhtml += "<img src='" + item.logo + "' alt='app_logo'/>";
+                        } else {
+                            itemhtml += "<img src='/images/nologo.png' alt='app_logo'/>";
+                        }
+                        itemhtml += "<h3>" + item.label + "</h3>";
+                        itemhtml += "</a>";
+                        itemhtml += "<p>" + item.description + "</p>";
+                        itemhtml += "</div>";
+                        Ext.DomHelper.append(appsScroller, itemhtml);
                     });
-                    Ext.DomHelper.append(Ext.get(this.contentEl), "<ul>" + html + "</ul>");
                 }
             },
             scope: this
         });
-
     }
 });
 
