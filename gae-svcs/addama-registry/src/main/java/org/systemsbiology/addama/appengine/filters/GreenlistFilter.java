@@ -55,6 +55,6 @@ public class GreenlistFilter extends GenericFilterBean {
 
         //how does this redirect work in the case of apikeys?
         response.setStatus(SC_UNAUTHORIZED);
-        response.sendRedirect("/html/bounced.html");
+        // response.sendRedirect("/html/bounced.html");
     }
 }
