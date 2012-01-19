@@ -29,6 +29,7 @@ import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.systemsbiology.addama.appengine.util.Greenlist.addGreenlistUser;
 import static org.systemsbiology.addama.appengine.util.Greenlist.getGreenlist;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
@@ -50,9 +51,11 @@ public class GreenlistController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/greenlist/{email}", method = RequestMethod.POST)
-    public ModelAndView addUser(HttpServletRequest request, @PathVariable("email") String email) throws Exception {
+    @RequestMapping(value = "/greenlist/*", method = RequestMethod.POST)
+    public ModelAndView addUser(HttpServletRequest request) throws Exception {
         checkAdmin(request);
+
+        String email = substringAfterLast(request.getRequestURI(), "greenlist/");
 
         addGreenlistUser(email);
 
