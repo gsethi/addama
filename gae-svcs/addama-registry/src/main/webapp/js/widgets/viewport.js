@@ -185,7 +185,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                 if (json && json.items) {
                     var html = "";
                     Ext.each(json.items, function(item) {
-                        html += "<li><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a></li>";
+                        html += "<li><img src='" + item.uri + "/logo.png' alt='...'/><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a></li>";
                     });
                     Ext.DomHelper.append(Ext.get(this.contentEl), "<ul>" + html + "</ul>");
                 }
