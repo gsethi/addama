@@ -183,8 +183,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
-                    var appsContainer = Ext.DomHelper.append(Ext.get(this.contentEl), "<div class='apps_container'></div>", true);
-                    var appsScroller = Ext.DomHelper.append(appsContainer, "<div class='apps_scroller'></div>", true);
+                    var appsDiv = Ext.get(this.contentEl);
                     Ext.each(json.items, function(item) {
                         var itemhtml = "";
                         itemhtml += "<div class='apps'>";
@@ -198,7 +197,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                         itemhtml += "</a>";
                         itemhtml += "<p>" + item.description + "</p>";
                         itemhtml += "</div>";
-                        Ext.DomHelper.append(appsScroller, itemhtml);
+                        Ext.DomHelper.append(appsDiv, itemhtml);
                     });
                 }
             },

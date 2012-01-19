@@ -2,6 +2,11 @@
 <head>
     <title>Test Page</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+
     <script type="text/javascript" src="../js/utils/console_handling.js"></script>
     <script type="text/javascript" src="../js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
@@ -14,72 +19,81 @@
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
                 tabs: [
                     new Ext.Panel({
-                        title:'Main',
-                        contentEl: 'container_main',
-                        html: "This is the main tab"
+                        layout: "border",
+                        defaults: {
+                            margins: "5 5 5 5",
+                            padding: "5 5 5 5",
+                            border: true,
+                            frame: true,
+                            width: 520,
+                            autoScroll:true
+                        },
+                        items: [
+                            { contentEl: "container_apps", region: "west", title: "Registered Applications" },
+                            { contentEl: "container_services", region: "center", title: "Registered Services" }
+                        ]
                     })
                 ]
             });
         });
     </script>
-
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
-<div class="apps_container">
-    <div class="apps_scroller">
-        <div class="apps">
-            <a href="#">
-                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
-                <h3>Regulome Explorer</h3>
-            </a>
-            <p>This is the description for regulome explorer.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
-        <div class="apps">
-            <a href="#">
-                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
-                <h3>Pubcrawl</h3>
-            </a>
-            <p>This is the description for pubcrawl.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
-        <div class="apps">
-            <a href="#">
-                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
-                <h3>Some App</h3>
-            </a>
-            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
-        <div class="apps">
-            <a href="#">
-                <img src="../images/nologo.png" />
-                <h3>Some App</h3>
-            </a>
-            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
-        <div class="apps">
-            <a href="#">
-                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
-                <h3>Some App</h3>
-            </a>
-            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
-        <div class="apps">
-            <a href="#">
-                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
-                <h3>Some App</h3>
-            </a>
-            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
-        <div class="apps">
-            <a href="#">
-                <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
-                <h3>Some App</h3>
-            </a>
-            <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
-        </div>
+<div id="container_apps">
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Regulome Explorer</h3>
+        </a>
+        <p>This is the description for regulome explorer.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Pubcrawl</h3>
+        </a>
+        <p>This is the description for pubcrawl.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="../images/nologo.png" />
+            <h3>Some App</h3>
+        </a>
+        <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <p>This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</p>
     </div>
 </div>
+<div id="container_services"></div>
 </body>
 </html>
