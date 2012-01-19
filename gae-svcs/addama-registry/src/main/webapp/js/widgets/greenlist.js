@@ -10,18 +10,18 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
 
         org.systemsbiology.addama.js.GreenlistMgr.superclass.constructor.call(this, config);
 
-        this.store = new Ext.data.ArrayStore({ fields: [ {name: "id"}, {name: "uri"} ] });
+        this.store = new Ext.data.ArrayStore({ fields: [ {name: "id"} ] });
 
         this.listView = new Ext.list.ListView({
             title: "Authorized Users",
             store: this.store,
             emptyText: "No users have been entered.  Domain is open to everyone",
             reserveScrollOffset: true,
+            hideHeaders: true,
             padding: "10 10 10 10",
             margins: "10 10 10 10",
             columns: [
-                { header: "User", width: 300, sortable: true, dataIndex: "id" },
-                { header: "Uri", width: 300, sortable: true, dataIndex: "uri", hidden: true }
+                { header: "User", width: 300, sortable: true, dataIndex: "id" }
             ]
         });
 
@@ -32,7 +32,7 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             title: "Authorized Users",
             items: this.listView,
             tbar: [
-                new Ext.Button(new Ext.Action({ text: "Add User", handler: this.addNewUser }))
+                new Ext.Button({ text: "Add User", handler: this.addNewUser, scope: this })
             ]
         });
 
@@ -50,7 +50,7 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
                 if (json && json.items) {
                     var data = [];
                     Ext.each(json.items, function(item) {
-                        data.push([item.id,item.uri]);
+                        data.push([item.id]);
                     });
                     this.store.loadData(data);
                 }
@@ -69,7 +69,6 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             fieldLabel: "Email Address"
         });
 
-        var me = this;
         var fpAddUser = new Ext.FormPanel({
             width: 400,
             frame: true,
@@ -81,9 +80,10 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
                     text: "Save",
                     handler: function() {
                         if (fld.getRawValue()) {
-                            me.saveNewUser(fld.getRawValue());
+                            this.saveNewUser(fld.getRawValue());
                         }
-                    }
+                    },
+                    scope: this
                 }
             ]
         });
