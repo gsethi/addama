@@ -1,5 +1,13 @@
 Ext.ns("org.systemsbiology.addama.js");
 
+Ext.Ajax.on('requestexception', function(c, o) {
+    if (o.status == 401) {
+        if (org.systemsbiology.addama.js.Message) {
+            org.systemsbiology.addama.js.Message.error("Unauthorized Access", "Your access to this resource has been denied.  Please contact an administrator.");
+        }
+    }
+});
+
 org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
 
     constructor: function(config) {
@@ -74,7 +82,6 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             },
             failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Addama", "Error: " + o.statusText);
                 this.toolbar.add({ text: "Error: " + o.statusText });
                 this.toolbar.doLayout();
             }
