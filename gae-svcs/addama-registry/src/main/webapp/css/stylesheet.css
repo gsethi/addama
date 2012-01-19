@@ -9,20 +9,20 @@ body {
 .apps_container {
     border: 2px solid #0099cc;
     border-radius: 12px;
-    width: 500px;
-    height: 500px;
+    width: 450px;
+    height: 450px;
     padding: 10px;
 }
 
 .apps_scroller {
-    width: 500px;
-    height: 500px;
+    width: 450px;
+    height: 450px;
     overflow: auto;
 }
 
 .apps {
     font-size:14px;
-    width:400px;
+    width:360px;
     border-radius: 12px;
     background: #F6F6F6;
     border: 2px solid #0099cc;
