@@ -64,7 +64,7 @@ public class GreenlistControllerTest {
 
         for (int i = 0; i < 10; i++) {
             String user = i + "@addama.org";
-            CONTROLLER.addUser(new MockHttpServletRequest(), user);
+            CONTROLLER.addUser(new MockHttpServletRequest("POST", "/addama/greenlist/" + user));
         }
         assertTrue(isGreenlistActive());
 
