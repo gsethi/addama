@@ -12,24 +12,28 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
 
         this.store = new Ext.data.ArrayStore({ fields: [ {name: "id"}, {name: "uri"} ] });
 
-        this.gridPanel = new Ext.grid.GridPanel({
-            store: this.store,
+        this.listView = new Ext.list.ListView({
             title: "Authorized Users",
-            tbar: [
-                new Ext.Button(new Ext.Action({ text: "Add User", handler: this.addNewUser }))
-            ],
+            store: this.store,
+            emptyText: "No users have been entered.  Domain is open to everyone",
+            reserveScrollOffset: true,
+            padding: "10 10 10 10",
+            margins: "10 10 10 10",
             columns: [
                 { header: "User", width: 300, sortable: true, dataIndex: "id" },
                 { header: "Uri", width: 300, sortable: true, dataIndex: "uri", hidden: true }
             ],
-            stripeRows: true,
-            autoHeight: true,
-            autoScroll: true,
-            frame: true,
-            width: 600,
-            region:"center",
-            bodyStyle: "padding:10px;",
-            style: "padding:10px;"
+            tbar: [
+                new Ext.Button(new Ext.Action({ text: "Add User", handler: this.addNewUser }))
+            ]
+        });
+
+        this.panel = new Ext.Panel({
+            width:425,
+            height:500,
+            layout: "fit",
+            title: "Authorized Users",
+            items: this.listView
         });
 
         this.loadGreenlist();
@@ -65,6 +69,7 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             fieldLabel: "Email Address"
         });
 
+        var me = this;
         var fpAddUser = new Ext.FormPanel({
             width: 400,
             frame: true,
@@ -73,21 +78,20 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             items: [ fld ],
             buttons: [
                 {
-                    text: 'Submit',
+                    text: "Save",
                     handler: function() {
                         if (fld.getRawValue()) {
-                            this.saveNewUser(fld.getRawValue());
+                            me.saveNewUser(fld.getRawValue());
                         }
-                    },
-                    scope: this
+                    }
                 }
             ]
         });
 
-        this.userWindow = new Ext.Window({
+        this.window = new Ext.Window({
             width:400, autoHeight:true, title: 'Add New User', items: [fpAddUser], frame: true
         });
-        this.userWindow.show();
+        this.window.show();
     },
 
     saveNewUser: function(userEmail) {
@@ -95,7 +99,7 @@ org.systemsbiology.addama.js.GreenlistMgr = Ext.extend(Object, {
             url: "/addama/greenlist/" + userEmail,
             method: "POST",
             success: function() {
-                this.userWindow.close();
+                this.window.close();
                 this.loadGreenlist();
             },
             failure: this.handleFailure,
