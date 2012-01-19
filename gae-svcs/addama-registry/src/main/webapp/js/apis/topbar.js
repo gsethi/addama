@@ -126,18 +126,24 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
 
         org.systemsbiology.addama.js.ApiKeysWindow.superclass.constructor.call(this);
 
+        var msgTxt = "<h4>Generated API Keys are managed by domain administrators through the App Engine Console<h4>";
+        msgTxt += "<br/>API Keys are assigned per user to support secure interfaces for programmatic access to Addama";
+        if (this.isAdmin) {
+            msgTxt += "<div>";
+            msgTxt += "The 'addama.properties' file is used by Addama local services to register securely<br/>";
+            msgTxt += "Enter the public URL for your web services host to automatically generate this file for your domain";
+            msgTxt += "</div>";
+        }
+
         var items = [];
-        items.push({
-            region:"center",
-            html: "<h4>Generated API Keys are managed by domain administrators through the App Engine Console<h4>",
-            margins: "5 5 5 5",
-            padding: "5 5 5 5"
-        });
+        items.push({ region:"center", html: msgTxt, margins: "5 5 5 5", padding: "5 5 5 5" });
+
         if (this.isAdmin) {
             var fld = new Ext.form.TextField({
                 name: "serviceHostUrl",
                 anchor: "100%",
-                fieldLabel: "Service Host URL"
+                labelSeparator: "",
+                fieldLabel: "Web services host URL (e.g. https://webservices.example.com)"
             });
             
             items.push(new Ext.form.FormPanel({
@@ -172,7 +178,7 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
             width: 600,
             minWidth: 400,
             height: 400,
-            bodyStyle: "padding: 5px;",
+            padding: "5 5 5 5",
             items: items,
             tbar: [
                 {
