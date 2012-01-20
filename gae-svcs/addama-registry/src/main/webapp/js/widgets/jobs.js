@@ -46,7 +46,7 @@ org.systemsbiology.addama.js.JobsFetch = Ext.extend(Ext.util.Observable, {
             }
         }, this);
 
-        org.systemsbiology.addama.js.ChannelApi.on("message", function(a) {
+        org.systemsbiology.addama.js.apis.channels.Listener.on("message", function(a) {
             var event = Ext.util.JSON.decode(a.data);
             if (event.job) {
                 this.addJob(event.job);
