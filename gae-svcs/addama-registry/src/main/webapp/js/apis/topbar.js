@@ -305,7 +305,7 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                 {
                     text: "Preview Logo",
                     handler: function() {
-                        var imgUrl = fldUrl + "/" + fldLogo;
+                        var imgUrl = fldUrl.getRawValue() + "/" + fldLogo.getRawValue();
                         new Ext.Window({
                             title: "Preview Logo",
                             closable: true,
