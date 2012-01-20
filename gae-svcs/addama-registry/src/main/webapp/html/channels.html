@@ -19,7 +19,7 @@
         var channelPublisher;
 
         function publishEvent() {
-            var ev = { event: Ext.util.JSON.decode(Ext.getDom("container_event_entry").value) };
+            var ev = Ext.util.JSON.decode(Ext.getDom("container_event_entry").value);
             channelPublisher.publishEvent(ev, successCallback);
         }
 
