@@ -164,7 +164,7 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
                     Ext.each(linkIds, function(lid) {
                         var elem = Ext.get(lid);
                         if (elem) {
-                            Ext.EventManager.on(elem, "click", trackDownloadLink);
+                            Ext.EventManager.on(elem, "click", org.systemsbiology.addama.js.widgets.TrackDownloadLink);
                         }
                     });
                 }
@@ -348,10 +348,7 @@ org.systemsbiology.addama.js.JobsGrid = Ext.extend(org.systemsbiology.addama.js.
             { header: "Reason", width: 20, sortable: true, dataIndex: 'message' },
             { header: "Code", width: 10, sortable: true, dataIndex: 'reasonCode' },
             { header: "Duration (secs)", width: 20, sortable: true, dataIndex: 'durationInSeconds' },
-            {
-                header: "Last Modified", width: 30, dataIndex: 'lastModified', type: "date",
-                sortable: true, hidden: true, renderer: getFormattedDate
-            }
+            { header: "Last Modified", width: 30, dataIndex: 'lastModified', type: "date", sortable: true, hidden: true }
         ]
     },
 
@@ -438,8 +435,7 @@ org.systemsbiology.addama.js.JobsGridForTool = Ext.extend(org.systemsbiology.add
             { header: "Reason", width: 20, sortable: true, dataIndex: 'message' },
             { header: "Code", width: 10, sortable: true, dataIndex: 'reasonCode' },
             { header: "Duration (secs)", width: 20, sortable: true, dataIndex: 'durationInSeconds' },
-            { header: "Last Modified", sortable: true, hidden: true, dataIndex: 'lastModified',
-                type: "date", renderer: getFormattedDate }
+            { header: "Last Modified", sortable: true, hidden: true, dataIndex: 'lastModified', type: "date" }
         ];
     },
 
@@ -466,15 +462,7 @@ org.systemsbiology.addama.js.JobsGridForTool = Ext.extend(org.systemsbiology.add
 
 });
 
-function parseCarriageReturns(text) {
-    var txt = text;
-    while (txt.indexOf("\n") != -1) {
-        txt = txt.replace("\n", "<br/>");
-    }
-    return txt;
-}
-
-function trackDownloadLink(evt, elem) {
+org.systemsbiology.addama.js.widgets.TrackDownloadLink = function(evt, elem) {
     try {
         var trackUri = elem.href;
         if (trackUri) {
@@ -485,8 +473,4 @@ function trackDownloadLink(evt, elem) {
     }
     catch(err) {
     }
-}
-
-function getFormattedDate(v) {
-    return formatDate(v, "MM/dd/y hh:mm:ss a");
-}
+};
