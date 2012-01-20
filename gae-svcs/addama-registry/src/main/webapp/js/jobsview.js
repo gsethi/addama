@@ -139,7 +139,7 @@ org.systemsbiology.addama.js.widgets.jobs.JobsGrid = Ext.extend(Ext.util.Observa
                     Ext.each(linkIds, function(lid) {
                         var elem = Ext.get(lid);
                         if (elem) {
-                            Ext.EventManager.on(elem, "click", org.systemsbiology.addama.js.widgets.jobs.TrackDownloadLink);
+                            Ext.EventManager.on(elem, "click", trackDownloadLink);
                         }
                     });
                 }
@@ -325,16 +325,3 @@ org.systemsbiology.addama.js.widgets.jobs.JobsGrid = Ext.extend(Ext.util.Observa
         }
     }
 });
-
-org.systemsbiology.addama.js.widgets.jobs.TrackDownloadLink = function(evt, elem) {
-    try {
-        var trackUri = elem.href;
-        if (trackUri) {
-            trackUri = trackUri.replace(".", "_");
-            trackUri = trackUri.replace(" ", "_");
-            _gaq.push(["_trackPageview", trackUri]);
-        }
-    }
-    catch(err) {
-    }
-};
