@@ -8,7 +8,6 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
     <script type="text/javascript" src="../js/widgets.js"></script>
-    <script type="text/javascript" src="../js/widgets/greenlist.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
     <script type="text/javascript">
         Ext.onReady(function() {
@@ -17,11 +16,11 @@
                 listeners: {
                     whoami: function(json) {
                         if (json.isAdmin) {
-                            var mgr = new org.systemsbiology.addama.js.GreenlistMgr();
+                            var greenlist = new org.systemsbiology.addama.js.widgets.GreenlistWindow();
                             new org.systemsbiology.addama.js.widgets.Viewport({
                                 topbarEl: "container_topbar",
                                 activateAjaxMonitor: true,
-                                tabs: [ mgr.panel ]
+                                tabs: [ greenlist.panel ]
                             });
                         } else {
                             org.systemsbiology.addama.js.Message.error("Manage User Access", "Only all-powerful administrators may access these areas");
