@@ -37,8 +37,7 @@ import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serv
 @Controller
 public class AppsController {
     private static final Logger log = Logger.getLogger(AppsController.class.getName());
-    //    private final MemcacheService appsContent = getMemcacheService("apps-content");
-    private DatastoreService datastore = getDatastoreService();
+    private final DatastoreService datastore = getDatastoreService();
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -60,6 +59,8 @@ public class AppsController {
             item.put("uri", "/addama/apps/" + id);
             item.put("label", e.getProperty("label").toString());
             item.put("url", e.getProperty("url").toString());
+            if (e.hasProperty("logo")) item.put("logo", e.getProperty("logo").toString());
+            if (e.hasProperty("description")) item.put("description", e.getProperty("description").toString());
             json.append("items", item);
         }
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
@@ -99,6 +100,8 @@ public class AppsController {
         Entity e = new Entity(createKey("apps-content", app.getString("id")));
         e.setProperty("label", app.getString("label"));
         e.setProperty("url", url.toString());
+        if (app.has("description")) e.setProperty("description", app.getString("description"));
+        if (app.has("logo")) e.setProperty("logo", app.getString("logo"));
 
         inTransaction(datastore, new PutEntityTransactionCallback(e));
         return new ModelAndView(new OkResponseView());
