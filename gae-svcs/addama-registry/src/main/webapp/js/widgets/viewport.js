@@ -195,7 +195,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                         }
                         itemhtml += "<h3>" + item.label + "</h3>";
                         itemhtml += "</a>";
-                        itemhtml += "<p>" + item.description + "</p>";
+                        itemhtml += "<div class='apps_description'>" + item.description + "</div>";
                         itemhtml += "</div>";
                         Ext.DomHelper.append(appsDiv, itemhtml);
                     });
