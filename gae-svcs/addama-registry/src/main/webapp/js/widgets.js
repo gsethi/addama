@@ -909,4 +909,10 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
  */
 Ext.onReady(function() {
     org.systemsbiology.addama.js.Message = new org.systemsbiology.addama.js.widgets.MessageHelper();
+
+    Ext.Ajax.on('requestexception', function(c, o) {
+        if (o.status == 401) {
+            org.systemsbiology.addama.js.Message.error("Unauthorized Access", "Your access to this resource has been denied.  Please contact an administrator.");
+        }
+    });
 });
