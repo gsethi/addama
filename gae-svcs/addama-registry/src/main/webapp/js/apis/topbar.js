@@ -228,12 +228,29 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
             closable: true,
             modal: true,
             closeAction: "hide",
-            width: 1000,
-            minWidth: 400,
-            layout:"border",
-            height: 500,
+            width: 900,
+            height: 400,
             padding: "5 5 5 5",
-            items: [ this.registerAppForm, this.registeredAppsPanel ]
+            items: [
+                new Ext.TabPanel({
+                    activeTab: 0,
+                    margins: "5 5 5 5",
+                    padding: "5 5 5 5",
+                    items: [
+                        this.registeredAppsPanel,
+                        {
+                            title: "New Application",
+                            layout:"border",
+                            height: 200,
+                            frame: true,
+                            border: false,
+                            margins: "5 5 5 5",
+                            padding: "5 5 5 5",
+                            items:[ this.registerAppForm, this.appPreviewPanel ]
+                        }
+                    ]
+                })
+            ]
         });
         win.show();
     },
@@ -252,8 +269,6 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
         this.registeredAppsPanel = new Ext.grid.GridPanel({
             title: "Registered Applications",
             store: this.store,
-            region: "center",
-            width: 600,
             columns: [
                 { header: "ID", width: 75, sortable: true, dataIndex: "id" },
                 { header: "Label", width: 120, sortable: true, dataIndex: "label" },
@@ -293,11 +308,20 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
         var fldLogo = new Ext.form.TextField({ name: "logo", fieldLabel: "Application Logo" });
         var fldDescription = new Ext.form.TextField({ name: "description", fieldLabel: "Description" });
 
+        this.appPreviewPanel = new Ext.Panel({
+            region: "east",
+            html: org.systemsbiology.addama.js.AppsPanelHelper({
+                uri: "/",
+                logo: "",
+                label: "Label will go here",
+                description:"Description will go here",
+                alt:"logo"
+            })
+        });
+
         this.registerAppForm = new Ext.form.FormPanel({
             frame:true,
-            region:"west",
-            margins: "5 5 5 5",
-            padding: "5 5 5 5",
+            region:"center",
             width: 400,
             defaults: { anchor: "100%", labelSeparator: "" },
             items: [ fldId, fldLabel, fldUrl, fldLogo, fldDescription ],
@@ -305,23 +329,16 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                 {
                     text: "Preview",
                     handler: function() {
-                        var previewApp = org.systemsbiology.addama.js.AppsPanelHelper({
+                        Ext.DomHelper.overwrite(this.appPreviewPanel.el, org.systemsbiology.addama.js.AppsPanelHelper({
                             id: fldId.getRawValue(),
                             uri: fldUrl.getRawValue(),
                             label: fldLabel.getRawValue(),
                             logo: fldLogo.getRawValue(),
                             description: fldDescription.getRawValue(),
-                            alt: "Image Not Found"
-                        });
-
-                        new Ext.Window({
-                            title: "Preview",
-                            closable: true,
-                            modal: true,
-                            closeAction: "hide",
-                            items: [ { html: previewApp } ]
-                        }).show();
-                    }
+                            alt: "not found"
+                        }));
+                    },
+                    scope: this
                 },
                 {
                     text: "Save",
@@ -347,8 +364,8 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                             },
                             scope: this
                         })
-
-                    }
+                    },
+                    scope: this
                 }
             ]
         });
