@@ -303,6 +303,24 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
             items: [ fldId, fldLabel, fldUrl, fldLogo, fldDescription ],
             buttons: [
                 {
+                    text: "Preview Logo",
+                    handler: function() {
+                        var imgUrl = fldUrl + "/" + fldLogo;
+                        new Ext.Window({
+                            title: "Preview Logo",
+                            closable: true,
+                            modal: true,
+                            closeAction: "hide",
+                            width: 100,
+                            height: 100,
+                            padding: "5 5 5 5",
+                            items: [
+                                { html: "<div class='apps'><img src='" + imgUrl + "' alt='Image Not Found at " + imgUrl + "'/></div>" }
+                            ]
+                        })
+                    }
+                },
+                {
                     text: "Save",
                     handler: function() {
                         var newLabel = fldLabel.getRawValue();
