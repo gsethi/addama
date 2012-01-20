@@ -17,6 +17,30 @@
 
     <script type="text/javascript">
         Ext.onReady(function() {
+            var testitems = [];
+            testitems.push({ uri: "/testuri_01", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_02", label: "testlabel", logo:"testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_03/", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_04/", label: "testlabel", logo:"testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_05", label: "testlabel", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_06", label: "testlabel", logo:"testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_07/", label: "testlabel", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_08/", label: "testlabel", logo:"testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_09", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_10", label: "", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_11", label: "testlabel", logo:"/testlogo.png", alt: "test alt" });
+            testitems.push({ uri: "/testuri_12", label: "testlabel", logo:"/testlogo.png", description:"", alt: "test alt" });
+            testitems.push({ uri: "/testuri_13", label: "testlabel", logo:"/testlogo.png", description:"test alt with url", alt: "test alt with url 'http://example.com/logo.png' not found" });
+            testitems.push({ uri: "/testuri_14", label: "testlabel", logo:"/testlogo.png", description:"", alt: "really long alt, no really really really really really really really really really really really really really really really really really really long alt" });
+            testitems.push({ uri: "/testuri_15", label: "testlabel", logo:"/testlogo.png", description:"Really long description, no really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really long description", alt: "test alt" });
+            testitems.push({ uri: "http://example.com/testuri_16", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "http://example.com/testuri_17/", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+
+            var el = Ext.get("container_services");
+            Ext.each(testitems, function(testitem) {
+                Ext.DomHelper.append(el, org.systemsbiology.addama.js.AppsPanelHelper(testitem));
+            });
+
             new org.systemsbiology.addama.js.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,

@@ -185,19 +185,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                 if (json && json.items) {
                     var appsDiv = Ext.get(this.contentEl);
                     Ext.each(json.items, function(item) {
-                        var itemhtml = "";
-                        itemhtml += "<div class='apps'>";
-                        itemhtml += "<a href='" + item.uri + "/' target='_blank'>";
-                        if (item.logo) {
-                            itemhtml += "<img src='" + item.uri + "/" + item.logo + "' alt='app_logo'/>";
-                        } else {
-                            itemhtml += "<img src='/images/nologo.png' alt='app_logo'/>";
-                        }
-                        itemhtml += "<h3>" + item.label + "</h3>";
-                        itemhtml += "</a>";
-                        itemhtml += "<div class='apps_description'>" + item.description + "</div>";
-                        itemhtml += "</div>";
-                        Ext.DomHelper.append(appsDiv, itemhtml);
+                        Ext.DomHelper.append(appsDiv, org.systemsbiology.addama.js.AppsPanelHelper(item));
                     });
                 }
             },
@@ -205,6 +193,48 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
         });
     }
 });
+
+org.systemsbiology.addama.js.AppsPanelHelper = function(item) {
+    var logoAlt = item.alt;
+    if (!logoAlt) {
+        logoAlt = "app_logo";
+    }
+
+    var srcUrl = item.uri;
+    if (srcUrl.substring(item.uri.length - 1) == "/") {
+        srcUrl = srcUrl.substring(0, srcUrl.length -1);
+    }
+    srcUrl += "/";
+
+    var logoUrl = "/images/nologo.png";
+    if (item.logo) {
+        var logoUri = item.logo;
+        if (logoUri.substring(0, 1) == "/") {
+            logoUri = logoUri.substring(1, logoUri.length);
+        }
+        logoUrl = srcUrl + logoUri;
+    }
+
+    var label = item.label;
+    if (!label) {
+        label = "Untitled";
+    }
+
+    var description = item.description;
+    if (!description) {
+        description = "";
+    }
+
+    var itemhtml = "";
+    itemhtml += "<div class='apps'>";
+    itemhtml += "<a href='" + srcUrl + "' target='_blank'>";
+    itemhtml += "<img src='" + logoUrl + "' alt='" + logoAlt + "'/>";
+    itemhtml += "<h3>" + label + "</h3>";
+    itemhtml += "</a>";
+    itemhtml += "<div class='apps_description'>" + description + "</div>";
+    itemhtml += "</div>";
+    return itemhtml;
+};
 
 org.systemsbiology.addama.js.ServicesPanel = Ext.extend(Object, {
     constructor: function(config) {

@@ -303,20 +303,26 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
             items: [ fldId, fldLabel, fldUrl, fldLogo, fldDescription ],
             buttons: [
                 {
-                    text: "Preview Logo",
+                    text: "Preview",
                     handler: function() {
-                        var imgUrl = fldUrl.getRawValue() + "/" + fldLogo.getRawValue();
+                        var previewApp = org.systemsbiology.addama.js.AppsPanelHelper({
+                            id: fldId.getRawValue(),
+                            uri: fldUrl.getRawValue(),
+                            label: fldLabel.getRawValue(),
+                            logo: fldLogo.getRawValue(),
+                            description: fldDescription.getRawValue(),
+                            alt: "Image Not Found"
+                        });
+
                         new Ext.Window({
-                            title: "Preview Logo",
+                            title: "Preview",
                             closable: true,
                             modal: true,
                             closeAction: "hide",
-                            width: 200,
-                            height: 200,
+                            width: 450,
+                            height: 100,
                             padding: "5 5 5 5",
-                            items: [
-                                { html: "<div class='apps'><img src='" + imgUrl + "' alt='Image Not Found at " + imgUrl + "'/></div>" }
-                            ]
+                            items: [ { html: previewApp } ]
                         }).show();
                     }
                 },
