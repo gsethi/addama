@@ -319,9 +319,6 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                             closable: true,
                             modal: true,
                             closeAction: "hide",
-                            width: 450,
-                            height: 100,
-                            padding: "5 5 5 5",
                             items: [ { html: previewApp } ]
                         }).show();
                     }
