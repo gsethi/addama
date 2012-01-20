@@ -1,0 +1,33 @@
+<html>
+<head>
+    <title>Test Page</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: []
+            });
+
+            new org.systemsbiology.addama.js.topbar.RegisterAppsWindow();
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_apps"></div>
+<div id="container_services"></div>
+</body>
+</html>
