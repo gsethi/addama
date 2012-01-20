@@ -14,21 +14,44 @@
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="/js/apis/topbar.js"></script>
     <script type="text/javascript" src="../js/widgets.js"></script>
-    <script type="text/javascript" src="../js/widgets/feedgrid.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
     <script type="text/javascript">
-        Ext.onReady(function() {
-            new org.systemsbiology.addama.js.TopBar({
-                contentEl: "container_topbar"
-            });
+        FeedGrid = Ext.extend(Object, {
 
-            var feedGrid = new org.systemsbiology.addama.js.FeedGrid({ url: "/addama/feeds/announcements/rss" });
+            constructor: function(config) {
+                Ext.apply(this, config);
+
+                FeedGrid.superclass.constructor.call(this);
+
+                var store = new Ext.data.Store({
+                    proxy: new Ext.data.HttpProxy({ url: "/addama/feeds/announcements/rss", method: 'get' }),
+                    sortInfo: { field: "pubDate", direction: "DESC" },
+                    reader: new Ext.data.XmlReader(
+                        {record: 'item'},
+                        ['title', 'author', {name:'pubDate', type:'date'}, 'link', 'description', 'content']
+                    )
+                });
+
+                this.gridPanel = new Ext.grid.GridPanel({
+                    store: store,
+                    autoHeight: true,
+                    loadMask: { msg:'Loading Feed...' },
+                    viewConfig: { forceFit:true, enableRowBody:true, showPreview:true },
+                    columns: [
+                        { id: 'title', header: "Title", dataIndex: 'title', sortable:true },
+                        { id: 'last', header: "Date", dataIndex: 'pubDate', sortable:true },
+                        { id: 'author', header: "Author", dataIndex: 'author', sortable:true }
+                    ]
+                });
+                store.load();
+            }
+        });
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
             new org.systemsbiology.addama.js.widgets.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
-                tabs: [
-                    feedGrid.gridPanel
-                ]
+                tabs: [ new FeedGrid().gridPanel ]
             });
         });
     </script>
