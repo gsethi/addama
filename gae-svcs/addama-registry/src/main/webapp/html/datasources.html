@@ -11,14 +11,13 @@
         <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
         <script type="text/javascript" src="/js/apis/topbar.js"></script>
         <script type="text/javascript" src="../js/widgets.js"></script>
-        <script type="text/javascript" src="../js/widgets/datasources.js"></script>
         <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
         <script type="text/javascript">
             Ext.onReady(function() {
                 new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
 
-                var view = new org.systemsbiology.addama.js.DatasourcesView({ contentEl: "container_datasources" });
+                var view = new org.systemsbiology.addama.js.widgets.DatasourcesView({ contentEl: "container_datasources" });
 
                 new org.systemsbiology.addama.js.widgets.Viewport({
                     topbarEl: "container_topbar",
@@ -34,7 +33,7 @@
         <div id="container_topbar" class="topbar"></div>
         <div id="container_datasources"></div>
         <div id="container_sql">
-            <br/><textarea rows="5" cols="70" id="textarea_sql">limit 100</textarea>
+            <textarea rows="5" cols="70" id="textarea_sql">limit 100</textarea>
         </div>
         <div id="container_preview"></div>
     </body>
