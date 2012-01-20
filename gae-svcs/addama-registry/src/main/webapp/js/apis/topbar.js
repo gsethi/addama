@@ -269,6 +269,7 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
         this.registeredAppsPanel = new Ext.grid.GridPanel({
             title: "Registered Applications",
             store: this.store,
+            height: 400,
             columns: [
                 { header: "ID", width: 75, sortable: true, dataIndex: "id" },
                 { header: "Label", width: 120, sortable: true, dataIndex: "label" },
