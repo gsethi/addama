@@ -255,11 +255,11 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
             region: "center",
             width: 600,
             columns: [
-                { header: "ID", width: 300, sortable: true, dataIndex: "id" },
-                { header: "Label", width: 300, sortable: true, dataIndex: "label" },
-                { header: "URL", width: 300, sortable: true, dataIndex: "url" },
-                { header: "Logo", width: 300, sortable: true, dataIndex: "logo" },
-                { header: "Description", width: 300, sortable: true, dataIndex: "description" }
+                { header: "ID", width: 50, sortable: true, dataIndex: "id" },
+                { header: "Label", width: 100, sortable: true, dataIndex: "label" },
+                { header: "URL", width: 200, sortable: true, dataIndex: "url" },
+                { header: "Logo", width: 75, sortable: true, dataIndex: "logo" },
+                { header: "Description", width: 200, sortable: true, dataIndex: "description" }
             ]
         });
 
@@ -317,7 +317,7 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                             items: [
                                 { html: "<div class='apps'><img src='" + imgUrl + "' alt='Image Not Found at " + imgUrl + "'/></div>" }
                             ]
-                        })
+                        }).show();
                     }
                 },
                 {
