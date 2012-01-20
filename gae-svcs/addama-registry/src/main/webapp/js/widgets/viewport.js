@@ -189,7 +189,7 @@ org.systemsbiology.addama.js.AppsPanel = Ext.extend(Object, {
                         itemhtml += "<div class='apps'>";
                         itemhtml += "<a href='" + item.uri + "/' target='_blank'>";
                         if (item.logo) {
-                            itemhtml += "<img src='" + item.logo + "' alt='app_logo'/>";
+                            itemhtml += "<img src='" + item.uri + "/" + item.logo + "' alt='app_logo'/>";
                         } else {
                             itemhtml += "<img src='/images/nologo.png' alt='app_logo'/>";
                         }
