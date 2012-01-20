@@ -8,7 +8,7 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
 
     <script type="text/javascript" src="../js/utils.js"></script>
-    <script type="text/javascript" src="../js/apis/topbar.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
     <script type="text/javascript" src="../js/widgets.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
@@ -37,7 +37,7 @@
 
             var el = Ext.get("container_services");
             Ext.each(testitems, function(testitem) {
-                Ext.DomHelper.append(el, org.systemsbiology.addama.js.widgets.GenerateAppPanelHtml(testitem));
+                Ext.DomHelper.append(el, org.systemsbiology.addama.js.topbar.GenerateAppPanelHtml(testitem));
             });
 
             new org.systemsbiology.addama.js.widgets.Viewport({
@@ -62,7 +62,7 @@
                 ]
             });
 
-//            new org.systemsbiology.addama.js.widgets.RegisterAppsWindow();
+//            new org.systemsbiology.addama.js.topbar.RegisterAppsWindow();
         });
     </script>
 </head>
