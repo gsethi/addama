@@ -1,12 +1,19 @@
-Ext.ns("org.systemsbiology.addama.js");
+Ext.ns("org.systemsbiology.addama.js.widgets.workspaces");
 
-org.systemsbiology.addama.js.TreePanel = null;
+/*
+ * Global Singleton
+ */
+org.systemsbiology.addama.js.widgets.workspaces.FileUpload = null;
+org.systemsbiology.addama.js.widgets.workspaces.TreePanel = null;
 
-org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
+/*
+ * Widgets
+ */
+org.systemsbiology.addama.js.widgets.workspaces.WorkspacesTabPanel = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.WorkspacesTabPanel.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.widgets.workspaces.WorkspacesTabPanel.superclass.constructor.call(this);
 
         this.loadPanels();
         this.loadTree();
@@ -66,9 +73,9 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
         this.treePanel.on("click", this.displayNodeInContentPanel, this);
         this.treePanel.on("click", this.displayNodeProperties, this);
 
-        org.systemsbiology.addama.js.TreePanel = this.treePanel;
+        org.systemsbiology.addama.js.widgets.workspaces.TreePanel = this.treePanel;
 
-        this.fileUploadControl = new org.systemsbiology.addama.js.FileUploadControl({ treePanel: this.treePanel });
+        this.fileUploadControl = new org.systemsbiology.addama.js.widgets.workspaces.FileUploadControl({ treePanel: this.treePanel });
 
         this.propertyGrid = new Ext.grid.PropertyGrid({
             title: "Properties",
@@ -223,23 +230,138 @@ org.systemsbiology.addama.js.WorkspacesTabPanel = Ext.extend(Object, {
     }
 });
 
-function RefreshNodeTree(node) {
+org.systemsbiology.addama.js.widgets.workspaces.FileUploadControl = Ext.extend(Object, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.widgets.workspaces.FileUploadControl.superclass.constructor.call(this);
+
+        org.systemsbiology.addama.js.widgets.workspaces.FileUpload = this;
+
+        this.uploadProgressWindow = new Ext.Window({
+            title: 'Upload Status',
+            width: 400,
+            minWidth: 350,
+            height: 150,
+            modal: true,
+            closeAction: 'hide',
+            bodyStyle: 'padding:10px;',
+            html: "File uploading..."
+        });
+
+        this.fileUploadWindow = new Ext.Window({
+            title: 'Upload File',
+            width: 600,
+            height: 130,
+            modal: true,
+            closeAction : 'hide',
+            items: []
+        });
+        this.fileUploadWindow.on("beforeshow", this.readyFileUploadWindow, this);
+        this.fileUploadWindow.on("hide", this.clearFileUploadWindow, this);
+    },
+
+    readyFileUploadWindow: function() {
+        var uploadBtn = new Ext.Button({ id: 'show-button', text: 'Upload'});
+        uploadBtn.on("click", this.uploadFile, this);
+
+        this.fileUploadFrm = new Ext.form.FormPanel({
+            id: 'reposUploadFileForm',
+            method: 'POST',
+            fileUpload : true,
+            border: true,
+            items: [
+                new Ext.form.FieldSet({
+                    autoHeight: true,
+                    autoWidth: true,
+                    border: false,
+                    items: [
+                        new Ext.form.TextField({
+                            fieldLabel: 'Select file',
+                            defaultAutoCreate : {tag:"input", enctype:"multipart/form-data", type:"file", size: "35", autocomplete: "off"},
+                            name: 'FILE',
+                            id: 'reposUploadFileNameId',
+                            allowBlank: false
+                        })
+                    ]
+                })
+            ],
+            buttons: [ uploadBtn ]
+        });
+
+        this.fileUploadWindow.add(this.fileUploadFrm);
+    },
+
+    clearFileUploadWindow: function() {
+        this.fileUploadWindow.removeAll();
+    },
+
+    failedUpload: function(message) {
+        org.systemsbiology.addama.js.Message.error("Workspaces", message);
+        this.uploadProgressWindow.hide();
+    },
+
+    uploadFile: function() {
+        this.uploadProgressWindow.show();
+
+        var selectedNode = this.treePanel.getSelectionModel().getSelectedNode();
+        var me = this;
+        var goodUploadFn = function() {
+            me.uploadProgressWindow.hide();
+            me.fileUploadWindow.hide();
+            org.systemsbiology.addama.js.Message.show("Workspaces", "File uploaded successfully");
+            org.systemsbiology.addama.js.widgets.workspaces.RefreshNodeTree(selectedNode);
+        };
+        var badUploadFn = function(o) {
+            me.failedUpload("Failed to upload file [" + o.statusText + "]");
+        };
+
+        if (selectedNode) {
+            Ext.Ajax.request({
+                url: selectedNode.attributes.uri + "/directlink",
+                method: "GET",
+                success: function(response) {
+                    var json = Ext.util.JSON.decode(response.responseText);
+                    if (json.location) {
+                        var uploadUrl = json.location + "?x-addama-desired-contenttype=text/html";
+                        this.fileUploadFrm.getForm().submit({
+                            clientValidation: true, url: uploadUrl, success: goodUploadFn, failure: badUploadFn
+                        });
+                    } else {
+                        this.failedUpload("Failed to upload file [location not found]");
+                    }
+                },
+                failure: function(o) {
+                    this.failedUpload("Failed to upload file [" + o.statusText + "]");
+                },
+                scope: this
+            });
+        } else {
+            this.failedUpload("Please select a folder");
+        }
+    }
+});
+
+/*
+ * Static Functions
+ */
+org.systemsbiology.addama.js.widgets.workspaces.RefreshNodeTree = function(node) {
     if (node.isExpanded()) {
         node.collapse();
     }
     node.expand();
-}
+};
 
-function CreateFolder() {
+org.systemsbiology.addama.js.widgets.workspaces.CreateFolder = function() {
     var fn = function(btn, text) {
-        var selectedNode = org.systemsbiology.addama.js.TreePanel.getSelectionModel().getSelectedNode();
+        var selectedNode = org.systemsbiology.addama.js.widgets.workspaces.TreePanel.getSelectionModel().getSelectedNode();
         if (selectedNode) {
             Ext.Ajax.request({
                 url: selectedNode.attributes.uri + "/" + text,
                 method: "POST",
                 success: function() {
                     org.systemsbiology.addama.js.Message.show("Workspaces", "Folder '" + text + "' added successfully");
-                    RefreshNodeTree(selectedNode);
+                    org.systemsbiology.addama.js.widgets.workspaces.RefreshNodeTree(selectedNode);
                 },
                 failure: function(o) {
                     org.systemsbiology.addama.js.Message.error("Workspaces", "Failed to add new folder [" + o.statusText + "]");
@@ -251,4 +373,8 @@ function CreateFolder() {
     };
 
     Ext.MessageBox.prompt("Create Folder", "Please enter new folder name", fn);
-}
+};
+
+org.systemsbiology.addama.js.widgets.workspaces.DoFileUpload = function() {
+    org.systemsbiology.addama.js.widgets.workspaces.FileUpload.fileUploadWindow.show();
+};
