@@ -1,6 +1,6 @@
-Ext.ns("org.systemsbiology.addama.js");
+Ext.ns("org.systemsbiology.addama.js.widgets.jobs");
 
-org.systemsbiology.addama.js.JobBean = Ext.extend(Object, {
+org.systemsbiology.addama.js.widgets.jobs.JobBean = Ext.extend(Object, {
     constructor: function(item) {
         this.item = item;
     },
@@ -29,19 +29,48 @@ org.systemsbiology.addama.js.JobBean = Ext.extend(Object, {
 
 });
 
-org.systemsbiology.addama.js.JobsFetch = Ext.extend(Ext.util.Observable, {
-    constructor: function() {
-        Ext.apply(this, { queue: [] });
+org.systemsbiology.addama.js.widgets.jobs.JobsGrid = Ext.extend(Ext.util.Observable, {
+    tools: [],
+    queue: [],
+    jobPointers: [],
+    gridData: [],
+    gridPanelConfig: {},
+
+    constructor: function(config) {
+        Ext.apply(this, config);
 
         this.addEvents({ queued: true, fetched: true });
 
-        org.systemsbiology.addama.js.JobsFetch.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.widgets.jobs.JobsGrid.superclass.constructor.call(this);
 
+        this.initListeners();
+        this.initRowExpander();
+        this.renderGrid();
+        this.fetchData();
+
+        this.refreshTask = { run: this.refetch, interval: 10000, scope: this };
+    },
+
+    initListeners: function() {
         this.on("queued", function() {
             while (this.queue.length > 0) {
                 var toolUri = this.queue.shift();
                 if (toolUri) {
-                    this.fetchJobs(toolUri);
+                    Ext.Ajax.request({
+                        url: toolUri + "/jobs",
+                        method: "GET",
+                        success: function(o) {
+                            var json = Ext.util.JSON.decode(o.responseText);
+                            if (json && json.items) {
+                                Ext.each(json.items, this.addJob, this);
+                            }
+
+                            if (this.queue.length == 0) {
+                                this.fireEvent("fetched");
+                            }
+                        },
+                        scope: this
+                    });
                 }
             }
         }, this);
@@ -53,65 +82,11 @@ org.systemsbiology.addama.js.JobsFetch = Ext.extend(Ext.util.Observable, {
                 this.refreshGrid();
             }
         }, this);
-    },
-
-    fetchTools: function(tooluris) {
-        Ext.each(tooluris, function(tooluri) {
-            this.queue.push(tooluri);
-        }, this);
-        this.fireEvent("queued");
-    },
-
-    fetchJobs: function(toolUri) {
-        Ext.Ajax.request({
-            url: toolUri + "/jobs",
-            method: "GET",
-            params: {
-                "_dc": Ext.id()
-            },
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.items) {
-                    for (var i = 0; i < json.items.length; i++) {
-                        this.addJob(json.items[i]);
-                    }
-                }
-
-                if (this.queue.length == 0) {
-                    this.fireEvent("fetched");
-                }
-            },
-            scope: this
-        });
-    }
-});
-
-org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama.js.JobsFetch, {
-    constructor: function(config) {
-        Ext.apply(this, config);
-
-        this.jobPointers = [];
-        this.gridData = [];
-        if (!this.gridPanelConfig) {
-            this.gridPanelConfig = {};
-        }
-
-        org.systemsbiology.addama.js.BaseJobsGrid.superclass.constructor.call(this);
 
         this.on("fetched", this.refreshGrid, this);
-
-        this.initRowExpander();
-        this.initSelectionModel();
-        this.renderGrid();
-        this.fetchData();
-        this.initRefreshTask();
     },
 
     initRowExpander: function() {
-        if (this.rowExpander != null) {
-            return;
-        }
-
         this.rowExpander = new Ext.ux.grid.RowExpander({
             tpl: new Ext.Template([
                 '<b>Results:</b>',
@@ -164,7 +139,7 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
                     Ext.each(linkIds, function(lid) {
                         var elem = Ext.get(lid);
                         if (elem) {
-                            Ext.EventManager.on(elem, "click", org.systemsbiology.addama.js.widgets.TrackDownloadLink);
+                            Ext.EventManager.on(elem, "click", org.systemsbiology.addama.js.widgets.jobs.TrackDownloadLink);
                         }
                     });
                 }
@@ -174,36 +149,49 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
         }, this);
     },
 
-    initSelectionModel: function() {
-        if (this.selectionModel != null) {
-            return;
-        }
-
-        this.selectionModel = new Ext.grid.CheckboxSelectionModel();
-        this.selectionModel.on("selectionchange", this.enableButtonsOnSelectionChange, this);
-    },
-
-    enableButtonsOnSelectionChange: function(sm) {
-        if (sm.getCount()) {
-            this.grid.stopButton.enable();
-            this.grid.deleteButton.enable();
-        } else {
-            this.grid.stopButton.disable();
-            this.grid.deleteButton.disable();
-        }
-    },
-
-    initRefreshTask: function() {
-        if (this.refreshTask != null) {
-            return;
-        }
-
-        this.refreshTask = { run: this.refetch, interval: 10000, scope: this };
-    },
-
     renderGrid: function() {
+        var selectionModel = new Ext.grid.CheckboxSelectionModel();
+        selectionMode.on("selectionchange", function(sm) {
+            if (sm.getCount()) {
+                this.grid.stopButton.enable();
+                this.grid.deleteButton.enable();
+            } else {
+                this.grid.stopButton.disable();
+                this.grid.deleteButton.disable();
+            }
+        }, this);
+
+        var storeColumns = [
+            { name: 'idx' },
+            { name: 'uri' },
+            { name: 'tool' },
+            { name: 'lastChangeDay', type: 'date' },
+            { name: 'job' },
+            { name: 'owner' },
+            { name: 'status' },
+            { name: 'message' },
+            { name: 'reasonCode', type: 'int' },
+            { name: 'durationInSeconds', type: 'int' },
+            { name: 'lastModified', type: "date" }
+        ];
+
+        var gridColumns = [
+            this.rowExpander,
+            selectionMode,
+            { header: "Date", width: 25, dataIndex: 'lastChangeDay', type: "date", sortable: true, hidden: true },
+            { header: "URI", width: 25, dataIndex: 'uri', sortable: false, hidden: true },
+            { header: "Tool", width: 40, sortable: true, dataIndex: 'tool', id:'tool' },
+            { header: "Job", width: 40, sortable: true, dataIndex: 'job' },
+            { header: "Owner", width: 30, hidden: true, dataIndex: 'owner' },
+            { header: "Status", width: 20, sortable: true, dataIndex: 'status' },
+            { header: "Reason", width: 20, sortable: true, dataIndex: 'message' },
+            { header: "Code", width: 10, sortable: true, dataIndex: 'reasonCode' },
+            { header: "Duration (secs)", width: 20, sortable: true, dataIndex: 'durationInSeconds' },
+            { header: "Last Modified", width: 30, dataIndex: 'lastModified', type: "date", sortable: true, hidden: true }
+        ];
+
         this.store = new Ext.data.GroupingStore({
-            reader: new Ext.data.ArrayReader({}, this.getStoreColumns()),
+            reader: new Ext.data.ArrayReader({}, storeColumns),
             data: this.gridData,
             sortInfo: {field: 'lastModified', direction: "DESC"},
             groupField:'lastChangeDay',
@@ -213,13 +201,13 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
 
         var defaultConfig = {
             store: this.store,
-            columns: this.getGridColumns(),
+            columns: gridColumns,
             view: new Ext.grid.GroupingView({
                 forceFit:true,
                 startCollapsed: false,
                 groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "items" : "item"]})'
             }),
-            sm: this.selectionModel,
+            sm: selectionMode,
             tbar: [
                 { text: 'Refresh', iconCls:'refresh', ref: "../refreshButton" },
                 '-',
@@ -242,32 +230,55 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
         this.grid = new Ext.grid.GridPanel(Ext.apply(defaultConfig, this.gridPanelConfig));
 
         this.grid.stopButton.on("click", function() {
-            this.selectionModel.each(function(row) {
+            selectionMode.each(function(row) {
                 Ext.Ajax.request({
                     url: row.data.uri + "/stop",
-                    method: "post",
-                    failure: this.showMessage,
+                    method: "POST",
+                    failure: function(o) {
+                        org.systemsbiology.addama.js.Message.error("Stop Job", o.statusText);
+                    },
                     scope: this
                 });
             }, this);
-            this.selectionModel.clearSelections(true);
+            selectionMode.clearSelections(true);
         }, this);
 
         this.grid.deleteButton.on("click", function() {
-            this.selectionModel.each(function(row) {
+            selectionMode.each(function(row) {
                 Ext.Ajax.request({
                     url: row.data.uri + "/delete",
-                    method: "post",
+                    method: "POST",
                     success: function() {
                         this.store.remove(row);
                     },
-                    failure: this.showMessage,
+                    failure: function(o) {
+                        org.systemsbiology.addama.js.Message.error("Delete Job", o.statusText);
+                    },
                     scope:this
                 });
             }, this);
         }, this);
 
         this.grid.refreshButton.on("click", this.refetch, this);
+    },
+
+    fetchData: function() {
+        Ext.Ajax.request({
+            url: "/addama/tools",
+            method: "GET",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json && json.items) {
+                    Ext.each(json.items, function(item) {
+                        this.tools[item.uri] = item;
+                        this.queue.push(item.uri);
+                    }, this);
+                    this.fireEvent("queued");
+
+                }
+            },
+            scope: this
+        });
     },
 
     refetch: function() {
@@ -282,103 +293,22 @@ org.systemsbiology.addama.js.BaseJobsGrid = Ext.extend(org.systemsbiology.addama
     },
 
     onAutoRefresh: function(item, pressed) {
-        if (this.refreshTask != null) {
-            if (pressed) {
-                Ext.TaskMgr.start(this.refreshTask);
-            } else {
-                Ext.TaskMgr.stop(this.refreshTask);
-            }
+        if (pressed) {
+            Ext.TaskMgr.start(this.refreshTask);
+        } else {
+            Ext.TaskMgr.stop(this.refreshTask);
         }
-    },
-
-    showMessage: function(o) {
-        var json = Ext.util.JSON.decode(o.responseText);
-        if (json && json.message) {
-            Ext.MessageBox.alert('Status', json.message);
-        }
-    },
-
-    getJobPointer: function(job) {
-        var jobPointer = this.jobPointers[job.uri];
-        if (!jobPointer) {
-            jobPointer = this.gridData.length;
-            this.jobPointers[job.uri] = jobPointer;
-        }
-        return jobPointer;
-    }
-});
-
-org.systemsbiology.addama.js.JobsGrid = Ext.extend(org.systemsbiology.addama.js.BaseJobsGrid, {
-
-    constructor: function(config) {
-        Ext.apply(this, Ext.applyIf(config, { tools: [] }));
-
-        org.systemsbiology.addama.js.JobsGrid.superclass.constructor.call(this);
-    },
-
-    getStoreColumns: function() {
-        return [
-            { name: 'idx' },
-            { name: 'uri' },
-            { name: 'tool' },
-            { name: 'lastChangeDay', type: 'date' },
-            { name: 'job' },
-            { name: 'owner' },
-            { name: 'status' },
-            { name: 'message' },
-            { name: 'reasonCode', type: 'int' },
-            { name: 'durationInSeconds', type: 'int' },
-            { name: 'lastModified', type: "date" }
-        ];
-    },
-
-    getGridColumns: function() {
-        return [
-            this.rowExpander,
-            this.selectionModel,
-            {
-                header: "Date", width: 25, dataIndex: 'lastChangeDay', type: "date",
-                sortable: true, hidden: true, renderer: Ext.util.Format.dateRenderer()
-            },
-            { header: "URI", width: 25, dataIndex: 'uri', sortable: false, hidden: true },
-            { header: "Tool", width: 40, sortable: true, dataIndex: 'tool', id:'tool' },
-            { header: "Job", width: 40, sortable: true, dataIndex: 'job' },
-            { header: "Owner", width: 30, hidden: true, dataIndex: 'owner' },
-            { header: "Status", width: 20, sortable: true, dataIndex: 'status' },
-            { header: "Reason", width: 20, sortable: true, dataIndex: 'message' },
-            { header: "Code", width: 10, sortable: true, dataIndex: 'reasonCode' },
-            { header: "Duration (secs)", width: 20, sortable: true, dataIndex: 'durationInSeconds' },
-            { header: "Last Modified", width: 30, dataIndex: 'lastModified', type: "date", sortable: true, hidden: true }
-        ]
-    },
-
-    fetchData: function() {
-        Ext.Ajax.request({
-            url: "/addama/tools",
-            method: "GET",
-            params: {
-                "_dc": Ext.id()
-            },
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.items) {
-                    var uris = [];
-                    Ext.each(json.items, function(item) {
-                        this.tools[item.uri] = item;
-                        uris[uris.length] = item.uri;
-                    }, this);
-                    this.fetchTools(uris);
-                }
-            },
-            scope: this
-        });
     },
 
     addJob: function(job) {
         var tool = this.tools[job.script];
         if (tool) {
-            jobBean = new org.systemsbiology.addama.js.JobBean(job);
-            var jobPointer = this.getJobPointer(job);
+            var jobBean = new org.systemsbiology.addama.js.widgets.jobs.JobBean(job);
+            var jobPointer = this.jobPointers[job.uri];
+            if (!jobPointer) {
+                jobPointer = this.gridData.length;
+                this.jobPointers[job.uri] = jobPointer;
+            }
             this.gridData[jobPointer] = [
                 jobPointer,
                 job.uri,
@@ -394,75 +324,9 @@ org.systemsbiology.addama.js.JobsGrid = Ext.extend(org.systemsbiology.addama.js.
             ];
         }
     }
-
 });
 
-org.systemsbiology.addama.js.JobsGridForTool = Ext.extend(org.systemsbiology.addama.js.BaseJobsGrid, {
-
-    constructor: function(config) {
-        Ext.apply(this, config);
-
-        org.systemsbiology.addama.js.JobsGridForTool.superclass.constructor.call(this);
-    },
-
-    getStoreColumns: function() {
-        return [
-            {name: 'idx'},
-            {name: 'uri'},
-            {name: 'lastChangeDay', type: 'date' },
-            {name: 'job'},
-            {name: 'owner'},
-            {name: 'status'},
-            {name: 'message'},
-            {name: 'reasonCode', type: 'int'},
-            {name: 'durationInSeconds', type: 'int'},
-            {name: 'lastModified', type: 'date' }
-        ];
-    },
-
-    getGridColumns: function() {
-        return [
-            this.rowExpander,
-            this.selectionModel,
-            {
-                header: "Date", width: 25, dataIndex: 'lastChangeDay', type: "date",
-                sortable: true, hidden: true, renderer: Ext.util.Format.dateRenderer()
-            },
-            { header: "URI", width: 25, dataIndex: 'uri', sortable: false, hidden: true },
-            { header: "Job", width: 40, sortable: true, dataIndex: 'job' },
-            { header: "Owner", width: 30, hidden: true, dataIndex: 'owner' },
-            { header: "Status", width: 20, sortable: true, dataIndex: 'status' },
-            { header: "Reason", width: 20, sortable: true, dataIndex: 'message' },
-            { header: "Code", width: 10, sortable: true, dataIndex: 'reasonCode' },
-            { header: "Duration (secs)", width: 20, sortable: true, dataIndex: 'durationInSeconds' },
-            { header: "Last Modified", sortable: true, hidden: true, dataIndex: 'lastModified', type: "date" }
-        ];
-    },
-
-    fetchData: function() {
-        this.fetchJobs(this.tool);
-    },
-
-    addJob: function(job) {
-        var jobPointer = this.getJobPointer(job);
-        var jobBean = new org.systemsbiology.addama.js.JobBean(job);
-        this.gridData[jobPointer] = [
-            jobPointer,
-            job.uri,
-            job.lastModified,
-            jobBean.getLabel(),
-            jobBean.getOwner(),
-            job.status,
-            job.message,
-            job.returnCode,
-            job.durationInSeconds,
-            job.lastModified
-        ];
-    }
-
-});
-
-org.systemsbiology.addama.js.widgets.TrackDownloadLink = function(evt, elem) {
+org.systemsbiology.addama.js.widgets.jobs.TrackDownloadLink = function(evt, elem) {
     try {
         var trackUri = elem.href;
         if (trackUri) {
