@@ -11,13 +11,13 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/fileuploadfield/FileUploadField.js"></script>
 
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
-    <script type="text/javascript" src="/js/widgets/selectFileControl.js"></script>
+    <script type="text/javascript" src="../../js/experimental.js"></script>
 
     <script type="text/javascript">
         var selectFileControl;
 
         function browseWorkspace() {
-            selectFileControl = new SelectFileControl({
+            selectFileControl = new org.systemsbiology.addama.js.experimental.SelectFileControl({
                 workspace: "edgelimma",
                 listeners: {
                     selectFile: function(fileUri) {

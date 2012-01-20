@@ -1,10 +1,12 @@
-SelectFileControl = Ext.extend(Ext.util.Observable, {
+Ext.ns("org.systemsbiology.addama.js.experimental");
+
+org.systemsbiology.addama.js.experimental.SelectFileControl = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         Ext.apply(this, config);
 
         this.addEvents({ selectFile: true });
 
-        SelectFileControl.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.experimental.SelectFileControl.superclass.constructor.call(this);
     },
 
     setWorkspace: function(workspace) {
@@ -28,7 +30,7 @@ SelectFileControl = Ext.extend(Ext.util.Observable, {
     },
 
     loadSelectWindow: function() {
-        this.browseWorkspaceTreeControl = new BrowseWorkspaceTreeControl({ workspaceUri: this.workspaceUri });
+        this.browseWorkspaceTreeControl = new org.systemsbiology.addama.js.experimental.BrowseWorkspaceTreeControl({ workspaceUri: this.workspaceUri });
 
         var choosePanel = new Ext.Panel({
             border: true, frame: true, autoHeight: true, autoWidth: true,
@@ -45,9 +47,9 @@ SelectFileControl = Ext.extend(Ext.util.Observable, {
             html: "<img src='/images/trashcan-full-icon.png' width='48' height='48' />"
         });
 
-        new DropControl(choosePanel).on("drop", this.chooseFile, this);
-        new DropControl(downloadPanel).on("drop", this.downloadSelected, this);
-        new DropControl(trashPanel).on("drop", this.deleteNode, this);
+        new org.systemsbiology.addama.js.experimental.DropControl(choosePanel).on("drop", this.chooseFile, this);
+        new org.systemsbiology.addama.js.experimental.DropControl(downloadPanel).on("drop", this.downloadSelected, this);
+        new org.systemsbiology.addama.js.experimental.DropControl(trashPanel).on("drop", this.deleteNode, this);
 
         this.controlWindow = new Ext.Window({
             closable: true,
@@ -96,7 +98,7 @@ SelectFileControl = Ext.extend(Ext.util.Observable, {
 
     uploadFile: function() {
         var targetFolder = this.browseWorkspaceTreeControl.lastSelectedFolder;
-        var ufc = new UploadFileControl({ uploadUri: targetFolder.id });
+        var ufc = new org.systemsbiology.addama.js.experimental.UploadFileControl({ uploadUri: targetFolder.id });
         ufc.on("uploadComplete", this.refreshFolder, this);
     },
 
@@ -155,34 +157,11 @@ SelectFileControl = Ext.extend(Ext.util.Observable, {
     }
 });
 
-DropControl = Ext.extend(Ext.util.Observable, {
-    constructor: function(panel) {
-        Ext.apply(this, {});
-
-        this.addEvents({ drop: true });
-
-        DropControl.superclass.constructor.call(this);
-
-        panel.on("render", this.initDropTarget, this);
-    },
-
-    initDropTarget: function(v) {
-        var me = this;
-        new Ext.dd.DropTarget(v.getEl().dom, {
-            ddGroup: "dd_generic",
-            notifyDrop: function(source, e, data) {
-                me.fireEvent("drop", data.node);
-                return true;
-            }
-        });
-    }
-});
-
-BrowseWorkspaceTreeControl = Ext.extend(Object, {
+org.systemsbiology.addama.js.experimental.BrowseWorkspaceTreeControl = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        BrowseWorkspaceTreeControl.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.experimental.BrowseWorkspaceTreeControl.superclass.constructor.call(this);
 
         this.treePanel = new Ext.tree.TreePanel({
             useArrows: true,
@@ -234,7 +213,7 @@ BrowseWorkspaceTreeControl = Ext.extend(Object, {
                 method: "GET",
                 success: function(o) {
                     node.removeAll(true);
-                    
+
                     var json = Ext.util.JSON.decode(o.responseText);
                     if (json && json.items) {
                         Ext.each(json.items, function(item) {
@@ -263,13 +242,36 @@ BrowseWorkspaceTreeControl = Ext.extend(Object, {
 
 });
 
-UploadFileControl = Ext.extend(Ext.util.Observable, {
+org.systemsbiology.addama.js.experimental.DropControl = Ext.extend(Ext.util.Observable, {
+    constructor: function(panel) {
+        Ext.apply(this, {});
+
+        this.addEvents({ drop: true });
+
+        org.systemsbiology.addama.js.experimental.DropControl.superclass.constructor.call(this);
+
+        panel.on("render", this.initDropTarget, this);
+    },
+
+    initDropTarget: function(v) {
+        var me = this;
+        new Ext.dd.DropTarget(v.getEl().dom, {
+            ddGroup: "dd_generic",
+            notifyDrop: function(source, e, data) {
+                me.fireEvent("drop", data.node);
+                return true;
+            }
+        });
+    }
+});
+
+org.systemsbiology.addama.js.experimental.UploadFileControl = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         Ext.apply(this, config);
 
         this.addEvents({ uploadComplete: true });
 
-        UploadFileControl.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.experimental.UploadFileControl.superclass.constructor.call(this);
 
         var fileUploadField = new Ext.ux.form.FileUploadField({ buttonOnly: true, id: 'form-file', name: 'file-path' });
         fileUploadField.on("fileselected", this.onFileSelected, this);
@@ -325,4 +327,3 @@ UploadFileControl = Ext.extend(Ext.util.Observable, {
         }
     }
 });
-
