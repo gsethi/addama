@@ -100,13 +100,21 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             });
 
+            var registerAppsAction = new Ext.Action({
+                text: "Register Apps",
+                handler: function(){
+                    new org.systemsbiology.addama.js.RegisterAppsWindow();
+                }
+            });
+
+
             var app_id = document.location.hostname.replace(".appspot.com", "");
 
             this.toolbar.add({
                 text: "Administration",
                 menu: [
                     refreshUI,
-                    this.newLinkMenuItem("Register Applications", "/html/apps.html"),
+                    registerAppsAction,
                     this.newLinkMenuItem("Manage User Access", "/html/greenlist.html"),
                     this.newLinkMenuItem("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
                 ]
@@ -205,3 +213,129 @@ org.systemsbiology.addama.js.ApiKeysWindow = Ext.extend(Object, {
         win.show();
     }
 });
+
+org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.RegisterAppsWindow.constructor.call(this);
+
+        this.loadAppsGrid();
+        this.loadAppsForm();
+
+        var win = new Ext.Window({
+            title: "Register Applications",
+            closable: true,
+            modal: true,
+            closeAction: "hide",
+            width: 800,
+            minWidth: 400,
+            height: 400,
+            padding: "5 5 5 5",
+            items: [ this.registerAppForm, this.registeredAppsPanel ]
+        });
+        win.show();
+    },
+
+    loadAppsGrid: function() {
+        this.store = new Ext.data.ArrayStore({
+            fields: [
+                {name: "id"},
+                {name: "label"},
+                {name: "url"},
+                {name: "logo"},
+                {name: "description"}
+            ]
+        });
+
+        this.registeredAppsPanel = new Ext.list.ListView({
+            title: "Registered Applications",
+            store: this.store,
+            region: "center",
+            width: 400,
+            emptyText: "No applications have been registered",
+            reserveScrollOffset: true,
+            padding: "10 10 10 10",
+            margins: "10 10 10 10",
+            columns: [
+                { header: "ID", width: 300, sortable: true, dataIndex: "id" },
+                { header: "Label", width: 300, sortable: true, dataIndex: "label" },
+                { header: "URL", width: 300, sortable: true, dataIndex: "url" },
+                { header: "Logo", width: 300, sortable: true, dataIndex: "logo" },
+                { header: "Description", width: 300, sortable: true, dataIndex: "description" }
+            ]
+        });
+
+        this.loadAppsData();
+    },
+
+    loadAppsData: function() {
+        Ext.Ajax.request({
+            method: "GET",
+            url: "/addama/apps",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json && json.items) {
+                    var data = [];
+                    Ext.each(json.items, function(item) {
+                        data.push([ item.id, item.label, item.url, item.logo, item.description ]);
+                    });
+                    this.store.loadData(data);
+                }
+            },
+            scope: this
+        });
+    },
+
+    loadAppsForm: function() {
+        var fldId = new Ext.form.TextField({ name: "id", fieldLabel: "Application ID" });
+        var fldLabel = new Ext.form.TextField({ name: "label", fieldLabel: "Label" });
+        var fldUrl = new Ext.form.TextField({ name: "url", fieldLabel: "Root Content URL" });
+        var fldLogo = new Ext.form.TextField({ name: "logo", fieldLabel: "Application Logo" });
+        var fldDescription = new Ext.form.TextField({ name: "description", fieldLabel: "Description" });
+
+        this.registerAppForm = new Ext.form.FormPanel({
+            frame:true,
+            region:"west",
+            margins: "5 5 5 5",
+            padding: "5 5 5 5",
+            width: 400,
+            defaults: { anchor: "100%", labelSeparator: "" },
+            items: [ fldId, fldLabel, fldUrl, fldLogo, fldDescription ],
+            buttons: [
+                {
+                    text: "Save",
+                    handler: function() {
+                        var newLabel = fldLabel.getRawValue();
+                        var app = {
+                            id: fldId.getRawValue(),
+                            label: newLabel,
+                            url: fldUrl.getRawValue(),
+                            logo: fldLogo.getRawValue(),
+                            description: fldDescription.getRawValue()
+                        };
+
+                        Ext.Ajax.request({
+                            method: "POST",
+                            url: "/addama/apps",
+                            params: {
+                                app: Ext.util.JSON.encode(app)
+                            },
+                            success: function() {
+                                org.systemsbiology.addama.js.Message.show("Register Applications", "Application '" + newLabel + "' registered successfully");
+                                this.loadAppsData();
+                            },
+                            scope: this
+                        })
+
+                    }
+                }
+            ]
+        });
+    },
+
+    loadAppsWindow: function() {
+
+    }
+});
+

@@ -8,10 +8,10 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
     <script type="text/javascript" src="/js/utils/console_handling.js"></script>
     <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
-    <script type="text/javascript" src="/js/apis/topbar.js"></script>
-    <script type="text/javascript" src="/js/widgets/messages.js"></script>
-    <script type="text/javascript" src="/js/widgets/viewport.js"></script>
-    <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
+    <script type="text/javascript" src="../js/apis/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets/messages.js"></script>
+    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
     <script type="text/javascript">
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.TopBar({
@@ -19,8 +19,7 @@
                 listeners: {
                     whoami: function(json) {
                         if (json.isAdmin) {
-                            // TODO: Nice form to submit apps
-                            Ext.get("container_admin").setVisible(true);
+                            new org.systemsbiology.addama.js.RegisterAppsWindow();
                         }
                     }
                 }
@@ -34,57 +33,10 @@
                 ]
             });
         });
-
-        function ShowApps() {
-            Ext.Ajax.request({
-                method: "GET",
-                url: "/addama/apps",
-                success: function(o) {
-                    var json = Ext.util.JSON.decode(o.responseText);
-                    if (json && json.items) {
-                        // TODO : Display apps in panel
-                        var html = "";
-                        Ext.each(json.items, function(item) {
-                            html += "<li><a href='" + item.uri + "/' target='_blank'>" + item.label + "</a>:" + item.uri + ":" + item.url + "</li>";
-                        });
-                        Ext.getDom("container_apps").innerHTML = html;
-                    }
-                }
-            });
-        }
-
-        function SubmitNewApp() {
-            var app = {
-                id: Ext.getDom("i_app_id").value,
-                label: Ext.getDom("i_app_label").value,
-                url: Ext.getDom("i_app_url").value
-            };
-
-            Ext.Ajax.request({
-                method: "post",
-                url: "/addama/apps",
-                params: {
-                    app: Ext.util.JSON.encode(app)
-                },
-                success: ShowApps
-            })
-        }
-
-        Ext.onReady(ShowApps);
     </script>
 </head>
 <body>
     <div id="container_topbar" class="topbar"></div>
-    <div id="container_main">
-        <div id="container_apps"></div>
-        <div id="container_admin" style="display:none;">
-            <div id="container_newapp">
-                <label for="i_app_id">ID</label><input type="text" id="i_app_id"/><br/>
-                <label for="i_app_label">Label</label><input type="text" id="i_app_label"/><br/>
-                <label for="i_app_url">URL</label><input type="text" id="i_app_url"/><br/>
-                <button onclick="SubmitNewApp();">Register App</button>
-            </div>
-        </div>
-    </div>
+    <div id="container_main">This page is for <b>Administrators Only</b> to register applications.</div>
 </body>
 </html>
