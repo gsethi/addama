@@ -228,9 +228,10 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
             closable: true,
             modal: true,
             closeAction: "hide",
-            width: 800,
+            width: 1000,
             minWidth: 400,
-            height: 400,
+            layout:"border",
+            height: 500,
             padding: "5 5 5 5",
             items: [ this.registerAppForm, this.registeredAppsPanel ]
         });
@@ -248,15 +249,11 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
             ]
         });
 
-        this.registeredAppsPanel = new Ext.list.ListView({
+        this.registeredAppsPanel = new Ext.grid.GridPanel({
             title: "Registered Applications",
             store: this.store,
             region: "center",
-            width: 400,
-            emptyText: "No applications have been registered",
-            reserveScrollOffset: true,
-            padding: "10 10 10 10",
-            margins: "10 10 10 10",
+            width: 600,
             columns: [
                 { header: "ID", width: 300, sortable: true, dataIndex: "id" },
                 { header: "Label", width: 300, sortable: true, dataIndex: "label" },
@@ -281,6 +278,8 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                         data.push([ item.id, item.label, item.url, item.logo, item.description ]);
                     });
                     this.store.loadData(data);
+                } else {
+                    org.systemsbiology.addama.js.Message.show("Registered Applications", "No applications have been registered");
                 }
             },
             scope: this
@@ -332,10 +331,6 @@ org.systemsbiology.addama.js.RegisterAppsWindow = Ext.extend(Object, {
                 }
             ]
         });
-    },
-
-    loadAppsWindow: function() {
-
     }
 });
 
