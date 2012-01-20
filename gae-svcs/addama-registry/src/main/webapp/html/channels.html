@@ -12,7 +12,7 @@
     <script type="text/javascript" src="/js/utils.js"></script>
     <script type="text/javascript" src="/js/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets.js"></script>
-    <script type="text/javascript" src="/js/apis.js"></script>
+    <script type="text/javascript" src="/js/channels.js"></script>
     <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
     <script type="text/javascript">
@@ -33,7 +33,7 @@
         }
 
         Ext.onReady(function() {
-            new org.systemsbiology.addama.js.apis.channels.MessageListener();
+            new org.systemsbiology.addama.js.channels.MessageListener();
 
             new org.systemsbiology.addama.js.TopBar({
                 contentEl: "container_topbar"
@@ -47,12 +47,12 @@
                 ]
             });
 
-            channelPublisher = new org.systemsbiology.addama.js.apis.channels.Publisher();
+            channelPublisher = new org.systemsbiology.addama.js.channels.Publisher();
 
-            org.systemsbiology.addama.js.apis.channels.Listener.on("error", function(a) {
+            org.systemsbiology.addama.js.channels.Listener.on("error", function(a) {
                 Ext.getDom("container_messages").innerHTML += "<br/>Error: " + a;
             });
-            org.systemsbiology.addama.js.apis.channels.Listener.on("close", function(a) {
+            org.systemsbiology.addama.js.channels.Listener.on("close", function(a) {
                 Ext.getDom("container_messages").innerHTML = "<br/>Channel Closed";
             });
         });

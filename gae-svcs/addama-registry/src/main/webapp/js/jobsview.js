@@ -75,7 +75,7 @@ org.systemsbiology.addama.js.widgets.jobs.JobsGrid = Ext.extend(Ext.util.Observa
             }
         }, this);
 
-        org.systemsbiology.addama.js.apis.channels.Listener.on("message", function(a) {
+        org.systemsbiology.addama.js.channels.Listener.on("message", function(a) {
             var event = Ext.util.JSON.decode(a.data);
             if (event.job) {
                 this.addJob(event.job);

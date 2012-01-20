@@ -15,7 +15,7 @@
     <script type="text/javascript" src="/js/utils.js"></script>
     <script type="text/javascript" src="/js/topbar.js"></script>
     <script type="text/javascript" src="/js/widgets.js"></script>
-    <script type="text/javascript" src="/js/apis.js"></script>
+    <script type="text/javascript" src="/js/channels.js"></script>
     <script type="text/javascript" src="../js/workspacesview.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
@@ -23,7 +23,7 @@
 
     <script type="text/javascript">
         Ext.onReady(function() {
-            new org.systemsbiology.addama.js.apis.channels.MessageListener();
+            new org.systemsbiology.addama.js.channels.MessageListener();
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
             new org.systemsbiology.addama.js.widgets.Viewport({
                 topbarEl: "container_topbar",

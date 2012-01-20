@@ -1,11 +1,8 @@
-Ext.ns("org.systemsbiology.addama.js.apis");
+Ext.ns("org.systemsbiology.addama.js.channels");
 
+org.systemsbiology.addama.js.channels.Listener = null;
 
-Ext.ns("org.systemsbiology.addama.js.apis.channels");
-
-org.systemsbiology.addama.js.apis.channels.Listener = null;
-
-org.systemsbiology.addama.js.apis.channels.Observable = Ext.extend(Ext.util.Observable, {
+org.systemsbiology.addama.js.channels.Observable = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         this.numberOfReopens = 0;
         this.maxReopens = 10;
@@ -17,7 +14,7 @@ org.systemsbiology.addama.js.apis.channels.Observable = Ext.extend(Ext.util.Obse
 
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.apis.channels.Observable.superclass.constructor.call(this, config);
+        org.systemsbiology.addama.js.channels.Observable.superclass.constructor.call(this, config);
 
         this.initChannel();
     },
@@ -80,7 +77,7 @@ org.systemsbiology.addama.js.apis.channels.Observable = Ext.extend(Ext.util.Obse
     }
 });
 
-org.systemsbiology.addama.js.apis.channels.Publisher = Ext.extend(Object, {
+org.systemsbiology.addama.js.channels.Publisher = Ext.extend(Object, {
     constructor: function() {
         console.log("initializing channel");
         Ext.Ajax.request({
@@ -116,20 +113,20 @@ org.systemsbiology.addama.js.apis.channels.Publisher = Ext.extend(Object, {
     }
 });
 
-org.systemsbiology.addama.js.apis.channels.MessageListener = Ext.extend(Object, {
+org.systemsbiology.addama.js.channels.MessageListener = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.apis.channels.MessageListener.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.channels.MessageListener.superclass.constructor.call(this);
 
-        org.systemsbiology.addama.js.apis.channels.Listener.on("open", function() {
+        org.systemsbiology.addama.js.channels.Listener.on("open", function() {
             if (org.systemsbiology.addama.js.Message) {
                 org.systemsbiology.addama.js.Message.show("Channels", "Broadcasted events will be shown here");
             } else {
                 console.log("messages will not be displayed, import widgets.js");
             }
         });
-        org.systemsbiology.addama.js.apis.channels.Listener.on("message", function(a) {
+        org.systemsbiology.addama.js.channels.Listener.on("message", function(a) {
             if (a && a.data) {
                 var event = Ext.util.JSON.decode(a.data);
                 if (event && event.message) {
@@ -149,6 +146,6 @@ org.systemsbiology.addama.js.apis.channels.MessageListener = Ext.extend(Object, 
 });
 
 Ext.onReady(function() {
-    org.systemsbiology.addama.js.apis.channels.Listener = new org.systemsbiology.addama.js.apis.channels.Observable();
+    org.systemsbiology.addama.js.channels.Listener = new org.systemsbiology.addama.js.channels.Observable();
 });
 
