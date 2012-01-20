@@ -10,8 +10,8 @@
     <script type="text/javascript" src="../js/utils/console_handling.js"></script>
     <script type="text/javascript" src="../js/utils/query_parameters.js"></script>
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
-    <script type="text/javascript" src="../js/widgets/messages.js"></script>
-    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
     <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
 
@@ -38,10 +38,10 @@
 
             var el = Ext.get("container_services");
             Ext.each(testitems, function(testitem) {
-                Ext.DomHelper.append(el, org.systemsbiology.addama.js.AppsPanelHelper(testitem));
+                Ext.DomHelper.append(el, org.systemsbiology.addama.js.widgets.GenerateAppPanelHtml(testitem));
             });
 
-            new org.systemsbiology.addama.js.Viewport({
+            new org.systemsbiology.addama.js.widgets.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
                 tabs: [
@@ -63,7 +63,7 @@
                 ]
             });
 
-//            new org.systemsbiology.addama.js.RegisterAppsWindow();
+//            new org.systemsbiology.addama.js.widgets.RegisterAppsWindow();
         });
     </script>
 </head>

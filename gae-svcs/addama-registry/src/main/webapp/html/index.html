@@ -10,20 +10,19 @@
     <!--<script type="text/javascript" src="/_ah/channel/jsapi"></script>-->
     
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
-    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
-    <script type="text/javascript" src="../js/widgets/messages.js"></script>
-    <!--<script type="text/javascript" src="../js/apis.js"></script>-->
+    <script type="text/javascript" src="../js/widgets.js"></script>
+    <script type="text/javascript" src="../js/apis.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
     <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
 
     <script type="text/javascript">
         Ext.onReady(function() {
-//            new org.systemsbiology.addama.js.apis.channels.MessageListener();
+            new org.systemsbiology.addama.js.apis.channels.MessageListener();
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
-            new org.systemsbiology.addama.js.AppsPanel({ contentEl: "container_apps" });
-            new org.systemsbiology.addama.js.ServicesPanel({ contentEl: "container_services" });
-            new org.systemsbiology.addama.js.Viewport({
+            new org.systemsbiology.addama.js.widgets.AppsPanel({ contentEl: "container_apps" });
+            new org.systemsbiology.addama.js.widgets.ServicesPanel({ contentEl: "container_services" });
+            new org.systemsbiology.addama.js.widgets.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
                 tabs: [

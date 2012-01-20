@@ -10,8 +10,7 @@
         <script type="text/javascript" src="/js/utils/console_handling.js"></script>
         <script type="text/javascript" src="/js/utils/query_parameters.js"></script>
         <script type="text/javascript" src="/js/apis/topbar.js"></script>
-        <script type="text/javascript" src="/js/widgets/messages.js"></script>
-        <script type="text/javascript" src="/js/widgets/viewport.js"></script>
+        <script type="text/javascript" src="../js/widgets.js"></script>
         <script type="text/javascript" src="../js/widgets/datasources.js"></script>
         <link rel="stylesheet" type="text/css" href="/css/topbar.css"/>
 
@@ -21,7 +20,7 @@
 
                 var view = new org.systemsbiology.addama.js.DatasourcesView({ contentEl: "container_datasources" });
 
-                new org.systemsbiology.addama.js.Viewport({
+                new org.systemsbiology.addama.js.widgets.Viewport({
                     topbarEl: "container_topbar",
                     activateAjaxMonitor: true,
                     tabs: [

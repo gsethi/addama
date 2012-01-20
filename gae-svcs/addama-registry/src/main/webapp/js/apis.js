@@ -126,7 +126,7 @@ org.systemsbiology.addama.js.apis.channels.MessageListener = Ext.extend(Object, 
             if (org.systemsbiology.addama.js.Message) {
                 org.systemsbiology.addama.js.Message.show("Channels", "Broadcasted events will be shown here");
             } else {
-                console.log("messages will not be displayed, import messages.js");
+                console.log("messages will not be displayed, import widgets.js");
             }
         });
         org.systemsbiology.addama.js.apis.channels.Listener.on("message", function(a) {
@@ -140,7 +140,7 @@ org.systemsbiology.addama.js.apis.channels.MessageListener = Ext.extend(Object, 
                         }
                         org.systemsbiology.addama.js.Message.show(title, event.message);
                     } else {
-                        console.log("messages will not be displayed, import messages.js: " + event.message);
+                        console.log("messages will not be displayed, import widgets.js: " + event.message);
                     }
                 }
             }

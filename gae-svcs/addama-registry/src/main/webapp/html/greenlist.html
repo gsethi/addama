@@ -7,8 +7,7 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
     <script type="text/javascript" src="../js/apis/topbar.js"></script>
-    <script type="text/javascript" src="../js/widgets/messages.js"></script>
-    <script type="text/javascript" src="../js/widgets/viewport.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
     <script type="text/javascript" src="../js/widgets/greenlist.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/topbar.css"/>
     <script type="text/javascript">
@@ -19,7 +18,7 @@
                     whoami: function(json) {
                         if (json.isAdmin) {
                             var mgr = new org.systemsbiology.addama.js.GreenlistMgr();
-                            new org.systemsbiology.addama.js.Viewport({
+                            new org.systemsbiology.addama.js.widgets.Viewport({
                                 topbarEl: "container_topbar",
                                 activateAjaxMonitor: true,
                                 tabs: [ mgr.panel ]
