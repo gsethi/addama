@@ -21,7 +21,12 @@
                 tabs: []
             });
 
-            new org.systemsbiology.addama.js.topbar.RegisterAppsWindow();
+            var data = [];
+            data.push(["test1", "Test 1", "/apps/test1", "test1.png", "Test 1"]);
+            data.push(["test2", "Test 2", "/apps/test2", "test2.png", "Test 2"]);
+            data.push(["test3", "Test 3", "/apps/test3", "", "Test 3"]);
+            var raw = new org.systemsbiology.addama.js.topbar.RegisterAppsWindow();
+            raw.store.loadData(data);
         });
     </script>
 </head>

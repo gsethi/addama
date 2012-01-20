@@ -290,6 +290,9 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                     org.systemsbiology.addama.js.Message.show("Registered Applications", "No applications have been registered");
                 }
             },
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.show("Registered Applications", "Error: " + o.statusText);
+            },
             scope: this
         });
     },
