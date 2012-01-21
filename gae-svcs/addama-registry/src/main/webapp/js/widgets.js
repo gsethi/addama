@@ -241,7 +241,7 @@ org.systemsbiology.addama.js.widgets.ServicesPanel = Ext.extend(Ext.util.Observa
                 if (json && json.items) {
                     Ext.each(json.items, function(item) {
                         this.fireEvent("loadService", item.uri);
-                    });
+                    }, this);
 
                 }
             },
