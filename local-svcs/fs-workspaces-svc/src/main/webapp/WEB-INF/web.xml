@@ -60,7 +60,7 @@
 
     <filter-mapping>
         <filter-name>filter-registration</filter-name>
-        <url-pattern>/*</url-pattern>
+        <servlet-name>workspaces</servlet-name>
     </filter-mapping>
 
 </web-app>
