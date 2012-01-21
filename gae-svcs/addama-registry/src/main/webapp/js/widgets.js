@@ -282,17 +282,11 @@ org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml = function(item)
     itemhtml += "<div class='svcs'>";
     itemhtml += "<h3><a href='" + versionUrl + "/version' target='_blank'>" + label+ "</a></h3>";
     if (item.items) {
-        itemhtml += "<div class='svcs_summary'><ul>";
+        itemhtml += "<ul>";
         Ext.each(item.items, function(mapping) {
-           itemhtml += "<li>" + mapping.id + "</li>";
+           itemhtml += "<li>" + mapping.uri + "<div>" + mapping.label + "</div></li>";
         });
-        itemhtml += "</ul></div>";
-
-        itemhtml += "<div class='svcs_details'><ul>";
-        Ext.each(item.items, function(mapping) {
-           itemhtml += "<li><b>" + mapping.id + ":&nbsp;&nbsp;" + mapping.uri + "</b><div>" + mapping.label + "</div></li>";
-        });
-        itemhtml += "</ul></div>";
+        itemhtml += "</ul>";
     }
     itemhtml += "</div>";
     return itemhtml;
