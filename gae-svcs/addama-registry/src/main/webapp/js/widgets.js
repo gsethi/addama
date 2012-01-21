@@ -213,7 +213,7 @@ org.systemsbiology.addama.js.widgets.AppsPanel = Ext.extend(Object, {
                 if (json && json.items) {
                     var appsDiv = Ext.get(this.contentEl);
                     Ext.each(json.items, function(item) {
-                        Ext.DomHelper.append(appsDiv, org.systemsbiology.addama.js.topbar.GenerateAppPanelHtml(item));
+                        Ext.DomHelper.append(appsDiv, org.systemsbiology.addama.js.topbar.RegisterAppsWindow.GenerateHtml(item));
                     });
                 }
             },

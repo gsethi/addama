@@ -297,7 +297,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
 
         this.appPreviewPanel = new Ext.Panel({
             region: "east",
-            html: org.systemsbiology.addama.js.topbar.GenerateAppPanelHtml({
+            html: org.systemsbiology.addama.js.topbar.RegisterAppsWindow.GenerateHtml({
                 uri: "/",
                 logo: "",
                 label: "Label will go here",
@@ -316,7 +316,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                 {
                     text: "Preview",
                     handler: function() {
-                        Ext.DomHelper.overwrite(this.appPreviewPanel.el, org.systemsbiology.addama.js.topbar.GenerateAppPanelHtml({
+                        Ext.DomHelper.overwrite(this.appPreviewPanel.el, org.systemsbiology.addama.js.topbar.RegisterAppsWindow.GenerateHtml({
                             id: fldId.getRawValue(),
                             uri: fldUrl.getRawValue(),
                             label: fldLabel.getRawValue(),
@@ -358,6 +358,48 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
         });
     }
 });
+
+org.systemsbiology.addama.js.topbar.RegisterAppsWindow.GenerateHtml = function(item) {
+    var logoAlt = item.alt;
+    if (!logoAlt) {
+        logoAlt = "app_logo";
+    }
+
+    var srcUrl = item.uri;
+    if (srcUrl.substring(item.uri.length - 1) == "/") {
+        srcUrl = srcUrl.substring(0, srcUrl.length -1);
+    }
+    srcUrl += "/";
+
+    var logoUrl = "/images/nologo.png";
+    if (item.logo) {
+        var logoUri = item.logo;
+        if (logoUri.substring(0, 1) == "/") {
+            logoUri = logoUri.substring(1, logoUri.length);
+        }
+        logoUrl = srcUrl + logoUri;
+    }
+
+    var label = item.label;
+    if (!label) {
+        label = "Untitled";
+    }
+
+    var description = item.description;
+    if (!description) {
+        description = "";
+    }
+
+    var itemhtml = "";
+    itemhtml += "<div class='apps'>";
+    itemhtml += "<a href='" + srcUrl + "' target='_blank'>";
+    itemhtml += "<img src='" + logoUrl + "' alt='" + logoAlt + "'/>";
+    itemhtml += "<h3>" + label + "</h3>";
+    itemhtml += "</a>";
+    itemhtml += "<div class='apps_description'>" + description + "</div>";
+    itemhtml += "</div>";
+    return itemhtml;
+};
 
 org.systemsbiology.addama.js.topbar.GreenlistWindow = Ext.extend(Object, {
     constructor: function(config) {
@@ -477,44 +519,4 @@ org.systemsbiology.addama.js.topbar.GreenlistWindow = Ext.extend(Object, {
     }
 });
 
-org.systemsbiology.addama.js.topbar.GenerateAppPanelHtml = function(item) {
-    var logoAlt = item.alt;
-    if (!logoAlt) {
-        logoAlt = "app_logo";
-    }
 
-    var srcUrl = item.uri;
-    if (srcUrl.substring(item.uri.length - 1) == "/") {
-        srcUrl = srcUrl.substring(0, srcUrl.length -1);
-    }
-    srcUrl += "/";
-
-    var logoUrl = "/images/nologo.png";
-    if (item.logo) {
-        var logoUri = item.logo;
-        if (logoUri.substring(0, 1) == "/") {
-            logoUri = logoUri.substring(1, logoUri.length);
-        }
-        logoUrl = srcUrl + logoUri;
-    }
-
-    var label = item.label;
-    if (!label) {
-        label = "Untitled";
-    }
-
-    var description = item.description;
-    if (!description) {
-        description = "";
-    }
-
-    var itemhtml = "";
-    itemhtml += "<div class='apps'>";
-    itemhtml += "<a href='" + srcUrl + "' target='_blank'>";
-    itemhtml += "<img src='" + logoUrl + "' alt='" + logoAlt + "'/>";
-    itemhtml += "<h3>" + label + "</h3>";
-    itemhtml += "</a>";
-    itemhtml += "<div class='apps_description'>" + description + "</div>";
-    itemhtml += "</div>";
-    return itemhtml;
-};

@@ -36,7 +36,7 @@
 
             var el = Ext.get("container_services");
             Ext.each(testitems, function(testitem) {
-                Ext.DomHelper.append(el, org.systemsbiology.addama.js.topbar.GenerateAppPanelHtml(testitem));
+                Ext.DomHelper.append(el, org.systemsbiology.addama.js.topbar.RegisterAppsWindow.GenerateHtml(testitem));
             });
 
             new org.systemsbiology.addama.js.widgets.Viewport({
