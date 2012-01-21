@@ -32,20 +32,24 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                         menu: [
                             this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
                             this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"),
+                            { xtype: "menuseparator" },
+                            this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine"),
+                            { xtype: "menuseparator" },
                             this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
-                            this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount"),
-                            this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine")
+                            this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount")
                         ]
                     });
                     this.toolbar.add({ xtype: 'tbseparator' });
 
                     this.toolbar.add({ text: "Links",
                         menu: [
-                            this.newLinkMenuItem("Home", "/"),
                             this.newLinkMenuItem("Download API Keys", "/html/apikeys.html"),
+                            { xtype: "menuseparator" },
+                            this.newLinkMenuItem("Home", "/"),
                             this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
                             this.newLinkMenuItem("Browse Workspaces", "/html/workspaces.html"),
                             this.newLinkMenuItem("View Job Results", "/html/jobs.html"),
+                            { xtype: "menuseparator" },
                             this.newLinkMenuItem("Test Channels", "/html/channels.html"),
                             this.newLinkMenuItem("Test Feeds", "/html/feeds.html")
                         ]
@@ -113,9 +117,11 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 text: "Administration",
                 menu: [
                     refreshUI,
+                    { xtype: "menuseparator" },
                     registerAppsAction,
                     greenlistAction,
                     addamaPropertiesAction,
+                    { xtype: "menuseparator" },
                     this.newLinkMenuItem("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
                 ]
             });
