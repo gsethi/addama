@@ -76,7 +76,7 @@ body {
     height: auto;
 }
 
-.svcs:hover li div {
+.svcs:hover .svcs_map_label {
     height: auto;
     display: block;
 }
@@ -95,7 +95,7 @@ body {
     color: #555;
 }
 
-.svcs li div {
+.svcs_map_label {
     display: none;
     margin-left: 20px;
     margin-bottom: 10px;
