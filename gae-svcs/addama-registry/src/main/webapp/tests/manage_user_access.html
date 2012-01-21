@@ -1,0 +1,34 @@
+<html>
+<head>
+    <title>Test :: Manage User Access</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        function WithUsers() {
+            var data = [];
+            for (var i = 20; i > 0; i--) {
+                data.push(["user" + i + "@addama.org"]);
+            }
+            var glw = new org.systemsbiology.addama.js.topbar.GreenlistWindow();
+            glw.store.loadData(data);
+        }
+        function WithoutUsers() {
+            new org.systemsbiology.addama.js.topbar.GreenlistWindow()
+        }
+    </script>
+</head>
+<body>
+<button onclick="WithUsers();">Test with Users</button>
+<button onclick="WithoutUsers();">Test without Users</button>
+</body>
+</html>

@@ -99,6 +99,13 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             });
 
+            var greenlistAction = new Ext.Action({
+                text: "Manage User Access",
+                handler: function(){
+                    new org.systemsbiology.addama.js.topbar.GreenlistWindow();
+                }
+            });
+
 
             var app_id = document.location.hostname.replace(".appspot.com", "");
 
@@ -107,7 +114,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 menu: [
                     refreshUI,
                     registerAppsAction,
-                    this.newLinkMenuItem("Manage User Access", "/html/greenlist.html"),
+                    greenlistAction,
                     this.newLinkMenuItem("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
                 ]
             });
@@ -365,6 +372,124 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                 }
             ]
         });
+    }
+});
+
+org.systemsbiology.addama.js.topbar.GreenlistWindow = Ext.extend(Object, {
+    constructor: function(config) {
+        if (!config) {
+            config = {};
+        }
+
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.topbar.GreenlistWindow.superclass.constructor.call(this, config);
+
+        this.store = new Ext.data.ArrayStore({ fields: [ {name: "id"} ], sortInfo: {field: "id"} });
+
+        this.loadListView();
+        this.loadGreenlist();
+
+        var win = new Ext.Window({
+            title: "Manage User Access",
+            closable: true,
+            modal: true,
+            closeAction: "hide",
+            padding: "5 5 5 5",
+            margins: "5 5 5 5",
+            items: [
+                new Ext.Panel({
+                    width:400,
+                    height:300,
+                    layout: "fit",
+                    items: this.listView,
+                    tbar: [
+                        new Ext.Button({ text: "Add User", handler: this.addNewUser, scope: this })
+                    ]
+                })
+            ]
+        });
+        win.show();
+    },
+
+    loadListView: function() {
+        this.listView = new Ext.list.ListView({
+            store: this.store,
+            emptyText: "No users have been entered.  Domain is open to everyone",
+            hideHeaders: true,
+            columns: [ { header: "User", width: 300, sortable: true, dataIndex: "id" } ]
+        });
+    },
+
+    loadGreenlist: function() {
+        Ext.Ajax.request({
+            url: "/addama/greenlist",
+            method: "GET",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json && json.items) {
+                    var data = [];
+                    Ext.each(json.items, function(item) {
+                        data.push([item.id]);
+                    });
+                    this.store.loadData(data);
+                }
+            },
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Loading Users", "Error: " + o.statusText);
+            },
+            scope: this
+        });
+    },
+
+    addNewUser: function() {
+        var fld = new Ext.form.TextField({
+            name: "label",
+            anchor: "100%",
+            allowBlank:false,
+            labelSeparator: "",
+            fieldLabel: "Email Address"
+        });
+
+        var addUserWindow = new Ext.Window({
+            title: "Add User",
+            frame: true,
+            closable: true,
+            modal: true,
+            closeAction: "hide",
+            items: [
+                new Ext.FormPanel({
+                    width: 300,
+                    frame: true,
+                    items: [ fld ],
+                    padding: "10 10 10 10",
+                    buttons: [
+                        {
+                            text: "Save",
+                            handler: function() {
+                                var userEmail = fld.getRawValue();
+                                if (userEmail) {
+                                    Ext.Ajax.request({
+                                        url: "/addama/greenlist/" + userEmail,
+                                        method: "POST",
+                                        success: function() {
+                                            addUserWindow.close();
+                                            this.loadGreenlist();
+                                        },
+                                        failure: function(o) {
+                                            org.systemsbiology.addama.js.Message.error("Add New User", "Error: " + o.statusText);
+                                        },
+                                        scope: this
+                                    });
+                                }
+                            },
+                            scope: this
+                        }
+                    ]
+                })
+            ]
+        });
+        addUserWindow.show();
     }
 });
 
