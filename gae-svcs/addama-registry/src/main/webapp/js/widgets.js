@@ -280,7 +280,7 @@ org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml = function(item)
 
     var itemhtml = "";
     itemhtml += "<div class='svcs'>";
-    itemhtml += "<h3><a href='" + versionUrl + "/version' target='_blank'>" + label+ "</a></h3>";
+    itemhtml += "<h3><a href='" + versionUrl + "' target='_blank'>" + label+ "</a></h3>";
     if (item.items) {
         itemhtml += "<ul>";
         Ext.each(item.items, function(mapping) {
