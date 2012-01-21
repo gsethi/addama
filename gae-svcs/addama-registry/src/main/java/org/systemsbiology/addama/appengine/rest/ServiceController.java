@@ -71,7 +71,7 @@ public class ServiceController {
             throw new ResourceNotFoundException(serviceUri);
         }
 
-        PreparedQuery pq = datastore.prepare(new Query("registry-services").addFilter("service", EQUAL, serviceId));
+        PreparedQuery pq = datastore.prepare(new Query("registry-mappings").addFilter("service", EQUAL, serviceId));
         for (Entity e : pq.asIterable()) {
             JSONObject mapping = new JSONObject();
             mapping.put("id", e.getKey().getName());
