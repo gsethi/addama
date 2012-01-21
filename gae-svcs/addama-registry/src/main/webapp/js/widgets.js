@@ -86,8 +86,7 @@ org.systemsbiology.addama.js.widgets.Viewport = Ext.extend(Object, {
             items: this.tabs,
             activeTab: 0,
             border: true,
-            margins: "5 5 5 5",
-            padding: "5 5 5 5"
+            margins: "5 5 5 5"
         });
 
         var footerPanel = new Ext.Panel({
