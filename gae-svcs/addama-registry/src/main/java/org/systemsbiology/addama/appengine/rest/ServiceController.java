@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.*;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
@@ -17,6 +16,7 @@ import static com.google.appengine.api.datastore.DatastoreServiceFactory.getData
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.datastore.Query.FilterOperator.EQUAL;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * @author hrovira
@@ -27,7 +27,7 @@ public class ServiceController {
 
     private static final DatastoreService datastore = getDatastoreService();
 
-    @RequestMapping(value = "/services", method = RequestMethod.GET)
+    @RequestMapping(value = "/services", method = GET)
     public ModelAndView list() throws Exception {
         log.info("list");
 
@@ -52,7 +52,7 @@ public class ServiceController {
     }
 
 
-    @RequestMapping(value = "/services/*", method = RequestMethod.GET)
+    @RequestMapping(value = "/services/*", method = GET)
     public ModelAndView service(HttpServletRequest request) throws Exception {
         String serviceUri = request.getRequestURI();
         String serviceId = substringAfterLast(serviceUri, "services/");
