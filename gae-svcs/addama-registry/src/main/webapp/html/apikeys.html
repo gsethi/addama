@@ -18,7 +18,9 @@
                 contentEl: "container_topbar",
                 listeners: {
                     whoami: function(json) {
-                        new org.systemsbiology.addama.js.topbar.ApiKeysWindow({isAdmin:json.isAdmin});
+                        if (json.isAdmin) {
+                            new org.systemsbiology.addama.js.topbar.RegistryKeysWindow();
+                        }
                     }
                 }
             });

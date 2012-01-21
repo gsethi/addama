@@ -150,3 +150,32 @@ body {
 #container_js_message .msg .msg-error p {
     margin: 0;
 }
+
+/* API KEY Messages STYLES */
+.apikeys {
+    font-size:14px;
+    border-radius: 12px;
+    background: #F6F6F6;
+    border: 2px solid #0099cc;
+    margin: 10px;
+    padding: 10px;
+    height: 150px;
+    color: #555;
+}
+
+.apikeys h4 {
+    text-align: center;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.apikeys li {
+    padding-top: 5px;
+}
+
+.apikeys_caution {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+    color: red;
+}

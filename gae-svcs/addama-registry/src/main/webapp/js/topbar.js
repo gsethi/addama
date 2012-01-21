@@ -31,6 +31,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     this.toolbar.add({ text: json.email,
                         menu: [
                             this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
+                            this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"),
                             this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
                             this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount"),
                             this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine")
@@ -38,17 +39,10 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     });
                     this.toolbar.add({ xtype: 'tbseparator' });
 
-                    var apikeysAction = new Ext.Action({
-                        text: "API Keys",
-                        handler: function(){
-                            new org.systemsbiology.addama.js.topbar.ApiKeysWindow({isAdmin:json.isAdmin});
-                        }
-                    });
-
                     this.toolbar.add({ text: "Links",
                         menu: [
                             this.newLinkMenuItem("Home", "/"),
-                            apikeysAction,
+                            this.newLinkMenuItem("Download API Keys", "/addama/apikeys/file"),
                             this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
                             this.newLinkMenuItem("Browse Workspaces", "/html/workspaces.html"),
                             this.newLinkMenuItem("View Job Results", "/html/jobs.html"),
@@ -106,6 +100,12 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             });
 
+            var addamaPropertiesAction = new Ext.Action({
+                text: "Service Registration Keys",
+                handler: function(){
+                    new org.systemsbiology.addama.js.topbar.RegistryKeysWindow();
+                }
+            });
 
             var app_id = document.location.hostname.replace(".appspot.com", "");
 
@@ -115,6 +115,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     refreshUI,
                     registerAppsAction,
                     greenlistAction,
+                    addamaPropertiesAction,
                     this.newLinkMenuItem("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
                 ]
             });
@@ -134,79 +135,62 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
     }
 });
 
-org.systemsbiology.addama.js.topbar.ApiKeysWindow = Ext.extend(Object, {
+org.systemsbiology.addama.js.topbar.RegistryKeysWindow = Ext.extend(Object, {
 
     constructor: function(config) {
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.topbar.ApiKeysWindow.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.topbar.RegistryKeysWindow.superclass.constructor.call(this);
 
-        var msgTxt = "<h4>Generated API Keys are managed by domain administrators through the App Engine Console</h4>";
-        msgTxt += "<br/>";
-        msgTxt += "Each user is assigned a private API key to support secure programmatic access to Addama services.";
-        msgTxt += "<b>Do NOT share your API key<b>.  Treat the same as a password.";
-        if (this.isAdmin) {
-            msgTxt += "<br/><br/><br/>";
-            msgTxt += "The 'addama.properties' file is used by Addama local services to register securely.";
-            msgTxt += "<br/>";
-            msgTxt += "Enter the public URL in the text field below for your web services host (e.g. https://webservices.example.com) to automatically generate";
-            msgTxt += "<br/>";
-            msgTxt += "<br/>";
-        }
+        var fld = new Ext.form.TextField({
+            name: "serviceHostUrl",
+            anchor: "100%",
+            labelSeparator: "",
+            fieldLabel: "Content Root URL"
+        });
 
-        var items = [];
-        items.push({ region:"center", html: msgTxt, margins: "5 5 5 5", padding: "5 5 5 5" });
-
-        if (this.isAdmin) {
-            var fld = new Ext.form.TextField({
-                name: "serviceHostUrl",
-                anchor: "100%",
-                labelSeparator: "",
-                fieldLabel: "Web services host URL"
-            });
-
-            items.push(new Ext.form.FormPanel({
-                frame:true,
-                region:"south",
-                margins: "5 5 5 5",
-                padding: "5 5 5 5",
-                width: 500,
-                items: [fld],
-                buttons: [
-                    {
-                        text: "Generate addama.properties",
-                        handler: function() {
-                            var serviceUrl = fld.getRawValue();
-                            if (serviceUrl) {
-                                document.location = "/addama/apikeys/addama.properties?serviceUrl=" + serviceUrl;
-                            } else {
-                                document.location = "/addama/apikeys/addama.properties";
-                            }
-                            win.close();
-                        }
-                    }
-                ]
-            }));
-        }
+        var msgTxt = "";
+        msgTxt += "<div class='apikeys'>";
+        msgTxt += "<h4>Service Registry Keys</h4>";
+        msgTxt += "<ul>";
+        msgTxt += "<li>The 'addama.properties' file is used by web services to register securely.</li>";
+        msgTxt += "<li>These keys are managed by administrators through the App Engine Console.</li>";
+        msgTxt += "<li>Enter your public web services host URL below to generate keys</li>";
+        msgTxt += "<li>&nbsp;&nbsp;&nbsp;&nbsp;(e.g. https://webservices.example.com)</li>";
+        msgTxt += "</ul>";
+        msgTxt += "<div class='apikeys_caution'>Do NOT share these keys.  Treat the same as a password.</div>";
+        msgTxt += "</div>";
 
         var win = new Ext.Window({
-            title: "API Keys",
             closable: true,
             modal: true,
             closeAction: "hide",
             width: 600,
-            minWidth: 400,
-            height: 400,
-            padding: "5 5 5 5",
-            items: items,
-            tbar: [
-                {
-                    text: "Download API Key File",
-                    handler: function() {
-                        document.location = "/addama/apikeys/file";
-                        win.close();
-                    }
-                }
+            defaults: {
+                margins: "5 5 5 5",
+                padding: "5 5 5 5"
+            },
+            items: [
+                { region:"center", html: msgTxt, frame: true },
+                new Ext.form.FormPanel({
+                    frame:true,
+                    region:"south",
+                    items: [fld],
+                    buttons: [
+                        {
+                            text: "Generate",
+                            handler: function() {
+                                var serviceUrl = fld.getRawValue();
+                                if (serviceUrl) {
+                                    document.location = "/addama/apikeys/addama.properties?serviceUrl=" + serviceUrl;
+                                } else {
+                                    document.location = "/addama/apikeys/addama.properties";
+                                }
+                                win.close();
+                            }
+                        }
+                    ]
+                })
             ]
         });
         win.show();
