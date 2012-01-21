@@ -58,19 +58,6 @@ public class RegistryBrowseController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/services", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView registry_services() throws Exception {
-        JSONObject json = new JSONObject();
-        json.put("uri", "/addama/services");
-
-        for (RegistryService rs : getRegistryServices()) {
-            json.append("items", toJSON(rs));
-        }
-
-        return new ModelAndView(new JsonItemsView()).addObject("json", json);
-    }
-
     private void appendItems(JSONObject json, Iterable<RegistryMapping> uriMappings, Set<String> uritracker) throws JSONException {
         if (json != null && uriMappings != null) {
             for (RegistryMapping rm : uriMappings) {

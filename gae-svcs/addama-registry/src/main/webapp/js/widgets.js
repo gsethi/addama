@@ -223,11 +223,15 @@ org.systemsbiology.addama.js.widgets.AppsPanel = Ext.extend(Object, {
     }
 });
 
-org.systemsbiology.addama.js.widgets.ServicesPanel = Ext.extend(Object, {
+org.systemsbiology.addama.js.widgets.ServicesPanel = Ext.extend(Ext.util.Observable, {
     constructor: function(config) {
         Ext.apply(this, config);
 
+        this.addEvents("loadService");
+
         org.systemsbiology.addama.js.widgets.ServicesPanel.superclass.constructor.call(this);
+
+        this.on("loadService", this.loadService, this);
 
         Ext.Ajax.request({
             url: "/addama/services",
@@ -235,18 +239,64 @@ org.systemsbiology.addama.js.widgets.ServicesPanel = Ext.extend(Object, {
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json && json.items) {
-                    var html = "";
                     Ext.each(json.items, function(item) {
-                        html += "<li>" + item.label + ":" + item.url + "</li>";
+                        this.fireEvent("loadService", item.uri);
                     });
-                    Ext.DomHelper.append(Ext.get(this.contentEl), "<ul>" + html + "</ul>");
+
                 }
             },
             scope: this
         });
+    },
 
+    loadService: function(uri) {
+        Ext.Ajax.request({
+            url: uri,
+            method: "GET",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json) {
+                    var html = org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml(json);
+                    Ext.DomHelper.append(Ext.get(this.contentEl), html);
+                }
+            },
+            scope: this
+        })
     }
 });
+
+org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml = function(item) {
+    var versionUrl = item.url;
+    if (versionUrl.substring(item.uri.length - 1) == "/") {
+        versionUrl = versionUrl.substring(0, versionUrl.length -1);
+    }
+    versionUrl += "/version";
+
+
+    var label = item.label;
+    if (!label) {
+        label = "Untitled";
+    }
+
+    var itemhtml = "";
+    itemhtml += "<div class='svcs'>";
+    itemhtml += "<h3><a href='" + versionUrl + "/version' target='_blank'>" + label+ "</a></h3>";
+    if (item.items) {
+        itemhtml += "<div class='svcs_summary'><ul>";
+        Ext.each(item.items, function(mapping) {
+           itemhtml += "<li>" + mapping.id + "</li>";
+        });
+        itemhtml += "</ul></div>";
+
+        itemhtml += "<div class='svcs_details'><ul>";
+        Ext.each(item.items, function(mapping) {
+           itemhtml += "<li><b>" + mapping.id + ":&nbsp;&nbsp;" + mapping.uri + "</b><div>" + mapping.label + "</div></li>";
+        });
+        itemhtml += "</ul></div>";
+    }
+    itemhtml += "</div>";
+    return itemhtml;
+};
 
 org.systemsbiology.addama.js.widgets.GreenlistWindow = Ext.extend(Object, {
     constructor: function(config) {

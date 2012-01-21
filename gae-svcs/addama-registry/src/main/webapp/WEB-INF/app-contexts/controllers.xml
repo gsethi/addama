@@ -65,17 +65,8 @@
                 </entry>
 
                 <!-- Services Controllers -->
-                <entry key="/addama/services" value-ref="registryBrowseCtlr"/>
-                <entry key="/addama/services/**">
-                    <bean class="org.systemsbiology.addama.appengine.rest.ServiceAccessController"
-                          autowire="byType">
-                        <property name="supportedMethods">
-                            <list>
-                                <value>GET</value>
-                            </list>
-                        </property>
-                    </bean>
-                </entry>
+                <entry key="/addama/services" value-ref="serviceController"/>
+                <entry key="/addama/services/*" value-ref="serviceController"/>
 
                 <!-- Fall-through Controllers -->
                 <entry key="/addama/**" value-ref="registryBrowseCtlr"/>
@@ -99,6 +90,8 @@
             </list>
         </property>
     </bean>
+
+    <bean id="serviceController" class="org.systemsbiology.addama.appengine.rest.ServiceController"/>
 
     <bean id="channelServiceController" class="org.systemsbiology.addama.appengine.rest.ChannelServiceController"/>
 

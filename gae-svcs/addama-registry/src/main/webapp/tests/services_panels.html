@@ -1,0 +1,113 @@
+<html>
+<head>
+    <title>Test :: Service Panels</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var testitems = [];
+            testitems.push({
+                "label": "Service 1",
+                "uri": "ws.example.com.svc1",
+                "url": "https://ws.example.com/svc1",
+                items: [
+                    { "id": "mapping1", label: "Really long label for mapping 1, really did it have to be that long, apparently so", uri: "/addama/datasources/mapping1" },
+                    { "id": "mapping2", label: "Mapping 2", uri: "/mapping2" },
+                    { "id": "mapping3", label: "Mapping 3", uri: "/mapping3" }
+                ]
+            });
+            testitems.push({
+                "label": "Service 2",
+                "uri": "ws.example.com.svc2",
+                "url": "https://ws.example.com/svc2",
+                items: [
+                    { "id": "mapping1", label: "Mapping 1", uri: "/mapping1" },
+                    { "id": "mapping2", label: "Mapping 2", uri: "/mapping2" },
+                    { "id": "mapping3", label: "Mapping 3", uri: "/mapping3" }
+                ]
+            });
+            testitems.push({
+                "label": "Service 3",
+                "uri": "ws.example.com.svc3",
+                "url": "https://ws.example.com/svc3",
+                items: [
+                    { "id": "mapping01", label: "Mapping 01", uri: "/mapping01" },
+                    { "id": "mapping02", label: "Mapping 02", uri: "/mapping02" },
+                    { "id": "mapping03", label: "Mapping 03", uri: "/mapping03" },
+                    { "id": "mapping04", label: "Mapping 04", uri: "/mapping04" },
+                    { "id": "mapping05", label: "Mapping 05", uri: "/mapping05" },
+                    { "id": "mapping06", label: "Mapping 06", uri: "/mapping06" },
+                    { "id": "mapping07", label: "Mapping 07", uri: "/mapping07" },
+                    { "id": "mapping08", label: "Mapping 08", uri: "/mapping08" },
+                    { "id": "mapping09", label: "Mapping 09", uri: "/mapping09" },
+                    { "id": "mapping10", label: "Mapping 10", uri: "/mapping10" },
+                    { "id": "mapping11", label: "Mapping 11", uri: "/mapping11" },
+                    { "id": "mapping12", label: "Mapping 12", uri: "/mapping12" }
+                ]
+            });
+            testitems.push({
+                "label": "Service 4",
+                "uri": "ws.example.com.svc4",
+                "url": "https://ws.example.com/svc4",
+                items: [
+                    { "id": "mapping1", label: "Mapping 1", uri: "/mapping1" },
+                    { "id": "mapping2", label: "Mapping 2", uri: "/mapping2" },
+                    { "id": "mapping3", label: "Mapping 3", uri: "/mapping3" }
+                ]
+            });
+            testitems.push({
+                "label": "Service 5",
+                "uri": "ws.example.com.svc5",
+                "url": "https://ws.example.com/svc5",
+                items: [
+                    { "id": "mapping1", label: "Mapping 1", uri: "/mapping1" },
+                    { "id": "mapping2", label: "Mapping 2", uri: "/mapping2" },
+                    { "id": "mapping3", label: "Mapping 3", uri: "/mapping3" }
+                ]
+            });
+
+            var el = Ext.get("container_services");
+            Ext.each(testitems, function(testitem) {
+                Ext.DomHelper.append(el, org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml(testitem));
+            });
+
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [
+                    new Ext.Panel({
+                        layout: "border",
+                        defaults: {
+                            margins: "5 5 5 5",
+                            padding: "5 5 5 5",
+                            border: true,
+                            frame: true,
+                            width: 520,
+                            autoScroll:true
+                        },
+                        items: [
+                            { contentEl: "container_apps", region: "west", title: "Registered Applications" },
+                            { contentEl: "container_services", region: "center", title: "Registered Services" }
+                        ]
+                    })
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_apps"></div>
+<div id="container_services"></div>
+</body>
+</html>
