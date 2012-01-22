@@ -3,8 +3,7 @@ package org.systemsbiology.google.visualization.datasource;
 import com.google.visualization.datasource.DataSourceRequest;
 import com.google.visualization.datasource.DataTableGenerator;
 import com.google.visualization.datasource.QueryPair;
-import com.google.visualization.datasource.ResponseWriter;
-import com.google.visualization.datasource.base.*;
+import com.google.visualization.datasource.base.DataSourceException;
 import com.google.visualization.datasource.datatable.DataTable;
 import com.google.visualization.datasource.datatable.TableCell;
 import com.google.visualization.datasource.datatable.TableRow;
@@ -22,7 +21,6 @@ import org.systemsbiology.google.visualization.datasource.impls.TsvFileDataTable
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import static javax.servlet.http.HttpServletResponse.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +28,10 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static com.google.visualization.datasource.DataSourceHelper.applyQuery;
+import static com.google.visualization.datasource.DataSourceHelper.splitQuery;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.apache.commons.lang.StringUtils.*;
 
 /**
@@ -75,13 +77,11 @@ public class DataSourceHelper {
     }
 
     public static void executeJsonArrayDataSourceServletFlow(HttpServletRequest req, HttpServletResponse resp, DataTableGenerator dtGenerator) throws Exception {
-        // Extract the data source request parameters.
-        DataSourceRequest dsRequest = null;
         try {
-            dsRequest = new DataSourceRequest(req);
-            QueryPair query = com.google.visualization.datasource.DataSourceHelper.splitQuery(dsRequest.getQuery(), dtGenerator.getCapabilities());
+            DataSourceRequest dsRequest = new DataSourceRequest(req);
+            QueryPair query = splitQuery(dsRequest.getQuery(), dtGenerator.getCapabilities());
             DataTable dataTable = dtGenerator.generateDataTable(query.getDataSourceQuery(), req);
-            DataTable newDataTable = com.google.visualization.datasource.DataSourceHelper.applyQuery(query.getCompletionQuery(), dataTable, dsRequest.getUserLocale());
+            DataTable newDataTable = applyQuery(query.getCompletionQuery(), dataTable, dsRequest.getUserLocale());
 
             JSONArray responseJson = generateResponse(newDataTable);
 
@@ -89,15 +89,12 @@ public class DataSourceHelper {
             resp.getWriter().write(responseJson.toString());
 
         } catch (DataSourceException e) {
-            JSONObject json = new JSONObject();
-            json.put("error", e.getMessageToUser());
-
-            resp.setContentType("application/json");
-            resp.getWriter().write(json.toString());
             resp.setStatus(SC_BAD_REQUEST);
+            resp.getWriter().write(e.getMessageToUser());
 
         } catch (RuntimeException e) {
-            resp.setStatus(SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write(e.getMessage());
         }
     }
 
