@@ -30,6 +30,8 @@ import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.logging.Logger;
 
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+
 /**
  * @author hrovira
  */
@@ -56,12 +58,13 @@ public class RootController {
         JSONObject json = new JSONObject();
         json.put("uri", request.getRequestURI());
         addFamilyItem(json, "Datasources", "/addama/datasources");
-        addFamilyItem(json, "Apps", "/addama/apps");
+        addFamilyItem(json, "Applications", "/addama/apps");
         addFamilyItem(json, "Repositories", "/addama/repositories");
         addFamilyItem(json, "Workspaces", "/addama/workspaces");
         addFamilyItem(json, "Tools", "/addama/tools");
         addFamilyItem(json, "Services", "/addama/services");
         addFamilyItem(json, "Indexes", "/addama/indexes");
+        addFamilyItem(json, "Chromosomes", "/addama/chromosomes");
         addFamilyItem(json, "Searchable Services", "/addama/searchables");
         addFamilyItem(json, "Feeds", "/addama/feeds");
 
@@ -74,7 +77,7 @@ public class RootController {
 
     private void addFamilyItem(JSONObject parent, String label, String uri) throws Exception {
         JSONObject json = new JSONObject();
-        json.put("name", StringUtils.substringAfterLast(uri, "/addama/"));
+        json.put("name", substringAfterLast(uri, "/addama/"));
         json.put("label", label);
         json.put("uri", uri);
         parent.append("items", json);

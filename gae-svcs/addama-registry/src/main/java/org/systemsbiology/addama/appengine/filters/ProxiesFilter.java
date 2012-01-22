@@ -101,49 +101,27 @@ public class ProxiesFilter extends GenericFilterBean {
     */
 
     private boolean shouldSkip(String requestUri) {
-        if (requestUri.equals("/addama")) {
-            return true;
-        }
-        if (requestUri.equals("/addama/")) {
-            return true;
-        }
-        if (requestUri.equals("/addama/repositories")) {
-            return true;
-        }
-        if (requestUri.equals("/addama/datasources")) {
-            return true;
-        }
-        if (requestUri.equals("/addama/services")) {
-            return true;
-        }
+        if (requestUri.equals("/addama")) return true;
+        if (requestUri.equals("/addama/")) return true;
+        if (requestUri.equals("/addama/repositories")) return true;
+        if (requestUri.equals("/addama/datasources")) return true;
+        if (requestUri.equals("/addama/chromosomes")) return true;
+        if (requestUri.equals("/addama/workspaces")) return true;
+        if (requestUri.equals("/addama/indexes")) return true;
+        if (requestUri.equals("/addama/services")) return true;
+        if (requestUri.equals("/addama/apps")) return true;
+        if (requestUri.equals("/addama/channels")) return true;
 
-        if (requestUri.startsWith("/addama/apps")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/channels")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/registry")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/asynch")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/search")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/groups")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/users")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/apikeys")) {
-            return true;
-        }
-        if (requestUri.startsWith("/addama/memcache")) {
-            return true;
-        }
+        if (requestUri.startsWith("/addama/apps")) return true;
+        if (requestUri.startsWith("/addama/channels")) return true;
+        if (requestUri.startsWith("/addama/registry")) return true;
+        if (requestUri.startsWith("/addama/asynch")) return true;
+        if (requestUri.startsWith("/addama/search")) return true;
+        if (requestUri.startsWith("/addama/groups")) return true;
+        if (requestUri.startsWith("/addama/users")) return true;
+        if (requestUri.startsWith("/addama/apikeys")) return true;
+        if (requestUri.startsWith("/addama/memcache")) return true;
+
         return false;
     }
 
