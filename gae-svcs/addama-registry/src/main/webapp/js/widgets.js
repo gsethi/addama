@@ -186,16 +186,25 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
         var items = [];
         items.push({ title: "REST", html: data.method + " " + data.uri, collapsible: false });
 
+        var isEmpty = function(obj) {
+          return Object.keys(obj).length === 0;
+        };
+
         if (data.requestParams) {
-            var stringify = JSON.stringify(data.requestParams, null, "\u00a0\u00a0\u00a0\u00a0");
-            var parameters = Ext.util.Format.nl2br(stringify);
-            items.push({ title: "REQUEST PARAMETERS", html: parameters });
+            if (!isEmpty(data.requestParams)) {
+                var stringify = JSON.stringify(data.requestParams, null, "\u00a0\u00a0\u00a0\u00a0");
+                var parameters = Ext.util.Format.nl2br(stringify);
+                items.push({ title: "REQUEST PARAMETERS", html: parameters });
+            }
         }
 
         if (data.requestHeaders) {
-            var stringify = JSON.stringify(data.requestHeaders, null, "\u00a0\u00a0\u00a0\u00a0");
-            var headers = Ext.util.Format.nl2br(stringify);
-            items.push({ title: "REQUEST HEADERS", html: headers });
+            delete data.requestHeaders["X-Requested-With"];
+            if (!isEmpty(data.requestHeaders)) {
+                var stringify = JSON.stringify(data.requestHeaders, null, "\u00a0\u00a0\u00a0\u00a0");
+                var headers = Ext.util.Format.nl2br(stringify);
+                items.push({ title: "REQUEST HEADERS", html: headers });
+            }
         }
 
         var responseText = data.responseText;

@@ -29,46 +29,34 @@
                 a4:"a", b4:"b", c4:"c", d4:"d", e4:"e", f4:"f", g4:"g", h4:"h", i4:"i", j4:"j"
             };
 
-            var jsonResponse = {
-                getResponseHeader: function(header) {
-                    if (header == "Content-Type") return "application/json";
-                    return null;
-                },
-                status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(smallJson)
-            };
+            var tqParams = { tq:"tq", tqx:"tqx" };
+            var testHeaders = {"x-addama-test": "test"};
 
-            var notJsonResponse = {
-                getResponseHeader: function(header) {
-                    if (header == "Content-Type") return "text/html";
-                    return null;
-                },
-                status: 200, statusText: "OK", responseText: "This is not JSON"
+            var jsonResponseHeaderFn = function(header) {
+                if (header == "Content-Type") return "application/json";
+                return null;
             };
-
-            var partialResponse = {
-                getResponseHeader: function(header) {
-                    if (header == "Content-Type") return "application/json";
-                    return null;
-                },
-                status: 200, statusText: "OK"
+            var notJsonResponseHeaderFn = function(header) {
+                if (header == "Content-Type") return "text/html";
+                return null;
             };
+            
+            var jsonResponse = { getResponseHeader: jsonResponseHeaderFn, status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(smallJson) };
+            var notJResponse = { getResponseHeader: notJsonResponseHeaderFn, status: 200, statusText: "OK", responseText: "This is not JSON" };
+            var partResponse = { getResponseHeader: jsonResponseHeaderFn, status: 200, statusText: "OK" };
+            var longResponse = { getResponseHeader: jsonResponseHeaderFn, status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(bigJson) };
 
-            var reallyLongResponse = {
-                getResponseHeader: function(header) {
-                    if (header == "Content-Type") return "application/json";
-                    return null;
-                },
-                status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(bigJson)
-            };
-
-            am.addResponseToGrid({}, jsonResponse, { url: "/test/1", method: "GET", params: { tq:"tq", tqx:"tqx" } });
-            am.addResponseToGrid({}, jsonResponse, { url: "/test/2", method: "GET" });
-            am.addResponseToGrid({}, jsonResponse, { url: "/test/3", method: "GET", params: { tq:"tq", tqx:"tqx" }, headers: {"x-addama-test": "test"} });
-            am.addResponseToGrid({}, jsonResponse, { url: "/test/4", method: "GET", headers: {"x-addama-test": "test"} });
-            am.addResponseToGrid({}, notJsonResponse, { url: "/test/5", method: "GET", params: { tq:"tq", tqx:"tqx" } });
-            am.addResponseToGrid({}, partialResponse, { url: "/test/6", method: "GET", params: { tq:"tq", tqx:"tqx" } });
-            am.addResponseToGrid({}, partialResponse, { url: "/test/7" });
-            am.addResponseToGrid({}, reallyLongResponse, { url: "/test/8", method: "GET", params: bigJson , headers: bigJson });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_params", method: "GET", params: tqParams });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wo_params", method: "GET" });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_params_n_headers", method: "GET", params: tqParams, headers: testHeaders });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_headers", method: "GET", headers: testHeaders });
+            am.addResponseToGrid({}, notJResponse, { url: "/test/not_json_response", method: "GET", params: tqParams });
+            am.addResponseToGrid({}, partResponse, { url: "/test/partial_wi_params", method: "GET", params: tqParams });
+            am.addResponseToGrid({}, partResponse, { url: "/test/partial_wo_params" });
+            am.addResponseToGrid({}, longResponse, { url: "/test/long_one", method: "GET", params: bigJson , headers: bigJson });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_ajax_header", method: "GET", params: tqParams , headers: {"X-Requested-With": "XMLHttpRequest"}});
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_ajax_header_n_others", method: "GET", params: tqParams, headers: {"X-Requested-With": "XMLHttpRequest", "other-header": "other-value"}});
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_empty_params", method: "GET", params: {}});
         });
     </script>
 </head>
