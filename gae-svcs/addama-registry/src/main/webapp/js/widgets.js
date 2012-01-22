@@ -191,17 +191,14 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
         }
 
         new Ext.Window({
-            width:800,
+            width: 800,
+            height: 450,
             autoScroll: true,
             modal: true,
-            layout: "fit",
             frame: true,
-            defaults: {
-                frame: true,
-                autoHeight: true
-            },
+            defaults: { frame: true, width: "100%", autoScroll: true, collapsible: true, collapsed: false },
             items: [
-                { title: "REST", html: data.method + " " + data.uri },
+                { title: "REST", html: data.method + " " + data.uri, collapsible: false },
                 { title: "AJAX", html: requestContent },
                 { title: "RESPONSE", html: responseText }
             ]

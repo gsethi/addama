@@ -20,14 +20,21 @@
             
             new Ext.Panel({ renderTo: "container_main", height: 500, autoScroll: true, items: [am.gridPanel] });
 
+            var smallJson = { uri:'/test/response', items: [{uri:'/test/response/1', label:'Item 1'}], numberOfItems: 1 };
+            var bigJson = {
+                a0:"a", b0:"b", c0:"c", d0:"d", e0:"e", f0:"f", g0:"g", h0:"h", i0:"i", j0:"j",
+                a1:"a", b1:"b", c1:"c", d1:"d", e1:"e", f1:"f", g1:"g", h1:"h", i1:"i", j1:"j",
+                a2:"a", b2:"b", c2:"c", d2:"d", e2:"e", f2:"f", g2:"g", h2:"h", i2:"i", j2:"j",
+                a3:"a", b3:"b", c3:"c", d3:"d", e3:"e", f3:"f", g3:"g", h3:"h", i3:"i", j3:"j",
+                a4:"a", b4:"b", c4:"c", d4:"d", e4:"e", f4:"f", g4:"g", h4:"h", i4:"i", j4:"j"
+            };
+
             var jsonResponse = {
                 getResponseHeader: function(header) {
                     if (header == "Content-Type") return "application/json";
                     return null;
                 },
-                status: 200,
-                statusText: "OK",
-                responseText: "{ uri:'/test/response', items: [{uri:'/test/response/1', label:'Item 1'}], numberOfItems: 1 }"
+                status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(smallJson)
             };
 
             var notJsonResponse = {
@@ -35,9 +42,7 @@
                     if (header == "Content-Type") return "text/html";
                     return null;
                 },
-                status: 200,
-                statusText: "OK",
-                responseText: "This is not JSON"
+                status: 200, statusText: "OK", responseText: "This is not JSON"
             };
 
             var partialResponse = {
@@ -45,8 +50,15 @@
                     if (header == "Content-Type") return "application/json";
                     return null;
                 },
-                status: 200,
-                statusText: "OK"
+                status: 200, statusText: "OK"
+            };
+
+            var reallyLongResponse = {
+                getResponseHeader: function(header) {
+                    if (header == "Content-Type") return "application/json";
+                    return null;
+                },
+                status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(bigJson)
             };
 
             am.addResponseToGrid({}, jsonResponse, { url: "/test/1", method: "GET", params: { tq:"tq", tqx:"tqx" } });
@@ -56,6 +68,7 @@
             am.addResponseToGrid({}, notJsonResponse, { url: "/test/5", method: "GET", params: { tq:"tq", tqx:"tqx" } });
             am.addResponseToGrid({}, partialResponse, { url: "/test/6", method: "GET", params: { tq:"tq", tqx:"tqx" } });
             am.addResponseToGrid({}, partialResponse, { url: "/test/7" });
+            am.addResponseToGrid({}, reallyLongResponse, { url: "/test/8", method: "GET", params: bigJson });
         });
     </script>
 </head>
