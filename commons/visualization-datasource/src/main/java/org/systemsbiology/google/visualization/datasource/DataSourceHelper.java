@@ -22,6 +22,7 @@ import org.systemsbiology.google.visualization.datasource.impls.TsvFileDataTable
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import static javax.servlet.http.HttpServletResponse.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,22 +85,19 @@ public class DataSourceHelper {
 
             JSONArray responseJson = generateResponse(newDataTable);
 
-            DataSourceParameters dataSourceParameters = dsRequest.getDataSourceParameters();
-            ResponseWriter.setServletResponse(responseJson.toString(), dataSourceParameters, resp);
+            resp.setContentType("application/json");
+            resp.getWriter().write(responseJson.toString());
 
         } catch (DataSourceException e) {
-            if (dsRequest != null) {
-                com.google.visualization.datasource.DataSourceHelper.setServletErrorResponse(e, dsRequest, resp);
-            } else {
-                com.google.visualization.datasource.DataSourceHelper.setServletErrorResponse(e, req, resp);
-            }
+            JSONObject json = new JSONObject();
+            json.put("error", e.getMessageToUser());
+
+            resp.setContentType("application/json");
+            resp.getWriter().write(json.toString());
+            resp.setStatus(SC_BAD_REQUEST);
+
         } catch (RuntimeException e) {
-            log.warning("A runtime exception has occured:" + e);
-            ResponseStatus status = new ResponseStatus(StatusType.ERROR, ReasonType.INTERNAL_ERROR, e.getMessage());
-            if (dsRequest == null) {
-                dsRequest = DataSourceRequest.getDefaultDataSourceRequest(req);
-            }
-            com.google.visualization.datasource.DataSourceHelper.setServletErrorResponse(status, dsRequest, resp);
+            resp.setStatus(SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
