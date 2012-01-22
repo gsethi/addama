@@ -68,7 +68,7 @@
             am.addResponseToGrid({}, notJsonResponse, { url: "/test/5", method: "GET", params: { tq:"tq", tqx:"tqx" } });
             am.addResponseToGrid({}, partialResponse, { url: "/test/6", method: "GET", params: { tq:"tq", tqx:"tqx" } });
             am.addResponseToGrid({}, partialResponse, { url: "/test/7" });
-            am.addResponseToGrid({}, reallyLongResponse, { url: "/test/8", method: "GET", params: bigJson });
+            am.addResponseToGrid({}, reallyLongResponse, { url: "/test/8", method: "GET", params: bigJson , headers: bigJson });
         });
     </script>
 </head>

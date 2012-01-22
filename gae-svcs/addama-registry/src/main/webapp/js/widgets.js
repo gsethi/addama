@@ -130,7 +130,8 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
                 { name: "uri" },
                 { name: "statusCode" },
                 { name: "statusText" },
-                { name: "ajaxRequest" },
+                { name: "requestParams" },
+                { name: "requestHeaders" },
                 { name: "responseText" },
                 { name: "isJson", type: "boolean" }
             ]
@@ -168,7 +169,8 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
             statusCode: response.status,
             statusText: response.statusText,
             responseText: response.responseText,
-            ajaxRequest: options,
+            requestParams: options.params,
+            requestHeaders: options.headers,
             isJson: isJson
         };
         this.GRID_DATA.push(newData);
@@ -177,18 +179,29 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
 
     showResponseContent: function(g, rowIndex, e) {
         var data = this.store.getAt(rowIndex).data;
+
+        var items = [];
+        items.push({ title: "REST", html: data.method + " " + data.uri, collapsible: false });
+
+        if (data.requestParams) {
+            var stringify = JSON.stringify(data.requestParams, null, "\u00a0\u00a0\u00a0\u00a0");
+            var parameters = Ext.util.Format.nl2br(stringify);
+            items.push({ title: "REQUEST PARAMETERS", html: parameters });
+        }
+
+        if (data.requestHeaders) {
+            var stringify = JSON.stringify(data.requestHeaders, null, "\u00a0\u00a0\u00a0\u00a0");
+            var headers = Ext.util.Format.nl2br(stringify);
+            items.push({ title: "REQUEST HEADERS", html: headers });
+        }
+
         var responseText = data.responseText;
         if (data.isJson) {
             var json = Ext.util.JSON.decode(responseText);
             var stringify = JSON.stringify(json, null, "\u00a0\u00a0\u00a0\u00a0");
             responseText = Ext.util.Format.nl2br(stringify);
         }
-
-        var requestContent = "";
-        if (data.ajaxRequest) {
-            var stringify = JSON.stringify(data.ajaxRequest, null, "\u00a0\u00a0\u00a0\u00a0");
-            requestContent = Ext.util.Format.nl2br(stringify);
-        }
+        items.push({ title: "RESPONSE", html: responseText });
 
         new Ext.Window({
             width: 800,
@@ -197,11 +210,7 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
             modal: true,
             frame: true,
             defaults: { frame: true, width: "100%", autoScroll: true, collapsible: true, collapsed: false },
-            items: [
-                { title: "REST", html: data.method + " " + data.uri, collapsible: false },
-                { title: "AJAX", html: requestContent },
-                { title: "RESPONSE", html: responseText }
-            ]
+            items: items
         }).show();
     },
 
