@@ -409,7 +409,9 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
                     this.addNodes(this.rootNode, json.items);
                 }
             },
-            failure: this.displayFailure,
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Datasources", "Error Loading: " + o.statusText);                
+            },
             scope: this
         });
     },
@@ -469,10 +471,6 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
             }
         }, this);
         node.renderChildren();
-    },
-
-    displayFailure: function(o) {
-        org.systemsbiology.addama.js.Message.error("Datasources", "Error Loading: " + o.statusText);
     },
 
     selectTable: function(node) {
@@ -548,7 +546,9 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
                     grid.render("container_preview");
                 }
             },
-            failure: this.displayFailure,
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Datasources", o.responseText);
+            },
             scope: this
         });
     },
