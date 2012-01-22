@@ -130,6 +130,7 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
                 { name: "uri" },
                 { name: "statusCode" },
                 { name: "statusText" },
+                { name: "ajaxRequest" },
                 { name: "responseText" },
                 { name: "isJson", type: "boolean" }
             ]
@@ -139,12 +140,11 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
             region: "center",
             store: this.store,
             columns: [
-                { header: "ID", width: 50, dataIndex: 'id', type: "int", sortable: true, hidden: true },
+                { header: "ID", width: 50, dataIndex: 'id', type: "int", sortable: true },
                 { header: "Method", width: 75, dataIndex: 'method' },
                 { header: "URI", width: 400, dataIndex: 'uri', sortable: true },
                 { header: "Status Code", width: 75, dataIndex: 'statusCode', sortable: true },
-                { header: "Status Text", width: 100, dataIndex: 'statusText' },
-                { header: "Response Text", width: 300, dataIndex: 'responseText', hidden: true }
+                { header: "Status Text", width: 100, dataIndex: 'statusText' }
             ],
             stripeRows: true,
             columnLines: true,
@@ -168,6 +168,7 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
             statusCode: response.status,
             statusText: response.statusText,
             responseText: response.responseText,
+            ajaxRequest: options,
             isJson: isJson
         };
         this.GRID_DATA.push(newData);
@@ -183,13 +184,27 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
             responseText = Ext.util.Format.nl2br(stringify);
         }
 
+        var requestContent = "";
+        if (data.ajaxRequest) {
+            var stringify = JSON.stringify(data.ajaxRequest, null, "\u00a0\u00a0\u00a0\u00a0");
+            requestContent = Ext.util.Format.nl2br(stringify);
+        }
+
         new Ext.Window({
             width:800,
-            height:400,
             autoScroll: true,
             modal: true,
-            title: "Response Content",
-            html: responseText
+            layout: "fit",
+            frame: true,
+            defaults: {
+                frame: true,
+                autoHeight: true
+            },
+            items: [
+                { title: "REST", html: data.method + " " + data.uri },
+                { title: "AJAX", html: requestContent },
+                { title: "RESPONSE", html: responseText }
+            ]
         }).show();
     },
 

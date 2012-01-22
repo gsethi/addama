@@ -1,0 +1,65 @@
+<html>
+<head>
+    <title>Test :: Ajax Monitor</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var am = new org.systemsbiology.addama.js.widgets.AjaxMonitor();
+            am.gridPanel.setHeight(500);
+            
+            new Ext.Panel({ renderTo: "container_main", height: 500, autoScroll: true, items: [am.gridPanel] });
+
+            var jsonResponse = {
+                getResponseHeader: function(header) {
+                    if (header == "Content-Type") return "application/json";
+                    return null;
+                },
+                status: 200,
+                statusText: "OK",
+                responseText: "{ uri:'/test/response', items: [{uri:'/test/response/1', label:'Item 1'}], numberOfItems: 1 }"
+            };
+
+            var notJsonResponse = {
+                getResponseHeader: function(header) {
+                    if (header == "Content-Type") return "text/html";
+                    return null;
+                },
+                status: 200,
+                statusText: "OK",
+                responseText: "This is not JSON"
+            };
+
+            var partialResponse = {
+                getResponseHeader: function(header) {
+                    if (header == "Content-Type") return "application/json";
+                    return null;
+                },
+                status: 200,
+                statusText: "OK"
+            };
+
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/1", method: "GET", params: { tq:"tq", tqx:"tqx" } });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/2", method: "GET" });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/3", method: "GET", params: { tq:"tq", tqx:"tqx" }, headers: {"x-addama-test": "test"} });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/4", method: "GET", headers: {"x-addama-test": "test"} });
+            am.addResponseToGrid({}, notJsonResponse, { url: "/test/5", method: "GET", params: { tq:"tq", tqx:"tqx" } });
+            am.addResponseToGrid({}, partialResponse, { url: "/test/6", method: "GET", params: { tq:"tq", tqx:"tqx" } });
+            am.addResponseToGrid({}, partialResponse, { url: "/test/7" });
+        });
+    </script>
+</head>
+<body>
+<div id="container_main"></div>
+</body>
+</html>
