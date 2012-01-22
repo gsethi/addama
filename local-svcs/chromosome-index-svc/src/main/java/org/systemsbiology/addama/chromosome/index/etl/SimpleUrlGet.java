@@ -32,10 +32,10 @@ public class SimpleUrlGet {
     public static void main(String[] args) throws Exception {
         Properties keys = apiKeys(args);
 
-        doGet(keys, "/addama/indexes");
-        doGet(keys, "/addama/indexes/mm9");
-        doGet(keys, "/addama/indexes/mm9/chr5");
-        doGet(keys, "/addama/indexes/mm9/chr5/151003000/151003100/sequence");
+        doGet(keys, "/addama/chromosomes");
+        doGet(keys, "/addama/chromosomes/mm9");
+        doGet(keys, "/addama/chromosomes/mm9/chr5");
+        doGet(keys, "/addama/chromosomes/mm9/chr5/151003000/151003100/sequence");
     }
 
     private static Properties apiKeys(String[] args) throws IOException {

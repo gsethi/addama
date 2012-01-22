@@ -24,7 +24,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.chromosome.index.callbacks.MinMaxRangeResultSetExtractor;
 import org.systemsbiology.addama.chromosome.index.callbacks.RangeQueryDistinctGenesResultSetExtractor;
@@ -46,6 +45,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.getURI;
 
 /**
@@ -66,7 +66,7 @@ public class ChromIndexServiceController {
         serviceConfig.visit(new SchemaByIdMappingsHandler(schemasById));
     }
 
-    @RequestMapping(value = "/**/indexes", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes", method = GET)
     protected ModelAndView builds(HttpServletRequest request) throws Exception {
         String uri = getURI(request);
         log.info(uri);
@@ -84,7 +84,7 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/indexes/{build}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes/{build}", method = GET)
     protected ModelAndView build(HttpServletRequest request, @PathVariable("build") String build) throws Exception {
         String uri = getURI(request);
         log.info(uri);
@@ -113,7 +113,8 @@ public class ChromIndexServiceController {
     /*
      * Gene Lookup Methods
      */
-    @RequestMapping(value = "/**/indexes/{build}/genes", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/**/chromosomes/{build}/genes", method = GET)
     protected ModelAndView genes_build(HttpServletRequest request, @PathVariable("build") String build) throws Exception {
         String uri = getURI(request);
         log.info(uri);
@@ -129,7 +130,7 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes/{build}/genes/{chromosome}", method = GET)
     protected ModelAndView genes_chromosome(HttpServletRequest request,
                                             @PathVariable("build") String build,
                                             @PathVariable("chromosome") String chromosome) throws Exception {
@@ -148,7 +149,7 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}/{start}/{end}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes/{build}/genes/{chromosome}/{start}/{end}", method = GET)
     protected ModelAndView genes_range_query(HttpServletRequest request,
                                              @PathVariable("build") String build,
                                              @PathVariable("chromosome") String chromosome,
@@ -169,7 +170,7 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/indexes/{build}/genes/{chromosome}/{start}/{end}/{strand}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes/{build}/genes/{chromosome}/{start}/{end}/{strand}", method = GET)
     protected ModelAndView genes_range_strand(HttpServletRequest request, @PathVariable("build") String build,
                                               @PathVariable("chromosome") String chromosome,
                                               @PathVariable("start") Long start,
@@ -193,7 +194,8 @@ public class ChromIndexServiceController {
     /*
     * Chromosome Query Methods
     */
-    @RequestMapping(value = "/**/indexes/{build}/{chromosome}", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/**/chromosomes/{build}/{chromosome}", method = GET)
     protected ModelAndView chromosome(HttpServletRequest request,
                                       @PathVariable("build") String build,
                                       @PathVariable("chromosome") String chromosome) throws Exception {
@@ -211,7 +213,7 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/indexes/{build}/{chromosome}/{start}/{end}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes/{build}/{chromosome}/{start}/{end}", method = GET)
     protected ModelAndView range_query(HttpServletRequest request,
                                        @PathVariable("build") String build,
                                        @PathVariable("chromosome") String chromosome,
@@ -233,7 +235,7 @@ public class ChromIndexServiceController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/**/indexes/{build}/{chromosome}/{start}/{end}/{strand}", method = RequestMethod.GET)
+    @RequestMapping(value = "/**/chromosomes/{build}/{chromosome}/{start}/{end}/{strand}", method = GET)
     protected ModelAndView range_strand(HttpServletRequest request, @PathVariable("build") String build,
                                         @PathVariable("chromosome") String chromosome,
                                         @PathVariable("start") Long start,
@@ -258,6 +260,7 @@ public class ChromIndexServiceController {
     /*
      * Private Methods
      */
+
     private JdbcTemplate getJdbcTemplate(String build) throws ResourceNotFoundException {
         JdbcTemplate jdbcTemplate = jdbcTemplateById.get(build);
         if (jdbcTemplate == null) {
