@@ -359,7 +359,7 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
         this.treePanel.on("expandnode", this.selectTable, this);
         this.treePanel.on("click", this.selectTable, this);
 
-        this.queryEl = new Ext.form.TextArea({ height: 100, width: "100%", emptyText: "limit 100" });
+        this.queryEl = new Ext.form.TextArea({ height: 100, width: "100%", html: "limit 100" });
 
         this.resultsEl = new Ext.Panel({
             title: "Results",
