@@ -18,15 +18,11 @@
 */
 package org.systemsbiology.addama.appengine.rest;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.appengine.editors.JSONArrayPropertyEditor;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
@@ -44,10 +40,6 @@ import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
  */
 @Controller
 public class GreenlistController {
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(JSONArray.class, new JSONArrayPropertyEditor());
-    }
 
     @RequestMapping(value = "/greenlist", method = GET)
     public ModelAndView list(HttpServletRequest request) throws Exception {
@@ -73,11 +65,11 @@ public class GreenlistController {
     }
 
     @RequestMapping(value = "/greenlist", method = POST)
-    public ModelAndView addUsers(HttpServletRequest request, @RequestParam("emails") JSONArray emails) throws Exception {
+    public ModelAndView addUsers(HttpServletRequest request, @RequestParam("emails") String[] emails) throws Exception {
         checkAdmin(request);
 
-        for (int i = 0; i < emails.length(); i++) {
-            addGreenlistUser(emails.getString(i));
+        for (String email : emails) {
+            addGreenlistUser(email);
         }
 
         return new ModelAndView(new OkResponseView());
