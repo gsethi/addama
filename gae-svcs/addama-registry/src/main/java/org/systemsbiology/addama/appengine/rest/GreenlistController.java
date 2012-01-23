@@ -18,18 +18,23 @@
 */
 package org.systemsbiology.addama.appengine.rest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.appengine.editors.JSONArrayPropertyEditor;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
 
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.systemsbiology.addama.appengine.util.Greenlist.addGreenlistUser;
 import static org.systemsbiology.addama.appengine.util.Greenlist.getGreenlist;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
@@ -39,7 +44,12 @@ import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
  */
 @Controller
 public class GreenlistController {
-    @RequestMapping(value = "/greenlist", method = RequestMethod.GET)
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(JSONArray.class, new JSONArrayPropertyEditor());
+    }
+
+    @RequestMapping(value = "/greenlist", method = GET)
     public ModelAndView list(HttpServletRequest request) throws Exception {
         checkAdmin(request);
 
@@ -51,13 +61,24 @@ public class GreenlistController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/greenlist/*", method = RequestMethod.POST)
+    @RequestMapping(value = "/greenlist/*", method = POST)
     public ModelAndView addUser(HttpServletRequest request) throws Exception {
         checkAdmin(request);
 
         String email = substringAfterLast(request.getRequestURI(), "greenlist/");
 
         addGreenlistUser(email);
+
+        return new ModelAndView(new OkResponseView());
+    }
+
+    @RequestMapping(value = "/greenlist", method = POST)
+    public ModelAndView addUsers(HttpServletRequest request, @RequestParam("emails") JSONArray emails) throws Exception {
+        checkAdmin(request);
+
+        for (int i = 0; i < emails.length(); i++) {
+            addGreenlistUser(emails.getString(i));
+        }
 
         return new ModelAndView(new OkResponseView());
     }

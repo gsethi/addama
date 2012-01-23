@@ -25,10 +25,22 @@
         function WithoutUsers() {
             new org.systemsbiology.addama.js.topbar.GreenlistWindow()
         }
+
+        Ext.Ajax.on("beforerequest", function(c, o) {
+            var elem = Ext.getDom("container_users");
+            Ext.getDom("container_users").innerHTML = "";
+            if (o && o.params && o.params.emails) {
+                var users = o.params.emails;
+                Ext.each(users, function(u) {
+                    elem.innerHTML += "[" + u + "]<br/>";
+                })
+            }
+        });
     </script>
 </head>
 <body>
 <button onclick="WithUsers();">Test with Users</button>
 <button onclick="WithoutUsers();">Test without Users</button>
+<div id="container_users"></div>
 </body>
 </html>

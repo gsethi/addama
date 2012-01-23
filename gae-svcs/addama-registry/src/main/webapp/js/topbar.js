@@ -436,7 +436,8 @@ org.systemsbiology.addama.js.topbar.GreenlistWindow = Ext.extend(Object, {
                     layout: "fit",
                     items: this.listView,
                     tbar: [
-                        new Ext.Button({ text: "Add User", handler: this.addNewUser, scope: this })
+                        new Ext.Button({ text: "Add User", handler: this.addNewUser, scope: this }), '-',
+                        new Ext.Button({ text: "Add Users", handler: this.addUsers, scope: this })
                     ]
                 })
             ]
@@ -522,6 +523,63 @@ org.systemsbiology.addama.js.topbar.GreenlistWindow = Ext.extend(Object, {
             ]
         });
         addUserWindow.show();
+    },
+
+    addUsers: function() {
+        var textArea = new Ext.form.TextArea({
+            name: "userList",
+            height: 150,
+            width: 300,
+            emptyText: "Enter comma-separated list of emails"
+        });
+
+        var addUsersWindow = new Ext.Window({
+            title: "Add Users",
+            frame: true,
+            closable: true,
+            modal: true,
+            closeAction: "hide",
+            items: [
+                new Ext.FormPanel({
+                    width: 450,
+                    frame: true,
+                    items: [ textArea ],
+//                    padding: "10 10 10 10",
+                    buttons: [
+                        {
+                            text: "Save",
+                            handler: function() {
+                                var userEmails = textArea.getRawValue();
+                                if (userEmails) {
+                                    var splits = userEmails.split(",");
+                                    var userList = [];
+                                    Ext.each(splits, function(item) {
+                                        userList.push(item.trim());
+                                    });
+                                    Ext.Ajax.request({
+                                        url: "/addama/greenlist",
+                                        method: "POST",
+                                        params: {
+                                            emails: userList
+                                        },
+                                        success: function() {
+                                            addUsersWindow.close();
+                                            this.loadGreenlist();
+                                        },
+                                        failure: function(o) {
+                                            org.systemsbiology.addama.js.Message.error("Add New Users", "Error: " + o.statusText);
+                                        },
+                                        scope: this
+                                    });
+                                }
+                            },
+                            scope: this
+                        }
+                    ]
+                })
+            ]
+        });
+        addUsersWindow.show();
     }
 });
 
