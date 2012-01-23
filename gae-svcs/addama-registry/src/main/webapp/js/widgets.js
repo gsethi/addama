@@ -341,12 +341,12 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
             title: "Datasources",
             region:"west",
             split: true,
-            minSize: 150,
             autoScroll: true,
             border: true,
             margins: "5 0 5 5",
             width: 275,
-            maxSize: 500,
+            frame: true,
+            collapsible: true,
             // tree-specific configs:
             rootVisible: false,
             lines: false,
@@ -356,43 +356,45 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
             root: this.rootNode
         });
         this.treePanel.on("expandnode", this.expandNode, this);
+        this.treePanel.on("expandnode", this.selectTable, this);
         this.treePanel.on("click", this.selectTable, this);
 
-        var dataPanel = {
-            margins: "5 5 5 0",
+        this.queryEl = new Ext.form.TextArea({ height: 100, width: "100%", emptyText: "limit 100" });
+
+        this.resultsEl = new Ext.Panel({
+            title: "Results",
+            region: "center",
+            layout: "fit",
+            frame: true,
+            border: true,
+            margins: "10 0 0 0"
+        });
+
+        var dataPanel = new Ext.Panel({
+            margins: "5 5 5 5",
             layout: "border",
             region: "center",
-            border: true,
-            split: true,
+            border: false,
             items:[
-                new Ext.Panel({
+                {
                     title: "Query",
                     region: "north",
-                    contentEl: "container_sql",
-                    width:810,
-                    bbar: new Ext.Toolbar({
-                        items: [
-                            { text: "Show Results", handler: this.queryHtml, scope: this },
-                            { text: "Export to CSV", handler: this.queryCsv, scope: this },
-                            { text: "Export to TSV", handler: this.queryTsv, scope: this }
-                        ]
-                    })
-                }),
-                { title: "Results", region: "center", contentEl: "container_preview", width:810, height: 400 }
+                    collapsible: true,
+                    items: [this.queryEl],
+                    bbar:[
+                        { text: "Show Results", handler: this.queryHtml, scope: this }, '-',
+                        { text: "Export to CSV", handler: this.queryCsv, scope: this }, '-',
+                        { text: "Export to TSV", handler: this.queryTsv, scope: this }
+                    ]
+                },
+                this.resultsEl
             ]
-        };
+        });
 
         this.mainPanel = new Ext.Panel({
-            title: "Main",
-            contentEl: this.contentEl,
-            margins: "5 5 5 0",
             layout: "border",
-            border: true,
-            split: true,
-            items:[
-                this.treePanel,
-                dataPanel
-            ]
+            border: false,
+            items:[ this.treePanel, dataPanel ]
         });
     },
 
@@ -470,14 +472,12 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
                 node.appendChild(item);
             }
         }, this);
-        node.renderChildren();
     },
 
     selectTable: function(node) {
         if (node.attributes.isTable) {
             this.selectedTable = node;
             org.systemsbiology.addama.js.Message.show("Datasources", "Table Selected: " + node.attributes.text);
-            this.expandNode(this.selectedTable);
         }
     },
 
@@ -486,65 +486,20 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
             return;
         }
 
-        Ext.getDom("container_preview").innerHTML = "";
-
         var tableUri = this.selectedTable.id;
-        var childNodes = this.selectedTable.childNodes;
-        var querySql = Ext.getDom("textarea_sql").value;
+        var params = { tqx: "out:json_array" };
+        var querySql = this.queryEl.getRawValue();
+        if (querySql) {
+            params["tq"] = querySql;
+        }
 
         Ext.Ajax.request({
             url: tableUri + "/query",
             method: "GET",
-            params: {
-                tq: querySql,
-                tqx: "out:json_array"
-            },
+            params: params,
             success: function(o) {
                 var data = Ext.util.JSON.decode(o.responseText);
-                if (data) {
-                    org.systemsbiology.addama.js.Message.show("Datasources", "Retrieved " + data.length + " Records");
-
-                    var fields = [];
-                    var columns = [];
-                    Ext.each(childNodes, function(childNode) {
-                        var fld = childNode.attributes.name;
-                        fields.push(fld);
-                        // TODO : Insert data type
-                        columns.push({ id: fld, header: fld, dataIndex: fld, sortable: true });
-                    });
-
-                    var store = new Ext.data.JsonStore({
-                        storeId : 'arrayStore',
-                        autoDestroy: true,
-                        idProperty: fields[0],
-                        root : 'results',
-                        fields: fields
-                    });
-
-                    store.loadData({ results: data });
-
-                    var grid = new Ext.grid.GridPanel({
-                        store: store,
-                        colModel: new Ext.grid.ColumnModel({
-                            defaults: {
-                                width: 200, sortable: true
-                            },
-                            columns: columns
-                        }),
-                        viewConfig: {
-                            forceFit: true
-                        },
-                        stripeRows: true,
-                        frame: true,
-                        border: false,
-                        width: 600,
-                        height: 600,
-                        autoScroll: true,
-                        iconCls: 'icon-grid'
-                    });
-
-                    grid.render("container_preview");
-                }
+                this.loadDataGrid(data);
             },
             failure: function(o) {
                 org.systemsbiology.addama.js.Message.error("Datasources", o.responseText);
@@ -559,8 +514,12 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
         }
 
         var tableUri = this.selectedTable.id;
-        var querySql = Ext.getDom("textarea_sql").value;
-        document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:csv;outFileName:results.csv";
+        var querySql = this.queryEl.getRawValue();
+        if (querySql) {
+            document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:csv;outFileName:results.csv";
+        } else {
+            document.location = tableUri + "/query?tqx=reqId:123;out:csv;outFileName:results.csv";
+        }
     },
 
     queryTsv: function() {
@@ -569,8 +528,12 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
         }
 
         var tableUri = this.selectedTable.id;
-        var querySql = Ext.getDom("textarea_sql").value;
-        document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:tsv-excel;outFileName:results.tsv";
+        var querySql = this.queryEl.getRawValue();
+        if (querySql) {
+            document.location = tableUri + "/query?tq=" + querySql + "&tqx=reqId:123;out:tsv-excel;outFileName:results.tsv";
+        } else {
+            document.location = tableUri + "/query?tqx=reqId:123;out:tsv-excel;outFileName:results.tsv";
+        }
     },
 
     isReadyToQuery: function() {
@@ -578,13 +541,47 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
             org.systemsbiology.addama.js.Message.error("Datasources", "No table selected for query");
             return false;
         }
-
-        if (!Ext.getDom("textarea_sql").value) {
-            org.systemsbiology.addama.js.Message.error("Datasources", "SQL statement not entered. Defaulting to SELECT *");
-            return true;
-        }
-
+        
         return true;
+    },
+
+    loadDataGrid: function(data) {
+        if (data && data.length) {
+            org.systemsbiology.addama.js.Message.show("Datasources", "Retrieved " + data.length + " Records");
+
+            var fields = [];
+            var columns = [];
+            Ext.each(Object.keys(data[0]), function(key) {
+                fields.push(key);
+                // TODO : Insert data type
+                columns.push({ id: key, header: key, dataIndex: key, sortable: true, width: 100 });
+            });
+
+            var store = new Ext.data.JsonStore({
+                storeId : 'gridResults', autoDestroy: true, root : 'results', fields: fields
+            });
+            store.loadData({ results: data });
+
+            if (this.selectedTable && this.selectedTable.text) {
+                this.resultsEl.setTitle("Results from query on " + this.selectedTable.text);
+            }
+
+            var grid = new Ext.grid.GridPanel({
+                store: store,
+                colModel: new Ext.grid.ColumnModel({
+                    defaults: { width: 200, sortable: true },
+                    columns: columns
+                }),
+                stripeRows: true,
+                iconCls: 'icon-grid'
+            });
+
+            this.resultsEl.removeAll(true);
+            this.resultsEl.add(grid);
+            this.resultsEl.doLayout();
+        } else {
+            org.systemsbiology.addama.js.Message.error("Datasources", "No Data Loaded");
+        }
     }
 });
 

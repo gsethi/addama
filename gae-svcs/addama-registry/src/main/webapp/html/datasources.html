@@ -16,13 +16,13 @@
             Ext.onReady(function() {
                 new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
 
-                var view = new org.systemsbiology.addama.js.widgets.DatasourcesView({ contentEl: "container_datasources" });
+                var dv = new org.systemsbiology.addama.js.widgets.DatasourcesView();
 
                 new org.systemsbiology.addama.js.widgets.Viewport({
                     topbarEl: "container_topbar",
                     activateAjaxMonitor: true,
                     tabs: [
-                        view.mainPanel
+                        dv.mainPanel
                     ]
                 });
             });
@@ -30,10 +30,5 @@
     </head>
     <body>
         <div id="container_topbar" class="topbar"></div>
-        <div id="container_datasources"></div>
-        <div id="container_sql">
-            <textarea rows="5" cols="70" id="textarea_sql">limit 100</textarea>
-        </div>
-        <div id="container_preview"></div>
     </body>
 </html>
