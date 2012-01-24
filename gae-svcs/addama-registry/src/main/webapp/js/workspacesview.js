@@ -225,7 +225,7 @@ org.systemsbiology.addama.js.widgets.workspaces.WorkspacesTabPanel = Ext.extend(
 
         var mimeType = node.attributes.mimeType;
         if (mimeType && mimeType.substring(0, 5) == "image") {
-            Ext.getDom("container_file_preview").innerHTML = "<img src='" + uri + "' width='50%' height='50%'/>";
+            Ext.getDom("container_file_preview").innerHTML = "<img class='img_preview' src='" + uri + "'/>";
         }
     }
 });
