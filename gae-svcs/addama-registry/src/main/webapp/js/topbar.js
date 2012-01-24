@@ -47,7 +47,7 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                             { xtype: "menuseparator" },
                             this.newLinkMenuItem("Home", "/"),
                             this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
-                            this.newLinkMenuItem("Browse Workspaces", "/html/workspaces.html"),
+                            this.newLinkMenuItem("Browse Files", "/html/workspaces.html"),
                             this.newLinkMenuItem("View Job Results", "/html/jobs.html"),
                             { xtype: "menuseparator" },
                             this.newLinkMenuItem("Test Channels", "/html/channels.html"),
