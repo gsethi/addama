@@ -43,7 +43,7 @@ org.systemsbiology.addama.js.widgets.Viewport = Ext.extend(Object, {
     },
 
     drawViewport: function() {
-        var addamaBanner = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://addama.org" target="_blank"><img src="/images/banner.png" alt="Addama"/></a></div>', true);
+        var addamaBanner = Ext.DomHelper.append(Ext.getBody(), '<div><img src="/images/banner.png" alt="Addama"/></div>', true);
         var appengineLogo = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://code.google.com/appengine"><img src="https://code.google.com/appengine/images/appengine-silver-120x30.gif" alt="Powered by Google App Engine"/></a></div>', true);
         var link1 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="/html/apikeys.html" target="_blank">Download API Keys</a></div>', true);
         var link2 = Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://addama.org" target="_blank">Addama Open Source Project</a></div>', true);
@@ -103,6 +103,7 @@ org.systemsbiology.addama.js.widgets.Viewport = Ext.extend(Object, {
 
         new Ext.Viewport({ layout:'border', items:[ headerPanel, tabPanel, footerPanel ] });
     }
+
 });
 
 org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
