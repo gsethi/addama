@@ -49,6 +49,11 @@
         <url-pattern>/version</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/index.html</url-pattern>
+    </servlet-mapping>
+
     <filter>
         <filter-name>filter-registration</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
