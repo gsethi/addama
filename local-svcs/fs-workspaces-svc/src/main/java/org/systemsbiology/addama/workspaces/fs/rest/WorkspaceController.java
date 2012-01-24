@@ -55,7 +55,7 @@ public class WorkspaceController {
     public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
         this.mappings = serviceConfig.getMappings();
         serviceConfig.visit(new StringPropertyByIdMappingsHandler(rootPathById, "rootPath"));
-        serviceConfig.visit(new BooleanPropertyByIdMappingsHandler(readOnlyById, "isRepository", false));
+        serviceConfig.visit(new BooleanPropertyByIdMappingsHandler(readOnlyById, "readOnly", false));
     }
 
     /*
