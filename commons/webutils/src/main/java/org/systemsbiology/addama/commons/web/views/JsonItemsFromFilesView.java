@@ -17,6 +17,7 @@ import static org.systemsbiology.addama.commons.web.utils.HttpIO.getMimeType;
 public class JsonItemsFromFilesView extends JsonItemsView {
     public static final String URI = "URI";
     public static final String FILES = "FILES";
+    public static final String READ_ONLY = "READ_ONLY";
 
     public String getContentType() {
         return "application/json";
@@ -25,9 +26,11 @@ public class JsonItemsFromFilesView extends JsonItemsView {
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String uri = (String) map.get(URI);
         File[] files = (File[]) map.get(FILES);
+        Boolean readOnly = (Boolean) map.get(READ_ONLY);
 
         JSONObject json = new JSONObject();
         json.put("uri", uri);
+        json.put("readOnly", readOnly);
         for (File f : files) {
             json.append("items", fileAsJson(uri + "/" + f.getName(), f, request));
         }
