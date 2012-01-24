@@ -12,6 +12,7 @@
         <property name="exceptionMappings">
             <props>
                 <prop key="java.lang.UnsupportedOperationException">view501</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ReadOnlyAccessException">view403</prop>
                 <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">view404</prop>
                 <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">view400</prop>
                 <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">view409
@@ -22,6 +23,8 @@
     </bean>
 
     <bean id="view501" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
+
+    <bean id="view403" class="org.systemsbiology.addama.commons.web.views.ReadOnlyAccessView"/>
 
     <bean id="view404" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
 
