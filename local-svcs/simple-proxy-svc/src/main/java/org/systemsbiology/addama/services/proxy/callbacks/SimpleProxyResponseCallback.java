@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.logging.Logger;
 
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.pipe;
 
 /**
@@ -92,14 +93,14 @@ public class SimpleProxyResponseCallback implements ResponseCallback {
             if (contentType != null) {
                 this.response.setContentType(contentType.getValue());
             }
-            
+
             for (Header header : method.getResponseHeaders()) {
                 String headerName = header.getName();
-                if (!"Content-Type".equalsIgnoreCase(headerName)) {
+                if (!equalsIgnoreCase("Transfer-Encoding", headerName) && !equalsIgnoreCase("Content-Type", headerName)) {
                     this.response.setHeader(headerName, header.getValue());
                 }
             }
-            
+
             pipe(inputStream, response.getOutputStream());
         } catch (Exception e) {
             throw new HttpClientResponseException(statusCode, method, e);
