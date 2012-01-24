@@ -161,7 +161,7 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
     },
 
     addResponseToGrid: function(connection, response, options) {
-        var contentType = response.getResponseHeader("Content-Type");
+        var contentType = this.getContentType(response);
         var isJson = (contentType != undefined && contentType.indexOf("ation/json") > 0);
 
         var newData = {
@@ -178,6 +178,13 @@ org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
         };
         this.GRID_DATA.push(newData);
         this.store.loadData({responses:this.GRID_DATA});
+    },
+
+    getContentType: function(response) {
+        if (response.getResponseHeader) {
+            return response.getResponseHeader("Content-Type");
+        }
+        return "unknown";
     },
 
     showResponseContent: function(g, rowIndex, e) {
