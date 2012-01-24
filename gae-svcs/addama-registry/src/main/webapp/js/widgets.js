@@ -306,11 +306,11 @@ org.systemsbiology.addama.js.widgets.ServicesPanel = Ext.extend(Ext.util.Observa
 });
 
 org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml = function(item) {
-    var versionUrl = item.url;
-    if (versionUrl.substring(item.uri.length - 1) == "/") {
-        versionUrl = versionUrl.substring(0, versionUrl.length -1);
+    var serviceHomePage = item.url;
+    if (serviceHomePage.substring(item.uri.length - 1) == "/") {
+        serviceHomePage = serviceHomePage.substring(0, serviceHomePage.length -1);
     }
-    versionUrl += "/version";
+    serviceHomePage += "/index.html";
 
 
     var label = item.label;
@@ -320,7 +320,7 @@ org.systemsbiology.addama.js.widgets.ServicesPanel.GenerateHtml = function(item)
 
     var itemhtml = "";
     itemhtml += "<div class='svcs'>";
-    itemhtml += "<h3><a href='" + versionUrl + "' target='_blank'>" + label+ "</a></h3>";
+    itemhtml += "<h3><a href='" + serviceHomePage + "' target='_blank'>" + label+ "</a></h3>";
     if (item.items) {
         itemhtml += "<ul>";
         Ext.each(item.items, function(mapping) {
