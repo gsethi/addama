@@ -10,18 +10,6 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
         this.uriBuilder.on("change", function() {
             this.chromosomeLocation.removeAll(true);
             this.chromosomeLocation.add({html: this.uriBuilder.asHtml()});
-
-            if (this.uriBuilder.hasRange()) {
-                var len = (this.uriBuilder.end - this.uriBuilder.start);
-                var midPoint = this.uriBuilder.start + (len/2);
-                var segment = (len/50);
-                this.rangeEl.setMinValue(this.uriBuilder.start);
-                this.rangeEl.setMaxValue(this.uriBuilder.end);
-                this.rangeEl.setValue(0, midPoint - segment, true);
-                this.rangeEl.setValue(1, midPoint + segment, true);
-                this.rangeEl.enable();
-            }
-
             this.mainPanel.doLayout();
         }, this);
 
@@ -175,7 +163,17 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
-                    if (json) this.uriBuilder.chromosomeSelected(json);
+                    if (json && json.start != null && json.length != null && json.end != null) {
+                        var midPoint = json.start + (json.length/2);
+                        var segment = (json.length/50);
+                        this.rangeEl.setMinValue(json.start);
+                        this.rangeEl.setMaxValue(json.end);
+                        this.rangeEl.setValue(0, midPoint - segment, true);
+                        this.rangeEl.setValue(1, midPoint + segment, true);
+                        this.rangeEl.enable();
+
+                        this.uriBuilder.chromosomeSelected(json);
+                    }
                 },
                 failure: function(o) {
                     org.systemsbiology.addama.js.Message.error("Chromosomes", "Error " + o.responseText);
