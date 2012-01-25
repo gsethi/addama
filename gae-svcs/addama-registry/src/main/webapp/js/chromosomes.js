@@ -178,7 +178,7 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
             this.selectedBuildUri = node.attributes.uri;
 
             Ext.Ajax.request({
-                uri: this.selectedBuildUri,
+                url: this.selectedBuildUri,
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
@@ -223,7 +223,7 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
 
     queryFeatures: function() {
         if (this.isReadyToQuery()) {
-            var url = this.selectedBuildUri + "/genes/" + this.chromosomeLocation.chr + "/" + this.chromosomeLocation.start + "/" + this.chromosomeLocation.end;
+            var url = this.selectedBuildUri + "/" + this.chromosomeLocation.chr + "/" + this.chromosomeLocation.start + "/" + this.chromosomeLocation.end;
             Ext.Ajax.request({
                 url: url,
                 method: "GET",
@@ -273,6 +273,11 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
         }
 
         if (this.chromosomeLocation.start === undefined || this.chromosomeLocation.end === undefined) {
+            org.systemsbiology.addama.js.Message.error("Chromosomes", "Select a Range to Query");
+            return;
+        }
+
+        if (this.chromosomeLocation.start == "start" || this.chromosomeLocation.end == "end") {
             org.systemsbiology.addama.js.Message.error("Chromosomes", "Select a Range to Query");
             return;
         }
