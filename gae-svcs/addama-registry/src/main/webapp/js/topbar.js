@@ -31,10 +31,8 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                     this.toolbar.add({ text: json.email,
                         menu: [
                             this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
-                            this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"),
-                            { xtype: "menuseparator" },
-                            this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine"),
-                            { xtype: "menuseparator" },
+                            this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"), '-',
+                            this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine"), '-',
                             this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
                             this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount")
                         ]
@@ -43,14 +41,12 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
 
                     this.toolbar.add({ text: "Links",
                         menu: [
-                            this.newLinkMenuItem("Home", "/"),
-                            { xtype: "menuseparator" },
-                            this.newLinkMenuItem("Download API Keys", "/html/apikeys.html"),
-                            { xtype: "menuseparator" },
+                            this.newLinkMenuItem("Home", "/"), '-',
+                            this.newLinkMenuItem("Download API Keys", "/html/apikeys.html"), '-',
                             this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
                             this.newLinkMenuItem("Browse Files", "/html/workspaces.html"),
-                            this.newLinkMenuItem("View Job Results", "/html/jobs.html"),
-                            { xtype: "menuseparator" },
+                            this.newLinkMenuItem("Query Chromosomes", "/html/chromosomes.html"),
+                            this.newLinkMenuItem("View Job Results", "/html/jobs.html"), '-',
                             this.newLinkMenuItem("Test Channels", "/html/channels.html"),
                             this.newLinkMenuItem("Test Feeds", "/html/feeds.html")
                         ]

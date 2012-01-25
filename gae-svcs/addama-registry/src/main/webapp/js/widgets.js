@@ -91,6 +91,7 @@ org.systemsbiology.addama.js.widgets.Viewport = Ext.extend(Object, {
                 this.newToolbarItem("Home", "/"), '-',
                 this.newToolbarItem("Browse Files", "/html/workspaces.html"), '-',
                 this.newToolbarItem("Query Databases", "/html/datasources.html"), '-',
+                this.newToolbarItem("Query Chromosomes", "/html/chromosomes.html"), '-',
                 this.newToolbarItem("Download API Keys", "/html/apikeys.html")
             ]
         });
