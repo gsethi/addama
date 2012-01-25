@@ -174,7 +174,7 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
     },
 
     selectBuild: function(node) {
-        if (node.isBuild) {
+        if (node.attributes.isBuild) {
             this.selectedBuildUri = node.attributes.uri;
 
             Ext.Ajax.request({
