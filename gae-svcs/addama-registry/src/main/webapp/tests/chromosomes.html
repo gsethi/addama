@@ -16,7 +16,7 @@
 
     <script type="text/javascript">
         Ext.onReady(function() {
-            var cv = new org.systemsbiology.addama.js.widgets.ChromosomesView();
+            var cv = new org.systemsbiology.addama.js.widgets.chromosomes.View();
 
             new org.systemsbiology.addama.js.widgets.Viewport({ topbarEl: "container_topbar", tabs: [ cv.mainPanel ] });
 
@@ -25,13 +25,13 @@
                 { "label": "HG19", "uri": "/addama/chromosomes/hg19" }
             ];
             Ext.each(builds, function(item) { item.isDb = true; });
-            cv.showBuilds(builds);
+            cv.displayBuilds(builds);
 
             var chromosomes = [];
-            for (var i = 0; i < 5; i++) {
+            for (var i = 0; i < 50; i++) {
                 chromosomes.push({ "id": "chr" + i, "label": "chr" + i, "uri": "/addama/chromosomes/hg18/chr" + i });
             }
-            cv.showChromosomes(chromosomes);
+            cv.displayBuildItems(chromosomes);
 
             var chromosome = {
                 "chromosome": "chr0",
@@ -40,10 +40,7 @@
                 "start": 771903,
                 "uri": "/addama/chromosomes/hg18/chr6_random"
             };
-            cv.showChromosome(chromosome);
-
-            cv.selectChromosome(cv.chromosomeSelector.items.first(), true);
-            cv.mainPanel.doLayout();
+            cv.uriBuilder.chromosomeSelected(chromosome);
 
             var features = {
                 "items": [

@@ -1,17 +1,38 @@
-org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
+Ext.ns("org.systemsbiology.addama.js.widgets.chromosomes");
+
+org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.widgets.ChromosomesView.superclass.constructor.call(this);
+        org.systemsbiology.addama.js.widgets.chromosomes.View.superclass.constructor.call(this);
 
-        this.loadTree();
-        this.loadChromosomes();
+        this.uriBuilder = new org.systemsbiology.addama.js.widgets.chromosomes.UriBuilder();
+        this.uriBuilder.on("change", function() {
+            this.chromosomeLocation.removeAll(true);
+            this.chromosomeLocation.add({html: this.uriBuilder.asHtml()});
+
+            if (this.uriBuilder.hasRange()) {
+                var len = (this.uriBuilder.end - this.uriBuilder.start);
+                var midPoint = this.uriBuilder.start + (len/2);
+                var segment = (len/50);
+                this.rangeEl.setMinValue(this.uriBuilder.start);
+                this.rangeEl.setMaxValue(this.uriBuilder.end);
+                this.rangeEl.setValue(0, midPoint - segment, true);
+                this.rangeEl.setValue(1, midPoint + segment, true);
+                this.rangeEl.enable();
+            }
+
+            this.mainPanel.doLayout();
+        }, this);
+
+        this.loadPanels();
+        this.loadBuilds();
     },
 
-    loadTree: function() {
+    loadPanels: function() {
         this.rootNode = new Ext.tree.AsyncTreeNode();
 
-        this.treePanel = new Ext.tree.TreePanel({
+        var treePanel = new Ext.tree.TreePanel({
             title: "Chromosomes",
             region:"west",
             split: true,
@@ -29,45 +50,28 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
             loader: new Ext.tree.TreeLoader(),
             root: this.rootNode
         });
-        this.treePanel.on("click", this.selectBuild, this);
+        treePanel.on("click", this.selectBuild, this);
 
-        this.chromosomeSelector = new Ext.Panel({
-            layout: "hbox",
-            height: 33,
-            border: false,
-            frame: true,
-            padding: "1 1 1 1",
-            margins: "1 1 1 1",
-            layoutConfig: { pack: "center", align: "middle", defaultMargins: "0 10 0 0" }
+        // TODO : Make scrollable
+        this.chromosomeSelector = new Ext.Toolbar({
+            enableOverflow: true,
+            border: true, frame: true, autoScroll: true, margins: "10 10 10 10"
         });
 
         this.rangeEl = new Ext.slider.MultiSlider({
             frame:true, disabled: true, border: true,
             values: [0, 100], minValue: 0, maxValue: 100
         });
-        this.rangeEl.on("dragend", this.selectStartEnd, this);
+        this.rangeEl.on("dragend", function(slider) {
+            this.uriBuilder.rangeSelected(slider.getValues()[0], slider.getValues()[1]);
+        }, this);
 
-        this.chromosomeLocation = new Ext.Panel({
-            chr: "chr",
-            start: "start",
-            end: "end",
-            strand: "",
-            border: true,
-            frame: true,
-            height: 33,
-            padding: "1 1 1 1",
-            margins: "1 1 1 1",
-            items: [],
-            doRendering: function() {
-                this.removeAll(true);
-                this.add({html:"/" + this.chr + "/" + this.start + "/" + this.end + "/" + this.strand });
-            }
-        });
+        this.chromosomeLocation = new Ext.Panel({ border: true, frame: true, height: 60, items: [] });
 
         this.retrieveFeaturesBtn = new Ext.Button({ text: "Retrieve Features", handler: this.queryFeatures, scope: this });
         this.retrieveGenesBtn = new Ext.Button({ text: "Lookup Genes", handler: this.queryGenes, scope: this });
 
-        this.resultsEl = new Ext.Panel({
+        this.resultsPanel = new Ext.Panel({
             title: "Results",
             region: "center",
             layout: "fit",
@@ -76,11 +80,12 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
             margins: "10 0 0 0"
         });
 
-        this.chromosomeRangeSelectionEl = new Ext.Panel({
+        var rangeSelectionPanel = new Ext.Panel({
             title: "Chromosome Range Selection",
             region: "north",
             collapsible: true,
-            items: [ this.chromosomeSelector, this.rangeEl, this.chromosomeLocation ],
+            items: [ this.rangeEl, this.chromosomeLocation ],
+            tbar: this.chromosomeSelector,
             bbar:[ this.retrieveFeaturesBtn, '-', this.retrieveGenesBtn ]
         });
 
@@ -89,27 +94,23 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
             layout: "border",
             region: "center",
             border: false,
-            items:[
-                this.chromosomeRangeSelectionEl, this.resultsEl
-            ]
+            items:[ rangeSelectionPanel, this.resultsPanel ]
         });
 
         this.mainPanel = new Ext.Panel({
             layout: "border",
             border: false,
-            items:[ this.treePanel, dataPanel ]
+            items:[ treePanel, dataPanel ]
         });
     },
 
-    loadChromosomes: function() {
+    loadBuilds: function() {
         Ext.Ajax.request({
             url: "/addama/chromosomes",
             method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.items) {
-                    this.showBuilds(json.items);
-                }
+                if (json) this.displayBuilds(json.items);
             },
             failure: function(o) {
                 org.systemsbiology.addama.js.Message.error("Chromosomes", "Error Loading: " + o.statusText);
@@ -118,59 +119,17 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
         });
     },
 
-    showBuilds: function(builds) {
-        Ext.each(builds, function(item) {
-            item.isBuild = true;
-            item.text = item.label ? item.label : item.name;
-            item.path = item.uri;
-            item.leaf = true;
-            item.cls = "file";
-            this.rootNode.appendChild(item);
-        }, this);
-    },
-
-    showChromosomes: function(chromosomes) {
-        if (chromosomes && chromosomes.length) {
-            chromosomes[0].isFirst = true;
-            Ext.each(chromosomes, this.addChromosomeRadio, this);
-
-            this.mainPanel.doLayout();
-
-            var firstRadio = this.chromosomeSelector.items.first();
-            if (firstRadio) {
-                this.selectChromosome(firstRadio, true);
-            }
-
-            this.mainPanel.doLayout();
+    displayBuilds: function(items) {
+        if (items) {
+            Ext.each(items, function(item) {
+                item.isBuild = true;
+                item.text = item.label ? item.label : item.name;
+                item.path = item.uri;
+                item.leaf = true;
+                item.cls = "file";
+                this.rootNode.appendChild(item);
+            }, this);
         }
-    },
-
-    addChromosomeRadio: function(chromosome) {
-        this.chromosomeSelector.add(new Ext.form.Radio({
-            name: "chr_radios",
-            value: chromosome.id,
-            checked: chromosome.isFirst,
-            boxLabel: chromosome.label,
-            uri: chromosome.uri,
-            listeners: {
-                "check": this.selectChromosome
-            },
-            scope: this
-        }));
-    },
-
-    showChromosome: function(chromosome) {
-        this.chromosomeLocation.chr = chromosome.chromosome;
-        this.selectedChrUri = chromosome.uri;
-        this.chromosomeLocation.doRendering();
-
-        var midPoint = chromosome.start + (chromosome.length/2);
-        var segment = (chromosome.length/50);
-        this.rangeEl.setMinValue(chromosome.start);
-        this.rangeEl.setMaxValue(chromosome.end);
-        this.rangeEl.setValue(0, midPoint - segment, true);
-        this.rangeEl.setValue(1, midPoint + segment, true);
-        this.rangeEl.enable();
     },
 
     selectBuild: function(node) {
@@ -182,9 +141,7 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
-                    if (json && json.items) {
-                        this.showChromosomes(json.items);
-                    }
+                    if (json) this.displayBuildItems(json.items);
                 },
                 failure: function(o) {
                     org.systemsbiology.addama.js.Message.error("Chromosomes", "Error:" + o.responseText);
@@ -194,58 +151,63 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
         }
     },
 
-    selectChromosome: function(radio, checked) {
-        console.log("selectChromosome(" + radio + "," + checked + ")");
-        if (checked) {
+    displayBuildItems: function(items) {
+        if (items) {
+            Ext.each(items, this.addToolbarButton, this);
+            this.mainPanel.doLayout();
+        }
+    },
+
+    addToolbarButton: function(chromosome) {
+        this.chromosomeSelector.add({
+            text: chromosome.label,
+            handler: this.selectChromosome,
+            scope: this,
+            uri: chromosome.uri
+        });
+        this.chromosomeSelector.add('-');
+    },
+
+    selectChromosome: function(btn) {
+        if (btn && btn.uri) {
             Ext.Ajax.request({
-                url: radio.uri,
+                url: btn.uri,
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
-                    if (json) {
-                        this.showChromosome(json);
-                    }
+                    if (json) this.uriBuilder.chromosomeSelected(json);
                 },
                 failure: function(o) {
-                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Error " + radio.uri + ":"  + o.responseText);
+                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Error " + o.responseText);
                 },
                 scope: this
             });
         }
     },
 
-    selectStartEnd: function(slider) {
-        this.chromosomeLocation.start = slider.getValues()[0];
-        this.chromosomeLocation.end = slider.getValues()[1];
-        this.chromosomeLocation.doRendering();
-        this.mainPanel.doLayout();
-    },
-
     queryFeatures: function() {
-        if (this.isReadyToQuery()) {
-            var url = this.selectedBuildUri + "/" + this.chromosomeLocation.chr + "/" + this.chromosomeLocation.start + "/" + this.chromosomeLocation.end;
+        if (this.uriBuilder.isReady()) {
             Ext.Ajax.request({
-                url: url,
+                url: this.uriBuilder.featuresQueryURI(),
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
-                    if (json && json.items) {
-                        this.loadFeatureData(json.items);
-                    }
+                    if (json) this.loadFeatureData(json.items);
                 },
                 failure: function(o) {
-                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Error Loading: " + o.statusText);
+                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Query Features: " + o.statusText);
                 },
                 scope: this
             })
+        } else {
+            org.systemsbiology.addama.js.Message.error("Chromosomes", "Incomplete Chromosome Features Lookup : " + this.uriBuilder.asHtml());
         }
     },
 
     queryGenes: function() {
-        if (this.isReadyToQuery()) {
-            var url = this.selectedBuildUri + "/genes/" + this.chromosomeLocation.chr + "/" + this.chromosomeLocation.start + "/" + this.chromosomeLocation.end;
+        if (this.uriBuilder.isReady()) {
             Ext.Ajax.request({
-                url: url,
+                url: this.uriBuilder.genesQueryURI(),
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
@@ -258,31 +220,15 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
                 },
                 scope: this
             })
+        } else {
+            org.systemsbiology.addama.js.Message.error("Chromosomes", "Incomplete Chromosome Genes Lookup : " + this.uriBuilder.asHtml());
         }
     },
 
-    isReadyToQuery: function() {
-        if (!this.selectedBuildUri) {
-            org.systemsbiology.addama.js.Message.error("Chromosomes", "Select a Chromosome Datasource to Query");
-            return;
-        }
-
-        if (!this.chromosomeLocation.chr) {
-            org.systemsbiology.addama.js.Message.error("Chromosomes", "Select a Chromosome");
-            return;
-        }
-
-        if (this.chromosomeLocation.start === undefined || this.chromosomeLocation.end === undefined) {
-            org.systemsbiology.addama.js.Message.error("Chromosomes", "Select a Range to Query");
-            return;
-        }
-
-        if (this.chromosomeLocation.start == "start" || this.chromosomeLocation.end == "end") {
-            org.systemsbiology.addama.js.Message.error("Chromosomes", "Select a Range to Query");
-            return;
-        }
-
-        return true;
+    drawResults: function(dataPanel) {
+        this.resultsPanel.removeAll(true);
+        this.resultsPanel.add(dataPanel);
+        this.resultsPanel.doLayout();
     },
 
     loadGeneData: function(data) {
@@ -292,9 +238,7 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
                arrayData.push(item + "<br/>");
             });
 
-            this.resultsEl.removeAll(true);
-            this.resultsEl.add({ html : arrayData, frame: false });
-            this.resultsEl.doLayout();
+            this.drawResults({ html : arrayData, frame: false });
         } else {
             org.systemsbiology.addama.js.Message.error("Chromosomes", "No Gene Data Loaded");
         }
@@ -312,30 +256,98 @@ org.systemsbiology.addama.js.widgets.ChromosomesView = Ext.extend(Object, {
                 columns.push({ id: key, header: key, dataIndex: key, sortable: true, width: 100 });
             });
 
-            var store = new Ext.data.JsonStore({
-                storeId : 'gridResults', autoDestroy: true, root : 'results', fields: fields
-            });
+            var store = new Ext.data.JsonStore({ autoDestroy: true, root : 'results', fields: fields });
             store.loadData({ results: data });
 
-            if (this.selectedTable && this.selectedTable.text) {
-                this.resultsEl.setTitle("Results from query on " + this.selectedTable.text);
-            }
-
-            var grid = new Ext.grid.GridPanel({
-                store: store,
-                colModel: new Ext.grid.ColumnModel({
-                    defaults: { width: 200, sortable: true },
-                    columns: columns
-                }),
-                stripeRows: true,
-                iconCls: 'icon-grid'
-            });
-
-            this.resultsEl.removeAll(true);
-            this.resultsEl.add(grid);
-            this.resultsEl.doLayout();
+            this.drawResults(new Ext.grid.GridPanel({
+                store: store, stripeRows: true, iconCls: 'icon-grid',
+                colModel: new Ext.grid.ColumnModel({ defaults: { width: 200, sortable: true }, columns: columns })
+            }));
         } else {
             org.systemsbiology.addama.js.Message.error("Chromosomes", "No Feature Data Loaded");
         }
+    }
+});
+
+org.systemsbiology.addama.js.widgets.chromosomes.UriBuilder = Ext.extend(Ext.util.Observable, {
+    buildUri: null,
+    chromosomeUri: null,
+    chromosome: null,
+    start: null,
+    end: null,
+    strand: null,
+
+    constructor: function(config) {
+        this.addEvents('change');
+
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.widgets.chromosomes.UriBuilder.superclass.constructor.call(this);
+    },
+
+    isReady: function() {
+        if (!this.buildUri) return false;
+        if (!this.chromosome) return false;
+        return this.hasRange();
+    },
+
+    hasRange: function() {
+        if (this.start === undefined) return false;
+        if (this.end === undefined) return false;
+        return true;
+    },
+
+    chromosomeSelected: function(json) {
+        console.log("chromosomeSelected(" + json + ")");
+        if (json) {
+            console.log("chromosomeSelected(" + json.chromosome + "," + json.uri + ")");
+            this.chromosome = json.chromosome;
+            this.chromosomeUri = json.uri;
+            this.fireEvent("change");
+        }
+    },
+
+    rangeSelected: function(start, end) {
+        this.start = start;
+        this.end = end;
+        this.fireEvent("change");
+    },
+
+    featuresQueryURI: function() {
+        if (this.isReady()) {
+            var uri = this.buildUri + "/" + this.chromosome + "/" + this.start + "/" + this.end;
+            if (this.strand) return uri + "/" + this.strand;
+            return uri;
+        }
+        return null;
+    },
+
+    genesQueryURI: function() {
+        if (this.isReady()) {
+            var uri = this.buildUri + "/genes/" + this.chromosome + "/" + this.start + "/" + this.end;
+            if (this.strand) return uri + "/" + this.strand;
+            return uri;
+        }
+        return null;
+    },
+
+    asHtml: function() {
+        var tempchr = "chr";
+        if (this.chromosome) tempchr = this.chromosome;
+        var tempstart = "start";
+        if (this.start) tempstart = this.start;
+        var tempend = "end";
+        if (this.end) tempend = this.end;
+
+        var html = "";
+        html += "<ul class='horizontal-list'>";
+        html += "<li>Chromosome [" + tempchr + "]</li>";
+        html += "<li>Start [" + tempstart + "]</li>";
+        html += "<li>End [" + tempend + "]</li>";
+        if (this.strand) {
+            html += "<li>Strand [" + this.strand + "]</li>";
+        }
+        html += "</ul>";
+        return html;
     }
 });
