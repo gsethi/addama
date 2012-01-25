@@ -86,7 +86,13 @@ org.systemsbiology.addama.js.widgets.Viewport = Ext.extend(Object, {
             items: this.tabs,
             activeTab: 0,
             border: true,
-            margins: "5 5 5 5"
+            margins: "5 5 5 5",
+            tbar: [
+                this.newToolbarItem("Home", "/"), '-',
+                this.newToolbarItem("Browse Files", "/html/workspaces.html"), '-',
+                this.newToolbarItem("Query Databases", "/html/datasources.html"), '-',
+                this.newToolbarItem("Download API Keys", "/html/apikeys.html")
+            ]
         });
 
         var footerPanel = new Ext.Panel({
@@ -102,8 +108,16 @@ org.systemsbiology.addama.js.widgets.Viewport = Ext.extend(Object, {
         });
 
         new Ext.Viewport({ layout:'border', items:[ headerPanel, tabPanel, footerPanel ] });
-    }
+    },
 
+    newToolbarItem: function(text, link) {
+        return new Ext.Action({
+            text: text,
+            handler: function() {
+                document.location = link;
+            }
+        });
+    }
 });
 
 org.systemsbiology.addama.js.widgets.AjaxMonitor = Ext.extend(Object, {
