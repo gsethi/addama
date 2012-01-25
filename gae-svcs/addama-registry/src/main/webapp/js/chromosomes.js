@@ -122,14 +122,15 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
 
     selectBuild: function(node) {
         if (node.attributes.isBuild) {
-            this.selectedBuildUri = node.attributes.uri;
-
             Ext.Ajax.request({
-                url: this.selectedBuildUri,
+                url: node.attributes.uri,
                 method: "GET",
                 success: function(o) {
                     var json = Ext.util.JSON.decode(o.responseText);
-                    if (json) this.displayBuildItems(json.items);
+                    if (json) {
+                        this.uriBuilder.buildUri = node.attributes.uri;
+                        this.displayBuildItems(json.items);
+                    }
                 },
                 failure: function(o) {
                     org.systemsbiology.addama.js.Message.error("Chromosomes", "Error:" + o.responseText);
@@ -286,7 +287,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.UriBuilder = Ext.extend(Ext.uti
     isReady: function() {
         if (!this.buildUri) return false;
         if (!this.chromosome) return false;
-        return this.hasRange();
+        return (this.start != null && this.end != null);
     },
 
     hasRange: function() {
