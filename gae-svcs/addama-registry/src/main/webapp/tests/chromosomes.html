@@ -34,13 +34,62 @@
             cv.showChromosomes(chromosomes);
 
             var chromosome = {
-                "chromosome": "chr6_random",
+                "chromosome": "chr0",
                 "end": 1750278,
                 "length": 978375,
                 "start": 771903,
                 "uri": "/addama/chromosomes/hg18/chr6_random"
             };
-            cv.showChromosome(chromosome)
+            cv.showChromosome(chromosome);
+
+            cv.selectChromosome(cv.chromosomeSelector.items.first(), true);
+            cv.mainPanel.doLayout();
+
+            var features = {
+                "items": [
+                    {
+                        "BIN": 585,
+                        "CDSEND": 7502,
+                        "CDSENDSTAT": "unk",
+                        "CDSSTART": 7502,
+                        "CDSSTARTSTAT": "unk",
+                        "CHROM": "chr1",
+                        "EXONCOUNT": 7,
+                        "NAME": "NR_028269",
+                        "NAME2": "LOC100288778",
+                        "SCORE": 0,
+                        "STRAND": "-",
+                        "TXEND": 7502,
+                        "TXSTART": 4224,
+                        "chromosome": "chr1",
+                        "end": 7502,
+                        "start": 4224,
+                        "strand": "-"
+                    }
+                ],
+                "numberOfItems": 1
+            };
+
+            var genes = {
+                "data": [
+                    "LOC100288778",
+                    "FAM138A",
+                    "WASH7P",
+                    "FAM138F",
+                    "OR4F5"
+                ],
+                "dataSchema": {
+                    "datatype": "string",
+                    "name": "name2"
+                }
+            };
+
+            cv.retrieveFeaturesBtn.on("click", function() {
+                cv.loadFeatureData(features.items);
+            });
+            cv.retrieveGenesBtn.on("click", function() {
+                cv.loadGeneData(genes.data);
+            });
         });
     </script>
 </head>
