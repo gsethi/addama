@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>Test :: Chromosomes</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+    <script type="text/javascript" src="../js/chromosomes.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var cv = new org.systemsbiology.addama.js.widgets.ChromosomesView();
+
+            new org.systemsbiology.addama.js.widgets.Viewport({ topbarEl: "container_topbar", tabs: [ cv.mainPanel ] });
+
+            var builds = [
+                { "label": "HG18", "uri": "/addama/chromosomes/hg18" },
+                { "label": "HG19", "uri": "/addama/chromosomes/hg19" }
+            ];
+            Ext.each(builds, function(item) { item.isDb = true; });
+            cv.showBuilds(builds);
+
+            var chromosomes = [];
+            for (var i = 0; i < 5; i++) {
+                chromosomes.push({ "id": "chr" + i, "label": "chr" + i, "uri": "/addama/chromosomes/hg18/chr" + i });
+            }
+            cv.showChromosomes(chromosomes);
+
+            var chromosome = {
+                "chromosome": "chr6_random",
+                "end": 1750278,
+                "length": 978375,
+                "start": 771903,
+                "uri": "/addama/chromosomes/hg18/chr6_random"
+            };
+            cv.showChromosome(chromosome)
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_main"></div>
+</body>
+</html>

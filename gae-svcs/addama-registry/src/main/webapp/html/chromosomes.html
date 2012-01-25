@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title>Chromosomes</title>
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+        <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+        <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+        <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+        <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+
+        <script type="text/javascript" src="/js/utils.js"></script>
+        <script type="text/javascript" src="/js/topbar.js"></script>
+        <script type="text/javascript" src="/js/widgets.js"></script>
+        <script type="text/javascript" src="/js/chromosomes.js"></script>
+        <link rel="stylesheet" type="text/css" href="/css/stylesheet.css"/>
+
+        <script type="text/javascript">
+            Ext.onReady(function() {
+                new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+
+                var cv = new org.systemsbiology.addama.js.widgets.ChromosomesView();
+
+                new org.systemsbiology.addama.js.widgets.Viewport({
+                    topbarEl: "container_topbar",
+                    activateAjaxMonitor: true,
+                    tabs: [
+                        cv.mainPanel
+                    ]
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="container_topbar" class="topbar"></div>
+    </body>
+</html>
