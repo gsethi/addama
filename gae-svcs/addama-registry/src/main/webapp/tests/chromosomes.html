@@ -25,22 +25,15 @@
                 { "label": "HG19", "uri": "/addama/chromosomes/hg19" }
             ];
             Ext.each(builds, function(item) { item.isDb = true; });
-            cv.displayBuilds(builds);
+            cv.displayItems(cv.buildSelector, builds);
 
             var chromosomes = [];
             for (var i = 0; i < 50; i++) {
                 chromosomes.push({ "id": "chr" + i, "label": "chr" + i, "uri": "/addama/chromosomes/hg18/chr" + i });
             }
-            cv.displayBuildItems(chromosomes);
+            cv.displayItems(cv.chromosomeSelector,chromosomes);
 
-            var chromosome = {
-                "chromosome": "chr0",
-                "end": 1750278,
-                "length": 978375,
-                "start": 771903,
-                "uri": "/addama/chromosomes/hg18/chr6_random"
-            };
-            cv.uriBuilder.chromosomeSelected(chromosome);
+            cv.uriBuilder.setChromosome("chr11");
 
             var features = {
                 "items": [
@@ -66,6 +59,11 @@
                 ],
                 "numberOfItems": 1
             };
+
+            var firstFeature = features.items[0];
+            for (var f = 0; f < 100; f++) {
+                features.items.push(firstFeature);
+            }
 
             var genes = {
                 "data": [
