@@ -73,7 +73,7 @@ org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(Object, {
             method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.items) {
+                if (json) {
                     this.displayTools(json.items);
                 }
             },
@@ -91,7 +91,7 @@ org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(Object, {
             method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.items) {
+                if (json) {
                     this.displayJobs(json.items);
                 }
             },
@@ -121,23 +121,23 @@ org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(Object, {
     },
 
     displayTools: function(items) {
-        if (items) {
-            var data = [];
+        var data = [];
+        if (items && items.length) {
             Ext.each(items, function(item) {
                 data.push([item.label, item.uri]);
             });
-            this.toolsStore.loadData(data);
         }
+        this.toolsStore.loadData(data);
     },
 
     displayJobs: function(items) {
+        var data = [];
         if (items && items.length) {
-            var data = [];
             Ext.each(items, function(item) {
                 data.push(this.addJob(item));
             }, this);
-            this.jobsStore.loadData(data);
         }
+        this.jobsStore.loadData(data);
     },
 
     renderGrid: function() {
