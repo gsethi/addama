@@ -29,65 +29,22 @@ org.systemsbiology.addama.js.widgets.jobs.JobBean = Ext.extend(Object, {
 
 });
 
-org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(Object, {
+org.systemsbiology.addama.js.widgets.jobs.Grid = Ext.extend(Object, {
     constructor: function(config) {
         Ext.apply(this, config);
 
-        org.systemsbiology.addama.js.widgets.jobs.View.superclass.constructor.call(this);
-
-        this.loadPanels();
-        this.loadTools();
-        this.initListeners();
-    },
-
-    loadPanels: function() {
-        this.toolsStore = new Ext.data.ArrayStore({ fields: [ "label", "uri" ], sortInfo: {field: "label"} });
-
-        this.listView = new Ext.list.ListView({
-            store: this.toolsStore,
-            region: "west",
-            width: 250,
-            frame:true,
-            border:true,
-            emptyText: "No tools found",
-            hideHeaders: true,
-            columns: [ { header: "Label", width: 300, sortable: true, dataIndex: "label" } ]
-        });
-        this.listView.on("click", this.loadJobs, this);
+        org.systemsbiology.addama.js.widgets.jobs.Grid.superclass.constructor.call(this);
 
         this.renderGrid();
 
-        this.mainPanel = new Ext.Panel({
-            layout: "border",
-            padding: "5 5 5 5",
-            margins: "5 5 5 5",
-            frame:true,
-            border:true,
-            items: [ this.listView, this.gridPanel ]
-        });
+        if (this.toolUri) {
+            this.loadToolJobs(this.toolUri);
+        }
     },
 
-    loadTools: function() {
+    loadToolJobs: function(toolUri) {
         Ext.Ajax.request({
-            url: "/addama/tools",
-            method: "GET",
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json) {
-                    this.displayTools(json.items);
-                }
-            },
-            failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Tools", "Error: " + o.responseText);
-            },
-            scope: this
-        })
-    },
-
-    loadJobs: function(view, index, node) {
-        var record = this.listView.getRecord(node);
-        Ext.Ajax.request({
-            url: record.data.uri + "/jobs",
+            url: toolUri + "/jobs",
             method: "GET",
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
@@ -99,35 +56,7 @@ org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(Object, {
                 org.systemsbiology.addama.js.Message.error("Jobs", "Error: " + o.responseText);
             },
             scope: this
-        })
-    },
-
-    initListeners: function() {
-        if (org.systemsbiology.addama.js.channels && org.systemsbiology.addama.js.channels.Listener) {
-            org.systemsbiology.addama.js.channels.Listener.on("message", function(a) {
-                var event = Ext.util.JSON.decode(a.data);
-                if (event) {
-                    var job = event.job;
-                    if (job) {
-                        if (job.label) {
-                            org.systemsbiology.addama.js.Message.show("Job Status", job.label + ":" + job.status);
-                        } else {
-                            org.systemsbiology.addama.js.Message.show("Job Status", job.status + ":" + job.uri);
-                        }
-                    }
-                }
-            });
-        }
-    },
-
-    displayTools: function(items) {
-        var data = [];
-        if (items && items.length) {
-            Ext.each(items, function(item) {
-                data.push([item.label, item.uri]);
-            });
-        }
-        this.toolsStore.loadData(data);
+        });
     },
 
     displayJobs: function(items) {
@@ -311,5 +240,94 @@ org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(Object, {
             Date.parse(job.created),
             Date.parse(job.lastModified)
         ];
+    }
+});
+
+org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(org.systemsbiology.addama.js.widgets.jobs.Grid, {
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        org.systemsbiology.addama.js.widgets.jobs.View.superclass.constructor.call(this);
+
+        this.loadPanels();
+        this.loadTools();
+        this.initListeners();
+    },
+
+    loadPanels: function() {
+        this.toolsStore = new Ext.data.ArrayStore({ fields: [ "label", "uri" ], sortInfo: {field: "label"} });
+
+        this.listView = new Ext.list.ListView({
+            store: this.toolsStore,
+            region: "west",
+            width: 250,
+            frame:true,
+            border:true,
+            emptyText: "No tools found",
+            hideHeaders: true,
+            columns: [ { header: "Label", width: 300, sortable: true, dataIndex: "label" } ]
+        });
+        this.listView.on("click", this.loadJobs, this);
+
+        this.renderGrid();
+
+        this.mainPanel = new Ext.Panel({
+            layout: "border",
+            padding: "5 5 5 5",
+            margins: "5 5 5 5",
+            frame:true,
+            border:true,
+            items: [ this.listView, this.gridPanel ]
+        });
+    },
+
+    loadTools: function() {
+        Ext.Ajax.request({
+            url: "/addama/tools",
+            method: "GET",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json) {
+                    this.displayTools(json.items);
+                }
+            },
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Tools", "Error: " + o.responseText);
+            },
+            scope: this
+        })
+    },
+
+    loadJobs: function(view, index, node) {
+        var record = this.listView.getRecord(node);
+        this.loadToolJobs(record.data.uri);
+    },
+
+    initListeners: function() {
+        if (org.systemsbiology.addama.js.channels && org.systemsbiology.addama.js.channels.Listener) {
+            org.systemsbiology.addama.js.channels.Listener.on("message", function(a) {
+                var event = Ext.util.JSON.decode(a.data);
+                if (event) {
+                    var job = event.job;
+                    if (job) {
+                        if (job.label) {
+                            org.systemsbiology.addama.js.Message.show("Job Status", job.label + ":" + job.status);
+                        } else {
+                            org.systemsbiology.addama.js.Message.show("Job Status", job.status + ":" + job.uri);
+                        }
+                    }
+                }
+            });
+        }
+    },
+
+    displayTools: function(items) {
+        var data = [];
+        if (items && items.length) {
+            Ext.each(items, function(item) {
+                data.push([item.label, item.uri]);
+            });
+        }
+        this.toolsStore.loadData(data);
     }
 });

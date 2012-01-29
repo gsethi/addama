@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Test :: Tools and Jobs</title>
+    <title>Test :: Jobs for Tool</title>
     <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
     <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
@@ -19,22 +19,12 @@
 
     <script type="text/javascript">
         Ext.onReady(function() {
-            var jv = new org.systemsbiology.addama.js.widgets.jobs.View();
+            var jg = new org.systemsbiology.addama.js.widgets.jobs.Grid();
             new org.systemsbiology.addama.js.widgets.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
-                tabs: [ jv.mainPanel ]
+                tabs: [ jg.gridPanel ]
             });
-
-            var tools = {
-                "numberOfItems":5,
-                "items":[
-                    {"label":"Hello World","uri":"/addama/tools/hello-world"},
-                    {"label":"Simple Script","uri":"/addama/tools/simpletest"},
-                    {"label":"Simple Script with Email","uri":"/addama/tools/simpletestwithemail"}
-                ],
-                "uri":"/addama/tools"};
-            jv.displayTools(tools.items);
 
             var jobs = {
                 "items":[
@@ -77,7 +67,7 @@
                     }
                 ]
             };
-            jv.displayJobs(jobs.items);
+            jg.displayJobs(jobs.items);
 
             var jobOutput = {
                 "durationInSeconds":20,
@@ -102,9 +92,9 @@
                 "uri":"/addama/tools/hello-world/jobs/222"
             };
 
-            jv.detailsButton.on("click", function() {
-                jv.displayRowDetails(jobOutput);
-            }, jv);
+            jg.detailsButton.on("click", function() {
+                jg.displayRowDetails(jobOutput);
+            }, jg);
         });
     </script>
 </head>
