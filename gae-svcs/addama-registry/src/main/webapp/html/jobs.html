@@ -10,6 +10,8 @@
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
     <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/RowExpander.js"></script>
 
+    <script type="text/javascript" src="http://www.datejs.com/build/date.js"></script>
+
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
 
     <script type="text/javascript" src="/js/utils.js"></script>
@@ -25,32 +27,16 @@
         Ext.onReady(function() {
             new org.systemsbiology.addama.js.channels.MessageListener();
             new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            var jobsView = new org.systemsbiology.addama.js.widgets.jobs.View();
             new org.systemsbiology.addama.js.widgets.Viewport({
                 topbarEl: "container_topbar",
                 activateAjaxMonitor: true,
-                tabs: [
-                    { contentEl: "container_main" }
-                ]
-            });
-            new org.systemsbiology.addama.js.widgets.jobs.JobsGrid({
-                gridPanelConfig: {
-                    contentEl: "container_main",
-                    title: "Jobs",
-                    width: 1000,
-                    height: 1000,
-                    frame: true,
-                    border: false,
-                    autoScroll: true,
-                    margins: "5 5 5 5",
-                    region: "center",
-                    padding: "0 0 0 0"
-                }
+                tabs: [ jobsView.mainPanel ]
             });
         });
     </script>
 </head>
 <body>
 <div id="container_topbar" class="topbar"></div>
-<div id="container_main"></div>
 </body>
 </html>

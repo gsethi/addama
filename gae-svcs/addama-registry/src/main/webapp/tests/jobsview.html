@@ -1,0 +1,115 @@
+<html>
+<head>
+    <title>Test :: Jobs</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="http://www.datejs.com/build/date.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+    <script type="text/javascript" src="../js/jobsview.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/jobs.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var jv = new org.systemsbiology.addama.js.widgets.jobs.View();
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [ jv.mainPanel ]
+            });
+
+            var tools = {
+                "numberOfItems":5,
+                "items":[
+                    {"label":"Hello World","uri":"/addama/tools/hello-world"},
+                    {"label":"Simple Script","uri":"/addama/tools/simpletest"},
+                    {"label":"Simple Script with Email","uri":"/addama/tools/simpletestwithemail"}
+                ],
+                "uri":"/addama/tools"};
+            jv.displayTools(tools.items);
+
+            var jobs = {
+                "items":[
+                    {
+                        "durationInSeconds":21,
+                        "returnCode":1,
+                        "lastModified":"01/08/2012 16:14:59",
+                        "created":"01/08/2012 16:14:38",
+                        "status":"errored",
+                        "message":"some error occurred",
+                        "tool":"/addama/tools/hello-world",
+                        "owner":"user@addama.org",
+                        "log":"/addama/tools/hello-world/jobs/111/log",
+                        "uri":"/addama/tools/hello-world/jobs/111"
+                    },
+                    {
+                        "durationInSeconds":20,
+                        "returnCode":0,
+                        "message": "completed successfully",
+                        "lastModified":"01/08/2012 16:24:12",
+                        "created":"01/08/2012 16:23:52",
+                        "status":"completed",
+                        "label": "Job 222",
+                        "tool":"/addama/tools/hello-world",
+                        "owner":"user@addama.org",
+                        "log":"/addama/tools/hello-world/jobs/222/log",
+                        "uri":"/addama/tools/hello-world/jobs/222"
+                    },
+                    {
+                        "durationInSeconds":20,
+                        "returnCode":0,
+                        "lastModified":"01/08/2012 16:24:12",
+                        "created":"01/08/2012 16:23:52",
+                        "status":"running",
+                        "label": "Job 111",
+                        "tool":"/addama/tools/hello-world",
+                        "owner":"user@addama.org",
+                        "log":"/addama/tools/hello-world/jobs/333/log",
+                        "uri":"/addama/tools/hello-world/jobs/333"
+                    }
+                ]
+            };
+            jv.displayJobs(jobs.items);
+
+            var jobOutput = {
+                "durationInSeconds":20,
+                "returnCode":0,
+                "inputs":"x=y",
+                "lastModified":"01/08/2012 16:24:12",
+                "items":[
+                    {
+                        "name":"script-execution-svc.jpg",
+                        "uri":"/addama/tools/hello-world/jobs/222/outputs/_afdl/script-execution-svc.jpg"
+                    },
+                    {
+                        "name":"simple.tsv",
+                        "uri":"/addama/tools/hello-world/jobs/222/outputs/_afdl/simple.tsv"
+                    }
+                ],
+                "created":"01/08/2012 16:23:52",
+                "status":"completed",
+                "tool":"/addama/tools/hello-world",
+                "owner":"user@addama.org",
+                "log":"/addama/tools/hello-world/jobs/222/log",
+                "uri":"/addama/tools/hello-world/jobs/222"
+            };
+
+            jv.detailsButton.on("click", function() {
+                jv.displayRowDetails(jobOutput);
+            }, jv);
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_main"></div>
+</body>
+</html>
