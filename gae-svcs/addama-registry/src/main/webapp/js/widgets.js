@@ -525,7 +525,7 @@ org.systemsbiology.addama.js.widgets.DatasourcesView = Ext.extend(Object, {
                 this.loadDataGrid(data);
             },
             failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Datasources", o.responseText);
+                org.systemsbiology.addama.js.Message.error("Datasources", "Error: " + o.statusText);
             },
             scope: this
         });

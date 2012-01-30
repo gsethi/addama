@@ -53,7 +53,7 @@ org.systemsbiology.addama.js.widgets.jobs.Grid = Ext.extend(Object, {
                 }
             },
             failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Jobs", "Error: " + o.responseText);
+                org.systemsbiology.addama.js.Message.error("Jobs", "Error: " + o.statusText);
             },
             scope: this
         });
@@ -292,7 +292,7 @@ org.systemsbiology.addama.js.widgets.jobs.View = Ext.extend(org.systemsbiology.a
                 }
             },
             failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Tools", "Error: " + o.responseText);
+                org.systemsbiology.addama.js.Message.error("Tools", "Error: " + o.statusText);
             },
             scope: this
         })

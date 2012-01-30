@@ -120,7 +120,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
                 }
             },
             failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Chromosomes", "Error:" + o.responseText);
+                org.systemsbiology.addama.js.Message.error("Chromosomes", "Error: " + o.statusText);
             },
             scope: this
         })
@@ -138,7 +138,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
                 }
             },
             failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Chromosomes", "Error " + o.responseText);
+                org.systemsbiology.addama.js.Message.error("Chromosomes", "Error: " + o.statusText);
             },
             scope: this
         });
