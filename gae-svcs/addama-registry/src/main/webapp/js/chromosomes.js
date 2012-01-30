@@ -96,15 +96,38 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
         });
     },
 
-    displayItems: function(comboBox, items) {
+    displayItems: function(comboBox, items, sorterFn) {
         if (comboBox && items) {
             var data = [];
             Ext.each(items, function(item) {
                 data.push([item.uri,item.label]);
             });
+            if (sorterFn) {
+                data.sort(sorterFn);
+            } else {
+                data.sort();
+            }
             comboBox.store.loadData(data);
             comboBox.enable();
         }
+    },
+
+    chromosomeSorter: function() {
+        return function(a, b) {
+            if (a && b) {
+                if (a.length >= 2 && b.length >= 2) {
+                    var valA = a[1];
+                    var valB = b[1];
+                    if (valA && valB) {
+                        var result = valA.length - valB.length;
+                        if (result != 0) return result;
+                        if ([valA,valB].sort()[0] == valA) return -1;
+                        return 1;
+                    }
+                }
+            }
+            return 0;
+        };
     },
 
     selectBuild: function(cmb, record) {
@@ -115,7 +138,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json) {
                     this.uriBuilder.setBuildUri(record.data.uri);
-                    this.displayItems(this.chromosomeSelector, json.items);
+                    this.displayItems(this.chromosomeSelector, json.items, this.chromosomeSorter());
                 }
             },
             failure: function(o) {

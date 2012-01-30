@@ -21,17 +21,22 @@
             new org.systemsbiology.addama.js.widgets.Viewport({ topbarEl: "container_topbar", tabs: [ cv.mainPanel ] });
 
             var builds = [
-                { "label": "HG18", "uri": "/addama/chromosomes/hg18" },
-                { "label": "HG19", "uri": "/addama/chromosomes/hg19" }
+                { "label": "HG19", "uri": "/addama/chromosomes/hg19" },
+                { "label": "HG18", "uri": "/addama/chromosomes/hg18" }
             ];
             Ext.each(builds, function(item) { item.isDb = true; });
             cv.displayItems(cv.buildSelector, builds);
 
             var chromosomes = [];
-            for (var i = 0; i < 50; i++) {
-                chromosomes.push({ "id": "chr" + i, "label": "chr" + i, "uri": "/addama/chromosomes/hg18/chr" + i });
+            for (var i = 50; i > 0; i--) {
+                var chrLabel = "chr" + i;
+                chromosomes.push({ "id": chrLabel, "label": chrLabel, "uri": "/addama/chromosomes/hg18/" + chrLabel });
             }
-            cv.displayItems(cv.chromosomeSelector,chromosomes);
+            for (var j = 10; j > 0; j--) {
+                var chrLabel = "chr" + j + "_random";
+                chromosomes.push({ "id": chrLabel, "label": chrLabel, "uri": "/addama/chromosomes/hg18/" + chrLabel });
+            }
+            cv.displayItems(cv.chromosomeSelector,chromosomes,cv.chromosomeSorter());
 
             cv.uriBuilder.setChromosome("chr11");
 
