@@ -65,6 +65,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
 
         var rangeControls = new Ext.form.FieldSet({
             title: "Chromosome Query Controls",
+            width: "400",
             region: "north",
             defaults: {
                 labelSeparator: ""
