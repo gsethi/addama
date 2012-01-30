@@ -14,6 +14,9 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
 
         this.loadPanels();
         this.loadBuilds();
+
+        var token = Ext.History.getToken();
+        if (token) this.query(token);
     },
 
     loadPanels: function() {
@@ -143,18 +146,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
 
     queryFeatures: function() {
         if (this.uriBuilder.isReady()) {
-            Ext.Ajax.request({
-                url: this.uriBuilder.featuresQueryURI(),
-                method: "GET",
-                success: function(o) {
-                    var json = Ext.util.JSON.decode(o.responseText);
-                    if (json) this.loadFeatureData(json.items);
-                },
-                failure: function(o) {
-                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Query Features: " + o.statusText);
-                },
-                scope: this
-            })
+            this.query(this.uriBuilder.featuresQueryURI());
         } else {
             org.systemsbiology.addama.js.Message.error("Chromosomes", "Incomplete Chromosome Features Lookup : " + this.uriBuilder.fullUri());
         }
@@ -162,23 +154,32 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
 
     queryGenes: function() {
         if (this.uriBuilder.isReady()) {
-            Ext.Ajax.request({
-                url: this.uriBuilder.genesQueryURI(),
-                method: "GET",
-                success: function(o) {
-                    var json = Ext.util.JSON.decode(o.responseText);
-                    if (json && json.data) {
-                        this.loadGeneData(json.data);
-                    }
-                },
-                failure: function(o) {
-                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Error Loading: " + o.statusText);
-                },
-                scope: this
-            })
+            this.query(this.uriBuilder.genesQueryURI());
         } else {
             org.systemsbiology.addama.js.Message.error("Chromosomes", "Incomplete Chromosome Genes Lookup : " + this.uriBuilder.fullUri());
         }
+    },
+
+    query: function(targetUri) {
+        Ext.Ajax.request({
+            url: targetUri,
+            method: "GET",
+            success: function(o) {
+                var json = Ext.util.JSON.decode(o.responseText);
+                if (json) {
+                    if (json.data) {
+                        this.loadGeneData(json.data);
+                    } else if (json.items) {
+                        this.loadFeatureData(json.items);
+                    }
+                    Ext.History.add(targetUri, true);
+                }
+            },
+            failure: function(o) {
+                org.systemsbiology.addama.js.Message.error("Chromosomes", "Error Loading: " + o.statusText);
+            },
+            scope: this
+        });
     },
 
     drawResults: function(dataPanel) {
