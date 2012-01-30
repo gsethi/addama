@@ -15,8 +15,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
         this.loadPanels();
         this.loadBuilds();
 
-        var token = Ext.History.getToken();
-        if (token) this.query(token);
+        this.query(Ext.History.getToken());
     },
 
     loadPanels: function() {
@@ -161,25 +160,27 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
     },
 
     query: function(targetUri) {
-        Ext.Ajax.request({
-            url: targetUri,
-            method: "GET",
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json) {
-                    if (json.data) {
-                        this.loadGeneData(json.data);
-                    } else if (json.items) {
-                        this.loadFeatureData(json.items);
+        if (targetUri) {
+            Ext.Ajax.request({
+                url: targetUri,
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json) {
+                        if (json.data) {
+                            this.loadGeneData(json.data);
+                        } else if (json.items) {
+                            this.loadFeatureData(json.items);
+                        }
+                        Ext.History.add(targetUri, true);
                     }
-                    Ext.History.add(targetUri, true);
-                }
-            },
-            failure: function(o) {
-                org.systemsbiology.addama.js.Message.error("Chromosomes", "Error Loading: " + o.statusText);
-            },
-            scope: this
-        });
+                },
+                failure: function(o) {
+                    org.systemsbiology.addama.js.Message.error("Chromosomes", "Error Loading: " + o.statusText);
+                },
+                scope: this
+            });
+        }
     },
 
     drawResults: function(dataPanel) {
