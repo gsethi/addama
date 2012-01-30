@@ -86,9 +86,11 @@
 
             cv.retrieveFeaturesBtn.on("click", function() {
                 cv.loadFeatureData(features.items);
+                cv.uriBuilder.setChromosome("chrY");
             });
             cv.retrieveGenesBtn.on("click", function() {
                 cv.loadGeneData(genes.data);
+                cv.uriBuilder.setChromosome("chrX", 1000, 2000);
             });
         });
     </script>

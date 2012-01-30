@@ -9,6 +9,16 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
         this.uriBuilder = new org.systemsbiology.addama.js.widgets.chromosomes.UriBuilder();
         this.uriBuilder.on("change", function() {
             this.resultsPanel.setTitle("Results for [" + this.uriBuilder.fullUri() + "]");
+            if (this.uriBuilder.minimum != null) {
+                this.rangeMinDisplayField.setRawValue("min value: " + this.uriBuilder.minimum);
+            } else {
+                this.rangeMinDisplayField.setRawValue("");
+            }
+            if (this.uriBuilder.maximum != null) {
+                this.rangeMaxDisplayField.setRawValue("max value: " + this.uriBuilder.maximum);
+            } else {
+                this.rangeMaxDisplayField.setRawValue("");
+            }
             this.mainPanel.doLayout();
         }, this);
 
@@ -43,9 +53,11 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
             listeners:{ scope: this, 'select': this.selectChromosome }
         });
 
-        this.rangeStartField = new Ext.form.NumberField({ fieldLabel: "Start" });
+        this.rangeStartField = new Ext.form.NumberField();
+        this.rangeEndField = new Ext.form.NumberField();
+        this.rangeMinDisplayField = new Ext.form.DisplayField({disabled:true});
+        this.rangeMaxDisplayField = new Ext.form.DisplayField({disabled:true});
         this.rangeStartField.on("change", this.uriBuilder.setStart, this.uriBuilder);
-        this.rangeEndField = new Ext.form.NumberField({ fieldLabel: "End" });
         this.rangeEndField.on("change", this.uriBuilder.setEnd, this.uriBuilder);
 
         this.retrieveFeaturesBtn = new Ext.Button({ text: "Retrieve Features", handler: this.queryFeatures, scope: this });
@@ -58,7 +70,11 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
                 labelSeparator: ""
             },
             collapsible: true,
-            items:[ this.buildSelector, this.chromosomeSelector, this.rangeStartField, this.rangeEndField ],
+            items:[
+                this.buildSelector, this.chromosomeSelector,
+                new Ext.form.CompositeField({fieldLabel: "Start", items:[this.rangeStartField, this.rangeMinDisplayField]}),
+                new Ext.form.CompositeField({fieldLabel: "End", items:[this.rangeEndField, this.rangeMaxDisplayField]})
+            ],
             buttonAlign: "left",
             buttons: [ this.retrieveFeaturesBtn, '-', this.retrieveGenesBtn ]
         });
@@ -155,8 +171,7 @@ org.systemsbiology.addama.js.widgets.chromosomes.View = Ext.extend(Object, {
             success: function(o) {
                 var json = Ext.util.JSON.decode(o.responseText);
                 if (json) {
-                    // TODO : Display start/end/length
-                    this.uriBuilder.setChromosome(json.chromosome);
+                    this.uriBuilder.setChromosome(json.chromosome, json.start, json.end);
                 }
             },
             failure: function(o) {
@@ -273,8 +288,10 @@ org.systemsbiology.addama.js.widgets.chromosomes.UriBuilder = Ext.extend(Ext.uti
         return true;
     },
 
-    setChromosome: function(c) {
+    setChromosome: function(c, min, max) {
         this.chromosome = c;
+        this.minimum = min;
+        this.maximum = max;
         this.fireEvent("change");
     },
 
