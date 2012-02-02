@@ -34,6 +34,7 @@ import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipar
 import static org.apache.commons.lang.StringUtils.*;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 import static org.systemsbiology.addama.commons.web.utils.HttpIO.*;
+import static org.systemsbiology.addama.commons.web.utils.RegisteredUser.getRegistryUser;
 import static org.systemsbiology.addama.commons.web.views.JsonItemsFromFilesView.*;
 import static org.systemsbiology.addama.commons.web.views.ResourceFileView.RESOURCE;
 import static org.systemsbiology.addama.fsutils.util.FileUtil.recurseDelete;
@@ -48,12 +49,14 @@ import static org.systemsbiology.google.visualization.datasource.DataSourceHelpe
 public class WorkspaceController {
     private static final Logger log = Logger.getLogger(WorkspaceController.class.getName());
 
-    private Iterable<Mapping> mappings;
+    private final Map<String, Mapping> mappingsById = new HashMap<String, Mapping>();
     private final HashMap<String, String> rootPathById = new HashMap<String, String>();
     private final HashMap<String, Boolean> readOnlyById = new HashMap<String, Boolean>();
 
     public void setServiceConfig(ServiceConfig serviceConfig) throws Exception {
-        this.mappings = serviceConfig.getMappings();
+        for (Mapping mapping : serviceConfig.getMappings()) {
+            this.mappingsById.put(mapping.ID(), mapping);
+        }
         serviceConfig.visit(new StringPropertyByIdMappingsHandler(rootPathById, "rootPath"));
         serviceConfig.visit(new BooleanPropertyByIdMappingsHandler(readOnlyById, "readOnly", false));
     }
@@ -67,7 +70,7 @@ public class WorkspaceController {
 
         JSONObject json = new JSONObject();
         json.put("uri", uri);
-        for (Mapping mapping : mappings) {
+        for (Mapping mapping : mappingsById.values()) {
             JSONObject item = new JSONObject();
             item.put("id", mapping.ID());
             item.put("uri", uri + "/" + mapping.ID());
@@ -114,12 +117,10 @@ public class WorkspaceController {
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = POST)
     public ModelAndView update(HttpServletRequest request,
                                @PathVariable("workspaceId") String workspaceId) throws Exception {
+        mayWrite(workspaceId, request);
+
         String uri = getSpacedURI(request);
         String path = substringAfterLast(uri, workspaceId);
-
-        if (readOnlyById.get(workspaceId)) {
-            throw new ReadOnlyAccessException(uri);
-        }
 
         if (!isMultipartContent(request)) {
             Resource r = newDirectoryResource(workspaceId, path);
@@ -171,11 +172,9 @@ public class WorkspaceController {
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**/delete", method = POST)
     public ModelAndView delete_by_post(HttpServletRequest request,
                                        @PathVariable("workspaceId") String workspaceId) throws Exception {
-        String uri = getSpacedURI(request);
-        if (readOnlyById.get(workspaceId)) {
-            throw new ReadOnlyAccessException(uri);
-        }
+        mayWrite(workspaceId, request);
 
+        String uri = getSpacedURI(request);
         String path = substringBetween(uri, workspaceId, "/delete");
         Resource resource = getTargetResource(workspaceId, path);
         recurseDelete(resource.getFile());
@@ -185,11 +184,9 @@ public class WorkspaceController {
     @RequestMapping(value = "/**/workspaces/{workspaceId}/**", method = DELETE)
     public ModelAndView delete(HttpServletRequest request,
                                @PathVariable("workspaceId") String workspaceId) throws Exception {
-        String uri = getSpacedURI(request);
-        if (readOnlyById.get(workspaceId)) {
-            throw new ReadOnlyAccessException(uri);
-        }
+        mayWrite(workspaceId, request);
 
+        String uri = getSpacedURI(request);
         String path = substringAfterLast(uri, workspaceId);
         Resource resource = getTargetResource(workspaceId, path);
         recurseDelete(resource.getFile());
@@ -341,5 +338,18 @@ public class WorkspaceController {
         return new FileSystemResource(file);
     }
 
+    protected void mayWrite(String workspaceId, HttpServletRequest request) throws Exception {
+        Mapping mapping = this.mappingsById.get(workspaceId);
+        if (mapping == null) {
+            throw new ResourceNotFoundException(workspaceId);
+        }
 
+        if (readOnlyById.get(workspaceId)) {
+            throw new ReadOnlyAccessException(workspaceId);
+        }
+
+        if (mapping.hasWriters() && !mapping.isWriter(getRegistryUser(request))) {
+            throw new ReadOnlyAccessException(workspaceId);
+        }
+    }
 }

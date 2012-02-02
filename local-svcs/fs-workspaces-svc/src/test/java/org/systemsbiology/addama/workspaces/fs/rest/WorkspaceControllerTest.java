@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.servlet.ModelAndView;
+import org.systemsbiology.addama.commons.web.exceptions.ReadOnlyAccessException;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.jsonconfig.ServiceConfig;
 
@@ -158,6 +159,30 @@ public class WorkspaceControllerTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         pipe(is, baos);
         assertEquals(someContent, new String(baos.toByteArray()));
+    }
+
+    @Test(expected = ReadOnlyAccessException.class)
+    public void wi_writers() throws Exception {
+        controller.update(new MockHttpServletRequest("POST", "/addama/workspaces/repo_wi_writers/writable_dir"), "repo_wi_writers");
+    }
+
+    @Test
+    public void wo_writers() throws Exception {
+        controller.update(new MockHttpServletRequest("POST", "/addama/workspaces/repo_wo_writers/writable_dir"), "repo_wo_writers");
+    }
+
+    @Test
+    public void is_writer() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/addama/workspaces/repo_wi_writers/writable_dir");
+        request.addHeader("x-addama-registry-user", "writer1@addama.org");
+        controller.update(request, "repo_wi_writers");
+    }
+
+    @Test(expected = ReadOnlyAccessException.class)
+    public void isnot_writer() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/addama/workspaces/repo_wi_writers/writable_dir");
+        request.addHeader("x-addama-registry-user", "writer3@addama.org");
+        controller.update(request, "repo_wi_writers");
     }
 
     /*
