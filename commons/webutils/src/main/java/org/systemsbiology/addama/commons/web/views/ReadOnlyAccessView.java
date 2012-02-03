@@ -36,6 +36,8 @@ public class ReadOnlyAccessView implements View {
     public void render(Map map, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Exception ex = (Exception) map.get("ex");
         response.setStatus(SC_FORBIDDEN);
-        response.getWriter().write(ex.getMessage());
+        if (ex != null) {
+            response.getWriter().write(ex.getMessage());
+        }
     }
 }
