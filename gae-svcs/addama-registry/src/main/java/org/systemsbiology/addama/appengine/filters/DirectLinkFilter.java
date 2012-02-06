@@ -44,6 +44,7 @@ import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 import static org.systemsbiology.addama.appengine.util.Registry.getMatchingRegistryMappings;
 import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
 import static org.systemsbiology.addama.appengine.util.Sharing.checkAccess;
+import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
 
 /**
  * @author hrovira
@@ -85,6 +86,7 @@ public class DirectLinkFilter extends GenericFilterBean {
             req.setHeader(new HTTPHeader("x-addama-registry-key", accessKey.toString()));
             req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
             req.setHeader(new HTTPHeader("x-addama-registry-client", request.getRemoteAddr()));
+            req.setHeader(new HTTPHeader("x-addama-registry-user", getLoggedInUserEmail(request)));
 
             HTTPResponse resp = urlFetchService.fetch(req);
             if (resp.getResponseCode() == 302) {
