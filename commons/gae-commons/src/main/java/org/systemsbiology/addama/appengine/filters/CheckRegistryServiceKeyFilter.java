@@ -103,7 +103,8 @@ public class CheckRegistryServiceKeyFilter implements Filter {
                     log.fine("removing single call from memcache: " + actualUri);
                     memcacheService.delete(temporaryUri);
 
-                    HttpServletRequest instrumented = instrumentRequest(request, actualUri);
+                    // TODO : Handle passing registry user
+                    HttpServletRequest instrumented = instrumentRequest(request, actualUri, null);
                     filterChain.doFilter(instrumented, servletResponse);
                     return;
                 }

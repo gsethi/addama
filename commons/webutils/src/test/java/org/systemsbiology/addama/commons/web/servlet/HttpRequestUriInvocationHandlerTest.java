@@ -35,7 +35,7 @@ public class HttpRequestUriInvocationHandlerTest {
         assertNotNull(originalContextPath);
         assertEquals(ORIGINAL_CONTEXT_PATH, originalContextPath);
 
-        HttpServletRequest instrumented = instrumentRequest(request, INSTRUMENTED_URI);
+        HttpServletRequest instrumented = instrumentRequest(request, INSTRUMENTED_URI, null);
         String actualUri = instrumented.getRequestURI();
         assertNotNull(actualUri);
         assertEquals(INSTRUMENTED_URI, actualUri);
@@ -43,5 +43,14 @@ public class HttpRequestUriInvocationHandlerTest {
         String instrumentedContextPath = instrumented.getContextPath();
         assertNotNull(instrumentedContextPath);
         assertEquals(ORIGINAL_CONTEXT_PATH, instrumentedContextPath);
+    }
+
+    @Test
+    public void header() {
+        HttpServletRequest instrumented = instrumentRequest(request, INSTRUMENTED_URI, "user@addama.org");
+
+        String user = instrumented.getHeader("x-addama-registry-user");
+        assertNotNull(user);
+        assertEquals("user@addama.org", user);
     }
 }

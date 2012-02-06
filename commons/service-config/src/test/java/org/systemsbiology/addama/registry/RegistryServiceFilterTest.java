@@ -11,6 +11,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.junit.Assert.*;
 import static org.springframework.mock.web.MockHttpServletResponse.SC_OK;
 import static org.springframework.mock.web.MockHttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
@@ -59,7 +60,7 @@ public class RegistryServiceFilterTest {
     public void more_than_max() throws IOException, ServletException {
         doTest(SC_REQUEST_ENTITY_TOO_LARGE, new PassThroughFilterChain(filter, new SetContentMockFilterChain(MAX_CONTENT_LEN + 100)));
 
-        String location = (String) response.getHeader("Location");
+        String location = response.getHeader("Location");
         assertNotNull(location);
         assertTrue(location.startsWith("http://localhost:80/singlecall"));
     }
@@ -70,10 +71,48 @@ public class RegistryServiceFilterTest {
 
         doTest(SC_REQUEST_ENTITY_TOO_LARGE, new PassThroughFilterChain(filter, new MockFilterChain()));
 
-        String location = (String) response.getHeader("Location");
+        String location = response.getHeader("Location");
         assertNotNull(location);
         assertTrue(location.startsWith("http://localhost:80/singlecall"));
         assertTrue(location.endsWith("anyfile.file"));
+    }
+
+    @Test
+    public void original_requester() throws Exception {
+        request.setMethod("POST");
+        request.setRequestURI("/some/uri/client_redirect");
+        request.addHeader("x-addama-registry-user", "user@addama.org");
+
+        doTest(SC_OK, new PassThroughFilterChain(filter, new MockFilterChain()));
+
+        String redirectUrl = response.getRedirectedUrl();
+        assertNotNull(redirectUrl);
+
+        redirectUrl = "/singlecall" + substringAfterLast(redirectUrl, "/singlecall");
+
+        CaptureRegistryUserMockFilterChain captureUser = new CaptureRegistryUserMockFilterChain();
+        filter.doFilter(new MockHttpServletRequest("GET", redirectUrl), response, captureUser);
+
+        assertNotNull(captureUser.getUser());
+        assertEquals("user@addama.org", captureUser.getUser());
+    }
+
+    @Test
+    public void no_original_requester() throws Exception {
+        request.setMethod("POST");
+        request.setRequestURI("/some/uri/client_redirect");
+
+        doTest(SC_OK, new PassThroughFilterChain(filter, new MockFilterChain()));
+
+        String redirectUrl = response.getRedirectedUrl();
+        assertNotNull(redirectUrl);
+
+        redirectUrl = "/singlecall" + substringAfterLast(redirectUrl, "/singlecall");
+
+        CaptureRegistryUserMockFilterChain captureUser = new CaptureRegistryUserMockFilterChain();
+        filter.doFilter(new MockHttpServletRequest("GET", redirectUrl), response, captureUser);
+
+        assertNull(captureUser.getUser());
     }
 
     /*

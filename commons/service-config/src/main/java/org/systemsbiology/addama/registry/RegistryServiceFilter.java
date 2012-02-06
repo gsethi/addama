@@ -46,6 +46,7 @@ import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.commons.web.servlet.HttpRequestUriInvocationHandler.instrumentRequest;
+import static org.systemsbiology.addama.commons.web.utils.RegisteredUser.getRegistryUser;
 
 /**
  * @author hrovira
@@ -57,6 +58,7 @@ public class RegistryServiceFilter extends GenericFilterBean {
     protected final Map<String, String> registryServiceKeyByHost = new HashMap<String, String>();
 
     private transient HashMap<String, String> temporaryUris = new HashMap<String, String>();
+    private transient HashMap<String, String> originalRequesters = new HashMap<String, String>();
 
     private HttpClientTemplate httpClientTemplate;
     private PropertiesFileLoader propertiesFileLoader;
@@ -160,8 +162,9 @@ public class RegistryServiceFilter extends GenericFilterBean {
             log.fine("single call:" + singleCall);
             if (temporaryUris.containsKey(requestUri)) {
                 String actualUri = temporaryUris.remove(requestUri);
-                log.fine("processing single call: " + actualUri);
-                HttpServletRequest instrumented = instrumentRequest(request, actualUri);
+                String actualUser = originalRequesters.remove(actualUri);
+                log.info("processing single call: " + actualUri + ":" + actualUser);
+                HttpServletRequest instrumented = instrumentRequest(request, actualUri, actualUser);
                 filterChain.doFilter(instrumented, servletResponse);
                 return;
             }
@@ -175,8 +178,10 @@ public class RegistryServiceFilter extends GenericFilterBean {
 
         if (equalsIgnoreCase(request.getMethod(), "post") && requestUri.endsWith("/client_redirect")) {
             String actualUri = substringBeforeLast(requestUri, "/client_redirect");
+            String actualUser = getRegistryUser(request);
+            originalRequesters.put(actualUri, actualUser);
 
-            log.fine("client_redirect:" + actualUri);
+            log.info("client_redirect:" + actualUri + ":" + actualUser);
             response.sendRedirect(getSingleCallTemporaryUri(request, singleCall, actualUri));
             return;
         }
