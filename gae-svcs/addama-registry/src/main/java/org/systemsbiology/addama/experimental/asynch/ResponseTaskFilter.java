@@ -19,7 +19,7 @@ import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserUriFromApiKey;
+import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserEmailFromApiKey;
 import static org.systemsbiology.addama.experimental.asynch.Status.retrieved;
 import static org.systemsbiology.addama.experimental.asynch.Status.running;
 import static org.systemsbiology.addama.experimental.asynch.TaskingController.responses;
@@ -105,7 +105,7 @@ public class ResponseTaskFilter extends GenericFilterBean {
         log.info("running:" + r.getUrl());
 
         // TODO: Fix this later... dealing with servlet-api issues
-        HttpServletRequest maskUriRequest = null; 
+        HttpServletRequest maskUriRequest = null;
 //        maskUriRequest.setAttribute(ASYNCH_MODE, true);
 
         CaptureOutputResponse captureResponse = new CaptureOutputResponse(response);
@@ -130,8 +130,8 @@ public class ResponseTaskFilter extends GenericFilterBean {
 
     private void publishOnUserChannel(Response r, String apiKey) throws IOException {
         try {
-            String userUri = getUserUriFromApiKey(apiKey);
-            String channelUri = replace(userUri, "/addama/users/", "/addama/channels/");
+            String userEmail = getUserEmailFromApiKey(apiKey);
+            String channelUri = "/addama/channels/" + userEmail;
             log.info("channelUri=" + channelUri);
 
             TaskOptions task = withUrl(channelUri);

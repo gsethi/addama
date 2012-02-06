@@ -7,33 +7,23 @@ import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException
 import javax.servlet.http.HttpServletRequest;
 
 import static com.google.appengine.api.users.UserServiceFactory.getUserService;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserUriFromApiKey;
+import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserEmailFromApiKey;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.isAdmin;
 
 /**
  * @author hrovira
  */
 public class Users {
+    private static final UserService userService = getUserService();
 
-    public static String getLoggedInUserUri(HttpServletRequest request) {
-        UserService userService = getUserService();
+    public static String getLoggedInUserEmail(HttpServletRequest request) {
         if (userService.isUserLoggedIn()) {
             User user = userService.getCurrentUser();
-            return "/addama/users/" + user.getEmail();
+            return user.getEmail();
         }
 
         String apikey = request.getHeader("x-addama-apikey");
-        return getUserUriFromApiKey(apikey);
-    }
-
-    public static String getLoggedInUserEmail(HttpServletRequest request) {
-        String userUri = getLoggedInUserUri(request);
-        if (isEmpty(userUri)) {
-            return null;
-        }
-        return substringAfterLast(userUri, "/");
+        return getUserEmailFromApiKey(apikey);
     }
 
     public static User getCurrentUser() throws ForbiddenAccessException {

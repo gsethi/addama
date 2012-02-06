@@ -29,9 +29,9 @@ import java.net.URL;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.lang.StringUtils.*;
-import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
-import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserUri;
 import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
+import static org.systemsbiology.addama.appengine.util.Registry.getRegistryService;
+import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
 
 /**
  * @author hrovira
@@ -59,7 +59,7 @@ public class Sharing {
             HTTPRequest req = new HTTPRequest(new URL(sharingUrl + sharingUri + sharingOp), HTTPMethod.GET);
             req.setHeader(new HTTPHeader("x-addama-registry-key", accessKey));
             req.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
-            req.setHeader(new HTTPHeader("x-addama-registry-user", getLoggedInUserUri(request)));
+            req.setHeader(new HTTPHeader("x-addama-registry-user", getLoggedInUserEmail(request)));
             String serviceUri = request.getHeader("x-addama-service-uri");
             if (!isEmpty(serviceUri)) {
                 req.setHeader(new HTTPHeader("x-addama-service-uri", serviceUri));
