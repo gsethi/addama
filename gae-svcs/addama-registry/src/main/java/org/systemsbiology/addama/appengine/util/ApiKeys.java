@@ -4,7 +4,6 @@ import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
-import org.systemsbiology.addama.appengine.pojos.ApiKey;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
 
 import java.util.Iterator;
@@ -18,8 +17,8 @@ import static java.lang.Boolean.parseBoolean;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
+import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
 
 /**
  * @author hrovira
@@ -30,11 +29,11 @@ public class ApiKeys {
     private static final DatastoreService datastore = getDatastoreService();
     private static final UserService userService = getUserService();
 
-    public static String getUserUriFromApiKey(String apikey) {
+    public static String getUserEmailFromApiKey(String apikey) {
         if (!isEmpty(apikey)) {
             try {
                 Entity e = datastore.get(createKey("api-keys", apikey));
-                return "/addama/users/" + e.getProperty("user").toString();
+                return e.getProperty("user").toString();
             } catch (Exception e) {
                 log.warning(apikey + ":" + e);
             }
@@ -67,7 +66,7 @@ public class ApiKeys {
         return false;
     }
 
-    public static ApiKey getUserApiKey() throws ForbiddenAccessException {
+    public static UUID getUserApiKey() throws ForbiddenAccessException {
         Query q = new Query("api-keys");
 
         User user = getCurrentUser();
@@ -78,14 +77,7 @@ public class ApiKeys {
         if (itr.hasNext()) {
             Entity e = itr.next();
             String apikey = e.getKey().getName();
-            String userId = e.getProperty("user").toString();
-
-            // TODO : this is not needed
-            boolean admin = false;
-            if (e.hasProperty("isAdmin")) {
-                admin = parseBoolean(e.getProperty("isAdmin").toString());
-            }
-            return new ApiKey(userId, fromString(apikey), admin);
+            return fromString(apikey);
         }
 
         UUID uuid = randomUUID();
@@ -98,7 +90,7 @@ public class ApiKeys {
 
         inTransaction(datastore, new PutEntityTransactionCallback(e));
 
-        return new ApiKey("/addama/users/" + user.getEmail(), uuid, isAdmin);
+        return uuid;
     }
 
 }

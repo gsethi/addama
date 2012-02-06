@@ -97,7 +97,7 @@ public class TaskingController extends AbstractController implements MemcacheLoa
             return apikey;
         }
 
-        return getUserApiKey().getKey().toString();
+        return getUserApiKey().toString();
     }
 
 }

@@ -24,21 +24,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.appengine.pojos.ApiKey;
-import org.systemsbiology.addama.commons.web.views.JsonView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.systemsbiology.addama.appengine.Appspot.*;
 import static org.systemsbiology.addama.appengine.util.ApiKeys.getUserApiKey;
 import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.appengine.util.Users.getCurrentUser;
-import static org.systemsbiology.addama.appengine.Appspot.*;
 
 /**
  * @author hrovira
@@ -46,15 +45,6 @@ import static org.systemsbiology.addama.appengine.Appspot.*;
 @Controller
 public class ApiKeyController {
     private static final Logger log = Logger.getLogger(ApiKeyController.class.getName());
-
-    @RequestMapping(value = "/apikeys", method = RequestMethod.GET)
-    @ModelAttribute
-    public ModelAndView apikeys(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
-
-        ApiKey apiKey = getUserApiKey();
-        return new ModelAndView(new JsonView()).addObject("json", apiKey.toJSON());
-    }
 
     @RequestMapping(value = "/apikeys/addama.properties", method = RequestMethod.GET)
     @ModelAttribute
@@ -64,11 +54,11 @@ public class ApiKeyController {
 
         checkAdmin(request);
 
-        ApiKey apiKey = getUserApiKey();
+        UUID apiKey = getUserApiKey();
 
         StringBuilder builder = new StringBuilder();
         builder.append("httpclient.secureHostUrl=").append(APPSPOT_URL).append("\n");
-        builder.append("httpclient.apikey=").append(apiKey.getKey().toString()).append("\n");
+        builder.append("httpclient.apikey=").append(apiKey.toString()).append("\n");
         if (!isEmpty(serviceUrl)) {
             builder.append("service.hostUrl=").append(serviceUrl).append("\n");
         }
@@ -83,12 +73,12 @@ public class ApiKeyController {
     public ModelAndView apikey_file(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info(request.getRequestURI());
 
-        ApiKey apiKey = getUserApiKey();
+        UUID apiKey = getUserApiKey();
 
         StringBuilder builder = new StringBuilder();
         builder.append("[Connection]");
         builder.append("\n").append("host=").append(APPSPOT_ID);
-        builder.append("\n").append("apikey=").append(apiKey.getKey().toString());
+        builder.append("\n").append("apikey=").append(apiKey.toString());
         builder.append("\n").append("owner=").append(getCurrentUser().getEmail());
         builder.append("\n");
 
