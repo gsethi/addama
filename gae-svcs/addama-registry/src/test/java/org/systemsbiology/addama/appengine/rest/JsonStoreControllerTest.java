@@ -47,7 +47,7 @@ public class JsonStoreControllerTest {
     @Test
     public void listStores() throws Exception {
         for (int i = 1; i <= 10; i++) {
-            createStore("store_" + i, new JSONObject().put("label", "store " + i).put("identity", i));
+            saveStore("store_" + i, new JSONObject().put("label", "store " + i).put("identity", i));
         }
 
         ModelAndView mav = CONTROLLER.listStores(new MockHttpServletRequest());
@@ -135,7 +135,7 @@ public class JsonStoreControllerTest {
     }
 
     @Test
-    public void create() throws Exception {
+    public void creation() throws Exception {
         helper.setEnvIsAdmin(true);
 
         JSONObject item = new JSONObject();
@@ -145,7 +145,7 @@ public class JsonStoreControllerTest {
         item.put("isMarkedByABooleanFlag", true);
         UUID id = createItem("store_one", item);
 
-        CONTROLLER.create(new MockHttpServletRequest(), "store_one", item);
+        CONTROLLER.creation(new MockHttpServletRequest(), "store_one", null, item);
 
         JSONObject actual = retrieveItem("store_one", id.toString());
         assertNotNull(actual);
@@ -167,7 +167,7 @@ public class JsonStoreControllerTest {
         item.put("isMarkedByABooleanFlag", true);
         UUID id = createItem("store_one", item);
 
-        CONTROLLER.create(new MockHttpServletRequest(), "store_one", item);
+        CONTROLLER.creation(new MockHttpServletRequest(), "store_one", null, item);
 
         JSONObject updated = new JSONObject();
         updated.put("label", "item updated");
@@ -202,7 +202,7 @@ public class JsonStoreControllerTest {
         item.put("isMarkedByABooleanFlag", true);
         UUID id = createItem("store_one", item);
 
-        CONTROLLER.create(new MockHttpServletRequest(), "store_one", item);
+        CONTROLLER.creation(new MockHttpServletRequest(), "store_one", null, item);
         JSONObject actual = retrieveItem("store_one", id.toString());
         assertNotNull(actual);
         assertEquals(id.toString(), actual.getString("id"));
@@ -222,7 +222,7 @@ public class JsonStoreControllerTest {
         store.put("description", "this is some really long description, really really long, i mean it... ok, could be longer");
         store.put("isMarkedByABooleanFlag", true);
 
-        CONTROLLER.storeStore(new MockHttpServletRequest(), "store_one", store);
+        CONTROLLER.creation(new MockHttpServletRequest(), "store_one", store, null);
 
         int numberOfStores = 0;
         for (JSONObject actual : retrieveStores()) {
@@ -239,12 +239,12 @@ public class JsonStoreControllerTest {
 
     @Test(expected = ForbiddenAccessException.class)
     public void create_notAdmin() throws Exception {
-        CONTROLLER.create(new MockHttpServletRequest(), "store_one", new JSONObject());
+        CONTROLLER.creation(new MockHttpServletRequest(), "store_one", null, null);
     }
 
     @Test(expected = ForbiddenAccessException.class)
     public void update_notAdmin() throws Exception {
-        CONTROLLER.update(new MockHttpServletRequest(), "store_one", "354", new JSONObject());
+        CONTROLLER.update(new MockHttpServletRequest(), "store_one", "354", null);
     }
 
     @Test(expected = ForbiddenAccessException.class)
@@ -254,7 +254,7 @@ public class JsonStoreControllerTest {
 
     @Test(expected = ForbiddenAccessException.class)
     public void storeStore_notAdmin() throws Exception {
-        CONTROLLER.storeStore(new MockHttpServletRequest(), "store_one", new JSONObject());
+        CONTROLLER.creation(new MockHttpServletRequest(), "store_one", null, null);
     }
 
 }

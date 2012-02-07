@@ -92,7 +92,7 @@ public class JsonStore {
         return uuid;
     }
 
-    public static void createStore(String storeId, JSONObject item) throws JSONException, ResourceNotFoundException {
+    public static void saveStore(String storeId, JSONObject item) throws JSONException, ResourceNotFoundException {
         Key storeKey = getStoreKey(storeId, true);
         Entity e = new Entity(storeKey);
         fromJson(item, e);

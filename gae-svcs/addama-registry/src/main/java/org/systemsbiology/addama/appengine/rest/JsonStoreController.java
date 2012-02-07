@@ -56,23 +56,6 @@ public class JsonStoreController {
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
     }
 
-    @RequestMapping(value = "/stores/{storeId}", method = POST)
-    protected ModelAndView storeStore(HttpServletRequest request, @PathVariable("storeId") String storeId,
-                                      @RequestParam("store") JSONObject store) throws Exception {
-        checkAdmin(request);
-
-        if (!store.has("label")) {
-            throw new InvalidSyntaxException("store must be labeled");
-        }
-
-        createStore(storeId, store);
-
-        JSONObject json = new JSONObject();
-        json.put("id", storeId);
-        json.put("uri", chomp(request.getRequestURI(), "/") + "/" + storeId);
-        return new ModelAndView(new JsonView()).addObject("json", json);
-    }
-
     @RequestMapping(value = "/stores/{storeId}/{itemId}", method = GET)
     protected ModelAndView listItem(HttpServletRequest request, @PathVariable("storeId") String storeId,
                                     @PathVariable("itemId") String itemId) throws Exception {
@@ -85,20 +68,37 @@ public class JsonStoreController {
     }
 
     @RequestMapping(value = "/stores/{storeId}", method = POST)
-    protected ModelAndView create(HttpServletRequest request, @PathVariable("storeId") String storeId,
-                                  @RequestParam("item") JSONObject item) throws Exception {
+    protected ModelAndView creation(HttpServletRequest request, @PathVariable("storeId") String storeId,
+                                    @RequestParam(value = "store", required = false) JSONObject store,
+                                    @RequestParam(value = "item", required = false) JSONObject item) throws Exception {
         checkAdmin(request);
-
-        if (!item.has("label")) {
-            throw new InvalidSyntaxException("items must be labeled");
+        if (store == null && item == null) {
+            throw new InvalidSyntaxException("store or item json is required");
         }
 
-        UUID itemId = createItem(storeId, item);
-        String id = itemId.toString();
-        JSONObject json = new JSONObject();
-        json.put("id", id);
-        json.put("uri", chomp(request.getRequestURI(), "/") + "/" + id);
-        return new ModelAndView(new JsonView()).addObject("json", json);
+        if (store != null) {
+            if (!store.has("label")) {
+                throw new InvalidSyntaxException("store must be labeled");
+            }
+
+            saveStore(storeId, store);
+        }
+
+        if (item != null) {
+            if (!item.has("label")) {
+                throw new InvalidSyntaxException("store item must be labeled");
+            }
+
+            UUID itemId = createItem(storeId, item);
+            String id = itemId.toString();
+
+            JSONObject json = new JSONObject();
+            json.put("id", id);
+            json.put("uri", chomp(request.getRequestURI(), "/") + "/" + id);
+            return new ModelAndView(new JsonView()).addObject("json", json);
+        }
+
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(value = "/stores/{storeId}/{itemId}", method = POST)
