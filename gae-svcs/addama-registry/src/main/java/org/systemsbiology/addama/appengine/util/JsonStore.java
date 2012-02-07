@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
-import static com.google.appengine.api.users.UserServiceFactory.getUserService;
 import static java.util.UUID.randomUUID;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
@@ -127,9 +126,8 @@ public class JsonStore {
         } catch (EntityNotFoundException ex) {
             if (createIfNotExists) {
                 log.info("creating new store:" + ex.getMessage());
-                Entity e = new Entity(storeKey);
-                e.setProperty("creator", getUserService().getCurrentUser().getEmail());
-                inTransaction(datastore, new PutEntityTransactionCallback(e));
+                // TODO : Record user
+                inTransaction(datastore, new PutEntityTransactionCallback(new Entity(storeKey)));
             } else {
                 throw new ResourceNotFoundException(storeId);
             }
