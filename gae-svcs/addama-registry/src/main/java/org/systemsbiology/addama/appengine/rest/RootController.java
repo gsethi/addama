@@ -59,6 +59,7 @@ public class RootController {
         json.put("uri", request.getRequestURI());
         addFamilyItem(json, "Datasources", "/addama/datasources");
         addFamilyItem(json, "Applications", "/addama/apps");
+        addFamilyItem(json, "Stores", "/addama/stores");
         addFamilyItem(json, "Repositories", "/addama/repositories");
         addFamilyItem(json, "Workspaces", "/addama/workspaces");
         addFamilyItem(json, "Tools", "/addama/tools");
