@@ -138,6 +138,19 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
     }
 });
 
+org.systemsbiology.addama.js.FloatingTopBar = Ext.extend(org.systemsbiology.addama.js.TopBar, {
+
+    constructor: function(config) {
+        Ext.apply(this, config);
+
+        var container = Ext.DomHelper.insertFirst(document.body, {tag: "div", cls: "floating_topbar"}, true);
+        Ext.DomHelper.append(container, '<img src="../images/isblogo.svg" alt="logo"/>');
+        this.contentEl = Ext.DomHelper.append(container, { tag:"div" }, true);
+
+        org.systemsbiology.addama.js.FloatingTopBar.superclass.constructor.call(this);
+    }
+});
+
 org.systemsbiology.addama.js.topbar.RegistryKeysWindow = Ext.extend(Object, {
 
     constructor: function(config) {
