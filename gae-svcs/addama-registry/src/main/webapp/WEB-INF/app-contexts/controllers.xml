@@ -64,6 +64,11 @@
                           autowire="byType"/>
                 </entry>
 
+                <!-- Store Controllers -->
+                <entry key="/addama/stores" value-ref="jsonStoreController"/>
+                <entry key="/addama/stores/*" value-ref="jsonStoreController"/>
+                <entry key="/addama/stores/**" value-ref="jsonStoreController"/>
+
                 <!-- Services Controllers -->
                 <entry key="/addama/services" value-ref="serviceController"/>
                 <entry key="/addama/services/*" value-ref="serviceController"/>
@@ -98,5 +103,7 @@
     <bean id="feedsController" class="org.systemsbiology.addama.appengine.rest.FeedsController" autowire="byType"/>
 
     <bean id="appsContentController" class="org.systemsbiology.addama.appengine.rest.AppsController"/>
+
+    <bean id="jsonStoreController" class="org.systemsbiology.addama.appengine.rest.JsonStoreController"/>
 
 </beans>
