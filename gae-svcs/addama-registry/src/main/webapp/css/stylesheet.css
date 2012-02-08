@@ -155,20 +155,6 @@ body {
 /*MESSAGE STYLES*/
 .msg {
     font-size:14px;
-}
-
-.msg-error {
-    font-size:14px;
-}
-
-#container_js_message {
-    position:absolute;
-    left:35%;
-    top:10px;
-    width:300px;
-    z-index:20000;
-}
-#container_js_message .msg {
     border-radius: 8px;
     background: #F6F6F6;
     border: 2px solid #ccc;
@@ -177,7 +163,8 @@ body {
     color: #555;
 }
 
-#container_js_message .msg-error {
+.msg-error {
+    font-size:14px;
     border-radius: 8px;
     background: #FFB2B2;
     border: 2px solid #ccc;
@@ -186,12 +173,20 @@ body {
     color: #555;
 }
 
-#container_js_message .msg .msg-error h3 {
+.msg-container {
+    position:absolute;
+    left:35%;
+    top:10px;
+    width:300px;
+    z-index:20000;
+}
+
+.msg-container h3 {
     margin: 0 0 8px;
     font-weight: bold;
     font-size: 15px;
 }
-#container_js_message .msg .msg-error p {
+.msg-container p {
     margin: 0;
 }
 

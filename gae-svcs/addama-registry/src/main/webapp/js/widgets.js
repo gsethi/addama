@@ -14,7 +14,7 @@ org.systemsbiology.addama.js.widgets.MessageHelper = Ext.extend(Object, {
 
         org.systemsbiology.addama.js.widgets.MessageHelper.superclass.constructor.call(this);
 
-        this.messageContainer = Ext.DomHelper.insertFirst(document.body, {id:'container_js_message'}, true);
+        this.messageContainer = Ext.DomHelper.insertFirst(document.body, { tag: "div", cls:"msg-container"}, true);
     },
 
     show: function(title, message) {
