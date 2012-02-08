@@ -69,7 +69,15 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 }
             },
             failure: function(o) {
-                this.toolbar.add({ text: "Error: " + o.statusText });
+                this.toolbar.add({ text: "Error: " + o.statusText,
+                    menu: [
+                        this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
+                        this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"), '-',
+                        this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine"), '-',
+                        this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
+                        this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount")
+                    ]
+                });
                 this.toolbar.doLayout();
             }
         });
@@ -139,12 +147,13 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
 });
 
 org.systemsbiology.addama.js.FloatingTopBar = Ext.extend(org.systemsbiology.addama.js.TopBar, {
+    logoImg: "/images/isblogo.svg",
 
     constructor: function(config) {
         Ext.apply(this, config);
 
         var container = Ext.DomHelper.insertFirst(document.body, {tag: "div", cls: "floating_topbar"}, true);
-        Ext.DomHelper.append(container, '<img src="/images/isblogo.svg" alt="logo"/>');
+        Ext.DomHelper.append(container, '<img src="' + this.logoImg + '" alt="logo"/>');
         this.contentEl = Ext.DomHelper.append(container, { tag:"div" }, true);
 
         org.systemsbiology.addama.js.FloatingTopBar.superclass.constructor.call(this);
