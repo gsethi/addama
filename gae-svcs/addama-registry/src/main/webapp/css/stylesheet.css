@@ -127,29 +127,17 @@ body {
 	width: 50px;
     position: absolute;
     top: 24px;
-    right: 30px;
+    right: 25px;
     z-index: 1000;
 }
 
 .floating_topbar div {
-    width: 0;
+    width: 800px;
+    padding: 5px 25px 5px 5px;
     z-index: 999;
-    top: 3px;
-    right: 50px;
+    top: 5px;
     float: inherit;
-    padding: 5px 0px 5px 5px;
-    border-radius: 8px;
-
-    -webkit-transition: 0.5s linear;
-    -moz-transition: 0.5s linear;
-    -o-transition: 0.5s linear;
-    transition: 0.5s linear;
-
-}
-
-.floating_topbar:hover div  {
-    width: 1000px;
-    padding: 5px 30px 5px 5px;
+    border-radius: 8px 0 0 8px;
 }
 
 /*MESSAGE STYLES*/

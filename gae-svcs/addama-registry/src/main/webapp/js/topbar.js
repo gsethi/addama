@@ -148,15 +148,30 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
 
 org.systemsbiology.addama.js.FloatingTopBar = Ext.extend(org.systemsbiology.addama.js.TopBar, {
     logoImg: "/images/isblogo.svg",
+    hidden: false,
 
     constructor: function(config) {
         Ext.apply(this, config);
 
         var container = Ext.DomHelper.insertFirst(document.body, {tag: "div", cls: "floating_topbar"}, true);
-        Ext.DomHelper.append(container, '<img src="' + this.logoImg + '" alt="logo"/>');
-        this.contentEl = Ext.DomHelper.append(container, { tag:"div" }, true);
+        var img = Ext.DomHelper.append(container, '<img src="' + this.logoImg + '" alt="logo"/>', true);
+        img.on("click", function() {
+            if (this.hidden) {
+                this.contentEl.slideIn('l', { duration:1 });
+                this.hidden = false;
+            } else {
+                this.contentEl.slideOut('l', { duration:1 });
+                this.hidden = true;
+            }
+        }, this);
+
+        this.contentEl = Ext.DomHelper.append(container, { tag: "div" }, true);
 
         org.systemsbiology.addama.js.FloatingTopBar.superclass.constructor.call(this);
+
+        if (this.hidden) {
+            this.contentEl.pause(1).slideOut('l', { duration:1 });
+        }
     }
 });
 
