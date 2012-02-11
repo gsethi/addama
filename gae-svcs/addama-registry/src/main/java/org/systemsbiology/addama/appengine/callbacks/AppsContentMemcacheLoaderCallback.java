@@ -45,6 +45,7 @@ public class AppsContentMemcacheLoaderCallback implements MemcacheLoaderCallback
         }
 
         String url = chomp(e.getProperty("url").toString(), "/");
+        log.info("loading:" + url + contentUri);
         URL contentUrl = new URL(url + contentUri);
         HTTPResponse resp = getURLFetchService().fetch(contentUrl);
         if (resp.getResponseCode() == SC_OK) {
