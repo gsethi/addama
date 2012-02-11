@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.BufferOverflowException;
@@ -39,10 +40,10 @@ import static com.google.appengine.api.urlfetch.FetchOptions.Builder.withDeadlin
 import static com.google.appengine.api.urlfetch.HTTPMethod.GET;
 import static com.google.appengine.api.urlfetch.HTTPMethod.POST;
 import static com.google.appengine.api.urlfetch.URLFetchServiceFactory.getURLFetchService;
+import static java.net.URLEncoder.encode;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.fileupload.servlet.ServletFileUpload.isMultipartContent;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.replace;
+import static org.apache.commons.lang.StringUtils.*;
 import static org.systemsbiology.addama.appengine.Appspot.APPSPOT_ID;
 import static org.systemsbiology.addama.appengine.util.Users.getLoggedInUserEmail;
 
@@ -84,28 +85,15 @@ public class Proxy {
     }
 
     public static HTTPRequest getWithParams(HttpServletRequest request, URL url) throws MalformedURLException {
-        ArrayList<String> pairs = new ArrayList<String>();
-
-        Enumeration parameterNames = request.getParameterNames();
-        while (parameterNames.hasMoreElements()) {
-            String parameterName = (String) parameterNames.nextElement();
-            for (String value : request.getParameterValues(parameterName)) {
-                pairs.add(parameterName + "=" + value);
-            }
-        }
+        Iterable<String> pairs = collectRequestParameters(request);
 
         StringBuilder builder = new StringBuilder();
         builder.append(url.toString());
-        if (!pairs.isEmpty()) {
-            builder.append("?");
 
-            int i = 0;
-            for (String pair : pairs) {
-                if (i++ > 0) {
-                    builder.append("&");
-                }
-                builder.append(replace(pair, " ", "+"));
-            }
+        int i = 0;
+        for (String pair : pairs) {
+            builder.append((i++ == 0) ? "?" : "&");
+            builder.append(replace(pair, " ", "+"));
         }
 
         URL getUrl = new URL(builder.toString());
@@ -114,28 +102,18 @@ public class Proxy {
     }
 
     public static void forwardParameters(HttpServletRequest request, HTTPRequest proxyRequest) {
-        ArrayList<String> pairs = new ArrayList<String>();
+        Iterable<String> pairs = collectRequestParameters(request);
 
-        Enumeration parameterNames = request.getParameterNames();
-        while (parameterNames.hasMoreElements()) {
-            String parameterName = (String) parameterNames.nextElement();
-            for (String value : request.getParameterValues(parameterName)) {
-                pairs.add(parameterName + "=" + value);
-            }
+        StringBuilder builder = new StringBuilder();
+        int i = 0;
+        for (String pair : pairs) {
+            if (i++ > 0) builder.append("&");
+            builder.append(pair);
         }
 
-        if (!pairs.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-
-            int i = 0;
-            for (String pair : pairs) {
-                if (i++ > 0) {
-                    builder.append("&");
-                }
-                builder.append(pair);
-            }
-
-            proxyRequest.setPayload(builder.toString().getBytes());
+        String payload = builder.toString();
+        if (!isEmpty(payload)) {
+            proxyRequest.setPayload(payload.getBytes());
         }
     }
 
@@ -154,6 +132,23 @@ public class Proxy {
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-key", accessKey.toString()));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-host", APPSPOT_ID));
         proxyRequest.setHeader(new HTTPHeader("x-addama-registry-user", getLoggedInUserEmail(request)));
+    }
+
+    public static Iterable<String> collectRequestParameters(HttpServletRequest request) {
+        ArrayList<String> pairs = new ArrayList<String>();
+        Enumeration parameterNames = request.getParameterNames();
+        while (parameterNames.hasMoreElements()) {
+            String parameterName = (String) parameterNames.nextElement();
+            for (String value : request.getParameterValues(parameterName)) {
+                try {
+                    pairs.add(parameterName + "=" + encode(value, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    log.warning(e.getMessage());
+                    pairs.add(parameterName + "=" + value);
+                }
+            }
+        }
+        return pairs;
     }
 
     /*
