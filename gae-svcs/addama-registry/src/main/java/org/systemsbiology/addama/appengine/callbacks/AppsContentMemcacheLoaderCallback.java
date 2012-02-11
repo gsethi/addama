@@ -38,9 +38,9 @@ public class AppsContentMemcacheLoaderCallback implements MemcacheLoaderCallback
 
         if (serveHomepage) {
             if (e.hasProperty("homepage")) {
-                contentUri = e.getProperty("homepage").toString();
+                contentUri = "/" + e.getProperty("homepage").toString();
             } else {
-                contentUri = "index.html";
+                contentUri = "/index.html";
             }
         }
 
