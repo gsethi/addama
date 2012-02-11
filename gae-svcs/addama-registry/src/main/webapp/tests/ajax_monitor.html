@@ -1,0 +1,66 @@
+<html>
+<head>
+    <title>Test :: Ajax Monitor</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var am = new org.systemsbiology.addama.js.widgets.AjaxMonitor();
+            am.gridPanel.setHeight(500);
+            
+            new Ext.Panel({ renderTo: "container_main", height: 500, autoScroll: true, items: [am.gridPanel] });
+
+            var smallJson = { uri:'/test/response', items: [{uri:'/test/response/1', label:'Item 1'}], numberOfItems: 1 };
+            var bigJson = {
+                a0:"a", b0:"b", c0:"c", d0:"d", e0:"e", f0:"f", g0:"g", h0:"h", i0:"i", j0:"j",
+                a1:"a", b1:"b", c1:"c", d1:"d", e1:"e", f1:"f", g1:"g", h1:"h", i1:"i", j1:"j",
+                a2:"a", b2:"b", c2:"c", d2:"d", e2:"e", f2:"f", g2:"g", h2:"h", i2:"i", j2:"j",
+                a3:"a", b3:"b", c3:"c", d3:"d", e3:"e", f3:"f", g3:"g", h3:"h", i3:"i", j3:"j",
+                a4:"a", b4:"b", c4:"c", d4:"d", e4:"e", f4:"f", g4:"g", h4:"h", i4:"i", j4:"j"
+            };
+
+            var tqParams = { tq:"tq", tqx:"tqx" };
+            var testHeaders = {"x-addama-test": "test"};
+
+            var jsonResponseHeaderFn = function(header) {
+                if (header == "Content-Type") return "application/json";
+                return null;
+            };
+            var notJsonResponseHeaderFn = function(header) {
+                if (header == "Content-Type") return "text/html";
+                return null;
+            };
+            
+            var jsonResponse = { getResponseHeader: jsonResponseHeaderFn, status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(smallJson) };
+            var notJResponse = { getResponseHeader: notJsonResponseHeaderFn, status: 200, statusText: "OK", responseText: "This is not JSON" };
+            var partResponse = { getResponseHeader: jsonResponseHeaderFn, status: 200, statusText: "OK" };
+            var longResponse = { getResponseHeader: jsonResponseHeaderFn, status: 200, statusText: "OK", responseText: Ext.util.JSON.encode(bigJson) };
+
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_params", method: "GET", params: tqParams });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wo_params", method: "GET" });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_params_n_headers", method: "GET", params: tqParams, headers: testHeaders });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_headers", method: "GET", headers: testHeaders });
+            am.addResponseToGrid({}, notJResponse, { url: "/test/not_json_response", method: "GET", params: tqParams });
+            am.addResponseToGrid({}, partResponse, { url: "/test/partial_wi_params", method: "GET", params: tqParams });
+            am.addResponseToGrid({}, partResponse, { url: "/test/partial_wo_params" });
+            am.addResponseToGrid({}, longResponse, { url: "/test/long_one", method: "GET", params: bigJson , headers: bigJson });
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_ajax_header", method: "GET", params: tqParams , headers: {"X-Requested-With": "XMLHttpRequest"}});
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_ajax_header_n_others", method: "GET", params: tqParams, headers: {"X-Requested-With": "XMLHttpRequest", "other-header": "other-value"}});
+            am.addResponseToGrid({}, jsonResponse, { url: "/test/wi_empty_params", method: "GET", params: {}});
+        });
+    </script>
+</head>
+<body>
+<div id="container_main"></div>
+</body>
+</html>

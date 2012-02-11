@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <!--
+        This bean should be included in the web.xml for any service that needs to be registered. It will look for a JSON
+        configuration file in the classpath of the web application container, following this naming convention:
+            "service-name.config" where "service-name" is the same as the deployed "service-name.war"
+    -->
+    <bean id="service-config" class="org.systemsbiology.addama.jsonconfig.ServiceConfig" autowire="byType"/>
+
+</beans>

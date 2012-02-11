@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+
+    <bean id="handlerExceptionResolver"
+          class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+        <property name="verbose" value="true"/>
+        <property name="warnLogCategory" value="workspaces-servlet"/>
+        <property name="exceptionMappings">
+            <props>
+                <prop key="java.lang.UnsupportedOperationException">view501</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ReadOnlyAccessException">view403</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">view404</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">view400</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">view409
+                </prop>
+                <prop key="java.lang.Exception">view500</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="view501" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
+
+    <bean id="view403" class="org.systemsbiology.addama.commons.web.views.ReadOnlyAccessView"/>
+
+    <bean id="view404" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
+
+    <bean id="view400" class="org.systemsbiology.addama.commons.web.views.InvalidSyntaxView"/>
+
+    <bean id="view409" class="org.systemsbiology.addama.commons.web.views.ResourceStateConflictView"/>
+
+    <bean id="view500" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
+
+</beans>

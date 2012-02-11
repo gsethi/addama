@@ -1,0 +1,40 @@
+<html>
+<head>
+    <title>Selected File Control</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/fileuploadfield/css/fileuploadfield.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/fileuploadfield/FileUploadField.js"></script>
+
+    <script type="text/javascript" src="/js/utils.js"></script>
+    <script type="text/javascript" src="../../js/experimental.js"></script>
+
+    <script type="text/javascript">
+        var selectFileControl;
+
+        function browseWorkspace() {
+            selectFileControl = new org.systemsbiology.addama.js.experimental.SelectFileControl({
+                workspace: "edgelimma",
+                listeners: {
+                    selectFile: function(fileUri) {
+                        console.log("selectFile(" + fileUri + ")");
+                        Ext.get("selected_file").dom.innerHTML = fileUri;
+                    }
+                }
+            });
+            selectFileControl.activate();
+        }
+    </script>
+</head>
+<body>
+<button onclick="browseWorkspace();">Browse Workspace</button>
+<hr/>
+<h3>Selected File</h3>
+
+<div id="selected_file">No File Selected</div>
+</body>
+</html>

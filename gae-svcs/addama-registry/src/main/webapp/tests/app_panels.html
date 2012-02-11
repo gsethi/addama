@@ -1,0 +1,114 @@
+<html>
+<head>
+    <title>Test :: Registered Applications</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var testitems = [];
+            testitems.push({ uri: "/testuri_01", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_02", label: "testlabel", logo:"testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_03/", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_04/", label: "testlabel", logo:"testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "/testuri_05", label: "testlabel", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_06", label: "testlabel", logo:"testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_07/", label: "testlabel", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_08/", label: "testlabel", logo:"testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_09", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_10", label: "", logo:"/testlogo.png", description:"testdescription", alt: "test alt" });
+            testitems.push({ uri: "/testuri_11", label: "testlabel", logo:"/testlogo.png", alt: "test alt" });
+            testitems.push({ uri: "/testuri_12", label: "testlabel", logo:"/testlogo.png", description:"", alt: "test alt" });
+            testitems.push({ uri: "/testuri_13", label: "testlabel", logo:"/testlogo.png", description:"test alt with url", alt: "test alt with url 'http://example.com/logo.png' not found" });
+            testitems.push({ uri: "/testuri_14", label: "testlabel", logo:"/testlogo.png", description:"", alt: "really long alt, no really really really really really really really really really really really really really really really really really really long alt" });
+            testitems.push({ uri: "/testuri_15", label: "testlabel", logo:"/testlogo.png", description:"Really long description, no really really really really really really really really really really really really really really really really really really really really really really really really really really really really really really long description", alt: "test alt" });
+            testitems.push({ uri: "http://example.com/testuri_16", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+            testitems.push({ uri: "http://example.com/testuri_17/", label: "testlabel", logo:"/testlogo.png", description:"testdescription" });
+
+            var el = Ext.get("container_services");
+            Ext.each(testitems, function(testitem) {
+                Ext.DomHelper.append(el, org.systemsbiology.addama.js.topbar.RegisterAppsWindow.GenerateHtml(testitem));
+            });
+
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [
+                    new Ext.Panel({
+                        layout: "border",
+                        defaults: {
+                            margins: "5 5 5 5",
+                            padding: "5 5 5 5",
+                            border: true,
+                            frame: true,
+                            width: 520,
+                            autoScroll:true
+                        },
+                        items: [
+                            { contentEl: "container_apps", region: "west", title: "Registered Applications" },
+                            { contentEl: "container_services", region: "center", title: "Registered Services" }
+                        ]
+                    })
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_apps">
+    <div class="apps">
+        <a href="#">
+            <img src="http://hrovira-re-addama.googlecode.com/hg/src/webapp/logo.png" alt="logo"/>
+            <h3>Regulome Explorer</h3>
+        </a>
+        <div class="apps_description">This is the description for regulome explorer.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</div>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="../images/isblogo.svg" alt="logo"/>
+            <h3>Pubcrawl</h3>
+        </a>
+        <div class="apps_description">This is the description for pubcrawl.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</div>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="../images/nologo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <div class="apps_description">This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.  This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.  This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</div>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="../images/nologo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <div class="apps_description">This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</div>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="../images/nologo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <div class="apps_description">This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</div>
+    </div>
+    <div class="apps">
+        <a href="#">
+            <img src="../images/nologo.png" alt="logo"/>
+            <h3>Some App</h3>
+        </a>
+        <div class="apps_description">This is the description for some app.  this is a great app, but i really need a lot of text to make sure that this box can contain it in a reasonable way.</div>
+    </div>
+</div>
+<div id="container_services"></div>
+</body>
+</html>

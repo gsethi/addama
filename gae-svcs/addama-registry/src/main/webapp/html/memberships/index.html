@@ -1,0 +1,103 @@
+<html>
+<head>
+    <title>Memberships</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/css/GroupTab.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/GroupTabPanel.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/ux/GroupTab.js"></script>
+
+    <script type="text/javascript" src="/js/utils.js"></script>
+    <script type="text/javascript" src="/js/topbar.js"></script>
+    <script type="text/javascript" src="/js/widgets.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/stylesheet.css"/>
+    
+    <script type="text/javascript" src="/html/memberships/js/viewport.js"></script>
+    <script type="text/javascript" src="/html/memberships/js/controls.js"></script>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.TopBar({
+                contentEl: "container_topbar",
+                listeners: {
+                    whoami: function(json) {
+                        if (json.isAdmin) {
+                            Ext.get("container_admin").setVisible(true);
+                            new DomainLevelUsersControl("container_domain_level_membership_list");
+                        }
+                    }
+                }
+            });
+
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [
+                    { contentEl: "container_main" }
+                ]
+            });
+
+            initViewport(true, true);
+
+            Ext.Ajax.request({
+                url: "/addama/memberships/uris",
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.numberOfItems) {
+                        Ext.get("container_moderator").setVisible(true);
+                        Ext.getDom("container_membership_uris").innerHTML = o.responseText;
+                    }
+                }
+            });
+
+            Ext.Ajax.request({
+                url: "/addama/memberships/mine",
+                method: "GET",
+                success: function(o) {
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json && json.numberOfItems) {
+                        Ext.getDom("container_member_uris").innerHTML = o.responseText;
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_main">
+    <div id="container_admin" style="display:none;">
+        <div id="container_domain_level_membership_list"></div>
+
+        <div id="container_membership_domain_moderators"></div>
+    </div>
+    <div id="container_moderator" style="display:none;">
+        <h3>Moderator Controls</h3>
+
+        <br/>
+        <span>Moderated Memberships by URI</span>
+
+        <div id="container_membership_uris"></div>
+
+        <br/>
+        <span>Membership Applicants by URI</span>
+
+        <div id="container_membership_uris_applicants"></div>
+    </div>
+    <div id="container_member">
+        <h3>Member Controls</h3>
+
+        <br/>
+        <span>Memberships</span>
+
+        <div id="container_member_uris"></div>
+    </div>
+</div>
+</body>
+</html>

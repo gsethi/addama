@@ -1,0 +1,52 @@
+<html>
+<head>
+    <title>Addama</title>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+
+    <!--<script type="text/javascript" src="/_ah/channel/jsapi"></script>-->
+    
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+    <!--<script type="text/javascript" src="../js/channels.js"></script>-->
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            // new org.systemsbiology.addama.js.channels.MessageListener();
+            new org.systemsbiology.addama.js.TopBar({ contentEl: "container_topbar" });
+            new org.systemsbiology.addama.js.widgets.AppsPanel({ contentEl: "container_apps" });
+            new org.systemsbiology.addama.js.widgets.ServicesPanel({ contentEl: "container_services" });
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                activateAjaxMonitor: true,
+                tabs: [
+                    new Ext.Panel({
+                        layout: "border",
+                        defaults: {
+                            margins: "10 10 10 10",
+                            border: true,
+                            frame: true,
+                            width: 520,
+                            autoScroll:true
+                        },
+                        items: [
+                            { contentEl: "container_apps", region: "west", title: "Registered Applications" },
+                            { contentEl: "container_services", region: "center", title: "Registered Services" }
+                        ]
+                    })
+                ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar"></div>
+<div id="container_apps"></div>
+<div id="container_services"></div>
+</body>
+</html>

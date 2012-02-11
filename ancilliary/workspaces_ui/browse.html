@@ -1,0 +1,57 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+    <title>File Sharing Workspace</title>
+
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+
+    <script type="text/javascript" src="http://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/js/utils.js"></script>
+    <script type="text/javascript" src="http://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/js/widgets.js"></script>
+    <script type="text/javascript" src="js/browse.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="http://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/css/stylesheet.css"/>
+    <link rel="stylesheet" type="text/css" href="css/browse.css">
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            new org.systemsbiology.addama.js.widgets.Viewport({
+                topbarEl: "container_topbar",
+                tabs: [ new org.systemsbiology.addama.js.widgets.workspaces.WorkspacesTabPanel({baseUri:"/addama/workspaces"}).mainPanel ]
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+
+<div id="container_start">
+    <div style="margin-left:50px;">
+        <h2>Welcome to your Data</h2>
+    </div>
+</div>
+
+<div id="container_tree"></div>
+<div id="container_folder_content">
+    <div style="margin-left:50px;">
+        <h2><span id="container_folder_item"></span></h2>
+        <br/><a href="workspaces.html#" onclick="org.systemsbiology.addama.js.widgets.workspaces.CreateFolder(); return false;">Create Folder</a>
+        <br/><a href="workspaces.html#" onclick="org.systemsbiology.addama.js.widgets.workspaces.DoFileUpload(); return false;">Upload File</a>
+    </div>
+</div>
+
+<div id="container_file_content">
+    <div style="margin-left:50px;">
+        <div id="container_file_download"></div>
+        <div id="container_file_preview"></div>
+    </div>
+</div>
+
+<div id="container_properties"></div>
+
+</body>
+</html>

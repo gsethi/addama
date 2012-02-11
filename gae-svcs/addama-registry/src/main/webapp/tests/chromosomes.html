@@ -1,0 +1,102 @@
+<html>
+<head>
+    <title>Test :: Chromosomes</title>
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base-debug.js"></script>
+    <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all-debug.js"></script>
+
+    <script type="text/javascript" src="../js/utils.js"></script>
+    <script type="text/javascript" src="../js/topbar.js"></script>
+    <script type="text/javascript" src="../js/widgets.js"></script>
+    <script type="text/javascript" src="../js/chromosomes.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../css/stylesheet.css"/>
+
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var cv = new org.systemsbiology.addama.js.widgets.chromosomes.View();
+
+            new org.systemsbiology.addama.js.widgets.Viewport({ topbarEl: "container_topbar", tabs: [ cv.mainPanel ] });
+
+            var builds = [
+                { "label": "HG19", "uri": "/addama/chromosomes/hg19" },
+                { "label": "HG18", "uri": "/addama/chromosomes/hg18" }
+            ];
+            Ext.each(builds, function(item) { item.isDb = true; });
+            cv.displayItems(cv.buildSelector, builds);
+
+            var chromosomes = [];
+            for (var i = 50; i > 0; i--) {
+                var chrLabel = "chr" + i;
+                chromosomes.push({ "id": chrLabel, "label": chrLabel, "uri": "/addama/chromosomes/hg18/" + chrLabel });
+            }
+            for (var j = 10; j > 0; j--) {
+                var chrLabel = "chr" + j + "_random";
+                chromosomes.push({ "id": chrLabel, "label": chrLabel, "uri": "/addama/chromosomes/hg18/" + chrLabel });
+            }
+            cv.displayItems(cv.chromosomeSelector,chromosomes,cv.chromosomeSorter());
+
+            cv.uriBuilder.setChromosome("chr11");
+
+            var features = {
+                "items": [
+                    {
+                        "BIN": 585,
+                        "CDSEND": 7502,
+                        "CDSENDSTAT": "unk",
+                        "CDSSTART": 7502,
+                        "CDSSTARTSTAT": "unk",
+                        "CHROM": "chr1",
+                        "EXONCOUNT": 7,
+                        "NAME": "NR_028269",
+                        "NAME2": "LOC100288778",
+                        "SCORE": 0,
+                        "STRAND": "-",
+                        "TXEND": 7502,
+                        "TXSTART": 4224,
+                        "chromosome": "chr1",
+                        "end": 7502,
+                        "start": 4224,
+                        "strand": "-"
+                    }
+                ],
+                "numberOfItems": 1
+            };
+
+            var firstFeature = features.items[0];
+            for (var f = 0; f < 100; f++) {
+                features.items.push(firstFeature);
+            }
+
+            var genes = {
+                "data": [
+                    "LOC100288778",
+                    "FAM138A",
+                    "WASH7P",
+                    "FAM138F",
+                    "OR4F5"
+                ],
+                "dataSchema": {
+                    "datatype": "string",
+                    "name": "name2"
+                }
+            };
+
+            cv.retrieveFeaturesBtn.on("click", function() {
+                cv.loadFeatureData(features.items);
+                cv.uriBuilder.setChromosome("chrY");
+            });
+            cv.retrieveGenesBtn.on("click", function() {
+                cv.loadGeneData(genes.data);
+                cv.uriBuilder.setChromosome("chrX", 1000, 2000);
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="container_topbar" class="topbar"></div>
+<div id="container_main"></div>
+</body>
+</html>

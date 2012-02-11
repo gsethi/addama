@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <link rel="shortcut icon" href="http://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/favicon.ico" type="image/x-icon"/>
+        <title>Web Services :: Filesystem Workspaces</title>
+
+        <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/resources/css/ext-all.css">
+        <link rel="stylesheet" type="text/css" href="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/examples/shared/examples.css"/>
+
+        <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/adapter/ext/ext-base.js"></script>
+        <script type="text/javascript" src="https://informatics-apps.systemsbiology.net/ext-js-3.4.0/ext-all.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="http://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/css/stylesheet.css"/>
+
+        <script type="text/javascript">
+            Ext.onReady(function() {
+                Ext.Ajax.request({
+                    url: "version",
+                    method: "GET",
+                    success: function(o) {
+                        Ext.getDom("container_version").innerHTML = o.responseText;
+                    }
+                });
+
+                var links = [];
+                links.push(Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://addama.org" target="_blank">Addama Open Source Project</a></div>', true).dom);
+                links.push(Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://www.systemsbiology.org" target="_blank">Institute for Systems Biology</a></div>', true).dom);
+                links.push(Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://shmulevich.systemsbiology.net/" target="_blank">Shmulevich Lab</a></div>', true).dom);
+                links.push(Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://codefor.systemsbiology.net/" target="_blank">Code for Systems Biology</a></div>', true).dom);
+                links.push(Ext.DomHelper.append(Ext.getBody(), '<div><a href="http://www.ncbi.nlm.nih.gov/pubmed/19265554" target="_blank">PMID 19265554</a></div>', true).dom);
+
+                new Ext.Viewport({
+                    frame: true, border: true,
+                    layout:'border',
+                    defaults: {
+                        margins: "5 5 5 5",
+                        padding: "5 5 5 5",
+                        frame: true,
+                        border: true,
+                        height: 200,
+                        width: 300
+                    },
+                    items:[
+                        { contentEl: "container_header", region: "north", height: 80, frame: false, border: false },
+                        {
+                            contentEl: "container_overview", region: "center", title: "Documentation",
+                            html:"<iframe src='http://wiki.addama.googlecode.com/hg/WebServices.wiki' frameborder='0' height='100%' width='100%'></iframe>"
+                        },
+                        { contentEl: "container_version", region: "east", title: "Version" },
+                        {
+                            contentEl: "container_links",
+                            region: "south",
+                            layout: "hbox",
+                            height: 33,
+                            border: false,
+                            frame: true,
+                            padding: "1 1 1 1",
+                            margins: "1 1 1 1",
+                            layoutConfig: { pack: "center", align: "middle", defaultMargins: "0 10 0 0" },
+                            items: links
+                        }
+                    ]
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="container_header"><img src="http://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/images/banner.png" alt="Addama"/></div>
+        <div id="container_version"></div>
+        <div id="container_overview"></div>
+        <div id="container_links">
+            <ul>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </body>
+</html>
