@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.appengine.callbacks.AppsContentMemcacheLoaderCallback;
 import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
-import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
+import org.systemsbiology.addama.commons.web.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;

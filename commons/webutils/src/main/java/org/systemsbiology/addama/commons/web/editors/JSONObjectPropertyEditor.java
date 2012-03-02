@@ -1,14 +1,14 @@
-package org.systemsbiology.addama.appengine.editors;
+package org.systemsbiology.addama.commons.web.editors;
 
-import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.beans.PropertyEditorSupport;
 
 /**
  * @author hrovira
  */
-public class JSONArrayPropertyEditor extends PropertyEditorSupport {
+public class JSONObjectPropertyEditor extends PropertyEditorSupport {
     @Override
     public void setAsText(String text) throws IllegalArgumentException {
         if (text == null) {
@@ -16,7 +16,7 @@ public class JSONArrayPropertyEditor extends PropertyEditorSupport {
         }
 
         try {
-            setValue(new JSONArray(text));
+            setValue(new JSONObject(text));
         } catch (JSONException e) {
             throw new IllegalArgumentException(e);
         }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
+import org.systemsbiology.addama.commons.web.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.JsonView;

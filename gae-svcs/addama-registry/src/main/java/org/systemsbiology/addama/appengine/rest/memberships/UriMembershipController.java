@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.systemsbiology.addama.appengine.editors.JSONArrayPropertyEditor;
+import org.systemsbiology.addama.commons.web.editors.JSONArrayPropertyEditor;
 import org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException;
 import org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
