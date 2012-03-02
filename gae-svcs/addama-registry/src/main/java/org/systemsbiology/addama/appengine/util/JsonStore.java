@@ -104,7 +104,8 @@ public class JsonStore {
         try {
             e = datastore.get(itemKey);
         } catch (EntityNotFoundException ex) {
-            throw new ResourceNotFoundException(itemId);
+            log.warning(ex.getMessage());
+            e = new Entity(itemKey);
         }
 
         fromJson(item, e);

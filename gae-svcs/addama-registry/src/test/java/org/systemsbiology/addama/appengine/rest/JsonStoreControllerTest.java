@@ -157,6 +157,27 @@ public class JsonStoreControllerTest {
     }
 
     @Test
+    public void creation_namedItem() throws Exception {
+        helper.setEnvIsAdmin(true);
+
+        JSONObject item = new JSONObject();
+        item.put("label", "item one");
+        item.put("identity", 354);
+        item.put("description", "this is some really long description, really really long, i mean it... ok, could be longer");
+        item.put("isMarkedByABooleanFlag", true);
+
+        CONTROLLER.update(new MockHttpServletRequest(), "store_one", "item_one", item);
+
+        JSONObject actual = retrieveItem("store_one", "item_one");
+        assertNotNull(actual);
+        assertEquals("item_one", actual.getString("id"));
+        assertEquals(item.getString("label"), actual.getString("label"));
+        assertEquals(item.getInt("identity"), actual.getInt("identity"));
+        assertEquals(item.getString("description"), actual.getString("description"));
+        assertEquals(item.getBoolean("isMarkedByABooleanFlag"), actual.getBoolean("isMarkedByABooleanFlag"));
+    }
+
+    @Test
     public void update() throws Exception {
         helper.setEnvIsAdmin(true);
 
