@@ -68,5 +68,36 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>ArborJS</id>
+            <activation>
+                <property>
+                    <name>includeArborJS</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <configuration>
+                                    <tasks>
+                                        <echo>Including ArborJS</echo>
+                                        <get src="http://addama.googlecode.com/files/arbor.js"
+                                            dest="target/${project.build.finalName}/js/arbor.js"
+                                         verbose="true"/>
+                                    </tasks>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
