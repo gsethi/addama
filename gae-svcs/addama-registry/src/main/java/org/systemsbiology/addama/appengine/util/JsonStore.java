@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import static com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService;
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static java.util.UUID.randomUUID;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 
 /**
@@ -23,6 +24,7 @@ import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemp
  */
 public class JsonStore {
     private static final Logger log = Logger.getLogger(JsonStore.class.getName());
+    private static final String TYPE_JSON = "x-type-json::";
 
     private static final DatastoreService datastore = getDatastoreService();
 
@@ -140,7 +142,12 @@ public class JsonStore {
         Iterator keys = item.keys();
         while (keys.hasNext()) {
             String key = (String) keys.next();
-            e.setProperty(key, item.get(key));
+            Object subItem = item.get(key);
+            if (subItem instanceof JSONObject) {
+                e.setProperty(key, TYPE_JSON + subItem.toString());
+            } else {
+                e.setProperty(key, subItem);
+            }
         }
     }
 
@@ -149,7 +156,12 @@ public class JsonStore {
             String key = entry.getKey();
             Object value = entry.getValue();
             try {
-                item.put(key, value.toString());
+                String stringValue = value.toString();
+                if (stringValue.startsWith(TYPE_JSON)) {
+                    item.put(key, new JSONObject(substringAfterLast(stringValue, TYPE_JSON)));
+                } else {
+                    item.put(key, stringValue);
+                }
             } catch (JSONException ex) {
                 log.warning(key + ":" + value + ":" + ex.getMessage());
             }

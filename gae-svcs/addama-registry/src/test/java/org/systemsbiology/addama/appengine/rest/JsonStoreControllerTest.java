@@ -178,6 +178,40 @@ public class JsonStoreControllerTest {
     }
 
     @Test
+    public void creation_nestedJSON() throws Exception {
+        helper.setEnvIsAdmin(true);
+
+        JSONObject item = new JSONObject();
+        item.put("label", "item one");
+        item.put("identity", 354);
+        item.put("description", "this is some really long description, really really long, i mean it... ok, could be longer");
+        item.put("isMarkedByABooleanFlag", true);
+        item.put("subItem", new JSONObject().put("prop", "val"));
+
+//        UUID id = createItem("store_one", item);
+
+        ModelAndView mav = CONTROLLER.creation(new MockHttpServletRequest(), "store_one", null, item);
+        JSONObject respJson = (JSONObject) mav.getModel().get("json");
+        assertNotNull(respJson);
+        assertTrue(respJson.has("id"));
+        String id = respJson.getString("id");
+
+        mav = CONTROLLER.listItem(new MockHttpServletRequest(), "store_one", id);
+        JSONObject actual = (JSONObject) mav.getModel().get("json");
+        assertNotNull(actual);
+        assertEquals(id, actual.getString("id"));
+        assertEquals(item.getString("label"), actual.getString("label"));
+        assertEquals(item.getInt("identity"), actual.getInt("identity"));
+        assertEquals(item.getString("description"), actual.getString("description"));
+        assertEquals(item.getBoolean("isMarkedByABooleanFlag"), actual.getBoolean("isMarkedByABooleanFlag"));
+        assertTrue(item.has("subItem"));
+
+        JSONObject subItem = item.getJSONObject("subItem");
+        assertNotNull(subItem);
+        assertEquals("val", subItem.get("prop"));
+    }
+
+    @Test
     public void update() throws Exception {
         helper.setEnvIsAdmin(true);
 
