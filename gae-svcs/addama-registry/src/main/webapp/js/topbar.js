@@ -21,127 +21,34 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
 
         org.systemsbiology.addama.js.TopBar.superclass.constructor.call(this);
 
-        Ext.Ajax.request({
-            url: "/addama/users/whoami",
-            method: "GET",
-            scope: this,
-            success: function(o) {
-                var json = Ext.util.JSON.decode(o.responseText);
-                if (json && json.email) {
-                    this.toolbar.add({ text: json.email,
-                        menu: [
-                            this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
-                            this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"), '-',
-                            this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine"), '-',
-                            this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
-                            this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount")
-                        ]
-                    });
-                    this.toolbar.add({ xtype: 'tbseparator' });
-
-                    this.toolbar.add({ text: "Links",
-                        menu: [
-                            this.newLinkMenuItem("Home", "/"), '-',
-                            this.newLinkMenuItem("Download API Keys", "/html/apikeys.html"), '-',
-                            this.newLinkMenuItem("Query Databases", "/html/datasources.html"),
-                            this.newLinkMenuItem("Browse Files", "/html/workspaces.html"),
-                            this.newLinkMenuItem("Query Chromosomes", "/html/chromosomes.html"),
-                            this.newLinkMenuItem("View Job Results", "/html/jobs.html"), '-',
-                            this.newLinkMenuItem("Test Channels", "/html/channels.html"),
-                            this.newLinkMenuItem("Test Feeds", "/html/feeds.html")
-                        ]
-                    });
-                    this.toolbar.add({ xtype: 'tbseparator' });
-
-                    if (this.addAdminMenu(json)) {
-                        this.toolbar.add({ xtype: 'tbseparator' });
-                    }
-
-                    this.toolbar.add({ text: 'Sign out', xtype: 'tbbutton',
-                        handler:function() { document.location = json.logoutUrl; }
-                    });
-                    
-                    this.toolbar.doLayout();
-                    this.fireEvent("whoami", json);
-                } else {
-                    this.toolbar.add({ text: "Not logged in" });
-                    this.toolbar.doLayout();
-                }
-            },
-            failure: function(o) {
-                this.toolbar.add({ text: "Error: " + o.statusText,
-                    menu: [
-                        this.newLinkMenuItem("Addama Open Source Project", "http://addama.org"),
-                        this.newLinkMenuItem("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"), '-',
-                        this.newLinkMenuItem("What is App Engine?", "http://code.google.com/appengine"), '-',
-                        this.newLinkMenuItem("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
-                        this.newLinkMenuItem("Your Google Account", "https://accounts.google.com/b/0/ManageAccount")
-                    ]
-                });
-                this.toolbar.doLayout();
-            }
+        var me = this;
+        org.systemsbiology.addama.js.LoadTopbarMenus(this.toolbar, function(json) {
+            me.fireEvent("whoami", json);
         });
-    },
 
-    addAdminMenu: function(json) {
-        if (json.isAdmin) {
-            var refreshUI = new Ext.Action({
-                text: 'Refresh UI Version',
-                handler: function(){
-                    Ext.Ajax.request({
-                        url: "/addama/apps/refresh", method: "POST",
-                        success: function() { document.location = document.location.href; }
-                    });
-                }
-            });
+    }
+});
 
-            var registerAppsAction = new Ext.Action({
-                text: "Register Apps",
-                handler: function(){
-                    new org.systemsbiology.addama.js.topbar.RegisterAppsWindow();
-                }
-            });
+org.systemsbiology.addama.js.TopBarToolbar = Ext.extend(Ext.Toolbar, {
+    buttonAlign: "right",
 
-            var greenlistAction = new Ext.Action({
-                text: "Manage User Access",
-                handler: function(){
-                    new org.systemsbiology.addama.js.topbar.GreenlistWindow();
-                }
-            });
+    constructor: function(config) {
+        Ext.apply(this, config);
 
-            var addamaPropertiesAction = new Ext.Action({
-                text: "Service Registration Keys",
-                handler: function(){
-                    new org.systemsbiology.addama.js.topbar.RegistryKeysWindow();
-                }
-            });
+        this.addEvents({
+            /**
+             * @event whoami
+             * Fires after the whoami REST call is returned.
+             * @param {Object} json represents logged-in user object
+             */
+            whoami: true
+        });
 
-            var app_id = document.location.hostname.replace(".appspot.com", "");
+        org.systemsbiology.addama.js.TopBarToolbar.superclass.constructor.call(this);
 
-            this.toolbar.add({
-                text: "Administration",
-                menu: [
-                    refreshUI,
-                    { xtype: "menuseparator" },
-                    registerAppsAction,
-                    greenlistAction,
-                    addamaPropertiesAction,
-                    { xtype: "menuseparator" },
-                    this.newLinkMenuItem("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
-                ]
-            });
-
-            return true;
-        }
-        return false;
-    },
-
-    newLinkMenuItem: function(text, link) {
-        return new Ext.Action({
-            text: text,
-            handler: function() {
-                document.location = link;
-            }
+        var me = this;
+        org.systemsbiology.addama.js.LoadTopbarMenus(this, function(json) {
+            me.fireEvent("whoami", json);
         });
     }
 });
@@ -621,4 +528,113 @@ org.systemsbiology.addama.js.topbar.GreenlistWindow = Ext.extend(Object, {
     }
 });
 
+org.systemsbiology.addama.js.LoadTopbarMenus = function(toolbar, successCallback) {
+    var newLinkMenuItemFn = function(text, link) {
+        return new Ext.Action({
+            text: text,
+            handler: function() {
+                document.location = link;
+            }
+        });
+    };
 
+    var staticMenus = [
+        newLinkMenuItemFn("Addama Open Source Project", "http://addama.org"),
+        newLinkMenuItemFn("Addama Documentation", "http://code.google.com/p/addama/wiki/Overview"),
+        "-",
+        newLinkMenuItemFn("What is App Engine?", "http://code.google.com/appengine"),
+        "-",
+        newLinkMenuItemFn("Google Privacy Policy", "http://www.google.com/intl/en/privacy"),
+        newLinkMenuItemFn("Your Google Account", "https://accounts.google.com/b/0/ManageAccount")
+    ];
+
+    Ext.Ajax.request({
+        url: "/addama/users/whoami",
+        method: "GET",
+        success: function(o) {
+            var json = Ext.util.JSON.decode(o.responseText);
+            if (json && json.email) {
+                toolbar.add({ text: json.email, menu: staticMenus });
+                toolbar.add({ xtype: 'tbseparator' });
+                toolbar.add({
+                    text: "Links",
+                    menu: [
+                        newLinkMenuItemFn("Home", "/"),
+                        "-",
+                        newLinkMenuItemFn("Download API Keys", "/html/apikeys.html"),
+                        "-",
+                        newLinkMenuItemFn("Query Databases", "/html/datasources.html"),
+                        newLinkMenuItemFn("Browse Files", "/html/workspaces.html"),
+                        newLinkMenuItemFn("Query Chromosomes", "/html/chromosomes.html"),
+                        newLinkMenuItemFn("View Job Results", "/html/jobs.html"),
+                        "-",
+                        newLinkMenuItemFn("Test Channels", "/html/channels.html"),
+                        newLinkMenuItemFn("Test Feeds", "/html/feeds.html")
+                    ]
+                });
+                toolbar.add({ xtype: 'tbseparator' });
+
+                if (json.isAdmin) {
+                    var refreshUI = new Ext.Action({
+                        text: 'Refresh UI Version',
+                        handler: function(){
+                            Ext.Ajax.request({
+                                url: "/addama/apps/refresh", method: "POST",
+                                success: function() { document.location = document.location.href; }
+                            });
+                        }
+                    });
+                    var registerAppsAction = new Ext.Action({
+                        text: "Register Apps",
+                        handler: function(){
+                            new org.systemsbiology.addama.js.topbar.RegisterAppsWindow();
+                        }
+                    });
+                    var greenlistAction = new Ext.Action({
+                        text: "Manage User Access",
+                        handler: function(){
+                            new org.systemsbiology.addama.js.topbar.GreenlistWindow();
+                        }
+                    });
+                    var addamaPropertiesAction = new Ext.Action({
+                        text: "Service Registration Keys",
+                        handler: function(){
+                            new org.systemsbiology.addama.js.topbar.RegistryKeysWindow();
+                        }
+                    });
+
+                    var app_id = document.location.hostname.replace(".appspot.com", "");
+
+                    toolbar.add({
+                        text: "Administration",
+                        menu: [
+                            refreshUI,
+                            { xtype: "menuseparator" },
+                            registerAppsAction,
+                            greenlistAction,
+                            addamaPropertiesAction,
+                            { xtype: "menuseparator" },
+                            newLinkMenuItemFn("App Engine Console", "https://appengine.google.com/dashboard?&app_id=" + app_id)
+                        ]
+                    });
+
+                    toolbar.add({ xtype: 'tbseparator' });
+                }
+
+                toolbar.add({ text: 'Sign out', xtype: 'tbbutton',
+                    handler:function() { document.location = json.logoutUrl; }
+                });
+
+                toolbar.doLayout();
+                successCallback(json);
+            } else {
+                toolbar.add({ text: "Not logged in" });
+                toolbar.doLayout();
+            }
+        },
+        failure: function(o) {
+            toolbar.add({ text: "Error: " + o.statusText, menu: staticMenus });
+            toolbar.doLayout();
+        }
+    });
+};
