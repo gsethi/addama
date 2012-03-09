@@ -14,16 +14,50 @@
 
     <script type="text/javascript">
         Ext.onReady(function() {
+            var panelTbar = new org.systemsbiology.addama.js.TopBarToolbar({
+                listeners: {
+                    whoami: function() { org.systemsbiology.addama.js.Message.show("Test", "Panel TBar loaded!"); }
+                }
+            });
+
+            var northToolbar = new org.systemsbiology.addama.js.TopBarToolbar({
+                region: "north",
+                height: 30,
+                listeners: {
+                    whoami: function() { org.systemsbiology.addama.js.Message.show("Test", "North Toolbar loaded!"); }
+                }
+            });
+
             new Ext.Viewport({
                 frame: true,
                 border: true,
                 layout:'border',
                 items:[
-                    new org.systemsbiology.addama.js.TopBarToolbar({ region: "north", height: 30 }),
-                    { contentEl: "c_main", region: "center", margins: "5 5 5 5", frame: true },
+                    northToolbar,
+                    {
+                        contentEl: "c_main",
+                        region: "center",
+                        margins: "5 5 5 5",
+                        frame: true,
+                        tbar: panelTbar,
+                        bbar: new org.systemsbiology.addama.js.TopBarToolbar({ height: 30, buttonAlign: "center" })
+                    },
                     new org.systemsbiology.addama.js.TopBarToolbar({ region: "south", height: 40, buttonAlign: "left" })
                 ]
             });
+
+            var otherMenu = {
+                text: "Other Menu",
+                menu: [
+                    new Ext.Action({
+                        text: "Institute for Systems Biology",
+                        handler: function() { document.location = "http://systemsbiology.org"; }
+                    })
+                ]
+            };
+
+            panelTbar.add(otherMenu);
+            northToolbar.add(otherMenu);
         });
     </script>
 </head>
