@@ -234,6 +234,7 @@ public class Registry {
 
     private static RegistryMapping getMappingFromEntity(Entity e) {
         RegistryMapping rm = new RegistryMapping();
+        rm.setId(e.getKey().getName());
         rm.setUri(e.getProperty("uri").toString());
         rm.setServiceUri(e.getProperty("service").toString());
         if (e.hasProperty("label")) {

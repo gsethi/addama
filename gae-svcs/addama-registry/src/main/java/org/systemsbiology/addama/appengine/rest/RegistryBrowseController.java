@@ -64,6 +64,7 @@ public class RegistryBrowseController {
                 String itemUri = rm.getUri();
 
                 JSONObject item = new JSONObject();
+                item.put("id", rm.getId());
                 item.put("service", rm.getServiceUri());
                 item.put("label", rm.getLabel());
                 item.put("uri", rm.getUri());

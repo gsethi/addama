@@ -22,10 +22,19 @@ package org.systemsbiology.addama.appengine.pojos;
  * @author hrovira
  */
 public class RegistryMapping {
+    private String id;
     private String uri;
     private String serviceUri;
     private String label;
     private boolean handleAsynch;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getUri() {
         return uri;
