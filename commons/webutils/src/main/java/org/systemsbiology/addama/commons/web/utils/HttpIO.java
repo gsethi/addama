@@ -153,6 +153,9 @@ public class HttpIO {
     }
 
     public static String getURI(HttpServletRequest request) {
+        if (request.getAttribute("x-addama-standalone-svc") != null) {
+            return chomp(request.getRequestURI(), "/");
+        }
         return chomp(substringAfter(request.getRequestURI(), request.getContextPath()), "/");
     }
 

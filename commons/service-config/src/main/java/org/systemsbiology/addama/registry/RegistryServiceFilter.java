@@ -147,6 +147,7 @@ public class RegistryServiceFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         if (this.runUnregistered) {
+            servletRequest.setAttribute("x-addama-standalone-svc", true);
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
