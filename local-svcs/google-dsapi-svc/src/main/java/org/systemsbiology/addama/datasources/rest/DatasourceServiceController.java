@@ -83,7 +83,7 @@ public class DatasourceServiceController implements InitializingBean {
     protected ModelAndView listDatabase(HttpServletRequest request,
                                         @PathVariable("databaseId") String databaseId) throws Exception {
         JdbcTemplate jdbcTemplate = jdbcTemplateDsById.get(databaseId);
-        String baseUri = chomp(substringAfterLast(request.getRequestURI(), request.getContextPath()), "/");
+        String baseUri = getURI(request);
 
         JSONObject json = new JSONObject();
         for (String tableId : getTableIds(databaseId, jdbcTemplate)) {

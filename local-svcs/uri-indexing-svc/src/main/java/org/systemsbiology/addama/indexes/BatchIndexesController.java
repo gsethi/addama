@@ -71,7 +71,7 @@ public class BatchIndexesController {
     public ModelAndView batches(HttpServletRequest request, @PathVariable("indexId") String indexId) throws Exception {
         log.info(indexId);
 
-        String baseUri = chomp(substringAfterLast(request.getRequestURI(), request.getContextPath()), "/");
+        String baseUri = getURI(request);
 
         JSONObject json = executeBatch(indexId, baseUri, request);
         return new ModelAndView(new JsonItemsView()).addObject("json", json);
