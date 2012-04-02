@@ -21,10 +21,7 @@ import org.systemsbiology.google.visualization.datasource.impls.TsvFileDataTable
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -60,17 +57,24 @@ public class DataSourceHelper {
     }
 
     public static void executeDataSourceServletFlow(HttpServletRequest request, HttpServletResponse response,
-                                                    DataTableGenerator tableGenerator)
-            throws Exception {
+                                                    DataTableGenerator tableGenerator) throws Exception {
         boolean isJsonArray = false;
+        boolean isTsvOut = false;
+        boolean isCsvPlain = false;
         String tqx = request.getParameter("tqx");
         if (!isEmpty(tqx)) {
             TqxParser tqxParser = new TqxParser(tqx);
             isJsonArray = equalsIgnoreCase(tqxParser.getOut(), "json_array");
+            isTsvOut = equalsIgnoreCase(tqxParser.getOut(), "tsv");
+            isCsvPlain = equalsIgnoreCase(tqxParser.getOut(), "csv_plain");
         }
 
         if (isJsonArray) {
             executeJsonArrayDataSourceServletFlow(request, response, tableGenerator);
+        } else if (isTsvOut) {
+            executeSimpleOutDataSourceServletFlow(request, response, tableGenerator, "\t");
+        } else if (isCsvPlain) {
+            executeSimpleOutDataSourceServletFlow(request, response, tableGenerator, ",");
         } else {
             com.google.visualization.datasource.DataSourceHelper.executeDataSourceServletFlow(request, response, tableGenerator, false);
         }
@@ -87,6 +91,26 @@ public class DataSourceHelper {
 
             resp.setContentType("application/json");
             resp.getWriter().write(responseJson.toString());
+
+        } catch (DataSourceException e) {
+            resp.setStatus(SC_BAD_REQUEST);
+            resp.getWriter().write(e.getMessageToUser());
+
+        } catch (RuntimeException e) {
+            resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write(e.getMessage());
+        }
+    }
+
+    public static void executeSimpleOutDataSourceServletFlow(HttpServletRequest req, HttpServletResponse resp, DataTableGenerator dtGenerator, String separator) throws Exception {
+        try {
+            DataSourceRequest dsRequest = new DataSourceRequest(req);
+            QueryPair query = splitQuery(dsRequest.getQuery(), dtGenerator.getCapabilities());
+            DataTable dataTable = dtGenerator.generateDataTable(query.getDataSourceQuery(), req);
+            DataTable newDataTable = applyQuery(query.getCompletionQuery(), dataTable, dsRequest.getUserLocale());
+
+            resp.setContentType("text/plain");
+            generateResponse(newDataTable, separator, resp.getOutputStream());
 
         } catch (DataSourceException e) {
             resp.setStatus(SC_BAD_REQUEST);
@@ -151,6 +175,41 @@ public class DataSourceHelper {
             }
         }
         return jsonArray;
+    }
+
+    private static void generateResponse(DataTable data, String separator, OutputStream outputStream) throws Exception {
+        if (!data.getWarnings().isEmpty()) {
+            return;
+        }
+
+        if (data.getColumnDescriptions().isEmpty()) {
+            return;
+        }
+
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        boolean firstRow = true;
+        for (TableRow tableRow : data.getRows()) {
+            List<TableCell> cells = tableRow.getCells();
+            if (hasValidCells(cells)) {
+                if (firstRow) {
+                    for (int i = 0; i < cells.size(); i++) {
+                        if (i != 0) {
+                            writer.write(separator);
+                        }
+                        writer.write(data.getColumnDescription(i).getLabel());
+                    }
+
+                    firstRow = false;
+                }
+
+                for (int i = 0; i < cells.size(); i++) {
+                    if (i != 0) {
+                        writer.write(separator);
+                    }
+                    writer.write(getCellValue(cells.get(i)).toString());
+                }
+            }
+        }
     }
 
     private static boolean hasValidCells(List<TableCell> cells) throws JSONException {
