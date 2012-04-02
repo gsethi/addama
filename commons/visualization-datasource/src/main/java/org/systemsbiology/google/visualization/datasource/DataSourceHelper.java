@@ -110,7 +110,7 @@ public class DataSourceHelper {
             DataTable newDataTable = applyQuery(query.getCompletionQuery(), dataTable, dsRequest.getUserLocale());
 
             resp.setContentType("text/plain");
-            generateResponse(newDataTable, separator, resp.getOutputStream());
+            generateResponse(newDataTable, separator, resp);
 
         } catch (DataSourceException e) {
             resp.setStatus(SC_BAD_REQUEST);
@@ -177,7 +177,7 @@ public class DataSourceHelper {
         return jsonArray;
     }
 
-    private static void generateResponse(DataTable data, String separator, OutputStream outputStream) throws Exception {
+    private static void generateResponse(DataTable data, String separator, HttpServletResponse response) throws Exception {
         if (!data.getWarnings().isEmpty()) {
             return;
         }
@@ -186,7 +186,7 @@ public class DataSourceHelper {
             return;
         }
 
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        PrintWriter writer = response.getWriter();
         boolean firstRow = true;
         for (TableRow tableRow : data.getRows()) {
             List<TableCell> cells = tableRow.getCells();
@@ -194,20 +194,22 @@ public class DataSourceHelper {
                 if (firstRow) {
                     for (int i = 0; i < cells.size(); i++) {
                         if (i != 0) {
-                            writer.write(separator);
+                            writer.print(separator);
                         }
-                        writer.write(data.getColumnDescription(i).getLabel());
+                        writer.print(data.getColumnDescription(i).getLabel());
                     }
+                    writer.println();
 
                     firstRow = false;
                 }
 
                 for (int i = 0; i < cells.size(); i++) {
                     if (i != 0) {
-                        writer.write(separator);
+                        writer.print(separator);
                     }
-                    writer.write(getCellValue(cells.get(i)).toString());
+                    writer.print(getCellValue(cells.get(i)).toString());
                 }
+                writer.println();
             }
         }
     }
