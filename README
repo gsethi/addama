@@ -1,0 +1,49 @@
+================================
+SECURING WITH ADDAMA
+================================
+To secure your web services using an Addama appspot download 'addama.properties' for your domain under:  
+    https://your-appspot-id.appspot.com/html/apikeys.html
+  
+Place the 'addama.properties' file under:
+    apache-tomcat-7.0.25/lib/services/
+ 
+The 'addama.properties' file is optional, if you wish to deploy these services in "stand-alone" mode, just remove the 'addama.properties' file.
+
+================================
+LOCAL SERVICES
+================================
+The configuration files for local Addama services are located under: 
+   apache-tomcat-7.0.25/lib/services/ 
+
+The web services (war files) are located under: 
+   apache-tomcat-7.0.25/webapps/
+
+To re-deploy local services after changing a service configuration, you have these options:
+   a) restart tomcat (bin/shutdown.sh bin/startup.sh)
+   b) touch war file (touch webapps/*.war)
+
+================================
+WEB CONTENT
+================================
+Web content (HTML, JS, images) can be deployed under:
+   apache-tomcat-7.0.25/webapps/ROOT/
+
+For instance, the "Development Sandbox" application in "https://addama-systemsbiology-public.appspot.com" is deployed under:  
+   apache-tomcat-7.0.25/webapps/ROOT/sandbox 
+   and made available through "https://cancerregulome.systemsbiology.net/sandbox".
+
+================================
+MORE INFORMATION
+================================
+Configuring Tomcat:
+   http://tomcat.apache.org/tomcat-7.0-doc/index.html
+   Tomcat is not a required web services container, any J2EE webapp container should be able to deploy these services (war files)
+
+Configuring Addama:
+   http://addama.org  
+   http://addama.googlecode.com
+
+Contact us:
+   codefor@systemsbiology.org
+   http://code.google.com/p/addama/issues/list
+
