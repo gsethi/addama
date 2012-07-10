@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
+
+    <bean id="handlerExceptionResolver"
+          class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
+        <property name="warnLogCategory" value="google-drive-servlet"/>
+        <property name="exceptionMappings">
+            <props>
+                <prop key="java.lang.UnsupportedOperationException">v501</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.FailedAuthenticationException">v401</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceNotFoundException">v404</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException">v403</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">v400</prop>
+                <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">v409</prop>
+                <prop key="org.systemsbiology.addama.gdrive.NoRefreshTokenException">vRefreshToken</prop>
+                <prop key="java.lang.Exception">v500</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="v501" class="org.systemsbiology.addama.commons.web.views.NotImplementedView"/>
+
+    <bean id="v404" class="org.systemsbiology.addama.commons.web.views.ResourceNotFoundView"/>
+
+    <bean id="v400" class="org.systemsbiology.addama.commons.web.views.InvalidSyntaxView"/>
+
+    <bean id="v409" class="org.systemsbiology.addama.commons.web.views.ResourceStateConflictView"/>
+
+    <bean id="v403" class="org.systemsbiology.addama.commons.web.views.ForbiddenAccessView"/>
+
+    <bean id="v401" class="org.systemsbiology.addama.commons.web.views.FailedAuthenticationView"/>
+
+    <bean id="vRefreshToken" class="org.systemsbiology.addama.gdrive.NoRefreshTokenRedirectView"/>
+
+    <bean id="v500" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
+
+</beans>

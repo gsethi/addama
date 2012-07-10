@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.systemsbiology.addama</groupId>
+        <artifactId>local-svcs</artifactId>
+        <version>3.0</version>
+    </parent>
+
+    <groupId>org.systemsbiology.addama.coresvcs</groupId>
+    <artifactId>google-drive-svc</artifactId>
+    <packaging>war</packaging>
+    <name>Local: Google Drive Import/Export Service</name>
+
+    <build>
+        <finalName>google-drive-svc</finalName>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.10.3-beta</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-drive</artifactId>
+            <version>v2-rev1-1.7.2-beta</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-oauth2</artifactId>
+            <version>v2-rev9-1.7.2-beta</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client-appengine</artifactId>
+            <version>1.10.3-beta</version>
+        </dependency>
+    </dependencies>
+
+</project>

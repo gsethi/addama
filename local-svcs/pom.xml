@@ -20,6 +20,7 @@
         <module>script-execution-svc</module>
         <module>simple-proxy-svc</module>
         <module>chromosome-index-svc</module>
+        <module>google-drive-svc</module>
     </modules>
 
     <build>

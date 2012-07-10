@@ -129,6 +129,10 @@
             <name>public maven repository from maven.org</name>
             <url>http://repo1.maven.org/maven2</url>
         </repository>
+        <repository>
+            <id>google-api-services</id>
+            <url>http://mavenrepo.google-api-java-client.googlecode.com/hg</url>
+        </repository>
     </repositories>
     <distributionManagement>
         <repository>
