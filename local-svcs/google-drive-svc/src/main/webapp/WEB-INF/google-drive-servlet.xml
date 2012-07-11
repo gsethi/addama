@@ -35,4 +35,6 @@
 
     <bean id="v500" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
 
+    <bean id="closePage" class="org.systemsbiology.addama.gdrive.ClosePageView"/>
+
 </beans>

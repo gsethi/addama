@@ -15,7 +15,6 @@ import org.systemsbiology.addama.commons.web.exceptions.FailedAuthenticationExce
 import org.systemsbiology.addama.commons.web.views.JsonView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
@@ -52,14 +51,13 @@ public class FileUploadController {
     }
 
     @RequestMapping(value = "/**/callback")
-    protected ModelAndView callback(HttpServletRequest request, HttpServletResponse response, @RequestParam("code") String code) throws Exception {
+    protected ModelAndView callback(HttpServletRequest request, @RequestParam("code") String code) throws Exception {
         log.info(request.getRequestURI());
 
         CredentialMediator mediator = new CredentialMediator(request);
         mediator.storeCallbackCode(code);
 
-        response.sendRedirect("index.html");
-        return null;
+        return new ModelAndView("closePage");
     }
 
     @RequestMapping(method = POST)
