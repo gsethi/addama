@@ -3,17 +3,26 @@
     <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/ext-all.js"></script>
     <script type="text/javascript">
-        function doGet() {
+        function makeReady() {
             Ext.Ajax.request({
                 url:"/google-drive-svc/",
                 method:"GET",
                 success:function (o) {
-                    Ext.getDom("c_out").innerHTML = o.responseText;
-                }
+                    var json = Ext.util.JSON.decode(o.responseText);
+                    if (json.redirect) {
+                        var html = '<a target="_blank" href="' + json.redirect + '">Authorize App to write to Google Drive</a>';
+                        Ext.getDom("c_out").innerHTML = html;
+                    } else if (json["client_id"]) {
+                        Ext.getDom("c_out").innerHTML = "App is ready to write to Google Drive";
+                    } else {
+                        Ext.getDom("c_out").innerHTML = "Not sure what is going on, please try again";
+                    }
+                },
+                failure: handleFailure
             });
         }
 
-        function doPost() {
+        function writeFile() {
             Ext.Ajax.request({
                 url:"/google-drive-svc/",
                 method:"POST",
@@ -23,15 +32,20 @@
                 },
                 success:function (o) {
                     Ext.getDom("c_out").innerHTML = o.responseText;
-                }
+                },
+                failure: handleFailure
             });
+        }
+
+        function handleFailure(o, e) {
+            Ext.getDom("c_out").innerHTML = o.responseText + "<br/>" + e;
         }
     </script>
 </head>
 <body>
 <h3>Testing</h3>
-<button onclick="doGet()">GET</button>
-<button onclick="doPost()">POST</button>
+<button onclick="makeReady()">Is Drive Authorized?</button>
+<button onclick="writeFile()">Write File</button>
 <div id="c_out"></div>
 </body>
 </html>

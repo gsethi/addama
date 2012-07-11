@@ -65,7 +65,7 @@ public class FileUploadController {
         String contextPath = request.getSession().getServletContext().getContextPath();
         if (contextPath.startsWith("/")) contextPath = substringAfter(contextPath, "/");
 
-        response.sendRedirect("/" + contextPath + "/static/index.html");
+        response.sendRedirect("/" + contextPath + "/static/close.html");
         return null;
     }
 
