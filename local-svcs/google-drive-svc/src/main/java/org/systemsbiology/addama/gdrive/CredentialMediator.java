@@ -22,6 +22,7 @@ import static com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.D
 import static com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.load;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringAfter;
 
 /**
  * @author hrovira
@@ -45,7 +46,8 @@ public class CredentialMediator {
 
     public CredentialMediator(HttpServletRequest request) throws IOException {
         this.request = request;
-        this.secrets = load(JSON_FACTORY, new ClassPathResource("/services/google-drive-svc.config").getInputStream());
+        String configPath = getConfigPath(request);
+        this.secrets = load(JSON_FACTORY, new ClassPathResource(configPath).getInputStream());
     }
 
     public Drive getDriveService() throws NoRefreshTokenException, ForbiddenAccessException, IOException {
@@ -105,6 +107,10 @@ public class CredentialMediator {
 
     public String getUserId() {
         return (String) request.getSession().getAttribute(USER_ID_KEY);
+    }
+
+    public String getClientId() {
+        return secrets.getWeb().getClientId();
     }
 
     /**
@@ -179,7 +185,12 @@ public class CredentialMediator {
                 .setTransport(TRANSPORT).setJsonFactory(JSON_FACTORY).build();
     }
 
-    public String getClientId() {
-        return secrets.getWeb().getClientId();
+    private String getConfigPath(HttpServletRequest request) {
+        String contextPath = request.getSession().getServletContext().getContextPath();
+        if (contextPath.startsWith("/")) {
+            contextPath = substringAfter(contextPath, "/");
+        }
+        return "services/" + contextPath + ".config";
     }
+
 }
