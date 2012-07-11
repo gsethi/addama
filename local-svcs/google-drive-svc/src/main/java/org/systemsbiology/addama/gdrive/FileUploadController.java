@@ -46,7 +46,6 @@ public class FileUploadController {
             mediator.getActiveCredential();
             json.put("client_id", mediator.getClientId());
         } catch (NoRefreshTokenException e) {
-            e.printStackTrace();
             json.put("redirect", e.getAuthorizationUrl());
         }
         return new ModelAndView(new JsonView()).addObject("json", json);
