@@ -8,7 +8,7 @@
         <property name="urlMap">
             <map>
                 <!-- WARNING: Mappings are sensitive to order in which they are placed in this list -->
-                <entry key="/upload">
+                <entry key="/**">
                     <bean class="org.systemsbiology.addama.gdrive.FileUploadController"/>
                 </entry>
             </map>
