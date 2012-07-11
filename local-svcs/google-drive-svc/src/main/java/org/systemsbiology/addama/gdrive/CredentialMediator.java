@@ -45,7 +45,7 @@ public class CredentialMediator {
 
     public CredentialMediator(HttpServletRequest request) throws IOException {
         this.request = request;
-        this.secrets = load(JSON_FACTORY, new ClassPathResource("lib/google-drive-svc.config").getInputStream());
+        this.secrets = load(JSON_FACTORY, new ClassPathResource("/services/google-drive-svc.config").getInputStream());
     }
 
     public Drive getDriveService() throws NoRefreshTokenException, ForbiddenAccessException, IOException {
