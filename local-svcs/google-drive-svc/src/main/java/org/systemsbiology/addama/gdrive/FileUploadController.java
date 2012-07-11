@@ -24,6 +24,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.systemsbiology.addama.gdrive.CredentialMediator.NoRefreshTokenException;
 
 /**
  * @author hrovira

@@ -193,4 +193,15 @@ public class CredentialMediator {
         return "services/" + contextPath + ".config";
     }
 
+    public static class NoRefreshTokenException extends Exception {
+        private final String authorizationUrl;
+
+        public NoRefreshTokenException(String authorizationUrl) {
+            this.authorizationUrl = authorizationUrl;
+        }
+
+        public String getAuthorizationUrl() {
+            return authorizationUrl;
+        }
+    }
 }
