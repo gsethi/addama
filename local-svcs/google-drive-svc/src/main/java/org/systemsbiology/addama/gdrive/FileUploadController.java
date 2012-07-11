@@ -16,7 +16,6 @@ import org.systemsbiology.addama.commons.web.views.JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.logging.Logger;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -31,8 +30,6 @@ import static org.systemsbiology.addama.gdrive.CredentialMediator.NoRefreshToken
  */
 @Controller
 public class FileUploadController {
-    private static final Logger log = Logger.getLogger(FileUploadController.class.getName());
-
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(JSONObject.class, new JSONObjectPropertyEditor());
@@ -40,8 +37,6 @@ public class FileUploadController {
 
     @RequestMapping(method = GET)
     protected ModelAndView start(HttpServletRequest request) throws Exception {
-        log.info(request.getRequestURI());
-
         JSONObject json = new JSONObject();
         try {
             CredentialMediator mediator = new CredentialMediator(request);
@@ -56,9 +51,6 @@ public class FileUploadController {
     @RequestMapping(value = "/**/callback")
     protected ModelAndView callback(HttpServletRequest request, HttpServletResponse response,
                                     @RequestParam("code") String code) throws Exception {
-        log.info(request.getRequestURI());
-        log.info(request.getRequestURL().toString());
-
         CredentialMediator mediator = new CredentialMediator(request);
         mediator.storeCallbackCode(code);
 
@@ -72,8 +64,6 @@ public class FileUploadController {
     @RequestMapping(method = POST)
     protected ModelAndView upload(HttpServletRequest request, @RequestParam("meta") JSONObject meta,
                                   @RequestParam("content") String content) throws Exception {
-        log.info(request.getRequestURI());
-
         CredentialMediator mediator = new CredentialMediator(request);
         JSONObject json = new JSONObject();
         try {
