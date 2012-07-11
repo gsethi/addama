@@ -16,7 +16,6 @@
                 <prop key="org.systemsbiology.addama.commons.web.exceptions.ForbiddenAccessException">v403</prop>
                 <prop key="org.systemsbiology.addama.commons.web.exceptions.InvalidSyntaxException">v400</prop>
                 <prop key="org.systemsbiology.addama.commons.web.exceptions.ResourceStateConflictException">v409</prop>
-                <prop key="org.systemsbiology.addama.gdrive.NoRefreshTokenException">vRefreshToken</prop>
                 <prop key="java.lang.Exception">v500</prop>
             </props>
         </property>
@@ -33,8 +32,6 @@
     <bean id="v403" class="org.systemsbiology.addama.commons.web.views.ForbiddenAccessView"/>
 
     <bean id="v401" class="org.systemsbiology.addama.commons.web.views.FailedAuthenticationView"/>
-
-    <bean id="vRefreshToken" class="org.systemsbiology.addama.gdrive.NoRefreshTokenRedirectView"/>
 
     <bean id="v500" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
 

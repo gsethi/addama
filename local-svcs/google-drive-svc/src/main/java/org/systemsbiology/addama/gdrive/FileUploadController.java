@@ -3,7 +3,6 @@ package org.systemsbiology.addama.gdrive;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
@@ -16,7 +15,8 @@ import org.systemsbiology.addama.commons.web.exceptions.FailedAuthenticationExce
 import org.systemsbiology.addama.commons.web.views.JsonView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.util.logging.Logger;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -29,6 +29,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
  */
 @Controller
 public class FileUploadController {
+    private static final Logger log = Logger.getLogger(FileUploadController.class.getName());
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -36,17 +37,39 @@ public class FileUploadController {
     }
 
     @RequestMapping(method = GET)
-    protected ModelAndView start(HttpServletRequest request) throws IOException, JSONException {
-        CredentialMediator mediator = new CredentialMediator(request);
+    protected ModelAndView start(HttpServletRequest request) throws Exception {
+        log.info(request.getRequestURI());
+
         JSONObject json = new JSONObject();
-        json.put("client_id", mediator.getClientId());
+        try {
+            CredentialMediator mediator = new CredentialMediator(request);
+            mediator.getActiveCredential();
+            json.put("client_id", mediator.getClientId());
+        } catch (NoRefreshTokenException e) {
+            e.printStackTrace();
+            json.put("redirect", e.getAuthorizationUrl());
+        }
         return new ModelAndView(new JsonView()).addObject("json", json);
+    }
+
+    @RequestMapping(value = "/**/callback")
+    protected ModelAndView callback(HttpServletRequest request, HttpServletResponse response, @RequestParam("code") String code) throws Exception {
+        log.info(request.getRequestURI());
+
+        CredentialMediator mediator = new CredentialMediator(request);
+        mediator.storeCallbackCode(code);
+
+        response.sendRedirect("index.html");
+        return null;
     }
 
     @RequestMapping(method = POST)
     protected ModelAndView upload(HttpServletRequest request, @RequestParam("meta") JSONObject meta,
                                   @RequestParam("content") String content) throws Exception {
+        log.info(request.getRequestURI());
+
         CredentialMediator mediator = new CredentialMediator(request);
+        JSONObject json = new JSONObject();
         try {
             String filename = meta.getString("title");
             String mimeType = request.getSession().getServletContext().getMimeType(filename);
@@ -64,16 +87,17 @@ public class FileUploadController {
             Drive drive = mediator.getDriveService();
             File uploaded = drive.files().insert(file, fromString(mimeType, content)).execute();
 
-            JSONObject json = new JSONObject();
             json.put("id", uploaded.getId());
-            return new ModelAndView(new JsonView()).addObject("json", json);
         } catch (GoogleJsonResponseException e) {
             if (e.getStatusCode() == SC_UNAUTHORIZED) {
                 mediator.deleteCredentials();
                 throw new FailedAuthenticationException(mediator.getUserId());
             }
             throw e;
+        } catch (NoRefreshTokenException e) {
+            json.put("redirect", e.getAuthorizationUrl());
         }
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
 }

@@ -36,7 +36,7 @@ public class CredentialMediator {
 
     private final HttpServletRequest request;
     private final GoogleClientSecrets secrets;
-    private final CredentialStore credentialStore = new MemoryCredentialStore();
+    private static final CredentialStore credentialStore = new MemoryCredentialStore();
 
     private static final JsonFactory JSON_FACTORY = new JacksonFactory();
     private static final HttpTransport TRANSPORT = new NetHttpTransport();
@@ -80,20 +80,6 @@ public class CredentialMediator {
         String userId = getUserId();
         Credential credential = getStoredCredential(userId);
 
-        String code = request.getParameter("code");
-        if ((credential == null || isEmpty(credential.getRefreshToken())) && !isEmpty(code)) {
-            credential = exchangeCode(code);
-            if (credential != null) {
-                Userinfo userInfo = getUserInfo(credential);
-                userId = userInfo.getId();
-                request.getSession().setAttribute(USER_ID_KEY, userId);
-                request.getSession().setAttribute(EMAIL_KEY, userInfo.getEmail());
-                if (!isEmpty(credential.getRefreshToken())) {
-                    credentialStore.store(userId, credential);
-                }
-            }
-        }
-
         if (credential == null || isEmpty(credential.getRefreshToken())) {
             // No refresh token has been retrieved. Start a "fresh" OAuth 2.0 flow so that we can get a refresh token.
             String email = (String) request.getSession().getAttribute(EMAIL_KEY);
@@ -102,6 +88,19 @@ public class CredentialMediator {
         }
 
         return credential;
+    }
+
+    public void storeCallbackCode(String code) throws IOException, ForbiddenAccessException {
+        Credential credential = exchangeCode(code);
+        if (credential != null) {
+            Userinfo userInfo = getUserInfo(credential);
+            String userId = userInfo.getId();
+            request.getSession().setAttribute(USER_ID_KEY, userId);
+            request.getSession().setAttribute(EMAIL_KEY, userInfo.getEmail());
+            if (!isEmpty(credential.getRefreshToken())) {
+                credentialStore.store(userId, credential);
+            }
+        }
     }
 
     public String getUserId() {
