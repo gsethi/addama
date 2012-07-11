@@ -8,7 +8,6 @@
     <bean id="handlerExceptionResolver"
           class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
         <property name="warnLogCategory" value="google-drive-servlet"/>
-        <property name="verbose" value="true"/>
         <property name="exceptionMappings">
             <props>
                 <prop key="java.lang.UnsupportedOperationException">v501</prop>
