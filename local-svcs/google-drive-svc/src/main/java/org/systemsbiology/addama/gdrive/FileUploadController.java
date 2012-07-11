@@ -15,11 +15,13 @@ import org.systemsbiology.addama.commons.web.exceptions.FailedAuthenticationExce
 import org.systemsbiology.addama.commons.web.views.JsonView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -51,13 +53,19 @@ public class FileUploadController {
     }
 
     @RequestMapping(value = "/**/callback")
-    protected ModelAndView callback(HttpServletRequest request, @RequestParam("code") String code) throws Exception {
+    protected ModelAndView callback(HttpServletRequest request, HttpServletResponse response,
+                                    @RequestParam("code") String code) throws Exception {
         log.info(request.getRequestURI());
+        log.info(request.getRequestURL().toString());
 
         CredentialMediator mediator = new CredentialMediator(request);
         mediator.storeCallbackCode(code);
 
-        return new ModelAndView("closePage");
+        String contextPath = request.getSession().getServletContext().getContextPath();
+        if (contextPath.startsWith("/")) contextPath = substringAfter(contextPath, "/");
+
+        response.sendRedirect("/" + contextPath + "/static/index.html");
+        return null;
     }
 
     @RequestMapping(method = POST)

@@ -8,6 +8,7 @@
     <bean id="handlerExceptionResolver"
           class="org.systemsbiology.addama.commons.web.resolvers.QuietSimpleMappingExceptionResolver">
         <property name="warnLogCategory" value="google-drive-servlet"/>
+        <property name="verbose" value="true"/>
         <property name="exceptionMappings">
             <props>
                 <prop key="java.lang.UnsupportedOperationException">v501</prop>
@@ -34,7 +35,5 @@
     <bean id="v401" class="org.systemsbiology.addama.commons.web.views.FailedAuthenticationView"/>
 
     <bean id="v500" class="org.systemsbiology.addama.commons.web.views.GenericExceptionView"/>
-
-    <bean id="closePage" class="org.systemsbiology.addama.gdrive.ClosePageView"/>
 
 </beans>
