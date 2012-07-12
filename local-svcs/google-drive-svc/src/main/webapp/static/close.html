@@ -1,7 +1,20 @@
 <html>
+<head>
+    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="http://cdn.cancerregulome.org/js/extjs/3.4.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://addama.googlecode.com/hg/gae-svcs/addama-registry/src/main/webapp/js/utils.js"></script>
+    <script type="text/javascript">
+        Ext.onReady(function() {
+            var error = get_parameter("error");
+            if (error) {
+                Ext.getDom("c_message").innerHTML = "Authorization seems to have been denied [" + error + "].";
+            }
+        });
+    </script>
+</head>
 <body>
 <div style="text-align: center">
-    <h3>Application has been authorized to write to Google Drive.  Thank you!</h3>
+    <h3 id="c_message">Application has been authorized to write to Google Drive.  Thank you!</h3>
     <br/><a href="" onClick="javascript:window.close(); return false;">Close this window</a>
 </div>
 </body>

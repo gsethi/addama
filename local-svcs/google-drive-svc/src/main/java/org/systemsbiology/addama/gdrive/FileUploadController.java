@@ -3,6 +3,7 @@ package org.systemsbiology.addama.gdrive;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.oauth2.model.Userinfo;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
@@ -16,8 +17,10 @@ import org.systemsbiology.addama.commons.web.views.JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
+import static java.lang.System.currentTimeMillis;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.substringAfter;
@@ -40,25 +43,47 @@ public class FileUploadController {
         JSONObject json = new JSONObject();
         try {
             CredentialMediator mediator = new CredentialMediator(request);
-            mediator.getActiveCredential();
+            Userinfo userinfo = mediator.getActiveUserinfo();
             json.put("client_id", mediator.getClientId());
+            json.put("email", userinfo.getEmail());
+            json.put("familyName", userinfo.getFamilyName());
+            json.put("givenName", userinfo.getGivenName());
+            json.put("name", userinfo.getName());
+            json.put("picture", userinfo.getPicture());
         } catch (NoRefreshTokenException e) {
             json.put("redirect", e.getAuthorizationUrl());
         }
+        json.put("lastChange", lastChange(request, false));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(value = "/**/callback")
     protected ModelAndView callback(HttpServletRequest request, HttpServletResponse response,
-                                    @RequestParam("code") String code) throws Exception {
+                                    @RequestParam(value = "code", required = false) String code,
+                                    @RequestParam(value = "error", required = false) String error) throws Exception {
+        try {
+            CredentialMediator mediator = new CredentialMediator(request);
+            if (!isEmpty(code)) {
+                mediator.storeCallbackCode(code);
+                response.sendRedirect("static/close.html");
+            } else {
+                response.sendRedirect("static/close.html?error=" + error);
+            }
+            return null;
+        } finally {
+            lastChange(request, true);
+        }
+    }
+
+    @RequestMapping(value = "/**/logout")
+    protected ModelAndView logout(HttpServletRequest request) throws Exception {
         CredentialMediator mediator = new CredentialMediator(request);
-        mediator.storeCallbackCode(code);
+        mediator.deleteCredentials();
+        lastChange(request, true);
 
-        String contextPath = request.getSession().getServletContext().getContextPath();
-        if (contextPath.startsWith("/")) contextPath = substringAfter(contextPath, "/");
-
-        response.sendRedirect("/" + contextPath + "/static/close.html");
-        return null;
+        JSONObject json = new JSONObject();
+        json.put("lastChange", lastChange(request, false));
+        return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
     @RequestMapping(method = POST)
@@ -94,6 +119,18 @@ public class FileUploadController {
             json.put("redirect", e.getAuthorizationUrl());
         }
         return new ModelAndView(new JsonView()).addObject("json", json);
+    }
+
+    private Object lastChange(HttpServletRequest request, boolean forceUpdate) {
+        HttpSession session = request.getSession();
+        synchronized (session.getId()) {
+            Object lastChange = session.getAttribute("LAST_CHANGE");
+            if (lastChange == null || forceUpdate) {
+                lastChange = currentTimeMillis();
+                session.setAttribute("LAST_CHANGE", lastChange);
+            }
+            return lastChange;
+        }
     }
 
 }

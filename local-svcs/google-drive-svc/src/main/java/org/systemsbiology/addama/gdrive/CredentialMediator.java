@@ -92,6 +92,10 @@ public class CredentialMediator {
         return credential;
     }
 
+    public Userinfo getActiveUserinfo() throws NoRefreshTokenException, ForbiddenAccessException, IOException {
+        return getUserInfo(getActiveCredential());
+    }
+
     public void storeCallbackCode(String code) throws IOException, ForbiddenAccessException {
         Credential credential = exchangeCode(code);
         if (credential != null) {
