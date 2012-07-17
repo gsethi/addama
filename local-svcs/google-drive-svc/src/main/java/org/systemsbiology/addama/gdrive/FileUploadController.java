@@ -4,6 +4,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.oauth2.model.Userinfo;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
@@ -23,7 +24,6 @@ import static com.google.api.client.http.ByteArrayContent.fromString;
 import static java.lang.System.currentTimeMillis;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.systemsbiology.addama.gdrive.CredentialMediator.NoRefreshTokenException;
@@ -93,10 +93,7 @@ public class FileUploadController {
         JSONObject json = new JSONObject();
         try {
             String filename = meta.getString("title");
-            String mimeType = request.getSession().getServletContext().getMimeType(filename);
-            if (isEmpty(mimeType)) {
-                mimeType = "text/plain";
-            }
+            String mimeType = getMimeType(meta, request);
 
             File file = new File();
             file.setTitle(filename);
@@ -119,6 +116,22 @@ public class FileUploadController {
             json.put("redirect", e.getAuthorizationUrl());
         }
         return new ModelAndView(new JsonView()).addObject("json", json);
+    }
+
+    private String getMimeType(JSONObject meta, HttpServletRequest request) throws JSONException {
+        String mimeType;
+
+        if (meta.has("mimeType")) {
+            mimeType = meta.getString("mimeType");
+        } else {
+            String filename = meta.getString("title");
+            mimeType = request.getSession().getServletContext().getMimeType(filename);
+        }
+
+        if (isEmpty(mimeType)) {
+            mimeType = "text/plain";
+        }
+        return mimeType;
     }
 
     private Object lastChange(HttpServletRequest request, boolean forceUpdate) {
