@@ -2,6 +2,7 @@ package org.systemsbiology.addama.gdrive;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.Drive.Files.Insert;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.oauth2.model.Userinfo;
 import org.json.JSONException;
@@ -103,7 +104,11 @@ public class FileUploadController {
             file.setMimeType(mimeType);
 
             Drive drive = mediator.getDriveService();
-            File uploaded = drive.files().insert(file, fromString(mimeType, content)).execute();
+            Insert insert = drive.files().insert(file, fromString(mimeType, content));
+            if (meta.has("asGoogleDoc") && meta.getBoolean("asGoogleDoc")) {
+                insert.setConvert(true);
+            }
+            File uploaded = insert.execute();
 
             json.put("id", uploaded.getId());
         } catch (GoogleJsonResponseException e) {
