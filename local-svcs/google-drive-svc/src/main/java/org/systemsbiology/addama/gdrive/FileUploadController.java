@@ -1,10 +1,15 @@
 package org.systemsbiology.addama.gdrive;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.ByteArrayContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files.Insert;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.oauth2.model.Userinfo;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -20,6 +25,9 @@ import org.systemsbiology.addama.commons.web.views.JsonView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
 import static java.lang.System.currentTimeMillis;
@@ -104,12 +112,12 @@ public class FileUploadController {
             file.setMimeType(mimeType);
 
             Drive drive = mediator.getDriveService();
-            Insert insert = drive.files().insert(file, fromString(mimeType, content));
+            Insert insert = getFileInsert(drive, file, meta, content);
             if (meta.has("asGoogleDoc") && meta.getBoolean("asGoogleDoc")) {
                 insert.setConvert(true);
             }
-            File uploaded = insert.execute();
 
+            File uploaded = insert.execute();
             json.put("id", uploaded.getId());
         } catch (GoogleJsonResponseException e) {
             if (e.getStatusCode() == SC_UNAUTHORIZED) {
@@ -151,4 +159,24 @@ public class FileUploadController {
         }
     }
 
+    private Insert getFileInsert(Drive drive, File file, JSONObject meta, String content) throws Exception {
+        if (meta.has("svgToPng") && meta.getBoolean("svgToPng")) {
+            return drive.files().insert(file, svgToPng(content));
+        }
+        return drive.files().insert(file, fromString(file.getMimeType(), content));
+    }
+
+    private ByteArrayContent svgToPng(String svgContent) throws TranscoderException, IOException {
+        PNGTranscoder t = new PNGTranscoder();
+
+        ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+
+        TranscoderInput input = new TranscoderInput(new ByteArrayInputStream(svgContent.getBytes()));
+        TranscoderOutput output = new TranscoderOutput(ostream);
+        t.transcode(input, output);
+
+        ostream.flush();
+
+        return new ByteArrayContent("image/png", ostream.toByteArray());
+    }
 }

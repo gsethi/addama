@@ -38,6 +38,46 @@
             <artifactId>google-api-client-appengine</artifactId>
             <version>1.10.3-beta</version>
         </dependency>
+
+        <dependency>
+            <groupId>batik</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.6-1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-awt-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-bridge</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-css</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-ext</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-gui-util</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-gvt</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-parser</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>batik</groupId>
+                    <artifactId>batik-script</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
 </project>
