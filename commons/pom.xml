@@ -21,6 +21,7 @@
         <module>httpclient-support</module>
         <module>visualization-datasource</module>
         <module>fs-utils</module>
+        <module>ws-utils</module>
         <module>service-config</module>
         <module>gae-commons</module>
         <module>emailuri-sharing-api</module>
