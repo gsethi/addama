@@ -21,20 +21,20 @@ import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.commons.web.editors.JSONObjectPropertyEditor;
 import org.systemsbiology.addama.commons.web.exceptions.FailedAuthenticationException;
 import org.systemsbiology.addama.commons.web.views.JsonView;
+import org.systemsbiology.addama.commons.web.views.OkResponseView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static com.google.api.client.http.ByteArrayContent.fromString;
-import static java.lang.System.currentTimeMillis;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.systemsbiology.addama.gdrive.CredentialCookieJar.*;
 import static org.systemsbiology.addama.gdrive.CredentialMediator.NoRefreshTokenException;
 
 /**
@@ -48,10 +48,10 @@ public class FileUploadController {
     }
 
     @RequestMapping(method = GET)
-    protected ModelAndView start(HttpServletRequest request) throws Exception {
+    protected ModelAndView start(HttpServletRequest request, HttpServletResponse response) throws Exception {
         JSONObject json = new JSONObject();
+        CredentialMediator mediator = new CredentialMediator(request);
         try {
-            CredentialMediator mediator = new CredentialMediator(request);
             Userinfo userinfo = mediator.getActiveUserinfo();
             json.put("client_id", mediator.getClientId());
             json.put("email", userinfo.getEmail());
@@ -61,8 +61,11 @@ public class FileUploadController {
             json.put("picture", userinfo.getPicture());
         } catch (NoRefreshTokenException e) {
             json.put("redirect", e.getAuthorizationUrl());
+            if (mediator.wasRejected()) {
+                snatchCookie(response);
+                json.put("rejected", true);
+            }
         }
-        json.put("lastChange", lastChange(request, false));
         return new ModelAndView(new JsonView()).addObject("json", json);
     }
 
@@ -70,33 +73,29 @@ public class FileUploadController {
     protected ModelAndView callback(HttpServletRequest request, HttpServletResponse response,
                                     @RequestParam(value = "code", required = false) String code,
                                     @RequestParam(value = "error", required = false) String error) throws Exception {
-        try {
-            CredentialMediator mediator = new CredentialMediator(request);
-            if (!isEmpty(code)) {
-                mediator.storeCallbackCode(code);
-                response.sendRedirect("static/close.html");
-            } else {
-                response.sendRedirect("static/close.html?error=" + error);
-            }
-            return null;
-        } finally {
-            lastChange(request, true);
+        CredentialMediator mediator = new CredentialMediator(request);
+        if (!isEmpty(code)) {
+            String userId = mediator.storeCallbackCode(code);
+            giveCookie(response, userId);
+            response.sendRedirect("static/close.html");
+        } else {
+            markRejected(response);
+            response.sendRedirect("static/close.html?error=" + error);
         }
+        return null;
     }
 
     @RequestMapping(value = "/**/logout")
-    protected ModelAndView logout(HttpServletRequest request) throws Exception {
+    protected ModelAndView logout(HttpServletRequest request, HttpServletResponse response) throws Exception {
         CredentialMediator mediator = new CredentialMediator(request);
         mediator.deleteCredentials();
-        lastChange(request, true);
-
-        JSONObject json = new JSONObject();
-        json.put("lastChange", lastChange(request, false));
-        return new ModelAndView(new JsonView()).addObject("json", json);
+        snatchCookie(response);
+        return new ModelAndView(new OkResponseView());
     }
 
     @RequestMapping(method = POST)
-    protected ModelAndView upload(HttpServletRequest request, @RequestParam("meta") JSONObject meta,
+    protected ModelAndView upload(HttpServletRequest request, HttpServletResponse response,
+                                  @RequestParam("meta") JSONObject meta,
                                   @RequestParam("content") String content) throws Exception {
         CredentialMediator mediator = new CredentialMediator(request);
         JSONObject json = new JSONObject();
@@ -122,7 +121,8 @@ public class FileUploadController {
         } catch (GoogleJsonResponseException e) {
             if (e.getStatusCode() == SC_UNAUTHORIZED) {
                 mediator.deleteCredentials();
-                throw new FailedAuthenticationException(mediator.getUserId());
+                snatchCookie(response);
+                throw new FailedAuthenticationException(getUserFromCookie(request));
             }
             throw e;
         } catch (NoRefreshTokenException e) {
@@ -145,18 +145,6 @@ public class FileUploadController {
             mimeType = "text/plain";
         }
         return mimeType;
-    }
-
-    private Object lastChange(HttpServletRequest request, boolean forceUpdate) {
-        HttpSession session = request.getSession();
-        synchronized (session.getId()) {
-            Object lastChange = session.getAttribute("LAST_CHANGE");
-            if (lastChange == null || forceUpdate) {
-                lastChange = currentTimeMillis();
-                session.setAttribute("LAST_CHANGE", lastChange);
-            }
-            return lastChange;
-        }
     }
 
     private Insert getFileInsert(Drive drive, File file, JSONObject meta, String content) throws Exception {

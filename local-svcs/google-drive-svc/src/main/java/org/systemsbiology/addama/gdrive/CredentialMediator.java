@@ -21,8 +21,8 @@ import java.util.List;
 import static com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.Details;
 import static com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.load;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.substringAfter;
+import static org.apache.commons.lang.StringUtils.*;
+import static org.systemsbiology.addama.gdrive.CredentialCookieJar.getUserFromCookie;
 
 /**
  * @author hrovira
@@ -41,8 +41,6 @@ public class CredentialMediator {
 
     private static final JsonFactory JSON_FACTORY = new JacksonFactory();
     private static final HttpTransport TRANSPORT = new NetHttpTransport();
-    private static final String USER_ID_KEY = "userId";
-    private static final String EMAIL_KEY = "emailAddress";
 
     public CredentialMediator(HttpServletRequest request) throws IOException {
         this.request = request;
@@ -56,7 +54,7 @@ public class CredentialMediator {
     }
 
     public void deleteCredentials() throws IOException {
-        String userId = getUserId();
+        String userId = getUserFromCookie(request);
         if (!isEmpty(userId)) {
             Credential credential = getStoredCredential(userId);
             credentialStore.delete(userId, credential);
@@ -79,14 +77,12 @@ public class CredentialMediator {
      * @throws NoRefreshTokenException No refresh token could be retrieved from the available sources.
      */
     public Credential getActiveCredential() throws NoRefreshTokenException, IOException, ForbiddenAccessException {
-        String userId = getUserId();
+        String userId = getUserFromCookie(request);
         Credential credential = getStoredCredential(userId);
 
         if (credential == null || isEmpty(credential.getRefreshToken())) {
             // No refresh token has been retrieved. Start a "fresh" OAuth 2.0 flow so that we can get a refresh token.
-            String email = (String) request.getSession().getAttribute(EMAIL_KEY);
-            String authorizationUrl = getAuthorizationUrl(email);
-            throw new NoRefreshTokenException(authorizationUrl);
+            throw new NoRefreshTokenException(getAuthorizationUrl());
         }
 
         return credential;
@@ -96,38 +92,37 @@ public class CredentialMediator {
         return getUserInfo(getActiveCredential());
     }
 
-    public void storeCallbackCode(String code) throws IOException, ForbiddenAccessException {
+    public String storeCallbackCode(String code) throws IOException, ForbiddenAccessException {
         Credential credential = exchangeCode(code);
         if (credential != null) {
             Userinfo userInfo = getUserInfo(credential);
             String userId = userInfo.getId();
-            request.getSession().setAttribute(USER_ID_KEY, userId);
-            request.getSession().setAttribute(EMAIL_KEY, userInfo.getEmail());
             if (!isEmpty(credential.getRefreshToken())) {
                 credentialStore.store(userId, credential);
             }
+            return userId;
         }
-    }
-
-    public String getUserId() {
-        return (String) request.getSession().getAttribute(USER_ID_KEY);
+        return null;
     }
 
     public String getClientId() {
         return secrets.getWeb().getClientId();
     }
 
+    public boolean wasRejected() {
+        String userId = getUserFromCookie(request);
+        return !isEmpty(userId) && equalsIgnoreCase(userId, "REJECTED");
+    }
+
     /**
      * Retrieve the authorization URL to authorize the user with the given email address.
      *
-     * @param emailAddress User's e-mail address.
      * @return Authorization URL to redirect the user to.
      */
-    private String getAuthorizationUrl(String emailAddress) {
+    private String getAuthorizationUrl() {
         Details details = secrets.getWeb();
         GoogleAuthorizationCodeRequestUrl urlBuilder = new GoogleAuthorizationCodeRequestUrl(details.getClientId(),
                 details.getRedirectUris().get(0), SCOPES).setAccessType("offline").setApprovalPrompt("force");
-        if (!isEmpty(emailAddress)) urlBuilder.set("user_id", emailAddress);
         return urlBuilder.build();
     }
 
